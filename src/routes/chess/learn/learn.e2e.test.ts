@@ -77,7 +77,7 @@ describe('/chess/learn settings modal', () => {
 	});
 
 	it('moves difficulty into settings and uses compact icon controls above chat', () => {
-		expect(page).toContain("import { Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
+		expect(page).toContain("import { CircleHelp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="New game"');
 		expect(page).toContain('<RotateCcw');
@@ -123,7 +123,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="Clear chat"');
 		expect(page).toContain('<X size={13}');
-		expect(page).toContain('font-mono text-sm font-medium text-ink');
+		expect(page).toContain('rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white');
 		expect(page).not.toContain('<span class="text-sm font-medium text-ink">Chat</span>');
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});
