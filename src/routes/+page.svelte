@@ -31,6 +31,7 @@
 	let hint_fen = $state('');
 	let hint_index = $state(0);
 	let hint_loading = $state(false);
+	let hint_ac = $state<AbortController | null>(null);
 
 	let chat_messages = $state<ChatMsg[]>([]);
 	let chat_loading = $state(false);
@@ -310,18 +311,24 @@
 		}
 		hint_loading = true;
 		show_hints = true;
+		if (hint_ac) hint_ac.abort();
+		hint_ac = new AbortController();
+		const sig = hint_ac.signal;
 		try {
-			hints = await getHints(fen, 5);
+			hints = await getHints(fen, 5, undefined, sig);
+			if (sig.aborted) return;
 			hint_fen = fen;
 			console.log('hints:', hints);
 			hint_index = 0;
 			if (autoexplain) explainHint();
 		} catch (e) {
+			if ((e as Error)?.name === 'AbortError') return;
 			console.error('getHints failed:', e);
 			hints = [];
 			hint_fen = '';
 		} finally {
 			hint_loading = false;
+			hint_ac = null;
 		}
 	}
 
@@ -335,6 +342,8 @@
 
 	function hideHints(clear = false) {
 		show_hints = false;
+		hint_loading = false;
+		if (hint_ac) { hint_ac.abort(); hint_ac = null; }
 		if (clear) {
 			hints = [];
 			hint_fen = '';

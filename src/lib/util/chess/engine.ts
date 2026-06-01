@@ -6,14 +6,16 @@ export interface Hint {
 	depth: number
 }
 
-export function getHints(fen: string, count = 5, stockfishPath?: string): Promise<Hint[]> {
+export function getHints(fen: string, count = 5, stockfishPath?: string, signal?: AbortSignal): Promise<Hint[]> {
 	const sp = stockfishPath ?? '/stockfish.js';
 	let w: Worker | undefined;
 	try { w = new Worker(sp); } catch (e) { return Promise.reject(e); }
 	const ww = w!;
 	return new Promise((res, rej) => {
+		if (signal?.aborted) { ww.terminate(); rej(signal.reason); return; }
 		const hints: Hint[] = [];
 		const t = setTimeout(() => { ww.terminate(); rej(new Error('timeout')); }, 30000);
+		signal?.addEventListener('abort', () => { clearTimeout(t); ww.terminate(); rej(signal.reason); }, { once: true });
 		ww.addEventListener('message', ({ data }) => {
 			const u = data as string;
 			if (u === 'uciok') {
