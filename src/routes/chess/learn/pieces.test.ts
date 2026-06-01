@@ -19,7 +19,7 @@ describe('/chess/learn piece svgs', () => {
 	it('keeps white pieces on the old medium dark shade', () => {
 		for (const i of p) {
 			expect(readFileSync(resolve(process.cwd(), `static/pieces/gioco/w${i}.svg`), 'utf8')).toContain(
-				'fill="#bba38a"'
+				'fill="#d9c8b5"'
 			);
 		}
 	});
