@@ -229,8 +229,6 @@
 			chat_messages = [...chat_messages, { role: 'assistant', content: t }];
 		}
 	}
-}
-	}
 
 	function sync_chat_moves() {
 		const moves = chessRef?.getHistory({ verbose: true }) as any[] | undefined;
