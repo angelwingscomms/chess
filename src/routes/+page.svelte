@@ -165,6 +165,8 @@
 			if (last?.role === 'assistant') {
 				chat_messages[chat_messages.length - 1] = { ...last, content: last.content + msg.t };
 				chat_messages = chat_messages;
+			} else {
+				chat_messages = [...chat_messages, { role: 'assistant', content: msg.t }];
 			}
 			return true;
 		}
@@ -223,7 +225,11 @@
 		if (last?.role === 'assistant') {
 			chat_messages[chat_messages.length - 1] = { ...last, content: t };
 			chat_messages = chat_messages;
+		} else {
+			chat_messages = [...chat_messages, { role: 'assistant', content: t }];
 		}
+	}
+}
 	}
 
 	function sync_chat_moves() {
@@ -345,7 +351,7 @@
 		chat_loading = true;
 		const ac = new AbortController();
 		chat_abort = ac;
-		chat_messages = [...chat_messages, { role: 'assistant', content: '' }];
+
 		try {
 			if (gemini_api_key.trim()) {
 				await send_direct_interaction(ac, request_messages, model);
@@ -374,6 +380,8 @@
 			if (last?.role === 'assistant') {
 				chat_messages[chat_messages.length - 1] = { ...last, content: last.content + '\nError: ' + (e instanceof Error ? e.message : String(e)) };
 				chat_messages = chat_messages;
+			} else {
+				chat_messages = [...chat_messages, { role: 'assistant', content: 'Error: ' + (e instanceof Error ? e.message : String(e)) }];
 			}
 		} finally {
 			chat_loading = false;
