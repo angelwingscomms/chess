@@ -17,6 +17,7 @@
     "@qdrant/js-client-rest": "^1.18.0",
     "@sveltejs/kit": "^2.61.1",
     "animejs": "^4.4.1",
+    "arctic": "^3.7.0",
     "chess.js": "^1.4.0",
     "marked": "^18.0.4",
     "svelte": "^5.56.0",
