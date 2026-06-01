@@ -43,7 +43,9 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('chat_messages');
 		expect(page).toContain('chat_loading');
 		expect(page).toContain('chat_abort');
+		expect(page).toContain('chat_queue');
 		expect(page).toContain('sendChatMessage');
+		expect(page).toContain('removeFromQueue');
 		expect(page).toContain('stopChat');
 		expect(page).toContain('clearChat');
 		expect(page).toContain('/chess/learn/chat');
@@ -62,6 +64,16 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('interaction_id = msg.i');
 		expect(page).toContain('msg.content');
 		expect(page).not.toContain('{msg.d');
+	});
+
+	it('queues messages sent while response is loading and shows light bubbles with remove button', () => {
+		expect(page).toContain('chat_queue');
+		expect(page).toContain('removeFromQueue(');
+		expect(page).toContain('bg-primary/30 text-white');
+		expect(page).toContain('aria-label="Remove queued message"');
+		expect(page).toContain('class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"');
+		expect(page).toContain("if (chat_loading && !chat_input.trim()) stopChat(); else sendChatMessage(chat_input)");
+		expect(page).toContain("chat_queue = [...chat_queue, text.trim()]");
 	});
 });
 

@@ -37,6 +37,7 @@
 	let chat_loading = $state(false);
 	let chat_abort = $state<AbortController | null>(null);
 	let chat_input = $state('');
+	let chat_queue = $state<string[]>([]);
 	let interaction_id = $state('');
 	let last_user_move = $state('');
 	let last_ai_move = $state('');
@@ -59,7 +60,8 @@
 	$effect(() => { if (browser) localStorage.setItem('gemini_api_key', gemini_api_key); });
 	$effect(() => {
 		const el = chat_body;
-		if (!el || chat_messages.length === 0) return;
+		if (!el) return;
+		chat_messages.length, chat_queue.length;
 		requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
 	});
 
@@ -394,7 +396,16 @@
 			chat_loading = false;
 			chat_abort = null;
 			if (clear) chat_input = '';
+			if (chat_queue.length > 0) {
+				const [next, ...rest] = chat_queue;
+				chat_queue = rest;
+				send_chess_chat(next, '', true);
+			}
 		}
+	}
+
+	function removeFromQueue(i: number) {
+		chat_queue = chat_queue.filter((_, idx) => idx !== i);
 	}
 
 	async function explainHint() {
@@ -419,6 +430,7 @@
 
 	function clearChat() {
 		chat_messages = [];
+		chat_queue = [];
 		chat_loading = false;
 		interaction_id = '';
 		successful_context = {};
@@ -429,7 +441,12 @@
 	}
 
 	async function sendChatMessage(text: string) {
-		if (!text.trim() || chat_loading) return;
+		if (!text.trim()) return;
+		if (chat_loading) {
+			chat_queue = [...chat_queue, text.trim()];
+			chat_input = '';
+			return;
+		}
 		await send_chess_chat(text.trim(), '', true);
 	}
 </script>
@@ -539,15 +556,24 @@
 								{/if}
 							</div>
 						{/each}
+						{#each chat_queue as q_msg, i (i)}
+							<div class="flex justify-end">
+								<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed flex items-center gap-2">
+									<span>{q_msg}</span>
+									<button onclick={() => removeFromQueue(i)} class="shrink-0 grid place-items-center" aria-label="Remove queued message">
+										<X size={12} strokeWidth={2} />
+									</button>
+								</div>
+							</div>
+						{/each}
 					</div>
 					<div class="flex items-center gap-2 p-3">
 						<input
 							bind:this={chat_input_ref}
 							bind:value={chat_input}
-							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chat_loading) stopChat(); else sendChatMessage(chat_input); } }}
+							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chat_loading && !chat_input.trim()) stopChat(); else sendChatMessage(chat_input); } }}
 							placeholder="Ask about the position..."
 							class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"
-							disabled={chat_loading}
 						/>
 						<button
 							onclick={() => { if (chat_loading) stopChat(); else sendChatMessage(chat_input); }}
