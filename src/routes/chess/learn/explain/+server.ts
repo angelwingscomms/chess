@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	const { fen, move, score = 0, depth = 0, m } = body;
-	console.log(`[explain] request: fen=${fen} move=${move} score=${score} depth=${depth} model=${m || 'gemini-3.5-flash'}`);
+	console.log(`[explain] request: fen=${fen} move=${move} score=${score} depth=${depth} model=${m || 'gemma-4-31b-it'}`);
 
 	const ai = new GoogleGenAI({ apiKey: GEMINI });
 
@@ -35,7 +35,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				const prompt = build_prompt(fen, move, score, depth);
 				console.log('[explain] calling generateContentStream');
 				const response = await ai.models.generateContentStream({
-					model: m || 'gemini-3.5-flash',
+					model: m || 'gemma-4-31b-it',
 					contents: prompt,
 					config: {
 						thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },

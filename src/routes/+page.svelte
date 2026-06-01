@@ -41,7 +41,7 @@
 	let last_ai_move = $state('');
 	let successful_context = $state<Partial<ChatContext>>({});
 
-	let model = $state(browser && localStorage.getItem('explain_model') || 'gemini-3.5-flash');
+	let model = $state(browser && localStorage.getItem('explain_model') || 'gemma-4-31b-it');
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
@@ -70,8 +70,8 @@
 	const hint_from_class = 'bg-amber/45 border-amber ring-ink/25';
 	const hint_to_class = 'bg-teal/45 border-teal ring-ink/25';
 	const model_options = [
+		{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'Best open model' },
 		{ v: 'gemini-3.5-flash', l: 'Gemini 3.5 Flash', d: 'Fast coach' },
-		{ v: 'gemma-4-26b-a4b-it', l: 'Gemma 4', d: 'Small open model' },
 	];
 
 	function buildEngine() {

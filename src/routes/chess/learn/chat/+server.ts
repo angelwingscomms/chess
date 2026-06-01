@@ -78,7 +78,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	const i = text(body?.i);
-	const m = text(body?.m) || 'gemini-3.5-flash';
+	const m = text(body?.m) || 'gemma-4-31b-it';
 	console.log(`[chat] request: messages=${messages.length} model=${m} interaction_id=${i ? i.slice(0, 16) + '…' : 'none'}`);
 
 	const last = messages.findLast((msg) => msg.r === 'user');
