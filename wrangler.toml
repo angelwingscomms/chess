@@ -1,4 +1,4 @@
-name = 'beee-chess'
+name = 'chess'
 main = ".svelte-kit/cloudflare/_worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat_v2"]
