@@ -488,14 +488,16 @@
 							<span class="text-[11px]">?</span>
 						</button>
 					{/if}
-					{#if chat_messages.length > 0}
-						<button class="ml-auto grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
-							<X size={13} strokeWidth={1.8} />
+					<span class="ml-auto flex items-center gap-1.5">
+						{#if chat_messages.length > 0}
+							<button class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
+								<X size={13} strokeWidth={1.8} />
+							</button>
+						{/if}
+						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
+							<Settings size={15} strokeWidth={1.8} />
 						</button>
-					{/if}
-					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
-						<Settings size={15} strokeWidth={1.8} />
-					</button>
+					</span>
 				</div>
 				<div class="w-full rounded-xl bg-surface-card border border-hairline overflow-hidden">
 					<div bind:this={chat_body} class="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
