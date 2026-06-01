@@ -65,10 +65,8 @@
 
 	const presets = DIFFICULTY_PRESETS;
 	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
-	const hint_nudge_x = '-translate-x-1';
-	const hint_nudge_y = '-translate-y-1';
-	const hint_from_class = 'bg-amber/45 border-amber ring-ink/25';
-	const hint_to_class = 'bg-teal/45 border-teal ring-ink/25';
+	const hint_from_class = 'bg-amber/70';
+	const hint_to_class = 'bg-teal/70';
 	const model_options = [
 		{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'Best open model' },
 		{ v: 'gemini-3.5-flash', l: 'Gemini 3.5 Flash', d: 'Fast coach' },
@@ -452,7 +450,7 @@
 				<div class="pointer-events-none absolute inset-0 z-10 grid grid-cols-8 grid-rows-8">
 					{#each hint_highlights as square (square.k)}
 						<div
-							class={'pointer-events-none box-border rounded-[6px] border-2 ring-2 ring-inset ' + hint_nudge_x + ' ' + hint_nudge_y + ' ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? hint_from_class : hint_to_class)}
+							class={'pointer-events-none size-4 rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? hint_from_class : hint_to_class)}
 							data-testid={square.k === 'f' ? 'hint-square-from' : 'hint-square-to'}
 							role="img"
 							aria-label={`Hint ${square.l} square ${square.s}`}
