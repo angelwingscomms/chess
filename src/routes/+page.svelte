@@ -409,15 +409,17 @@
 	}
 
 	async function explainHint() {
-		if (chat_loading) return;
 		if (!hints[hint_index]) return;
 		const h = hints[hint_index];
 		const san = uciToSan(fen, h.move);
 		const score_str = fmtScore(h.score);
-		await send_chess_chat(
-			`why ${san}`,
-			`${san} (${h.move}), eval ${score_str}, depth ${h.depth}`,
-		);
+		const msg = `why ${san}`;
+		const hint_data = `${san} (${h.move}), eval ${score_str}, depth ${h.depth}`;
+		if (chat_loading) {
+			chat_queue = [...chat_queue, msg];
+			return;
+		}
+		await send_chess_chat(msg, hint_data);
 	}
 
 	function stopChat() {
@@ -524,7 +526,7 @@
 					{/if}
 					{#if show_hints && !hint_loading && hints.length > 0}
 						<span class="rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{uciToSan(fen, hints[hint_index].move)}</span>
-						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint} disabled={chat_loading} aria-label="Explain hint">
+						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint} aria-label="Explain hint">
 							<span class="text-[11px]">?</span>
 						</button>
 					{/if}
