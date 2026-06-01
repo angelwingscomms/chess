@@ -488,19 +488,16 @@
 							<span class="text-[11px]">?</span>
 						</button>
 					{/if}
-					<button class="ml-auto grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
+					{#if chat_messages.length > 0}
+						<button class="ml-auto grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
+							<X size={13} strokeWidth={1.8} />
+						</button>
+					{/if}
+					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
 						<Settings size={15} strokeWidth={1.8} />
 					</button>
 				</div>
-
 				<div class="w-full rounded-xl bg-surface-card border border-hairline overflow-hidden">
-					<div class="flex min-h-9 items-center justify-end px-3 py-1.5 border-b border-hairline">
-						{#if chat_messages.length > 0}
-							<button class="grid size-7 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
-								<X size={13} strokeWidth={1.8} />
-							</button>
-						{/if}
-					</div>
 					<div bind:this={chat_body} class="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 						{#if chat_messages.length === 0}
 							<p class="text-sm text-muted text-center py-6">No messages yet. Click <strong class="text-ink">?</strong> on a hint to start.</p>
@@ -531,7 +528,7 @@
 							bind:value={chat_input}
 							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(chat_input); } }}
 							placeholder="Ask about the position..."
-							class="flex-1 min-h-[40px] rounded-lg bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none transition-shadow duration-150 ease-in-out focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+							class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"
 							disabled={chat_loading}
 						/>
 						<button
