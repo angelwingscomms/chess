@@ -9,7 +9,7 @@ export function GET(event: RequestEvent): Response {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: google_client(event.url.origin).createAuthorizationURL(state, verifier, ['openid', 'profile']).toString()
+      Location: google_client(event.url.origin).createAuthorizationURL(state, verifier, ['openid', 'profile', 'email']).toString()
     }
   });
 }

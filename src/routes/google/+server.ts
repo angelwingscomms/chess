@@ -20,7 +20,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
     headers: { Authorization: `Bearer ${tokens.accessToken()}` }
   });
   const guser = await ures.json();
-  const session = await encode_session({ id: guser.sub, name: guser.name, picture: guser.picture });
+  const session = await encode_session({ id: guser.sub, name: guser.name, picture: guser.picture, email: guser.email });
   event.cookies.set('session', session, { path: '/', httpOnly: true, maxAge: 604800, sameSite: 'lax' });
   event.cookies.delete('oauth_state', { path: '/' });
   event.cookies.delete('oauth_verifier', { path: '/' });
