@@ -73,7 +73,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('aria-label="Remove queued message"');
 		expect(page).toContain('class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"');
 		expect(page).toContain("sendChatMessage(chat_input)");
-		expect(page).toContain("chat_queue = [...chat_queue, t]");
+		expect(page).toContain("chat_queue = [...chat_queue, { text: t }]");
 	});
 });
 

@@ -37,7 +37,7 @@
 	let chat_loading = $state(false);
 	let chat_abort = $state<AbortController | null>(null);
 	let chat_input = $state('');
-	let chat_queue = $state<string[]>([]);
+	let chat_queue = $state<{ text: string; hint?: string }[]>([]);
 	let interaction_id = $state('');
 	let last_user_move = $state('');
 	let last_ai_move = $state('');
@@ -399,7 +399,7 @@
 			if (chat_queue.length > 0) {
 				const [next, ...rest] = chat_queue;
 				chat_queue = rest;
-				send_chess_chat(next, '', true);
+				send_chess_chat(next.text, next.hint ?? '', true);
 			}
 		}
 	}
@@ -416,7 +416,7 @@
 		const msg = `why ${san}`;
 		const hint_data = `${san} (${h.move}), eval ${score_str}, depth ${h.depth}`;
 		if (chat_loading) {
-			chat_queue = [...chat_queue, msg];
+			chat_queue = [...chat_queue, { text: msg, hint: hint_data }];
 			return;
 		}
 		await send_chess_chat(msg, hint_data);
@@ -447,7 +447,7 @@
 		const t = text.trim();
 		chat_input = '';
 		if (chat_loading) {
-			chat_queue = [...chat_queue, t];
+			chat_queue = [...chat_queue, { text: t }];
 			return;
 		}
 		await send_chess_chat(t, '', true);
@@ -562,7 +562,7 @@
 						{#each chat_queue as q_msg, i (i)}
 							<div class="flex justify-end">
 								<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed flex items-center gap-2">
-									<span>{q_msg}</span>
+									<span>{q_msg.text}</span>
 									<button onclick={() => removeFromQueue(i)} class="shrink-0 grid place-items-center" aria-label="Remove queued message">
 										<X size={12} strokeWidth={2} />
 									</button>
