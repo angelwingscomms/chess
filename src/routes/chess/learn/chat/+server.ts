@@ -73,7 +73,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	const raw = Array.isArray(body?.x) ? body.x : Array.isArray(body?.messages) ? body.messages : [];
 	const messages = raw.map(normalize_msg).filter(Boolean) as Msg[];
 	if (!messages.length) {
-		console.log('[chat] no messages in request');
+		console.error('[chat] no messages in request');
 		return json({ error: 'Missing messages array' }, { status: 400 });
 	}
 
@@ -83,7 +83,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const last = messages.findLast((msg) => msg.r === 'user');
 	if (!last) {
-		console.log('[chat] no user message found');
+		console.error('[chat] no user message found');
 		return json({ error: 'Missing user message' }, { status: 400 });
 	}
 
@@ -118,7 +118,7 @@ export const POST: RequestHandler = async ({ request }) => {
 					}
 				}
 			} catch (e) {
-				console.log(`[chat] interactions api error: ${e instanceof Error ? e.message : e}`);
+				console.error('[chat] interactions api error:', e);
 				if (!request.signal.aborted) {
 					if (!wrote) {
 						console.log('[chat] falling back to generateContentStream');
@@ -126,11 +126,11 @@ export const POST: RequestHandler = async ({ request }) => {
 							await stream_fallback(controller, request, ai, messages, m);
 							console.log('[chat] fallback succeeded');
 						} catch (fallback) {
-							console.log(`[chat] fallback error: ${fallback instanceof Error ? fallback.message : fallback}`);
-							controller.enqueue(event('error', { e: fallback instanceof Error ? fallback.message : 'Unknown error' }));
+							console.error('[chat] fallback error:', fallback);
+							controller.enqueue(event('error', { e: fallback instanceof Error ? fallback.stack || fallback.message : String(fallback) }));
 						}
 					} else {
-						controller.enqueue(event('error', { e: e instanceof Error ? e.message : 'Unknown error' }));
+						controller.enqueue(event('error', { e: e instanceof Error ? e.stack || e.message : String(e) }));
 					}
 				}
 			} finally {

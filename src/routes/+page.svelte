@@ -214,7 +214,11 @@
 			signal: ac.signal,
 		});
 		const body = await res.json().catch(() => null);
-		if (!res.ok) throw Error(body?.error?.message || 'Request failed');
+		if (!res.ok) {
+			const err_msg = body?.error?.message || body?.error || 'Request failed';
+			console.error('[chat] direct interaction error:', err_msg);
+			throw Error(err_msg);
+		}
 		const t = direct_text(body).trim();
 		if (!t) throw Error('Request failed');
 		const last = chat_messages[chat_messages.length - 1];
@@ -358,14 +362,19 @@
 					}),
 					signal: ac.signal,
 				});
-				if (!res.ok || !(await read_chat_stream(res))) throw Error('Request failed');
+				if (!res.ok) {
+					const err_body = await res.json().catch(() => ({ error: 'Request failed' }));
+					throw Error(err_body.error || 'Request failed');
+				}
+			if (!(await read_chat_stream(res))) throw Error('Request failed');
 			}
 			successful_context = sent_context;
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'AbortError') return;
+			console.error('[chat] error:', e);
 			const last = chat_messages[chat_messages.length - 1];
 			if (last?.role === 'assistant') {
-				chat_messages[chat_messages.length - 1] = { ...last, content: last.content + '\n[Failed to load analysis]' };
+				chat_messages[chat_messages.length - 1] = { ...last, content: last.content + '\nError: ' + (e instanceof Error ? e.message : String(e)) };
 				chat_messages = chat_messages;
 			}
 		} finally {
