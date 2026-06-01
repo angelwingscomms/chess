@@ -72,7 +72,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('bg-primary/30 text-white');
 		expect(page).toContain('aria-label="Remove queued message"');
 		expect(page).toContain('class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"');
-		expect(page).toContain("if (chat_loading && !chat_input.trim()) stopChat(); else sendChatMessage(chat_input)");
+		expect(page).toContain("sendChatMessage(chat_input)");
 		expect(page).toContain("chat_queue = [...chat_queue, t]");
 	});
 });
@@ -88,7 +88,7 @@ describe('/chess/learn settings modal', () => {
 	});
 
 	it('moves difficulty into settings and uses compact icon controls above chat', () => {
-		expect(page).toContain("import { Lightbulb, RotateCcw, Settings, Square, Undo2, X } from '@lucide/svelte';");
+		expect(page).toContain("import { Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="New game"');
 		expect(page).toContain('<RotateCcw');

@@ -6,7 +6,7 @@
 	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { Lightbulb, RotateCcw, Settings, Square, Undo2, X } from '@lucide/svelte';
+	import { Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
@@ -572,16 +572,16 @@
 						<input
 							bind:this={chat_input_ref}
 							bind:value={chat_input}
-							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chat_loading && !chat_input.trim()) stopChat(); else sendChatMessage(chat_input); } }}
+							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(chat_input); } }}
 							placeholder="Ask about the position..."
 							class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"
 						/>
 						<button
-							onclick={() => { if (chat_loading) stopChat(); else sendChatMessage(chat_input); }}
+							onclick={() => sendChatMessage(chat_input)}
 							disabled={!chat_loading && !chat_input.trim()}
 							class="button-primary !border-0 !px-3 !min-h-[40px] !rounded-lg shrink-0 {chat_loading ? 'motion-safe:animate-hint-loading' : ''}"
-							aria-label={chat_loading ? 'Stop generating' : 'Send'}
-						>{#if chat_loading}<Square size={16} />{:else}→{/if}</button>
+							aria-label="Send"
+						>→</button>
 					</div>
 				</div>
 
