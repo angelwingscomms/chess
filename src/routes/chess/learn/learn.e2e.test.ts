@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const page = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '+page.svelte'), 'utf8');
+const page = readFileSync(resolve(process.cwd(), 'src/routes/+page.svelte'), 'utf8');
 
 describe('/chess/learn hint highlights', () => {
 	it('wires a visible board overlay to the current hint squares', () => {
