@@ -485,7 +485,7 @@
 					{#if show_hints && !hint_loading && hints.length > 0}
 						<span class="rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{uciToSan(fen, hints[hint_index].move)}</span>
 						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint} disabled={chat_loading} aria-label="Explain hint">
-							<span class="text-lg">?</span>
+							<span class="text-[11px]">?</span>
 						</button>
 					{/if}
 					<button class="ml-auto grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
