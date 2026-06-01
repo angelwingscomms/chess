@@ -64,7 +64,7 @@
 
 
 	const presets = DIFFICULTY_PRESETS;
-	const labels = ['Bgnr', 'Nov', 'Cas', 'Int', 'Int+', 'Adv', 'Str', 'Exp', 'Mst', 'GM'];
+	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
 	const hint_nudge_x = '-translate-x-1';
 	const hint_nudge_y = '-translate-y-1';
 	const hint_from_class = 'bg-amber/45 border-amber ring-ink/25';
