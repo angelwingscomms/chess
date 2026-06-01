@@ -13,7 +13,7 @@ describe('/chess/learn hint highlights', () => {
 		expect(page).toContain('aria-label={`Hint ${square.l} square ${square.s}`}');
 		expect(page).toContain('const hint_from_class = \'bg-amber/70\'');
 		expect(page).toContain('const hint_to_class = \'bg-teal/70\'');
-		expect(page).toContain('size-4 rounded-full place-self-center');
+		expect(page).toContain('size-[2.7rem] rounded-full place-self-center');
 		expect(page).toContain('can_reuse_hints(hints, hint_fen, fen)');
 		expect(page).toContain('onclick={() => hideHints()}');
 		expect(page).toContain('hideHints(true)');
