@@ -12,7 +12,7 @@
 	type ChatData = Partial<ChatContext> & { h?: string };
 	type ChatMsg = { role: 'user' | 'assistant'; content: string; d?: ChatData };
 
-	const sys = 'You are a concise chess coach. Use the supplied board context when present. Use **bold** for key ideas.';
+	const sys = 'You are a concise chess coach. Use the supplied board context when present.';
 
 	let level = $state(3);
 	let turn = $state<Color>('w');
@@ -382,7 +382,7 @@
 		const san = uciToSan(fen, h.move);
 		const score_str = fmtScore(h.score);
 		await send_chess_chat(
-			`Explain **${san}** (${score_str}, depth ${h.depth})`,
+			`why ${san}`,
 			`${san} (${h.move}), eval ${score_str}, depth ${h.depth}`,
 		);
 	}
@@ -491,15 +491,7 @@
 					<div class="rounded-lg border border-hairline bg-canvas p-2">
 						<div class="flex items-center gap-2">
 							<div class="min-w-0 flex-1">
-								<div class="flex items-baseline gap-2">
-									<span class="truncate font-mono text-sm font-medium text-ink">{uciToSan(fen, hints[hint_index].move)}</span>
-									<span class="font-mono text-[11px] text-muted">{fmtScore(hints[hint_index].score)}</span>
-								</div>
-								<div class="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
-									<span>d{hints[hint_index].depth}</span>
-									<span>·</span>
-									<span>{hint_index + 1}/{hints.length}</span>
-								</div>
+							<span class="truncate font-mono text-sm font-medium text-ink">{uciToSan(fen, hints[hint_index].move)}</span>
 							</div>
 							<button class="button-secondary-dark !min-h-8 !px-3 !py-2 text-xs" onclick={explainHint} disabled={chat_loading}>
 								{chat_loading ? 'Thinking...' : 'Explain'}

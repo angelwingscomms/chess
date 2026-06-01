@@ -6,7 +6,7 @@ import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 type Msg = { r: 'user' | 'assistant'; c: string; d?: Data };
 type Data = { f?: string; p?: string; u?: string; a?: string; h?: string };
 
-const sys = 'You are a concise chess coach. Use the supplied board context when present. Use **bold** for key ideas.';
+const sys = 'You are a concise chess coach. Use the supplied board context when present.';
 const enc = new TextEncoder();
 
 function event(name: string, data: object) {

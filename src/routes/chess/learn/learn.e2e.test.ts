@@ -124,7 +124,6 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('aria-label="Clear chat"');
 		expect(page).toContain('<X size={13}');
 		expect(page).toContain('font-mono text-sm font-medium text-ink');
-		expect(page).toContain('font-mono text-[11px] text-muted');
 		expect(page).not.toContain('<span class="text-sm font-medium text-ink">Chat</span>');
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});

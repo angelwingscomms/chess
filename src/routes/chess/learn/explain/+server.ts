@@ -6,7 +6,7 @@ import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 function build_prompt(fen: string, move: string, score: number, depth: number): string {
 	const score_str = score > 90000 ? 'Mate' : score < -90000 ? '-Mate' : (score / 100).toFixed(2);
 	return [
-		'You are a chess coach analyzing a position. Write a concise analysis (2-3 short sentences). Use **bold** for key ideas.',
+		'You are a chess coach analyzing a position. Write a concise analysis (2-3 short sentences).',
 		'',
 		`Position (FEN): ${fen}`,
 		`Stockfish recommends: ${move}`,
