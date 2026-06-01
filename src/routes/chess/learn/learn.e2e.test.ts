@@ -115,6 +115,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('motion-safe:animate-hint-loading');
 		expect(css).toContain('--animate-hint-loading: hint-loading 3.2s ease-in-out infinite;');
 		expect(css).toContain('background-color: #ffffff;');
+		expect(css).not.toContain('border-color: var(--color-primary);');
 		expect(page).not.toContain('Analyzing');
 	});
 
