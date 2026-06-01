@@ -515,7 +515,7 @@
 				<div class="w-full rounded-xl bg-surface-card overflow-hidden">
 					<div bind:this={chat_body} class="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 						{#if chat_messages.length === 0}
-							<p class="text-sm text-muted text-center py-6">No messages yet.</p>
+							<p class="text-sm text-muted text-center py-6">No messages yet</p>
 						{/if}
 						{#each chat_messages as msg, i (i)}
 							<div class="flex {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
