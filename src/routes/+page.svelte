@@ -593,7 +593,8 @@
 						<span>Hard</span>
 					</div>
 				</section>
-				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
+				{#if gemini_api_key.trim()}
+			<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="model-label">Analysis model</h3>
 					<button
 						type="button"
@@ -629,6 +630,7 @@
 						</div>
 					{/if}
 				</section>
+			{/if}
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
 					<label class="text-sm font-medium text-ink" for="gemini-api-key">Gemini API key</label>
 					<input

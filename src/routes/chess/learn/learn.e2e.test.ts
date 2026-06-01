@@ -152,7 +152,8 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('typeof part.text === \'string\'');
 	});
 
-	it('uses a styled select-only model combobox instead of a native select', () => {
+	it('only shows model combobox when a custom api key is provided', () => {
+		expect(page).toContain('{#if gemini_api_key.trim()}');
 		expect(page).toContain('let show_model_menu = $state(false);');
 		expect(page).toContain('const model_options =');
 		expect(page).toContain('role="combobox"');
