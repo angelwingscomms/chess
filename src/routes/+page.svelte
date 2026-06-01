@@ -467,22 +467,22 @@
 					{#if !ready}
 						<span class="mr-1 text-[11px] font-medium text-amber animate-pulse">Loading...</span>
 					{/if}
-					<button class="grid size-8 place-items-center rounded-full border border-hairline bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={resetGame} disabled={!ready} aria-label="New game">
+					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={resetGame} disabled={!ready} aria-label="New game">
 						<RotateCcw size={15} strokeWidth={1.8} />
 					</button>
-					<button class="grid size-8 place-items-center rounded-full border border-hairline bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={undoMove} disabled={!ready || moveNum === 0 || gameOver} aria-label="Undo move">
+					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={undoMove} disabled={!ready || moveNum === 0 || gameOver} aria-label="Undo move">
 						<Undo2 size={15} strokeWidth={1.8} />
 					</button>
 					{#if show_hints}
-						<button class="grid size-8 place-items-center rounded-full border border-hairline bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-label="Hide hints" aria-busy={hint_loading}>
+						<button class="grid size-8 place-items-center rounded-full bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-label="Hide hints" aria-busy={hint_loading}>
 							<Lightbulb size={15} strokeWidth={1.8} />
 						</button>
 					{:else}
-						<button class="grid size-8 place-items-center rounded-full border border-hairline bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={showHint} disabled={!ready || gameOver || hint_loading} aria-label="Show hint">
+						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={showHint} disabled={!ready || gameOver || hint_loading} aria-label="Show hint">
 							<Lightbulb size={15} strokeWidth={1.8} />
 						</button>
 					{/if}
-					<button class="ml-auto grid size-8 place-items-center rounded-full border border-hairline bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
+					<button class="ml-auto grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
 						<Settings size={15} strokeWidth={1.8} />
 					</button>
 				</div>
@@ -511,7 +511,7 @@
 				<div class="w-full rounded-xl bg-surface-card border border-hairline overflow-hidden">
 					<div class="flex min-h-9 items-center justify-end px-3 py-1.5 border-b border-hairline">
 						{#if chat_messages.length > 0}
-							<button class="grid size-7 place-items-center rounded-full border border-hairline bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
+							<button class="grid size-7 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
 								<X size={13} strokeWidth={1.8} />
 							</button>
 						{/if}
@@ -523,7 +523,7 @@
 						{#each chat_messages as msg, i (i)}
 							<div class="flex {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
 								{#if msg.role === 'assistant'}
-									<div class="max-w-[85%] bg-canvas border border-hairline text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed">
+									<div class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed">
 										{@html marked.parse(msg.content)}
 										{#if chat_loading && i === chat_messages.length - 1}<span class="animate-pulse text-body">▊</span>{/if}
 									</div>
@@ -546,7 +546,7 @@
 							bind:value={chat_input}
 							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(chat_input); } }}
 							placeholder="Ask about the position..."
-							class="flex-1 min-h-[40px] rounded-lg border border-hairline bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+							class="flex-1 min-h-[40px] rounded-lg bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none transition-shadow duration-150 ease-in-out focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
 							disabled={chat_loading}
 						/>
 						<button
