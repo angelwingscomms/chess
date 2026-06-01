@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 const page = readFileSync(resolve(process.cwd(), 'src/routes/+page.svelte'), 'utf8');
+const css = readFileSync(resolve(process.cwd(), 'src/app.css'), 'utf8');
 
 describe('/chess/learn hint highlights', () => {
 	it('wires a visible board overlay to the current hint squares', () => {
@@ -108,6 +109,13 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain("if (m.color === 'b' && auto_hint) request_hint();");
 		expect(page).toContain('Auto hint');
 		expect(page).toContain('Hint on start');
+	});
+
+	it('shows hint loading through the hint button instead of analyzing text', () => {
+		expect(page).toContain('motion-safe:animate-hint-loading');
+		expect(css).toContain('--animate-hint-loading: hint-loading 3.2s ease-in-out infinite;');
+		expect(css).toContain('background-color: #ffffff;');
+		expect(page).not.toContain('Analyzing');
 	});
 
 	it('keeps chat chrome compact and icon-only', () => {

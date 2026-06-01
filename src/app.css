@@ -19,10 +19,26 @@
   --color-muted: #6c6a64;
   --color-teal: #5db8a6;
   --color-amber: #e8a55a;
+  --animate-hint-loading: hint-loading 3.2s ease-in-out infinite;
 
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Cormorant Garamond', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  @keyframes hint-loading {
+    0%,
+    100% {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #ffffff;
+    }
+
+    50% {
+      background-color: #ffffff;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+  }
 }
 
 :root {

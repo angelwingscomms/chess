@@ -474,7 +474,7 @@
 						<Undo2 size={15} strokeWidth={1.8} />
 					</button>
 					{#if show_hints}
-						<button class="grid size-8 place-items-center rounded-full border border-hairline bg-primary text-white disabled:bg-primary-disabled disabled:text-muted" onclick={() => hideHints()} aria-label="Hide hints">
+						<button class="grid size-8 place-items-center rounded-full border border-hairline bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-label="Hide hints" aria-busy={hint_loading}>
 							<Lightbulb size={15} strokeWidth={1.8} />
 						</button>
 					{:else}
@@ -506,8 +506,6 @@
 							</button>
 						</div>
 					</div>
-				{:else if hint_loading}
-					<span class="self-center text-xs text-amber animate-pulse">Analyzing...</span>
 				{/if}
 
 				<div class="w-full rounded-xl bg-surface-card border border-hairline overflow-hidden">
