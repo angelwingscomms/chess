@@ -46,6 +46,9 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('chat_queue');
 		expect(page).toContain('sendChatMessage');
 		expect(page).toContain('removeFromQueue');
+		expect(page).toContain('promoteFromQueue');
+		expect(page).toContain('execute_chat');
+		expect(page).toContain('processQueue');
 		expect(page).toContain('stopChat');
 		expect(page).toContain('clearChat');
 		expect(page).toContain('/chess/learn/chat');
@@ -69,8 +72,10 @@ describe('/chess/learn chat', () => {
 	it('queues messages sent while response is loading and shows light bubbles with remove button', () => {
 		expect(page).toContain('chat_queue');
 		expect(page).toContain('removeFromQueue(');
+		expect(page).toContain('promoteFromQueue(');
 		expect(page).toContain('bg-primary/30 text-white');
 		expect(page).toContain('aria-label="Remove queued message"');
+		expect(page).toContain('aria-label="Send this message now"');
 		expect(page).toContain('class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"');
 		expect(page).toContain("sendChatMessage(chat_input)");
 		expect(page).toContain("chat_queue = [...chat_queue, { text: t }]");
@@ -88,7 +93,7 @@ describe('/chess/learn settings modal', () => {
 	});
 
 	it('moves difficulty into settings and uses compact icon controls above chat', () => {
-		expect(page).toContain("import { Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
+		expect(page).toContain("import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="New game"');
 		expect(page).toContain('<RotateCcw');

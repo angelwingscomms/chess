@@ -6,7 +6,7 @@
 	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
@@ -354,22 +354,28 @@
 	}
 
 	async function send_chess_chat(user_msg: string, h = '', clear = false) {
+		const d = build_chat_data(h);
+		chat_messages = [...chat_messages, { role: 'user', content: user_msg, d }];
+		if (clear) chat_input = '';
+		await execute_chat();
+		processQueue();
+	}
+
+	async function execute_chat() {
 		const sent_context = current_chat_context();
-		const request_messages: ChatMsg[] = [...chat_messages, { role: 'user', content: user_msg, d: build_chat_data(h) }];
-		chat_messages = request_messages;
 		chat_loading = true;
 		const ac = new AbortController();
 		chat_abort = ac;
 
 		try {
 			if (gemini_api_key.trim()) {
-				await send_direct_interaction(ac, request_messages, model);
+				await send_direct_interaction(ac, chat_messages, model);
 				interaction_id = '';
 			} else {
 				const res = await fetch('/chess/learn/chat', {
 					method: 'POST',
 					body: JSON.stringify({
-						x: request_messages.map((msg) => ({ r: msg.role, c: msg.content, d: msg.d })),
+						x: chat_messages.map((msg) => ({ r: msg.role, c: msg.content, d: msg.d })),
 						i: interaction_id,
 						m: model,
 					}),
@@ -395,17 +401,37 @@
 		} finally {
 			chat_loading = false;
 			chat_abort = null;
-			if (clear) chat_input = '';
-			if (chat_queue.length > 0) {
-				const [next, ...rest] = chat_queue;
-				chat_queue = rest;
-				send_chess_chat(next.text, next.hint ?? '', true);
-			}
+		}
+	}
+
+	function processQueue() {
+		if (chat_queue.length > 0) {
+			const [next, ...rest] = chat_queue;
+			chat_queue = rest;
+			send_chess_chat(next.text, next.hint ?? '', true);
 		}
 	}
 
 	function removeFromQueue(i: number) {
 		chat_queue = chat_queue.filter((_, idx) => idx !== i);
+	}
+
+	function promoteFromQueue(i: number) {
+		const item = chat_queue[i];
+		if (!item) return;
+		chat_queue = chat_queue.filter((_, idx) => idx !== i);
+		if (chat_abort) {
+			chat_abort.abort();
+			chat_abort = null;
+		}
+		const last = chat_messages[chat_messages.length - 1];
+		if (last?.role === 'assistant') {
+			send_chess_chat(item.text, item.hint ?? '', true);
+		} else {
+			interaction_id = '';
+			chat_messages = [...chat_messages, { role: 'user', content: item.text, d: build_chat_data(item.hint) }];
+			execute_chat();
+		}
 	}
 
 	async function explainHint() {
@@ -563,6 +589,9 @@
 							<div class="flex justify-end">
 								<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed flex items-center gap-2">
 									<span>{q_msg.text}</span>
+									<button onclick={() => promoteFromQueue(i)} class="shrink-0 grid place-items-center" aria-label="Send this message now">
+										<ArrowUp size={12} strokeWidth={2} />
+									</button>
 									<button onclick={() => removeFromQueue(i)} class="shrink-0 grid place-items-center" aria-label="Remove queued message">
 										<X size={12} strokeWidth={2} />
 									</button>
