@@ -1,3 +1,3 @@
 export function google_redirect_uri(origin: string): string {
-	return new URL('/login/google/callback', origin).toString();
+	return new URL('/google', origin).toString();
 }
