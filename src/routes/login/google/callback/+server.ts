@@ -1,4 +1,4 @@
-import { google } from '$lib/server/oauth';
+import { google_client } from '$lib/server/oauth';
 import { encode_session } from '$lib/server/session';
 import type { RequestEvent } from '@sveltejs/kit';
 
@@ -12,7 +12,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
   }
   let tokens: any;
   try {
-    tokens = await google.validateAuthorizationCode(code, stored_verifier);
+    tokens = await google_client(event.url.origin).validateAuthorizationCode(code, stored_verifier);
   } catch {
     return new Response(null, { status: 400 });
   }
