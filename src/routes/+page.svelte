@@ -516,7 +516,6 @@
 								{#if msg.role === 'assistant'}
 									<div class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed">
 										{@html marked.parse(msg.content)}
-										{#if chat_loading && i === chat_messages.length - 1}<span class="animate-pulse text-body">▊</span>{/if}
 									</div>
 								{:else}
 									<div class="max-w-[85%] bg-primary text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed">
@@ -538,7 +537,7 @@
 						<button
 							onclick={() => { if (chat_loading) stopChat(); else sendChatMessage(chat_input); }}
 							disabled={!chat_loading && !chat_input.trim()}
-							class="button-primary !px-3 !min-h-[40px] !rounded-lg shrink-0"
+							class="button-primary !border-0 !px-3 !min-h-[40px] !rounded-lg shrink-0 {chat_loading ? 'motion-safe:animate-hint-loading' : ''}"
 							aria-label={chat_loading ? 'Stop generating' : 'Send'}
 						>{#if chat_loading}<Square size={16} />{:else}→{/if}</button>
 					</div>
