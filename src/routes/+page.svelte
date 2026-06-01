@@ -6,7 +6,7 @@
 	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import { CircleHelp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
@@ -482,23 +482,16 @@
 							<Lightbulb size={15} strokeWidth={1.8} />
 						</button>
 					{/if}
+					{#if show_hints && !hint_loading && hints.length > 0}
+						<span class="rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{uciToSan(fen, hints[hint_index].move)}</span>
+						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint} disabled={chat_loading} aria-label="Explain hint">
+							<CircleHelp size={15} strokeWidth={1.8} />
+						</button>
+					{/if}
 					<button class="ml-auto grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
 						<Settings size={15} strokeWidth={1.8} />
 					</button>
 				</div>
-
-				{#if show_hints && !hint_loading && hints.length > 0}
-					<div class="rounded-lg border border-hairline bg-canvas p-2">
-						<div class="flex items-center gap-2">
-							<div class="min-w-0 flex-1">
-							<span class="truncate font-mono text-sm font-medium text-ink">{uciToSan(fen, hints[hint_index].move)}</span>
-							</div>
-							<button class="button-secondary-dark !min-h-8 !px-3 !py-2 text-xs" onclick={explainHint} disabled={chat_loading}>
-								{chat_loading ? 'Thinking...' : 'Explain'}
-							</button>
-						</div>
-					</div>
-				{/if}
 
 				<div class="w-full rounded-xl bg-surface-card border border-hairline overflow-hidden">
 					<div class="flex min-h-9 items-center justify-end px-3 py-1.5 border-b border-hairline">
@@ -510,7 +503,7 @@
 					</div>
 					<div bind:this={chat_body} class="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 						{#if chat_messages.length === 0}
-							<p class="text-sm text-muted text-center py-6">No messages yet. Click <strong class="text-ink">Explain</strong> on a hint to start.</p>
+							<p class="text-sm text-muted text-center py-6">No messages yet. Click <strong class="text-ink">?</strong> on a hint to start.</p>
 						{/if}
 						{#each chat_messages as msg, i (i)}
 							<div class="flex {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
