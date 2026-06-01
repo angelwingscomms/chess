@@ -25,19 +25,32 @@
   --font-display: 'Cormorant Garamond', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  @keyframes hint-loading {
-    0%,
-    100% {
-      background-color: var(--color-primary);
-      color: #ffffff;
-    }
+   --animate-hint-pulse: hint-pulse 3.2s ease-in-out infinite;
 
-    50% {
-      background-color: #ffffff;
-      color: var(--color-primary);
-    }
-  }
-}
+   @keyframes hint-loading {
+     0%,
+     100% {
+       background-color: var(--color-primary);
+       color: #ffffff;
+     }
+
+     50% {
+       background-color: #ffffff;
+       color: var(--color-primary);
+     }
+   }
+
+   @keyframes hint-pulse {
+     0%,
+     100% {
+       opacity: 0;
+     }
+
+     50% {
+       opacity: 1;
+     }
+   }
+ }
 
 :root {
   --primary: #cc785c;

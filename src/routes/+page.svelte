@@ -450,7 +450,7 @@
 				<div class="pointer-events-none absolute inset-0 z-10 grid grid-cols-8 grid-rows-8">
 					{#each hint_highlights as square (square.k)}
 						<div
-							class={'pointer-events-none size-[2.7rem] rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? hint_from_class : hint_to_class)}
+							class={'pointer-events-none motion-safe:animate-hint-pulse size-[2.7rem] rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? hint_from_class : hint_to_class)}
 							data-testid={square.k === 'f' ? 'hint-square-from' : 'hint-square-to'}
 							role="img"
 							aria-label={`Hint ${square.l} square ${square.s}`}
