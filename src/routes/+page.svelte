@@ -499,7 +499,7 @@
 						</button>
 					</span>
 				</div>
-				<div class="w-full rounded-xl bg-surface-card border border-hairline overflow-hidden">
+				<div class="w-full rounded-xl bg-surface-card overflow-hidden">
 					<div bind:this={chat_body} class="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 						{#if chat_messages.length === 0}
 							<p class="text-sm text-muted text-center py-6">No messages yet. Click <strong class="text-ink">?</strong> on a hint to start.</p>
@@ -524,7 +524,7 @@
 							<button class="text-xs text-error" onclick={stopChat}>Stop generating</button>
 						</div>
 					{/if}
-					<div class="flex items-center gap-2 p-3 border-t border-hairline">
+					<div class="flex items-center gap-2 p-3">
 						<input
 							bind:this={chat_input_ref}
 							bind:value={chat_input}
