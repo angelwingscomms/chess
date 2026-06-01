@@ -442,12 +442,13 @@
 
 	async function sendChatMessage(text: string) {
 		if (!text.trim()) return;
+		const t = text.trim();
+		chat_input = '';
 		if (chat_loading) {
-			chat_queue = [...chat_queue, text.trim()];
-			chat_input = '';
+			chat_queue = [...chat_queue, t];
 			return;
 		}
-		await send_chess_chat(text.trim(), '', true);
+		await send_chess_chat(t, '', true);
 	}
 </script>
 
