@@ -53,6 +53,11 @@
 	let show_model_menu = $state(false);
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
+	let pending_user_idx = $derived.by(() => {
+		if (!chat_loading) return -1;
+		for (let i = chat_messages.length - 1; i >= 0; i--) if (chat_messages[i].role === 'user') return i;
+		return -1;
+	});
 	$effect(() => { if (browser) localStorage.setItem('explain_model', model); });
 	$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
@@ -581,9 +586,9 @@
 										{@html marked.parse(msg.content)}
 									</div>
 								{:else}
-									<div class="max-w-[85%] bg-primary text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed">
-										{msg.content}
-									</div>
+								<div class="max-w-[85%] bg-primary text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">
+									{msg.content}
+								</div>
 								{/if}
 							</div>
 						{/each}
@@ -612,7 +617,7 @@
 						<button
 							onclick={() => sendChatMessage(chat_input)}
 							disabled={!chat_loading && !chat_input.trim()}
-							class="button-primary !border-0 !px-3 !min-h-[40px] !rounded-lg shrink-0 {chat_loading ? 'motion-safe:animate-hint-loading' : ''}"
+							class="button-primary !border-0 !px-3 !min-h-[40px] !rounded-lg shrink-0"
 							aria-label="Send"
 						>→</button>
 					</div>
