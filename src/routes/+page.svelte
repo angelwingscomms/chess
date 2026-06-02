@@ -200,6 +200,8 @@
 	}
 
 	async function send_direct_interaction(ac: AbortController, request_messages: ChatMsg[], m: string) {
+		const gen_config: Record<string, string> = {};
+		if (!m.includes('gemma-4')) gen_config.thinking_level = 'high';
 		const res = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
 			method: 'POST',
 			headers: {
@@ -212,7 +214,7 @@
 				input: build_direct_steps(request_messages),
 				store: false,
 				system_instruction: sys,
-				generation_config: { thinking_level: 'high' },
+				generation_config: gen_config,
 			}),
 			signal: ac.signal,
 		});

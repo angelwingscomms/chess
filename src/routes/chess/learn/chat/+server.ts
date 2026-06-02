@@ -95,13 +95,15 @@ export const POST: RequestHandler = async ({ request }) => {
 			try {
 				const input_type = i ? 'single (last user msg)' : 'steps (full history)';
 				console.log(`[chat] calling ai.interactions.create: model=${m} input_type=${input_type} prev_id=${i ? i.slice(0, 16) + '…' : 'none'}`);
+				const gen_config: Record<string, string> = {};
+				if (!m.includes('gemma-4')) gen_config.thinking_level = 'high';
 				const response = await ai.interactions.create({
 					model: m,
 					input: i ? build_input(last) : build_steps(messages) as any,
 					previous_interaction_id: i || undefined,
 					stream: true,
 					system_instruction: sys,
-					generation_config: { thinking_level: 'high' },
+					generation_config: gen_config,
 				}, { signal: request.signal });
 				for await (const chunk of response) {
 					if (request.signal.aborted) break;

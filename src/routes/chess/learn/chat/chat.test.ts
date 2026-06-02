@@ -14,7 +14,7 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('chunk.type');
 		expect(route).toContain("event('interaction'");
 		expect(route).toContain('system_instruction: sys');
-		expect(route).toContain('thinking_level: \'high\'');
+		expect(route).toContain("gen_config.thinking_level = 'high'");
 	});
 
 	it('keeps chess context in user input instead of the system prompt', () => {
