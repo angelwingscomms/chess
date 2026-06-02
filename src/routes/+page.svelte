@@ -484,8 +484,8 @@
 	<div class="container py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">
-				<h1 class="display-sm">Chess — Learn</h1>
-				<p class="text-muted text-sm">Play against Stockfish. Adjust difficulty to match your level.</p>
+				<h1 class="display-sm">Chess — Train</h1>
+				<p class="text-muted text-sm">Play, learn, and analyze with every move.</p>
 			</div>
 
 			<div class="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,640px)_minmax(0,640px)] lg:items-start lg:justify-center">
