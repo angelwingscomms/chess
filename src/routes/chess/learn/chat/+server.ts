@@ -109,6 +109,10 @@ export const POST: RequestHandler = async ({ request }) => {
 					if (request.signal.aborted) break;
 					const event_type = chunk.event_type ?? chunk.type;
 					console.log(`[chat] gemini event: ${event_type}`);
+					if (event_type === 'error') {
+						const err_msg = chunk.error?.message || chunk.error || 'Interactions API error';
+						throw Error(err_msg);
+					}
 					if (event_type === 'step.delta' && chunk.delta.type === 'text') {
 						wrote = true;
 						controller.enqueue(event('text', { t: chunk.delta.text }));
