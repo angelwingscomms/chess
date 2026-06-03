@@ -162,8 +162,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('groq_api_key.trim()');
 	});
 
-	it('only shows model combobox when a custom api key is provided', () => {
-		expect(page).toContain('{#if groq_api_key.trim()}');
+	it('shows model combobox regardless of api key', () => {
 		expect(page).toContain('let show_model_menu = $state(false);');
 		expect(page).toContain('let model_options =');
 		expect(page).toContain('role="combobox"');
