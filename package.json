@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.7.0",
+    "@google/generative-ai": "^0.24.1",
     "@lucide/svelte": "^1.17.0",
     "@qdrant/js-client-rest": "^1.18.0",
     "@sveltejs/kit": "^2.61.1",
