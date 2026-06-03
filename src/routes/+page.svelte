@@ -653,7 +653,6 @@
 			<div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
 				<p class="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">Preferences</p>
 				<h2 id="settings-title" class="font-display text-2xl font-medium text-ink">Settings</h2>
-				<p class="mt-2 text-sm leading-6 text-muted">Choose how hint explanations behave.</p>
 			</div>
 			<div class="grid min-h-0 gap-3 overflow-y-auto p-6">
 				<section class="grid gap-3 rounded-lg bg-surface-card p-4" data-testid="settings-difficulty">
