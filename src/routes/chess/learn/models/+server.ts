@@ -1,10 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
+import { GROQ_API_KEY } from '$env/static/private';
 
 export const GET: RequestHandler = async () => {
 	try {
 		const res = await fetch('https://api.groq.com/openai/v1/models', {
-			headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+			headers: { Authorization: `Bearer ${GROQ_API_KEY}` },
 		});
 		if (!res.ok) throw Error(`Groq API: ${res.status} ${res.statusText}`);
 		const body = await res.json();

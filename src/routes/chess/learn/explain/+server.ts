@@ -1,7 +1,10 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
+import { GROQ_API_KEY } from '$env/static/private';
 import { streamText } from 'ai';
-import { groq } from '@ai-sdk/groq';
+import { createGroq } from '@ai-sdk/groq';
+
+const groq = createGroq({ apiKey: GROQ_API_KEY });
 
 function build_prompt(fen: string, move: string, score: number, depth: number): string {
 	const score_str = score > 90000 ? 'Mate' : score < -90000 ? '-Mate' : (score / 100).toFixed(2);

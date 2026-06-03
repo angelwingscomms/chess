@@ -1,7 +1,10 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
+import { GROQ_API_KEY } from '$env/static/private';
 import { streamText } from 'ai';
-import { groq } from '@ai-sdk/groq';
+import { createGroq } from '@ai-sdk/groq';
+
+const groq = createGroq({ apiKey: GROQ_API_KEY });
 
 type Msg = { r: 'user' | 'assistant'; c: string; d?: Data };
 type Data = { f?: string; p?: string; u?: string; a?: string; h?: string };
