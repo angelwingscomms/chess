@@ -144,14 +144,12 @@ describe('/chess/learn settings modal', () => {
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});
 
-	it('lets users bring a Gemini key and sends keyed chat directly to Interactions API', () => {
+	it('lets users bring a Gemini key and sends keyed chat directly to AI SDK', () => {
 		expect(page).toContain("let gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');");
 		expect(page).toContain("localStorage.setItem('gemini_api_key', gemini_api_key)");
-		expect(page).toContain('async function send_direct_interaction(');
-		expect(page).toContain('https://generativelanguage.googleapis.com/v1beta/interactions');
-		expect(page).toContain("'x-goog-api-key': gemini_api_key.trim()");
-		expect(page).toContain("'Api-Revision': '2026-05-20'");
-		expect(page).toContain('store: false');
+		expect(page).toContain('async function send_direct_generation(');
+		expect(page).toContain("createGoogleGenerativeAI({ apiKey: gemini_api_key.trim() })");
+		expect(page).toContain('streamText');
 		expect(page).toContain('if (gemini_api_key.trim())');
 		expect(page).toContain('Gemini API key');
 		expect(page).toContain('type="password"');
@@ -160,12 +158,11 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('target="_blank"');
 	});
 
-	it('reads direct Gemini text from every supported Interactions response shape', () => {
-		expect(page).toContain('function direct_parts(');
-		expect(page).toContain('v?.output_text');
-		expect(page).toContain('v?.steps');
-		expect(page).toContain('v?.outputs');
-		expect(page).toContain('typeof part.text === \'string\'');
+	it('reads direct Gemini text from AI SDK textStream', () => {
+		expect(page).toContain('textStream');
+		expect(page).toContain('for await (const chunk of result.textStream)');
+		expect(page).toContain('send_direct_generation(');
+		expect(page).toContain('gemini_api_key.trim()');
 	});
 
 	it('only shows model combobox when a custom api key is provided', () => {

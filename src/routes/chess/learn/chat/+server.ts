@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { GEMINI } from '$env/static/private';
-import { GoogleGenAI, ThinkingLevel } from '@google/genai';
+import { streamText } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 type Msg = { r: 'user' | 'assistant'; c: string; d?: Data };
 type Data = { f?: string; p?: string; u?: string; a?: string; h?: string };
@@ -39,35 +40,6 @@ function normalize_msg(v: any): Msg | null {
 	return { r, c, d: v?.d && typeof v.d === 'object' ? v.d : undefined };
 }
 
-function build_steps(messages: Msg[]) {
-	return messages.map((m) => ({
-		type: m.r === 'assistant' ? 'model_output' : 'user_input',
-		content: [{ type: 'text', text: m.r === 'user' ? build_input(m) : m.c }],
-	}));
-}
-
-function build_contents(messages: Msg[]) {
-	return messages.map((m) => ({
-		role: m.r === 'assistant' ? 'model' : 'user',
-		parts: [{ text: m.r === 'user' ? build_input(m) : m.c }],
-	}));
-}
-
-async function stream_fallback(controller: ReadableStreamDefaultController, request: Request, ai: GoogleGenAI, messages: Msg[], m: string) {
-	const response = await ai.models.generateContentStream({
-		model: m,
-		contents: build_contents(messages),
-		config: {
-			systemInstruction: { parts: [{ text: sys }] },
-			thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
-		},
-	});
-	for await (const chunk of response) {
-		if (request.signal.aborted) break;
-		if (chunk.text) controller.enqueue(event('text', { t: chunk.text }));
-	}
-}
-
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json().catch(() => null);
 	const raw = Array.isArray(body?.x) ? body.x : Array.isArray(body?.messages) ? body.messages : [];
@@ -77,67 +49,38 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Missing messages array' }, { status: 400 });
 	}
 
-	const i = text(body?.i);
 	const m = text(body?.m) || 'gemma-4-31b-it';
-	console.log(`[chat] request: messages=${messages.length} model=${m} interaction_id=${i ? i.slice(0, 16) + '…' : 'none'}`);
+	console.log(`[chat] request: messages=${messages.length} model=${m}`);
 
-	const last = messages.findLast((msg) => msg.r === 'user');
-	if (!last) {
-		console.error('[chat] no user message found');
-		return json({ error: 'Missing user message' }, { status: 400 });
-	}
-
-	const ai = new GoogleGenAI({ apiKey: GEMINI });
-	console.log(`[chat] last user msg: ${last.c.slice(0, 80)}`);
 	const stream = new ReadableStream({
 		async start(controller) {
 			let wrote = false;
 			try {
-				const input_type = i ? 'single (last user msg)' : 'steps (full history)';
-				console.log(`[chat] calling ai.interactions.create: model=${m} input_type=${input_type} prev_id=${i ? i.slice(0, 16) + '…' : 'none'}`);
-				const gen_config: Record<string, string> = {};
-				if (!m.includes('gemma-4')) gen_config.thinking_level = 'high';
-				const response = await ai.interactions.create({
-					model: m,
-					input: i ? build_input(last) : build_steps(messages) as any,
-					previous_interaction_id: i || undefined,
-					stream: true,
-					system_instruction: sys,
-					generation_config: gen_config,
-				}, { signal: request.signal });
-				for await (const chunk of response) {
+				const google = createGoogleGenerativeAI({ apiKey: GEMINI });
+				const result = streamText({
+					model: google(m),
+					system: sys,
+					messages: messages.map((msg) => ({
+						role: msg.r as 'user' | 'assistant',
+						content: msg.r === 'user' ? build_input(msg) : msg.c,
+					})),
+					providerOptions: {
+						google: m.includes('gemma-4')
+							? { chat_template_kwargs: { enable_thinking: true } }
+							: { thinkingConfig: { thinkingLevel: 'high' as const } },
+					},
+				});
+				for await (const chunk of result.textStream) {
 					if (request.signal.aborted) break;
-					const event_type = chunk.event_type ?? chunk.type;
-					console.log(`[chat] gemini event: ${event_type}`);
-					if (event_type === 'error') {
-						const err_msg = chunk.error?.message || chunk.error || 'Interactions API error';
-						throw Error(err_msg);
-					}
-					if (event_type === 'step.delta' && chunk.delta.type === 'text') {
+					if (chunk) {
 						wrote = true;
-						controller.enqueue(event('text', { t: chunk.delta.text }));
-					}
-					if (event_type === 'interaction.completed' || event_type === 'interaction.complete') {
-						const id = chunk.interaction?.id;
-						console.log(`[chat] interaction completed: id=${id ? id.slice(0, 16) + '…' : 'unknown'}`);
-						controller.enqueue(event('interaction', { i: id }));
+						controller.enqueue(event('text', { t: chunk }));
 					}
 				}
 			} catch (e) {
-				console.error('[chat] interactions api error:', e);
-				if (!request.signal.aborted) {
-					if (!wrote) {
-						console.log('[chat] falling back to generateContentStream');
-						try {
-							await stream_fallback(controller, request, ai, messages, m);
-							console.log('[chat] fallback succeeded');
-						} catch (fallback) {
-							console.error('[chat] fallback error:', fallback);
-							controller.enqueue(event('error', { e: fallback instanceof Error ? fallback.stack || fallback.message : String(fallback) }));
-						}
-					} else {
-						controller.enqueue(event('error', { e: e instanceof Error ? e.stack || e.message : String(e) }));
-					}
+				console.error('[chat] streamText error:', e);
+				if (!request.signal.aborted && !wrote) {
+					controller.enqueue(event('error', { e: e instanceof Error ? e.stack || e.message : String(e) }));
 				}
 			} finally {
 				const aborted = request.signal.aborted;

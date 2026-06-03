@@ -1,13 +1,12 @@
 packages:
   - '.'
 allowBuilds:
-  '@google/genai': true
+  '@google/genai': set this to true or false
   esbuild: true
   protobufjs: true
   sharp: true
   workerd: true
 minimumReleaseAgeExclude:
-  - '@google/genai@2.7.0'
   - '@vitest/expect@4.1.8'
   - '@vitest/mocker@4.1.8'
   - '@vitest/pretty-format@4.1.8'

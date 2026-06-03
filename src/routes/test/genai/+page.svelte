@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { GoogleGenerativeAI } from '@google/generative-ai';
+	import { createGoogleGenerativeAI } from '@ai-sdk/google';
+	import { generateText } from 'ai';
 
 	let api_key = $state('');
 	let prompt = $state('What is the capital of France?');
@@ -12,10 +13,12 @@
 		error = '';
 		response_text = '';
 		try {
-			const genAI = new GoogleGenerativeAI(api_key);
-			const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-			const result = await model.generateContent(prompt || 'Say hello and introduce yourself briefly.');
-			response_text = result.response.text() || '(no text in response)';
+			const google = createGoogleGenerativeAI({ apiKey: api_key });
+			const { text } = await generateText({
+				model: google('gemini-2.0-flash'),
+				prompt: prompt || 'Say hello and introduce yourself briefly.',
+			});
+			response_text = text || '(no text in response)';
 		} catch (e) {
 			error = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
 		} finally {
@@ -25,8 +28,8 @@
 </script>
 
 <div class="max-w-xl mx-auto mt-8 p-4">
-	<h1 class="text-2xl font-bold mb-4">@google/generative-ai browser test</h1>
-	<p class="text-sm text-gray-600 mb-4">Tests whether the SDK works client-side using the user's own API key.</p>
+	<h1 class="text-2xl font-bold mb-4">ai-sdk + @ai-sdk/google browser test</h1>
+	<p class="text-sm text-gray-600 mb-4">Tests whether the AI SDK works client-side using the user's own API key.</p>
 
 	<input
 		bind:value={api_key}

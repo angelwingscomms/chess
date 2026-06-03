@@ -182,29 +182,30 @@
 	}
 
 	async function send_direct_generation(ac: AbortController, request_messages: ChatMsg[], m: string) {
-		const { GoogleGenerativeAI } = await import('@google/generative-ai');
-		const genAI = new GoogleGenerativeAI(gemini_api_key.trim());
-		const model = genAI.getGenerativeModel({ model: m, systemInstruction: sys });
+		const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+		const { streamText } = await import('ai');
+		const google = createGoogleGenerativeAI({ apiKey: gemini_api_key.trim() });
 
-		const contents = request_messages.map((msg) => ({
-			role: msg.role === 'assistant' ? 'model' : 'user',
-			parts: [{ text: msg.role === 'user' ? build_direct_input(msg) : msg.content }],
-		}));
-
-		const result = await model.generateContentStream({ contents }, { signal: ac.signal });
+		const result = streamText({
+			model: google(m),
+			system: sys,
+			messages: request_messages.map((msg) => ({
+				role: msg.role as 'user' | 'assistant',
+				content: msg.role === 'user' ? build_direct_input(msg) : msg.content,
+			})),
+		});
 
 		let wrote = false;
-		for await (const chunk of result.stream) {
+		for await (const chunk of result.textStream) {
 			if (ac.signal.aborted) break;
-			const t = chunk.text();
-			if (t) {
+			if (chunk) {
 				wrote = true;
 				const last = chat_messages[chat_messages.length - 1];
 				if (last?.role === 'assistant') {
-					chat_messages[chat_messages.length - 1] = { ...last, content: last.content + t };
+					chat_messages[chat_messages.length - 1] = { ...last, content: last.content + chunk };
 					chat_messages = chat_messages;
 				} else {
-					chat_messages = [...chat_messages, { role: 'assistant', content: t }];
+					chat_messages = [...chat_messages, { role: 'assistant', content: chunk }];
 				}
 			}
 		}

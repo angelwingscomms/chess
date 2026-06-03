@@ -6,15 +6,15 @@ import { describe, expect, it } from 'vitest';
 const route = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '+server.ts'), 'utf8');
 
 describe('/chess/learn/chat route', () => {
-	it('uses Gemini interactions with server-side history', () => {
-		expect(route).toContain('ai.interactions.create');
-		expect(route).toContain('previous_interaction_id');
-		expect(route).toContain('interaction.completed');
-		expect(route).toContain('interaction.complete');
-		expect(route).toContain('chunk.type');
-		expect(route).toContain("event('interaction'");
-		expect(route).toContain('system_instruction: sys');
-		expect(route).toContain("gen_config.thinking_level = 'high'");
+	it('uses AI SDK streamText with server-side history', () => {
+		expect(route).toContain('createGoogleGenerativeAI');
+		expect(route).toContain('streamText');
+		expect(route).toContain('textStream');
+		expect(route).toContain("event('text'");
+		expect(route).toContain('system: sys');
+		expect(route).toContain('providerOptions');
+		expect(route).toContain('chat_template_kwargs');
+		expect(route).toContain('thinkingConfig');
 	});
 
 	it('keeps chess context in user input instead of the system prompt', () => {
