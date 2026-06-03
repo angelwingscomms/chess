@@ -43,11 +43,11 @@
 	let last_ai_move = $state('');
 	let successful_context = $state<Partial<ChatContext>>({});
 
-	let model = $state(browser && localStorage.getItem('explain_model') || 'gemma-4-31b-it');
+	let model = $state(browser && localStorage.getItem('explain_model') || 'qwen/qwen3-32b');
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
-	let gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');
+	let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
@@ -62,7 +62,7 @@
 	$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
-	$effect(() => { if (browser) localStorage.setItem('gemini_api_key', gemini_api_key); });
+	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
 	$effect(() => {
 		const el = chat_body;
 		if (!el) return;
@@ -76,8 +76,8 @@
 	const hint_from_class = 'bg-amber/70';
 	const hint_to_class = 'bg-teal/70';
 	const model_options = [
-		{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'Best open model' },
-		{ v: 'gemini-3.5-flash', l: 'Gemini 3.5 Flash', d: 'Fast coach' },
+		{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'Best value model' },
+		{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'Strong general purpose' },
 	];
 
 	function buildEngine() {
@@ -182,12 +182,12 @@
 	}
 
 	async function send_direct_generation(ac: AbortController, request_messages: ChatMsg[], m: string) {
-		const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+		const { createGroq } = await import('@ai-sdk/groq');
 		const { streamText } = await import('ai');
-		const google = createGoogleGenerativeAI({ apiKey: gemini_api_key.trim() });
+		const groq = createGroq({ apiKey: groq_api_key.trim() });
 
 		const result = streamText({
-			model: google(m),
+			model: groq(m),
 			system: sys,
 			messages: request_messages.map((msg) => ({
 				role: msg.role as 'user' | 'assistant',
@@ -348,7 +348,7 @@
 		chat_abort = ac;
 
 		try {
-			if (gemini_api_key.trim()) {
+			if (groq_api_key.trim()) {
 				await send_direct_generation(ac, chat_messages, model);
 				interaction_id = '';
 			} else {
@@ -638,7 +638,7 @@
 						<span>Hard</span>
 					</div>
 				</section>
-				{#if gemini_api_key.trim()}
+				{#if groq_api_key.trim()}
 			<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="model-label">Analysis model</h3>
 					<button
@@ -677,17 +677,17 @@
 				</section>
 			{/if}
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
-					<label class="text-sm font-medium text-ink" for="gemini-api-key">Gemini API key</label>
+					<label class="text-sm font-medium text-ink" for="groq-api-key">Groq API key</label>
 					<input
-						id="gemini-api-key"
+						id="groq-api-key"
 						type="password"
-						bind:value={gemini_api_key}
-						placeholder="AIza..."
+						bind:value={groq_api_key}
+						placeholder="gsk_..."
 						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
 					/>
 					<p class="text-xs leading-5 text-muted">
-						Get your Gemini API key @
-						<a class="text-primary underline-offset-2 hover:underline" href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer">https://aistudio.google.com/api-keys</a>
+						Get your Groq API key @
+						<a class="text-primary underline-offset-2 hover:underline" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">https://console.groq.com/keys</a>
 					</p>
 				</section>
 				<section class="rounded-lg border border-hairline bg-canvas p-4">

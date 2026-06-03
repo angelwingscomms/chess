@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GEMINI } from '$env/static/private';
 import { streamText } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { groq } from '@ai-sdk/groq';
 
 type Msg = { r: 'user' | 'assistant'; c: string; d?: Data };
 type Data = { f?: string; p?: string; u?: string; a?: string; h?: string };
@@ -49,26 +48,20 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Missing messages array' }, { status: 400 });
 	}
 
-	const m = text(body?.m) || 'gemma-4-31b-it';
+	const m = text(body?.m) || 'qwen/qwen3-32b';
 	console.log(`[chat] request: messages=${messages.length} model=${m}`);
 
 	const stream = new ReadableStream({
 		async start(controller) {
 			let wrote = false;
 			try {
-				const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 				const result = streamText({
-					model: google(m),
+					model: groq(m),
 					system: sys,
 					messages: messages.map((msg) => ({
 						role: msg.r as 'user' | 'assistant',
 						content: msg.r === 'user' ? build_input(msg) : msg.c,
 					})),
-					providerOptions: {
-						google: m.includes('gemma-4')
-							? { chat_template_kwargs: { enable_thinking: true } }
-							: { thinkingConfig: { thinkingLevel: 'high' as const } },
-					},
 				});
 				for await (const chunk of result.textStream) {
 					if (request.signal.aborted) break;

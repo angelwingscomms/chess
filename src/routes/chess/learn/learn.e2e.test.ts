@@ -56,15 +56,12 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('Ask about the position');
 	});
 
-	it('keeps board context hidden while sending interaction state', () => {
-		expect(page).toContain('interaction_id');
+	it('keeps board context hidden while sending request state', () => {
 		expect(page).toContain('successful_context');
 		expect(page).toContain('build_chat_data(');
 		expect(page).toContain('apply_chat_event(');
 		expect(page).toContain('bind:history');
-		expect(page).toContain('i: interaction_id');
 		expect(page).toContain('d: build_chat_data(');
-		expect(page).toContain('interaction_id = msg.i');
 		expect(page).toContain('msg.content');
 		expect(page).not.toContain('{msg.d');
 	});
@@ -144,29 +141,29 @@ describe('/chess/learn settings modal', () => {
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});
 
-	it('lets users bring a Gemini key and sends keyed chat directly to AI SDK', () => {
-		expect(page).toContain("let gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');");
-		expect(page).toContain("localStorage.setItem('gemini_api_key', gemini_api_key)");
+	it('lets users bring a Groq key and sends keyed chat directly to AI SDK', () => {
+		expect(page).toContain("let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');");
+		expect(page).toContain("localStorage.setItem('groq_api_key', groq_api_key)");
 		expect(page).toContain('async function send_direct_generation(');
-		expect(page).toContain("createGoogleGenerativeAI({ apiKey: gemini_api_key.trim() })");
+		expect(page).toContain("createGroq({ apiKey: groq_api_key.trim() })");
 		expect(page).toContain('streamText');
-		expect(page).toContain('if (gemini_api_key.trim())');
-		expect(page).toContain('Gemini API key');
+		expect(page).toContain('if (groq_api_key.trim())');
+		expect(page).toContain('Groq API key');
 		expect(page).toContain('type="password"');
-		expect(page).toContain('Get your Gemini API key @');
-		expect(page).toContain('href="https://aistudio.google.com/api-keys"');
+		expect(page).toContain('Get your Groq API key @');
+		expect(page).toContain('href="https://console.groq.com/keys"');
 		expect(page).toContain('target="_blank"');
 	});
 
-	it('reads direct Gemini text from AI SDK textStream', () => {
+	it('reads direct text from AI SDK textStream', () => {
 		expect(page).toContain('textStream');
 		expect(page).toContain('for await (const chunk of result.textStream)');
 		expect(page).toContain('send_direct_generation(');
-		expect(page).toContain('gemini_api_key.trim()');
+		expect(page).toContain('groq_api_key.trim()');
 	});
 
 	it('only shows model combobox when a custom api key is provided', () => {
-		expect(page).toContain('{#if gemini_api_key.trim()}');
+		expect(page).toContain('{#if groq_api_key.trim()}');
 		expect(page).toContain('let show_model_menu = $state(false);');
 		expect(page).toContain('const model_options =');
 		expect(page).toContain('role="combobox"');

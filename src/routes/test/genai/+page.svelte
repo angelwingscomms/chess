@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createGoogleGenerativeAI } from '@ai-sdk/google';
+	import { createGroq } from '@ai-sdk/groq';
 	import { generateText } from 'ai';
 
 	let api_key = $state('');
@@ -13,9 +13,9 @@
 		error = '';
 		response_text = '';
 		try {
-			const google = createGoogleGenerativeAI({ apiKey: api_key });
+			const groq = createGroq({ apiKey: api_key });
 			const { text } = await generateText({
-				model: google('gemini-2.0-flash'),
+				model: groq('qwen/qwen3-32b'),
 				prompt: prompt || 'Say hello and introduce yourself briefly.',
 			});
 			response_text = text || '(no text in response)';
@@ -28,13 +28,13 @@
 </script>
 
 <div class="max-w-xl mx-auto mt-8 p-4">
-	<h1 class="text-2xl font-bold mb-4">ai-sdk + @ai-sdk/google browser test</h1>
+	<h1 class="text-2xl font-bold mb-4">ai-sdk + @ai-sdk/groq browser test</h1>
 	<p class="text-sm text-gray-600 mb-4">Tests whether the AI SDK works client-side using the user's own API key.</p>
 
 	<input
 		bind:value={api_key}
 		type="password"
-		placeholder="Gemini API Key"
+		placeholder="Groq API Key"
 		class="w-full border border-gray-300 p-2 mb-2 rounded"
 	/>
 	<textarea

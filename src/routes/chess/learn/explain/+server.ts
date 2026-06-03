@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GEMINI } from '$env/static/private';
 import { streamText } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { groq } from '@ai-sdk/groq';
 
 function build_prompt(fen: string, move: string, score: number, depth: number): string {
 	const score_str = score > 90000 ? 'Mate' : score < -90000 ? '-Mate' : (score / 100).toFixed(2);
@@ -26,20 +25,16 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	const { fen, move, score = 0, depth = 0, m } = body;
-	console.log(`[explain] request: fen=${fen} move=${move} score=${score} depth=${depth} model=${m || 'gemma-4-31b-it'}`);
+	console.log(`[explain] request: fen=${fen} move=${move} score=${score} depth=${depth} model=${m || 'qwen/qwen3-32b'}`);
 
 	const stream = new ReadableStream({
 		async start(controller) {
 			try {
 				const prompt = build_prompt(fen, move, score, depth);
 				console.log('[explain] calling streamText');
-				const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 				const result = streamText({
-					model: google(m || 'gemma-4-31b-it'),
+					model: groq(m || 'qwen/qwen3-32b'),
 					prompt,
-					providerOptions: {
-						google: { thinkingConfig: { thinkingLevel: 'high' as const } },
-					},
 				});
 				let chunks = 0;
 				for await (const chunk of result.textStream) {
