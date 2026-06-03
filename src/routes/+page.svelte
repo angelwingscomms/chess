@@ -74,7 +74,7 @@
 	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
 	const hint_from_class = 'bg-amber/70';
 	const hint_to_class = 'bg-teal/70';
-	let model_options = $state<{ v: string; l: string; d: string }[]>([]);
+	let model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
 
 	async function fetch_models() {
 		try {
@@ -91,9 +91,16 @@
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
+			model_options.sort((a, b) => {
+				if (a.v === 'qwen/qwen3-32b') return -1;
+				if (b.v === 'qwen/qwen3-32b') return 1;
+				return 0;
+			});
+			const first = model_options[0];
+			if (first) first.r = true;
 		} catch {
 			model_options = [
-				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
+				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq', r: true },
 				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
 			];
 		}
@@ -682,7 +689,7 @@
 					>
 						<span>
 							<span class="block font-medium">{model_options.find((o) => o.v === model)?.l ?? model}</span>
-							<span class="mt-0.5 block text-xs text-muted">{model_options.find((o) => o.v === model)?.d ?? 'Custom model'}</span>
+							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{(model_options.find((o) => o.v === model)?.d) ?? 'Custom model'}{#if model_options.find((o) => o.v === model)?.r}<span class="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary">Recommended</span>{/if}</span>
 						</span>
 						<span class="text-primary">⌄</span>
 					</button>
@@ -697,7 +704,7 @@
 									onclick={() => { model = option.v; show_model_menu = false; }}
 								>
 									<span class="font-medium">{option.l}</span>
-									<span class="text-xs text-muted">{option.d}</span>
+									<span class="flex items-center gap-1.5 text-xs text-muted">{option.d}{#if option.r}<span class="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary">Recommended</span>{/if}</span>
 								</button>
 							{/each}
 						</div>
