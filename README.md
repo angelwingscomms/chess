@@ -1,12 +1,27 @@
 # Beee Chess
 
-## `/chess/learn` AI chat
+Chess training app where you play against Stockfish, get AI coaching via Groq, and buy tokens via Paystack.
 
-The learn chat uses Gemini Interactions API for server-side conversation history.
+## Stack
 
-- The system prompt stays simple: the model is a concise chess coach.
-- The client owns visible chat messages and sends hidden board context with each user turn.
-- Hidden context can include FEN, SAN move history, last user move, last AI move, and hint eval/depth.
-- The UI renders only the visible message text.
-- The server expands hidden context into the user input, streams text by SSE, and returns the completed interaction id.
-- If Interactions fails before output starts, the server falls back to `generateContentStream`.
+Svelte 5 + SvelteKit 2, TypeScript, Tailwind CSS 4, Cloudflare Workers, Qdrant (vector DB), Google OAuth, Groq + Gemini AI, Paystack.
+
+## Routes
+
+| Route | What it does |
+|---|---|
+| `/` | Main chess board vs Stockfish (10 difficulty presets), hint overlay, AI chat/analysis |
+| `/login` | Sign in with Google |
+| `/api/me` | Current user |
+| `/api/buy-tokens` | Paystack payment init |
+| `/chess/learn/chat` | SSE stream — AI chat via Groq |
+| `/chess/learn/explain` | SSE stream — move analysis |
+| `/chess/learn/models` | Available Groq models |
+
+## AI Chat
+
+Board context (FEN, move history, last moves) is injected as hidden `[board_context]` into the user message — not the system prompt. The server streams text by SSE (`text`, `interaction`, `error` events). Falls back to `generateContentStream` if Interactions API fails.
+
+## Testing
+
+`pnpm test` — Vitest with unit + static e2e tests.
