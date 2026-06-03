@@ -10,7 +10,7 @@ export const GET: RequestHandler = async () => {
 		if (!res.ok) throw Error(`Groq API: ${res.status} ${res.statusText}`);
 		const body = await res.json();
 		const models = (body.data ?? [])
-			.filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding'))
+			.filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding') && !m.id.includes('orpheus') && !m.id.includes('prompt-guard'))
 			.map((m: any) => ({ v: m.id, l: m.id.split('/').pop() ?? m.id, d: m.owned_by ?? '' }));
 		return json(models);
 	} catch (e) {

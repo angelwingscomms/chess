@@ -85,7 +85,7 @@
 				});
 				if (!res.ok) throw Error(`${res.status}`);
 				const body = await res.json();
-				model_options = (body.data ?? []).filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding')).map((m: any) => ({ v: m.id, l: m.id.split('/').pop() ?? m.id, d: m.owned_by ?? '' }));
+				model_options = (body.data ?? []).filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding') && !m.id.includes('orpheus') && !m.id.includes('prompt-guard')).map((m: any) => ({ v: m.id, l: m.id.split('/').pop() ?? m.id, d: m.owned_by ?? '' }));
 			} else {
 				const res = await fetch('/chess/learn/models');
 				if (!res.ok) throw Error(`${res.status}`);
