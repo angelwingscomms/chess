@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	const { fen, move, score = 0, depth = 0, m } = body;
-	console.log(`[explain] request: fen=${fen} move=${move} score=${score} depth=${depth} model=${m || 'qwen/qwen3-32b'}`);
+	console.log(`[explain] request: fen=${fen} move=${move} score=${score} depth=${depth} model=${m || 'openai/gpt-oss-120b'}`);
 
 	const stream = new ReadableStream({
 		async start(controller) {
@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				const prompt = build_prompt(fen, move, score, depth);
 				console.log('[explain] calling streamText');
 				const result = streamText({
-					model: wrap(m || 'qwen/qwen3-32b'),
+					model: wrap(m || 'openai/gpt-oss-120b'),
 					prompt,
 				});
 				let chunks = 0;

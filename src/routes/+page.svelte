@@ -3,7 +3,7 @@
 	import { Chess as ChessJS } from 'chess.js';
 	import { marked } from 'marked';
 	import { browser } from '$app/environment';
-	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
+	import { LearnEngine, DIFFICULTY_PRESETS, HINT_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 	import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
@@ -45,10 +45,12 @@
 	let last_ai_move = $state('');
 	let successful_context = $state<Partial<ChatContext>>({});
 
-	let model = $state(browser && localStorage.getItem('explain_model') || 'qwen/qwen3-32b');
+	let model = $state(browser && localStorage.getItem('explain_model') || 'openai/gpt-oss-120b');
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
+	let hint_count = $state(browser && parseInt(localStorage.getItem('hint_count') || '1', 10) || 1);
+	let hint_intelligence = $state(browser && parseInt(localStorage.getItem('hint_intelligence') || '10', 10) || 10);
 	let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
@@ -63,6 +65,8 @@
 	$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
+	$effect(() => { if (browser) localStorage.setItem('hint_count', String(hint_count)); });
+	$effect(() => { if (browser) localStorage.setItem('hint_intelligence', String(hint_intelligence)); });
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
 	$effect(() => {
 		const el = chat_body;
@@ -74,6 +78,7 @@
 
 	const presets = DIFFICULTY_PRESETS;
 	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
+	const hint_labels = ['Lightning', 'Very Fast', 'Fast', 'Quick', 'Moderate', 'Balanced', 'Thorough', 'Deep', 'Very Deep', 'Maximum'];
 	const hint_from_class = 'bg-amber/70';
 	const hint_to_class = 'bg-teal/70';
 	let model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
@@ -87,23 +92,25 @@
 				});
 				if (!res.ok) throw Error(`${res.status}`);
 				const body = await res.json();
-				model_options = (body.data ?? []).filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding') && !m.id.includes('orpheus') && !m.id.includes('prompt-guard')).map((m: any) => ({ v: m.id, l: m.id.split('/').pop() ?? m.id, d: m.owned_by ?? '' }));
+				model_options = (body.data ?? []).filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding') && !m.id.includes('orpheus') && !m.id.includes('prompt-guard') && !m.id.includes('compound')).map((m: any) => ({ v: m.id, l: m.id.split('/').pop() ?? m.id, d: m.owned_by ?? '' }));
 			} else {
 				const res = await fetch('/chess/learn/models');
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
+			const prio = ['openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-instruct'];
 			model_options.sort((a, b) => {
-				if (a.v === 'qwen/qwen3-32b') return -1;
-				if (b.v === 'qwen/qwen3-32b') return 1;
-				return 0;
+				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
+				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
 			});
 			const first = model_options[0];
 			if (first) first.r = true;
 		} catch {
+			// TODO: groq/compound and groq/compound-mini — paid models later
 			model_options = [
-				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq', r: true },
-				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
+				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq', r: true },
+				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
+				{ v: 'llama-3.3-70b-instruct', l: 'Llama 3.3 70B', d: 'meta' },
 			];
 		}
 		if (model_options.length && !model_options.find((o) => o.v === model)) {
@@ -335,7 +342,8 @@
 		hint_ac = new AbortController();
 		const sig = hint_ac.signal;
 		try {
-			hints = await getHints(fen, 5, undefined, sig);
+			const hp = HINT_PRESETS[hint_intelligence - 1];
+			hints = await getHints(fen, hint_count, undefined, sig, hp.depth, hp.moveTime);
 			if (sig.aborted) return;
 			hint_fen = fen;
 			console.log('hints:', hints);
@@ -676,6 +684,36 @@
 						<span>Elo: {presets[level - 1].elo ?? '∞'} · Depth: {presets[level - 1].depth} · Time: {presets[level - 1].moveTime}ms</span>
 						<span>Hard</span>
 					</div>
+				</section>
+				<section class="grid gap-2 rounded-lg bg-surface-card p-4" data-testid="settings-hint-intelligence">
+					<div class="flex items-center justify-between gap-3">
+						<h3 class="text-sm font-medium text-ink">Hint intelligence</h3>
+						<span class="text-sm font-medium text-primary">{hint_labels[hint_intelligence - 1]}</span>
+					</div>
+					<input
+						type="range"
+						min="1"
+						max="10"
+						bind:value={hint_intelligence}
+						class="w-full accent-primary"
+					/>
+					<div class="flex items-center justify-between gap-3 text-xs text-muted">
+						<span>Fast</span>
+						<span>Depth: {HINT_PRESETS[hint_intelligence - 1].depth} · Time: {HINT_PRESETS[hint_intelligence - 1].moveTime}ms</span>
+						<span>Deep</span>
+					</div>
+					<p class="text-xs leading-5 text-muted">Smarter hints search deeper but take longer.</p>
+				</section>
+				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
+					<label class="text-sm font-medium text-ink" for="hint-count">Hints per request</label>
+					<input
+						id="hint-count"
+						type="number"
+						min="1"
+						max="10"
+						bind:value={hint_count}
+						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+					/>
 				</section>
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="model-label">Analysis model</h3>

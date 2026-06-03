@@ -6,8 +6,9 @@ export interface Hint {
 	depth: number
 }
 
-export function getHints(fen: string, count = 5, stockfishPath?: string, signal?: AbortSignal): Promise<Hint[]> {
+export function getHints(fen: string, count = 5, stockfishPath?: string, signal?: AbortSignal, depth?: number, moveTime?: number): Promise<Hint[]> {
 	const sp = stockfishPath ?? '/stockfish.js';
+	const mt = moveTime ?? 8000;
 	let w: Worker | undefined;
 	try { w = new Worker(sp); } catch (e) { return Promise.reject(e); }
 	const ww = w!;
@@ -24,7 +25,11 @@ export function getHints(fen: string, count = 5, stockfishPath?: string, signal?
 				ww.postMessage('isready');
 			} else if (u === 'readyok') {
 				ww.postMessage('position fen ' + fen);
-				ww.postMessage('go movetime 8000');
+				if (depth !== undefined) {
+					ww.postMessage(`go depth ${depth} movetime ${mt}`);
+				} else {
+					ww.postMessage(`go movetime ${mt}`);
+				}
 			} else if (u.startsWith('info') && u.includes('multipv')) {
 				const mpv = parseInt(u.match(/multipv\s+(\d+)/)?.[1] ?? '0');
 				const depth = parseInt(u.match(/depth\s+(\d+)/)?.[1] ?? '0');
@@ -67,6 +72,19 @@ export const DIFFICULTY_PRESETS = [
 	{ elo: 2200, depth: 20, moveTime: 2500 },
 	{ elo: 2500, depth: 24, moveTime: 3000 },
 	{ elo: null, depth: 40, moveTime: 5000 },
+];
+
+export const HINT_PRESETS = [
+	{ depth: 4,  moveTime: 500  },
+	{ depth: 6,  moveTime: 1000 },
+	{ depth: 8,  moveTime: 1500 },
+	{ depth: 10, moveTime: 2000 },
+	{ depth: 14, moveTime: 3000 },
+	{ depth: 18, moveTime: 4000 },
+	{ depth: 22, moveTime: 5000 },
+	{ depth: 28, moveTime: 6000 },
+	{ depth: 34, moveTime: 7000 },
+	{ depth: 40, moveTime: 8000 },
 ];
 
 export class LearnEngine {

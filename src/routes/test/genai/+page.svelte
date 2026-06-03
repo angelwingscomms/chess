@@ -17,7 +17,7 @@
 			const groq = createGroq({ apiKey: api_key });
 			const { text } = await generateText({
 				model: wrapLanguageModel({
-					model: groq('qwen/qwen3-32b'),
+					model: groq('openai/gpt-oss-120b'),
 					middleware: extractReasoningMiddleware({ tagName: 'think' }),
 				}),
 				prompt: prompt || 'Say hello and introduce yourself briefly.',

@@ -56,7 +56,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Missing messages array' }, { status: 400 });
 	}
 
-	const m = text(body?.m) || 'qwen/qwen3-32b';
+	const m = text(body?.m) || 'openai/gpt-oss-120b';
 	console.log(`[chat] request: messages=${messages.length} model=${m}`);
 
 	const stream = new ReadableStream({
