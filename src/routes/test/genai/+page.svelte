@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { GoogleGenAI } from '@google/genai';
+	import { GoogleGenerativeAI } from '@google/generative-ai';
 
 	let api_key = $state('');
 	let prompt = $state('What is the capital of France?');
@@ -12,12 +12,10 @@
 		error = '';
 		response_text = '';
 		try {
-			const ai = new GoogleGenAI({ apiKey: api_key });
-			const resp = await ai.models.generateContent({
-				model: 'gemini-2.0-flash',
-				contents: prompt || 'Say hello and introduce yourself briefly.'
-			});
-			response_text = resp.text ?? '(no text in response)';
+			const genAI = new GoogleGenerativeAI(api_key);
+			const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+			const result = await model.generateContent(prompt || 'Say hello and introduce yourself briefly.');
+			response_text = result.response.text() || '(no text in response)';
 		} catch (e) {
 			error = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
 		} finally {
@@ -27,8 +25,8 @@
 </script>
 
 <div class="max-w-xl mx-auto mt-8 p-4">
-	<h1 class="text-2xl font-bold mb-4">@google/genai browser test</h1>
-	<p class="text-sm text-gray-600 mb-4">Tests whether the SDK works client-side (expects CORS failure).</p>
+	<h1 class="text-2xl font-bold mb-4">@google/generative-ai browser test</h1>
+	<p class="text-sm text-gray-600 mb-4">Tests whether the SDK works client-side using the user's own API key.</p>
 
 	<input
 		bind:value={api_key}

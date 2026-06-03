@@ -140,29 +140,6 @@
 			: msg.content;
 	}
 
-	function build_direct_steps(messages: ChatMsg[]) {
-		return messages.map((msg) => ({
-			type: msg.role === 'assistant' ? 'model_output' : 'user_input',
-			content: [{ type: 'text', text: msg.role === 'user' ? build_direct_input(msg) : msg.content }],
-		}));
-	}
-
-	function direct_parts(v: any): any[] {
-		return [
-			...(v?.steps ?? []),
-			...(v?.outputs ?? []),
-		].flatMap((step: any) => step?.content ?? step?.parts ?? []);
-	}
-
-	function direct_text(v: any): string {
-		return v?.output_text
-			?? direct_parts(v)
-				.filter((part: any) => part?.type === 'text' && typeof part.text === 'string')
-				.map((part: any) => part.text)
-				.join('')
-			?? '';
-	}
-
 	function apply_chat_event(raw: string) {
 		const lines = raw.split(/\r?\n/);
 		const name = lines.find((line) => line.startsWith('event: '))?.slice(7).trim();
@@ -204,40 +181,35 @@
 		return ok;
 	}
 
-	async function send_direct_interaction(ac: AbortController, request_messages: ChatMsg[], m: string) {
-		const gen_config: Record<string, string> = {};
-		if (!m.includes('gemma-4')) gen_config.thinking_level = 'high';
-		const res = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'x-goog-api-key': gemini_api_key.trim(),
-				'Api-Revision': '2026-05-20',
-			},
-			body: JSON.stringify({
-				model: m,
-				input: build_direct_steps(request_messages),
-				store: false,
-				system_instruction: sys,
-				generation_config: gen_config,
-			}),
-			signal: ac.signal,
-		});
-		const body = await res.json().catch(() => null);
-		if (!res.ok) {
-			const err_msg = body?.error?.message || body?.error || 'Request failed';
-			console.error('[chat] direct interaction error:', err_msg);
-			throw Error(err_msg);
+	async function send_direct_generation(ac: AbortController, request_messages: ChatMsg[], m: string) {
+		const { GoogleGenerativeAI } = await import('@google/generative-ai');
+		const genAI = new GoogleGenerativeAI(gemini_api_key.trim());
+		const model = genAI.getGenerativeModel({ model: m, systemInstruction: sys });
+
+		const contents = request_messages.map((msg) => ({
+			role: msg.role === 'assistant' ? 'model' : 'user',
+			parts: [{ text: msg.role === 'user' ? build_direct_input(msg) : msg.content }],
+		}));
+
+		const result = await model.generateContentStream({ contents }, { signal: ac.signal });
+
+		let wrote = false;
+		for await (const chunk of result.stream) {
+			if (ac.signal.aborted) break;
+			const t = chunk.text();
+			if (t) {
+				wrote = true;
+				const last = chat_messages[chat_messages.length - 1];
+				if (last?.role === 'assistant') {
+					chat_messages[chat_messages.length - 1] = { ...last, content: last.content + t };
+					chat_messages = chat_messages;
+				} else {
+					chat_messages = [...chat_messages, { role: 'assistant', content: t }];
+				}
+			}
 		}
-		const t = direct_text(body).trim();
-		if (!t) throw Error('Request failed');
-		const last = chat_messages[chat_messages.length - 1];
-		if (last?.role === 'assistant') {
-			chat_messages[chat_messages.length - 1] = { ...last, content: t };
-			chat_messages = chat_messages;
-		} else {
-			chat_messages = [...chat_messages, { role: 'assistant', content: t }];
-		}
+
+		if (!wrote) throw Error('Request failed');
 	}
 
 	function sync_chat_moves() {
@@ -376,7 +348,7 @@
 
 		try {
 			if (gemini_api_key.trim()) {
-				await send_direct_interaction(ac, chat_messages, model);
+				await send_direct_generation(ac, chat_messages, model);
 				interaction_id = '';
 			} else {
 				const res = await fetch('/chess/learn/chat', {
