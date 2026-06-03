@@ -58,7 +58,6 @@
 		for (let i = chat_messages.length - 1; i >= 0; i--) if (chat_messages[i].role === 'user') return i;
 		return -1;
 	});
-	$effect(() => { if (browser) localStorage.setItem('explain_model', model); });
 	$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
@@ -97,6 +96,9 @@
 				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
 				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
 			];
+		}
+		if (model_options.length && !model_options.find((o) => o.v === model)) {
+			model = model_options[0].v;
 		}
 	}
 
