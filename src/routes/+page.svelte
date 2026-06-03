@@ -75,10 +75,34 @@
 	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
 	const hint_from_class = 'bg-amber/70';
 	const hint_to_class = 'bg-teal/70';
-	const model_options = [
-		{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'Best value model' },
-		{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'Strong general purpose' },
-	];
+	let model_options = $state<{ v: string; l: string; d: string }[]>([]);
+
+	async function fetch_models() {
+		try {
+			const k = groq_api_key.trim();
+			if (k) {
+				const res = await fetch('https://api.groq.com/openai/v1/models', {
+					headers: { Authorization: `Bearer ${k}` },
+				});
+				if (!res.ok) throw Error(`${res.status}`);
+				const body = await res.json();
+				model_options = (body.data ?? []).filter((m: any) => m.object === 'model' && m.id && !m.id.includes('whisper') && !m.id.includes('embedding')).map((m: any) => ({ v: m.id, l: m.id.split('/').pop() ?? m.id, d: m.owned_by ?? '' }));
+			} else {
+				const res = await fetch('/chess/learn/models');
+				if (!res.ok) throw Error(`${res.status}`);
+				model_options = await res.json();
+			}
+		} catch {
+			model_options = [
+				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
+				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
+			];
+		}
+	}
+
+	$effect(() => {
+		if (browser) { groq_api_key; fetch_models(); }
+	});
 
 	function buildEngine() {
 		const p = presets[level - 1];
