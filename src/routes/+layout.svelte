@@ -1,6 +1,8 @@
 <script lang="ts">
   import '../app.css';
   import { browser } from '$app/environment';
+  import Seo from '$lib/components/seo/Seo.svelte';
+  import JsonLd from '$lib/components/seo/JsonLd.svelte';
   let { children } = $props();
   let user = $state<{ id: string; name: string; picture?: string } | null>(null);
   $effect(() => {
@@ -13,11 +15,8 @@
   }
 </script>
 
-<svelte:head>
-  <title>Chess — Learn & Play</title>
-  <meta name="description" content="Play chess against Stockfish AI with interactive hints and analysis" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-</svelte:head>
+<Seo meta={{t:'Chess AI',d:'Play chess against Stockfish AI with interactive hints and AI analysis. Train your skills, analyze positions, and improve your game.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'Chess AI','url':'https://chess.apexlinks.org'}} />
 
 <div class="fixed right-4 top-4 z-50 flex items-center gap-2">
   {#if user}

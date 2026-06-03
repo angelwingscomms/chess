@@ -66,3 +66,13 @@ You MUST use this tool whenever writing Svelte code before sending it to the use
 
 Generates a Svelte Playground link with the provided code.
 After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project./
+
+# SEO Patterns
+
+- every page must include `<Seo>` component with unique `t` (title) and `d` (description)
+- internal/test-only pages must set `n: true` (noindex)
+- pages with user-facing content get `<JsonLd>` structured data (WebSite in layout, SoftwareApplication on home, etc.)
+- og:image auto-generated via `/og?t=TITLE` endpoint; no need to set `o.i` unless custom image needed
+- use single-letter keys on SeoMeta type defs: `t`=title, `d`=description, `c`=canonical, `o`=og, `w`=twitter, `n`=noindex
+- canonical URL auto-derived from `PUBLIC_DOMAIN` env var + current path; override via `c` only if needed
+- SEOMeta type defined in `src/lib/types/seo.ts`; Seo component in `src/lib/components/seo/Seo.svelte`

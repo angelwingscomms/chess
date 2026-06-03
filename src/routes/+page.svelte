@@ -7,6 +7,8 @@
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 	import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import Seo from '$lib/components/seo/Seo.svelte';
+	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
@@ -496,6 +498,8 @@
 	}
 </script>
 
+<Seo meta={{t:'Chess — Train with AI',d:'Train your chess skills against adaptive Stockfish AI. Get hints, analyze positions, and chat with AI coaches to improve your game.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Chess AI','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 <main class="page-shell">
 	<div class="container py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">

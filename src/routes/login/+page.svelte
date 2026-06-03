@@ -1,6 +1,8 @@
 <script lang="ts">
+  import Seo from '$lib/components/seo/Seo.svelte';
 </script>
 
+<Seo meta={{t:'Sign in — Chess AI',d:'Sign in to your Chess AI account to track progress and unlock features.'}} />
 <main class="page-shell">
   <div class="container py-4">
     <div class="mx-auto max-w-sm space-y-4 text-center">
