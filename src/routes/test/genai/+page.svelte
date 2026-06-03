@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createGroq } from '@ai-sdk/groq';
-	import { generateText } from 'ai';
+	import { generateText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 
 	let api_key = $state('');
 	let prompt = $state('What is the capital of France?');
@@ -15,7 +15,10 @@
 		try {
 			const groq = createGroq({ apiKey: api_key });
 			const { text } = await generateText({
-				model: groq('qwen/qwen3-32b'),
+				model: wrapLanguageModel({
+					model: groq('qwen/qwen3-32b'),
+					middleware: extractReasoningMiddleware({ tagName: 'think' }),
+				}),
 				prompt: prompt || 'Say hello and introduce yourself briefly.',
 			});
 			response_text = text || '(no text in response)';

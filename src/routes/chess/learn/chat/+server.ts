@@ -1,10 +1,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GROQ_API_KEY } from '$env/static/private';
-import { streamText } from 'ai';
+import { GROQ } from '$env/static/private';
+import { streamText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 
-const groq = createGroq({ apiKey: GROQ_API_KEY });
+const groq = createGroq({ apiKey: GROQ });
+
+const wrap = (m: string) => wrapLanguageModel({
+	model: groq(m),
+	middleware: extractReasoningMiddleware({ tagName: 'think' }),
+});
 
 type Msg = { r: 'user' | 'assistant'; c: string; d?: Data };
 type Data = { f?: string; p?: string; u?: string; a?: string; h?: string };
@@ -59,7 +64,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			let wrote = false;
 			try {
 				const result = streamText({
-					model: groq(m),
+					model: wrap(m),
 					system: sys,
 					messages: messages.map((msg) => ({
 						role: msg.r as 'user' | 'assistant',

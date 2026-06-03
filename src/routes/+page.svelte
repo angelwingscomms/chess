@@ -209,11 +209,14 @@
 
 	async function send_direct_generation(ac: AbortController, request_messages: ChatMsg[], m: string) {
 		const { createGroq } = await import('@ai-sdk/groq');
-		const { streamText } = await import('ai');
+		const { streamText, wrapLanguageModel, extractReasoningMiddleware } = await import('ai');
 		const groq = createGroq({ apiKey: groq_api_key.trim() });
 
 		const result = streamText({
-			model: groq(m),
+			model: wrapLanguageModel({
+				model: groq(m),
+				middleware: extractReasoningMiddleware({ tagName: 'think' }),
+			}),
 			system: sys,
 			messages: request_messages.map((msg) => ({
 				role: msg.role as 'user' | 'assistant',

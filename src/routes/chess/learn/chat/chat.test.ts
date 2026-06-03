@@ -8,7 +8,7 @@ const route = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '+se
 describe('/chess/learn/chat route', () => {
 	it('uses AI SDK streamText with Groq', () => {
 		expect(route).toContain("{ createGroq } from '@ai-sdk/groq'");
-		expect(route).toContain('GROQ_API_KEY');
+		expect(route).toContain('GROQ');
 		expect(route).toContain('streamText');
 		expect(route).toContain('textStream');
 		expect(route).toContain("event('text'");

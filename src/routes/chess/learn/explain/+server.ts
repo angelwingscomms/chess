@@ -1,10 +1,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GROQ_API_KEY } from '$env/static/private';
-import { streamText } from 'ai';
+import { GROQ } from '$env/static/private';
+import { streamText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 
-const groq = createGroq({ apiKey: GROQ_API_KEY });
+const groq = createGroq({ apiKey: GROQ });
+
+const wrap = (m: string) => wrapLanguageModel({
+	model: groq(m),
+	middleware: extractReasoningMiddleware({ tagName: 'think' }),
+});
 
 function build_prompt(fen: string, move: string, score: number, depth: number): string {
 	const score_str = score > 90000 ? 'Mate' : score < -90000 ? '-Mate' : (score / 100).toFixed(2);
@@ -36,7 +41,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				const prompt = build_prompt(fen, move, score, depth);
 				console.log('[explain] calling streamText');
 				const result = streamText({
-					model: groq(m || 'qwen/qwen3-32b'),
+					model: wrap(m || 'qwen/qwen3-32b'),
 					prompt,
 				});
 				let chunks = 0;
