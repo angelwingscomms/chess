@@ -1,15 +1,17 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GROQ, GEMINI } from '$env/static/private';
+import { GROQ, GEMINI, OPENROUTER_KEY } from '$env/static/private';
 import { streamText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
 
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
+const openrouter = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: OPENROUTER_KEY });
 
 const getModel = (m: string) => wrapLanguageModel({
-	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : groq(m),
+	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : m.startsWith('deepseek/') ? openrouter(m) : groq(m),
 	middleware: extractReasoningMiddleware({ tagName: 'think' }),
 });
 

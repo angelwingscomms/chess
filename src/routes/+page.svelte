@@ -112,7 +112,7 @@ Keep responses concise. End conversationally.`;
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
-			const prio = ['gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
+			const prio = ['deepseek/deepseek-v4-flash', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
 			model_options.sort((a, b) => {
 				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
 				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
@@ -121,7 +121,8 @@ Keep responses concise. End conversationally.`;
 			if (first) first.r = true;
 		} catch {
 			model_options = [
-				{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google', r: true },
+				{ v: 'deepseek/deepseek-v4-flash', l: 'DeepSeek V4 Flash', d: 'openrouter', r: true },
+				{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google' },
 				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
 				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
 				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
@@ -422,7 +423,7 @@ Keep responses concise. End conversationally.`;
 		chat_abort = ac;
 
 		try {
-			if (groq_api_key.trim() && model.includes('/')) {
+			if (!model.startsWith('deepseek/') && groq_api_key.trim() && model.includes('/')) {
 				await send_direct_generation(ac, chat_messages, model);
 				interaction_id = '';
 			} else {
