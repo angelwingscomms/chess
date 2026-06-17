@@ -15,7 +15,6 @@ Svelte 5 + SvelteKit 2, TypeScript, Tailwind CSS 4, Cloudflare Workers, Qdrant (
 | `/api/me` | Current user |
 | `/api/buy-tokens` | Paystack payment init |
 | `/chess/learn/chat` | SSE stream — AI chat via Groq |
-| `/chess/learn/explain` | SSE stream — move analysis |
 | `/chess/learn/models` | Available Groq models |
 
 ## AI Chat

@@ -15,7 +15,7 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('textStream');
 		expect(route).toContain("event('text'");
 		expect(route).toContain('system: sys');
-		expect(route).toContain("m.includes('/') ? groq(m) : google(m)");
+		expect(route).toContain("m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : groq(m)");
 	});
 
 	it('keeps chess context in user input instead of the system prompt', () => {
@@ -26,7 +26,7 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('last_user_move:');
 		expect(route).toContain('last_ai_move:');
 		expect(route).toContain('hint:');
-		expect(route).toContain('Use the supplied board context when present.');
+		expect(route).toContain('Use board context.');
 		expect(route).not.toContain('Position (FEN)');
 	});
 });

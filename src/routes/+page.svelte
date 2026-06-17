@@ -14,7 +14,7 @@
 	type ChatData = Partial<ChatContext> & { h?: string };
 	type ChatMsg = { role: 'user' | 'assistant'; content: string; d?: ChatData };
 
-	const sys = 'You are a concise chess coach. Use the supplied board context when present.';
+	const sys = '1-2 sentence chess coach. Use board context.';
 
 	let level = $state(3);
 	let turn = $state<Color>('w');
@@ -98,10 +98,7 @@
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
-			if (!model_options.find((o) => o.v === 'gemma-4-12b-it')) {
-				model_options = [...model_options, { v: 'gemma-4-12b-it', l: 'Gemma 4 12B', d: 'google' }];
-			}
-			const prio = ['openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-instruct', 'gemma-4-12b-it'];
+			const prio = ['gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
 			model_options.sort((a, b) => {
 				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
 				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
@@ -110,10 +107,10 @@
 			if (first) first.r = true;
 		} catch {
 			model_options = [
-				{ v: 'gemma-4-12b-it', l: 'Gemma 4 12B', d: 'google', r: true },
+				{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google', r: true },
 				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
 				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
-				{ v: 'llama-3.3-70b-instruct', l: 'Llama 3.3 70B', d: 'meta' },
+				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
 			];
 		}
 		if (model_options.length && !model_options.find((o) => o.v === model)) {

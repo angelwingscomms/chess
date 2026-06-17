@@ -9,14 +9,14 @@ const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 
 const getModel = (m: string) => wrapLanguageModel({
-	model: m.includes('/') ? groq(m) : google(m),
+	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : groq(m),
 	middleware: extractReasoningMiddleware({ tagName: 'think' }),
 });
 
 type Msg = { r: 'user' | 'assistant'; c: string; d?: Data };
 type Data = { f?: string; p?: string; u?: string; a?: string; h?: string };
 
-const sys = 'You are a concise chess coach. Use the supplied board context when present.';
+const sys = '1-2 sentence chess coach. Use board context.';
 const enc = new TextEncoder();
 
 function event(name: string, data: object) {
