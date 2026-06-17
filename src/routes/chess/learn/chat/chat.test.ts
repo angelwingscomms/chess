@@ -26,7 +26,7 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('last_user_move:');
 		expect(route).toContain('last_ai_move:');
 		expect(route).toContain('hint:');
-		expect(route).toContain('Use board context.');
+		expect(route).toContain('CRITICAL: You are not a teacher');
 		expect(route).not.toContain('Position (FEN)');
 	});
 });
