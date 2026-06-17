@@ -6,7 +6,7 @@
 	import { LearnEngine, DIFFICULTY_PRESETS, HINT_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import { ArrowUp, Info, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 
@@ -55,6 +55,9 @@
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
+	let show_token_modal = $state(false);
+	let total_p = $state(0);
+	let total_c = $state(0);
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
 	let pending_user_idx = $derived.by(() => {
@@ -62,6 +65,7 @@
 		for (let i = chat_messages.length - 1; i >= 0; i--) if (chat_messages[i].role === 'user') return i;
 		return -1;
 	});
+	let total_t = $derived(total_p + total_c);
 	$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
@@ -201,6 +205,11 @@
 			interaction_id = msg.i;
 			return true;
 		}
+		if (name === 'usage' && typeof msg.p === 'number') {
+			total_p += msg.p;
+			total_c += msg.c;
+			return true;
+		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
 		return false;
 	}
@@ -256,6 +265,15 @@
 		}
 
 		if (!wrote) throw Error('Request failed');
+		if (!ac.signal.aborted) {
+			try {
+				const u = await result.usage;
+				if (u) {
+					total_p += u.inputTokens ?? 0;
+					total_c += u.outputTokens ?? 0;
+				}
+			} catch {}
+		}
 	}
 
 	function sync_chat_moves() {
@@ -488,6 +506,8 @@
 		chat_loading = false;
 		interaction_id = '';
 		successful_context = {};
+		total_p = 0;
+		total_c = 0;
 		if (chat_abort) {
 			chat_abort.abort();
 			chat_abort = null;
@@ -585,6 +605,9 @@
 						</button>
 					{/if}
 					<span class="ml-auto flex items-center gap-1.5">
+						<button class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={() => show_token_modal = true} aria-label="Token usage">
+							<Info size={13} strokeWidth={1.8} />
+						</button>
 						{#if chat_messages.length > 0}
 							<button class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
 								<X size={13} strokeWidth={1.8} />
@@ -805,6 +828,40 @@
 			<div class="shrink-0 grid grid-cols-2 gap-3 border-t border-hairline bg-surface-soft px-6 py-4">
 				<button class="button-secondary" onclick={() => show_settings = false}>Cancel</button>
 				<button class="button-primary" onclick={() => show_settings = false}>Done</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if show_token_modal}
+	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (show_token_modal = false)} onclick={() => show_token_modal = false}>
+		<div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="token-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_token_modal = false)} onclick={(e) => e.stopPropagation()}>
+			<div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
+				<p class="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">Usage</p>
+				<h2 id="token-title" class="font-display text-2xl font-medium text-ink">Token Usage</h2>
+			</div>
+			<div class="grid gap-4 p-6">
+				{#if total_t > 0}
+					<div class="rounded-lg bg-surface-card p-4 space-y-2">
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-muted">Total</span>
+							<span class="font-medium text-ink">{total_t}</span>
+						</div>
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-muted">Prompt</span>
+							<span class="font-medium text-ink">{total_p}</span>
+						</div>
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-muted">Completion</span>
+							<span class="font-medium text-ink">{total_c}</span>
+						</div>
+					</div>
+				{:else}
+					<p class="text-sm text-muted text-center py-6">No tokens used yet.</p>
+				{/if}
+			</div>
+			<div class="shrink-0 flex justify-end border-t border-hairline bg-surface-soft px-6 py-4">
+				<button class="button-primary" onclick={() => show_token_modal = false}>Close</button>
 			</div>
 		</div>
 	</div>

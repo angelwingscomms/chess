@@ -80,6 +80,12 @@ export const POST: RequestHandler = async ({ request }) => {
 						controller.enqueue(event('text', { t: chunk }));
 					}
 				}
+				if (!request.signal.aborted && wrote) {
+					try {
+						const u = await result.usage;
+						if (u?.totalTokens != null) controller.enqueue(event('usage', { p: u.inputTokens ?? 0, c: u.outputTokens ?? 0, t: u.totalTokens }));
+					} catch {}
+				}
 			} catch (e) {
 				console.error('[chat] streamText error:', e);
 				if (!request.signal.aborted && !wrote) {
