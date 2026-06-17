@@ -147,7 +147,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('async function send_direct_generation(');
 		expect(page).toContain("createGroq({ apiKey: groq_api_key.trim() })");
 		expect(page).toContain('streamText');
-		expect(page).toContain('if (groq_api_key.trim())');
+		expect(page).toContain("if (groq_api_key.trim() && model.includes('/'))");
 		expect(page).toContain('Groq API key');
 		expect(page).toContain('type="password"');
 		expect(page).toContain('Get your Groq API key @');

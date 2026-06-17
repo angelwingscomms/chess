@@ -6,14 +6,16 @@ import { describe, expect, it } from 'vitest';
 const route = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '+server.ts'), 'utf8');
 
 describe('/chess/learn/chat route', () => {
-	it('uses AI SDK streamText with Groq', () => {
+	it('uses AI SDK streamText with Groq and Google', () => {
 		expect(route).toContain("{ createGroq } from '@ai-sdk/groq'");
+		expect(route).toContain("{ createGoogleGenerativeAI } from '@ai-sdk/google'");
 		expect(route).toContain('GROQ');
+		expect(route).toContain('GEMINI');
 		expect(route).toContain('streamText');
 		expect(route).toContain('textStream');
 		expect(route).toContain("event('text'");
 		expect(route).toContain('system: sys');
-		expect(route).toContain("groq(m)");
+		expect(route).toContain("m.includes('/') ? groq(m) : google(m)");
 	});
 
 	it('keeps chess context in user input instead of the system prompt', () => {

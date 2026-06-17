@@ -1,13 +1,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GROQ } from '$env/static/private';
+import { GROQ, GEMINI } from '$env/static/private';
 import { streamText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 const groq = createGroq({ apiKey: GROQ });
+const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 
-const wrap = (m: string) => wrapLanguageModel({
-	model: groq(m),
+const getModel = (m: string) => wrapLanguageModel({
+	model: m.includes('/') ? groq(m) : google(m),
 	middleware: extractReasoningMiddleware({ tagName: 'think' }),
 });
 
@@ -41,7 +43,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				const prompt = build_prompt(fen, move, score, depth);
 				console.log('[explain] calling streamText');
 				const result = streamText({
-					model: wrap(m || 'openai/gpt-oss-120b'),
+					model: getModel(m || 'openai/gpt-oss-120b'),
 					prompt,
 				});
 				let chunks = 0;

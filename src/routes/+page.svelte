@@ -98,7 +98,10 @@
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
-			const prio = ['openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-instruct'];
+			if (!model_options.find((o) => o.v === 'gemma-4-12b-it')) {
+				model_options = [...model_options, { v: 'gemma-4-12b-it', l: 'Gemma 4 12B', d: 'google' }];
+			}
+			const prio = ['openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-instruct', 'gemma-4-12b-it'];
 			model_options.sort((a, b) => {
 				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
 				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
@@ -106,9 +109,9 @@
 			const first = model_options[0];
 			if (first) first.r = true;
 		} catch {
-			// TODO: groq/compound and groq/compound-mini — paid models later
 			model_options = [
-				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq', r: true },
+				{ v: 'gemma-4-12b-it', l: 'Gemma 4 12B', d: 'google', r: true },
+				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
 				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
 				{ v: 'llama-3.3-70b-instruct', l: 'Llama 3.3 70B', d: 'meta' },
 			];
@@ -394,7 +397,7 @@
 		chat_abort = ac;
 
 		try {
-			if (groq_api_key.trim()) {
+			if (groq_api_key.trim() && model.includes('/')) {
 				await send_direct_generation(ac, chat_messages, model);
 				interaction_id = '';
 			} else {

@@ -12,6 +12,7 @@
     "test": "vitest run --pool=threads"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.82",
     "@ai-sdk/groq": "^3.0.39",
     "@ethercorps/sveltekit-og": "^4.2.1",
     "@lucide/svelte": "^1.17.0",
