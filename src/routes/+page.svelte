@@ -873,9 +873,15 @@ Keep responses concise. End conversationally.`;
 							<span class="text-muted">Completion</span>
 							<span class="font-medium text-ink">{total_c}</span>
 						</div>
-						<div class="border-t border-hairline pt-2 flex items-center justify-between text-sm">
-							<span class="text-muted">Cost</span>
-							<span class="font-medium text-primary">${total_cost.toFixed(6)}</span>
+						<div class="border-t border-hairline pt-2 space-y-1">
+							<div class="flex items-center justify-between text-sm">
+								<span class="text-muted">Cost (USD)</span>
+								<span class="font-medium text-primary">${(total_cost).toFixed(6)}</span>
+							</div>
+							<div class="flex items-center justify-between text-sm">
+								<span class="text-muted">Cost (NGN)</span>
+								<span class="font-medium text-primary">₦{(total_cost * 1440).toFixed(2)}</span>
+							</div>
 						</div>
 					</div>
 				{:else}

@@ -168,8 +168,9 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('total_cost += msg.cost');
 		expect(page).toContain('total_cost += calc_cost(m, p, c)');
 		expect(page).toContain('total_cost = 0');
-		expect(page).toContain('Cost');
-		expect(page).toContain('{total_cost.toFixed(6)}');
+		expect(page).toContain('Cost (USD)');
+		expect(page).toContain('Cost (NGN)');
+		expect(page).toContain('total_cost * 1440).toFixed(2)}');
 	});
 
 	it('shows model combobox regardless of api key', () => {
