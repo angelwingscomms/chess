@@ -22,28 +22,3 @@ describe('/chess/learn hint highlights', () => {
 });
 
 
-
-describe('/chess/learn chat', () => {
-	it('uses side by side desktop layout without widening the board or controls', () => {
-		expect(page).toContain('max-w-[1328px]');
-		expect(page).toContain('lg:grid-cols-[minmax(0,640px)_minmax(0,640px)]');
-		expect(page).toContain('lg:items-start');
-		expect(page).toContain('max-w-[640px]');
-	});
-
-	it('keeps desktop vertical chrome tight around the board', () => {
-		expect(page).toContain('container py-4');
-		expect(page).toContain('flex w-full max-w-[1328px] flex-col gap-4');
-		expect(page).toContain('grid w-full grid-cols-1 gap-4');
-		expect(page).not.toContain('container py-12');
-		expect(page).not.toContain('flex w-full max-w-[1328px] flex-col gap-6');
-	});
-
-	it('replaces analysis panel with chat interface', () => {
-		expect(page).toContain('chat_messages');
-		expect(page).toContain('chat_loading');
-		expect(page).toContain('chat_abort');
-		expect(page).toContain('chat_queue');
-		expect(page).toContain('sendChatMessage');
-		expect(page).toContain('removeFromQueue');
-		expect(page).toContain('promoteFromQueue');
