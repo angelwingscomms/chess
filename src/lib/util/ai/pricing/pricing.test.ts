@@ -11,6 +11,11 @@ describe('calc_cost', () => {
 		expect(cost).toBeCloseTo(0.20, 6);
 	});
 
+	it('calculates gemma-4-26b-a4b-it cost correctly', () => {
+		const cost = calc_cost('gemma-4-26b-a4b-it', 100_000, 50_000);
+		expect(cost).toBeCloseTo(0.0225, 6);
+	});
+
 	it('calculates gemma-4-31b-it cost correctly', () => {
 		const cost = calc_cost('gemma-4-31b-it', 100_000, 50_000);
 		expect(cost).toBeCloseTo(0.030, 6);

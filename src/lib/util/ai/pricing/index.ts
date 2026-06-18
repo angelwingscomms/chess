@@ -1,6 +1,7 @@
 const PRICING: Record<string, { i: number; o: number }> = {
 	'nex-agi/nex-n2-pro:free': { i: 0, o: 0 },
 	'deepseek/deepseek-v4-flash': { i: 0.10, o: 0.20 },
+	'gemma-4-26b-a4b-it': { i: 0.06, o: 0.33 },
 	'gemma-4-31b-it': { i: 0.12, o: 0.36 },
 	'openai/gpt-oss-120b': { i: 0.15, o: 0.60 },
 	'qwen/qwen3-32b': { i: 0.29, o: 0.59 },
