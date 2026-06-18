@@ -172,6 +172,9 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('Cost (USD)');
 		expect(page).toContain('Cost (NGN)');
 		expect(page).toContain('total_cost * 1440).toFixed(2)}');
+		expect(page).toContain('Input');
+		expect(page).toContain('Output');
+	});
 	});
 
 	it('stores per-message usage and shows on click', () => {

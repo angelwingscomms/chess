@@ -883,11 +883,11 @@ Keep responses concise. End conversationally.`;
 							<span class="font-medium text-ink">{u.p + u.c}</span>
 						</div>
 						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Prompt</span>
+							<span class="text-muted">Input</span>
 							<span class="font-medium text-ink">{u.p}</span>
 						</div>
 						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Completion</span>
+							<span class="text-muted">Output</span>
 							<span class="font-medium text-ink">{u.c}</span>
 						</div>
 						<div class="border-t border-hairline pt-2 space-y-1">
@@ -927,11 +927,11 @@ Keep responses concise. End conversationally.`;
 							<span class="font-medium text-ink">{total_t}</span>
 						</div>
 						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Prompt</span>
+							<span class="text-muted">Input</span>
 							<span class="font-medium text-ink">{total_p}</span>
 						</div>
 						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Completion</span>
+							<span class="text-muted">Output</span>
 							<span class="font-medium text-ink">{total_c}</span>
 						</div>
 						<div class="border-t border-hairline pt-2 space-y-1">
