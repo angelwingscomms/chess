@@ -13,7 +13,7 @@
 	});
 </script>
 
-<Seo t="Payment {data.success ? 'Successful' : 'Failed'}" d="Payment callback" n={true} />
+<Seo meta={{ t: `Payment ${data.success ? 'Successful' : 'Failed'}`, d: 'Payment callback', n: true }} />
 
 <div class="fixed inset-0 grid place-items-center bg-canvas p-4">
 	<div class="max-w-sm text-center space-y-4">

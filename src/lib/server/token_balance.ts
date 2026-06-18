@@ -7,7 +7,7 @@ const local = new Map<string, number>();
 let q: QdrantClient | null = null;
 
 function client(): QdrantClient {
-	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY });
+	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY, checkCompatibility: false });
 	return q;
 }
 

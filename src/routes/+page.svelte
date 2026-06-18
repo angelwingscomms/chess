@@ -68,6 +68,10 @@ Keep responses concise. End conversationally.`;
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
 	let show_token_modal = $state(false);
+	let token_balance = $state(0);
+	$effect(() => {
+		if (show_token_modal) fetch('/api/balance').then(r => r.json()).then(d => token_balance = d.balance).catch(() => {});
+	});
 	let show_msg_modal = $state(false);
 	let msg_modal_idx = $state(0);
 	let total_p = $state(0);
@@ -971,6 +975,12 @@ Keep responses concise. End conversationally.`;
 				{:else}
 					<p class="text-sm text-muted text-center py-6">No tokens used yet.</p>
 				{/if}
+				<div class="rounded-lg bg-surface-card p-4 space-y-2 border border-hairline">
+					<div class="flex items-center justify-between text-sm">
+						<span class="text-muted">Your Balance</span>
+						<span class="font-medium text-ink">{token_balance.toLocaleString()} tokens</span>
+					</div>
+				</div>
 				<div class="border-t border-hairline pt-4 space-y-3">
 					<p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Buy Tokens</p>
 					<div class="grid grid-cols-2 gap-2">
