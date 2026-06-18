@@ -162,6 +162,16 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('groq_api_key.trim()');
 	});
 
+	it('tracks and displays API cost in token modal', () => {
+		expect(page).toContain("import { calc_cost } from '$lib/util/ai/pricing'");
+		expect(page).toContain('let total_cost = $state(0)');
+		expect(page).toContain('total_cost += msg.cost');
+		expect(page).toContain('total_cost += calc_cost(m, p, c)');
+		expect(page).toContain('total_cost = 0');
+		expect(page).toContain('Cost');
+		expect(page).toContain('{total_cost.toFixed(6)}');
+	});
+
 	it('shows model combobox regardless of api key', () => {
 		expect(page).toContain('let show_model_menu = $state(false);');
 		expect(page).toContain('let model_options =');

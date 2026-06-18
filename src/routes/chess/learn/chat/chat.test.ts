@@ -20,6 +20,11 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain("m.startsWith('deepseek/')");
 	});
 
+	it('imports calc_cost and emits cost in usage event', () => {
+		expect(route).toContain("import { calc_cost } from '$lib/util/ai/pricing'");
+		expect(route).toContain('cost: calc_cost(m, p, c)');
+	});
+
 	it('keeps chess context in user input instead of the system prompt', () => {
 		expect(route).toContain('function build_input');
 		expect(route).toContain('[board_context]');

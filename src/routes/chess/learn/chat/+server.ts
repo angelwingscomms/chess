@@ -5,13 +5,14 @@ import { streamText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
+import { calc_cost } from '$lib/util/ai/pricing';
 
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 const openrouter = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: OPENROUTER_KEY });
 
 const getModel = (m: string) => wrapLanguageModel({
-	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : m.startsWith('deepseek/') ? openrouter(m) : groq(m),
+	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : m.startsWith('deepseek/') || m.startsWith('nex-agi/') ? openrouter(m) : groq(m),
 	middleware: extractReasoningMiddleware({ tagName: 'think' }),
 });
 
@@ -95,7 +96,10 @@ export const POST: RequestHandler = async ({ request }) => {
 				if (!request.signal.aborted && wrote) {
 					try {
 						const u = await result.usage;
-						if (u?.totalTokens != null) controller.enqueue(event('usage', { p: u.inputTokens ?? 0, c: u.outputTokens ?? 0, t: u.totalTokens }));
+						if (u?.totalTokens != null) {
+						const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
+						controller.enqueue(event('usage', { p, c, t: u.totalTokens, cost: calc_cost(m, p, c) }));
+					}
 					} catch {}
 				}
 			} catch (e) {

@@ -9,6 +9,7 @@
 	import { ArrowUp, Info, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
+	import { calc_cost } from '$lib/util/ai/pricing';
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
@@ -68,6 +69,7 @@ Keep responses concise. End conversationally.`;
 	let show_token_modal = $state(false);
 	let total_p = $state(0);
 	let total_c = $state(0);
+	let total_cost = $state(0);
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
 	let pending_user_idx = $derived.by(() => {
@@ -112,7 +114,7 @@ Keep responses concise. End conversationally.`;
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
-			const prio = ['deepseek/deepseek-v4-flash', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
+			const prio = ['nex-agi/nex-n2-pro:free', 'deepseek/deepseek-v4-flash', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
 			model_options.sort((a, b) => {
 				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
 				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
@@ -121,7 +123,8 @@ Keep responses concise. End conversationally.`;
 			if (first) first.r = true;
 		} catch {
 			model_options = [
-				{ v: 'deepseek/deepseek-v4-flash', l: 'DeepSeek V4 Flash', d: 'openrouter', r: true },
+				{ v: 'nex-agi/nex-n2-pro:free', l: 'Nex-N2-Pro', d: 'openrouter', r: true },
+				{ v: 'deepseek/deepseek-v4-flash', l: 'DeepSeek V4 Flash', d: 'openrouter' },
 				{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google' },
 				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
 				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
@@ -219,6 +222,7 @@ Keep responses concise. End conversationally.`;
 		if (name === 'usage' && typeof msg.p === 'number') {
 			total_p += msg.p;
 			total_c += msg.c;
+			if (typeof msg.cost === 'number') total_cost += msg.cost;
 			return true;
 		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
@@ -280,8 +284,10 @@ Keep responses concise. End conversationally.`;
 			try {
 				const u = await result.usage;
 				if (u) {
-					total_p += u.inputTokens ?? 0;
-					total_c += u.outputTokens ?? 0;
+					const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
+					total_p += p;
+					total_c += c;
+					total_cost += calc_cost(m, p, c);
 				}
 			} catch {}
 		}
@@ -519,6 +525,7 @@ Keep responses concise. End conversationally.`;
 		successful_context = {};
 		total_p = 0;
 		total_c = 0;
+		total_cost = 0;
 		if (chat_abort) {
 			chat_abort.abort();
 			chat_abort = null;
@@ -865,6 +872,10 @@ Keep responses concise. End conversationally.`;
 						<div class="flex items-center justify-between text-sm">
 							<span class="text-muted">Completion</span>
 							<span class="font-medium text-ink">{total_c}</span>
+						</div>
+						<div class="border-t border-hairline pt-2 flex items-center justify-between text-sm">
+							<span class="text-muted">Cost</span>
+							<span class="font-medium text-primary">${total_cost.toFixed(6)}</span>
 						</div>
 					</div>
 				{:else}
