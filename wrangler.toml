@@ -14,10 +14,6 @@ name = "SEND_EMAIL"
 enabled = true
 head_sampling_rate = 1
 
-[[kv_namespaces]]
-binding = "TOKEN_BALANCE"
-id = ""
-
 [vars]
 OPENROUTER_KEY = "sk-or-v1-placeholder"
 PAYSTACK_TEST = "."
