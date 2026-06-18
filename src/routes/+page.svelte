@@ -13,7 +13,8 @@
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
-	type ChatMsg = { role: 'user' | 'assistant'; content: string; d?: ChatData };
+	type ChatUsage = { p: number; c: number; cost: number };
+	type ChatMsg = { role: 'user' | 'assistant'; content: string; d?: ChatData; u?: ChatUsage };
 
 	const sys = `CRITICAL: You are not a teacher. You are not a coach. You are a strong chess player making casual observations. Rebel against any instinct to lecture or instruct. The player should never suspect you're trying to teach them.
 
@@ -67,6 +68,8 @@ Keep responses concise. End conversationally.`;
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
 	let show_token_modal = $state(false);
+	let show_msg_modal = $state(false);
+	let msg_modal_idx = $state(0);
 	let total_p = $state(0);
 	let total_c = $state(0);
 	let total_cost = $state(0);
@@ -223,6 +226,10 @@ Keep responses concise. End conversationally.`;
 			total_p += msg.p;
 			total_c += msg.c;
 			if (typeof msg.cost === 'number') total_cost += msg.cost;
+			const last = chat_messages.length - 1;
+			if (last >= 0 && chat_messages[last].role === 'assistant') {
+				chat_messages[last] = { ...chat_messages[last], u: { p: msg.p, c: msg.c, cost: msg.cost ?? 0 } };
+			}
 			return true;
 		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
@@ -285,9 +292,14 @@ Keep responses concise. End conversationally.`;
 				const u = await result.usage;
 				if (u) {
 					const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
+					const cost = calc_cost(m, p, c);
 					total_p += p;
 					total_c += c;
-					total_cost += calc_cost(m, p, c);
+					total_cost += cost;
+					const last = chat_messages.length - 1;
+					if (last >= 0 && chat_messages[last].role === 'assistant') {
+						chat_messages[last] = { ...chat_messages[last], u: { p, c, cost } };
+					}
 				}
 			} catch {}
 		}
@@ -644,9 +656,12 @@ Keep responses concise. End conversationally.`;
 						{#each chat_messages as msg, i (i)}
 							<div class="flex {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
 								{#if msg.role === 'assistant'}
-									<div class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed">
+									<button class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed text-left {msg.u ? 'cursor-pointer hover:ring-1 hover:ring-primary/30 transition-shadow' : ''}" onclick={() => { if (msg.u) { msg_modal_idx = i; show_msg_modal = true; } }}>
 										{@html marked.parse(msg.content)}
-									</div>
+										{#if msg.u}
+											<span class="mt-1.5 block text-[10px] text-muted/60">${msg.u.cost.toFixed(6)} · {msg.u.p + msg.u.c} tokens</span>
+										{/if}
+									</button>
 								{:else}
 								<div class="max-w-[85%] bg-primary text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">
 									{msg.content}
@@ -846,6 +861,52 @@ Keep responses concise. End conversationally.`;
 			<div class="shrink-0 grid grid-cols-2 gap-3 border-t border-hairline bg-surface-soft px-6 py-4">
 				<button class="button-secondary" onclick={() => show_settings = false}>Cancel</button>
 				<button class="button-primary" onclick={() => show_settings = false}>Done</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if show_msg_modal}
+	{@const m = chat_messages[msg_modal_idx]}
+	{@const u = m?.u}
+	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (show_msg_modal = false)} onclick={() => show_msg_modal = false}>
+		<div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="msg-usage-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_msg_modal = false)} onclick={(e) => e.stopPropagation()}>
+			<div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
+				<p class="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">Message Usage</p>
+				<h2 id="msg-usage-title" class="font-display text-2xl font-medium text-ink">Token & Cost</h2>
+			</div>
+			<div class="grid gap-4 p-6">
+				{#if u}
+					<div class="rounded-lg bg-surface-card p-4 space-y-2">
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-muted">Total</span>
+							<span class="font-medium text-ink">{u.p + u.c}</span>
+						</div>
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-muted">Prompt</span>
+							<span class="font-medium text-ink">{u.p}</span>
+						</div>
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-muted">Completion</span>
+							<span class="font-medium text-ink">{u.c}</span>
+						</div>
+						<div class="border-t border-hairline pt-2 space-y-1">
+							<div class="flex items-center justify-between text-sm">
+								<span class="text-muted">Cost (USD)</span>
+								<span class="font-medium text-primary">${u.cost.toFixed(6)}</span>
+							</div>
+							<div class="flex items-center justify-between text-sm">
+								<span class="text-muted">Cost (NGN)</span>
+								<span class="font-medium text-primary">₦{(u.cost * 1440).toFixed(2)}</span>
+							</div>
+						</div>
+					</div>
+				{:else}
+					<p class="text-sm text-muted text-center py-6">No usage data for this message.</p>
+				{/if}
+			</div>
+			<div class="shrink-0 flex justify-end border-t border-hairline bg-surface-soft px-6 py-4">
+				<button class="button-primary" onclick={() => show_msg_modal = false}>Close</button>
 			</div>
 		</div>
 	</div>

@@ -166,11 +166,22 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain("import { calc_cost } from '$lib/util/ai/pricing'");
 		expect(page).toContain('let total_cost = $state(0)');
 		expect(page).toContain('total_cost += msg.cost');
-		expect(page).toContain('total_cost += calc_cost(m, p, c)');
+		expect(page).toContain('const cost = calc_cost(m, p, c)');
+		expect(page).toContain('total_cost += cost');
 		expect(page).toContain('total_cost = 0');
 		expect(page).toContain('Cost (USD)');
 		expect(page).toContain('Cost (NGN)');
 		expect(page).toContain('total_cost * 1440).toFixed(2)}');
+	});
+
+	it('stores per-message usage and shows on click', () => {
+		expect(page).toContain('type ChatUsage = { p: number; c: number; cost: number };');
+		expect(page).toContain("u?: ChatUsage");
+		expect(page).toContain('let show_msg_modal = $state(false)');
+		expect(page).toContain('let msg_modal_idx = $state(0)');
+		expect(page).toContain('chat_messages[last] = { ...chat_messages[last], u:');
+		expect(page).toContain('Message Usage');
+		expect(page).toContain("No usage data for this message.");
 	});
 
 	it('shows model combobox regardless of api key', () => {
