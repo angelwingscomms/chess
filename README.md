@@ -4,16 +4,18 @@ Chess training app where you play against Stockfish, get AI coaching via Groq, a
 
 ## Stack
 
-Svelte 5 + SvelteKit 2, TypeScript, Tailwind CSS 4, Cloudflare Workers, Qdrant (vector DB), Google OAuth, Groq + Gemini AI, Paystack.
+Svelte 5 + SvelteKit 2, TypeScript, Tailwind CSS 4, Cloudflare Workers (KV for token balances), Qdrant (vector DB), Google OAuth, Groq + Gemini AI, Paystack.
 
 ## Routes
 
 | Route | What it does |
-|---|---|
+|---|---|---|
 | `/` | Main chess board vs Stockfish (10 difficulty presets), hint overlay, AI chat/analysis |
 | `/login` | Sign in with Google |
 | `/api/me` | Current user |
-| `/api/buy-tokens` | Paystack payment init |
+| `/api/buy-tokens` | Paystack payment init (POST) |
+| `/payment/callback` | Paystack redirect — verifies tx + credits tokens |
+| `/api/webhook/paystack` | Paystack async webhook (POST, signature-verified) |
 | `/chess/learn/chat` | SSE stream — AI chat via Groq |
 | `/chess/learn/models` | Available Groq models |
 

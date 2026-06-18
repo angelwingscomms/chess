@@ -1,0 +1,106 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+
+const page = readFileSync(resolve(process.cwd(), 'src/routes/+page.svelte'), 'utf8');
+const css = readFileSync(resolve(process.cwd(), 'src/app.css'), 'utf8');
+
+describe('/chess/learn hint highlights', () => {
+	it('wires a visible board overlay to the current hint squares', () => {
+		expect(page).toContain('hint_squares(');
+		expect(page).toContain('data-testid={square.k === \'f\' ? \'hint-square-from\' : \'hint-square-to\'}');
+		expect(page).toContain('aria-label={`Hint ${square.l} square ${square.s}`}');
+		expect(page).toContain('const hint_from_class = \'bg-amber/70\'');
+		expect(page).toContain('const hint_to_class = \'bg-teal/70\'');
+		expect(page).toContain('motion-safe:animate-hint-pulse size-[2.7rem] rounded-full place-self-center');
+		expect(page).toContain('can_reuse_hints(hints, hint_fen, fen)');
+		expect(page).toContain('onclick={() => hideHints()}');
+		expect(page).toContain('hideHints(true)');
+		expect(page).toContain('hint_fen = fen;');
+	});
+});
+
+
+
+describe('/chess/learn chat', () => {
+	it('uses side by side desktop layout without widening the board or controls', () => {
+		expect(page).toContain('max-w-[1328px]');
+		expect(page).toContain('lg:grid-cols-[minmax(0,640px)_minmax(0,640px)]');
+		expect(page).toContain('lg:items-start');
+		expect(page).toContain('max-w-[640px]');
+	});
+
+	it('keeps desktop vertical chrome tight around the board', () => {
+		expect(page).toContain('container py-4');
+		expect(page).toContain('flex w-full max-w-[1328px] flex-col gap-4');
+		expect(page).toContain('grid w-full grid-cols-1 gap-4');
+		expect(page).not.toContain('container py-12');
+		expect(page).not.toContain('flex w-full max-w-[1328px] flex-col gap-6');
+	});
+
+	it('replaces analysis panel with chat interface', () => {
+		expect(page).toContain('chat_messages');
+		expect(page).toContain('chat_loading');
+		expect(page).toContain('chat_abort');
+		expect(page).toContain('chat_queue');
+		expect(page).toContain('sendChatMessage');
+		expect(page).toContain('removeFromQueue');
+		expect(page).toContain('promoteFromQueue');
+		expect(page).toContain('execute_chat');
+		expect(page).toContain('processQueue');
+		expect(page).toContain('stopChat');
+		expect(page).toContain('clearChat');
+		expect(page).toContain('/chess/learn/chat');
+		expect(page).toContain('Chat');
+		expect(page).toContain('Ask about the position');
+	});
+
+	it('keeps board context hidden while sending request state', () => {
+		expect(page).toContain('successful_context');
+		expect(page).toContain('build_chat_data(');
+		expect(page).toContain('apply_chat_event(');
+		expect(page).toContain('bind:history');
+		expect(page).toContain('d: build_chat_data(');
+		expect(page).toContain('msg.content');
+		expect(page).not.toContain('{msg.d');
+	});
+
+	it('queues messages sent while response is loading and shows light bubbles with remove button', () => {
+		expect(page).toContain('chat_queue');
+		expect(page).toContain('removeFromQueue(');
+		expect(page).toContain('promoteFromQueue(');
+		expect(page).toContain('bg-primary/30 text-white');
+		expect(page).toContain('aria-label="Remove queued message"');
+		expect(page).toContain('aria-label="Send this message now"');
+		expect(page).toContain('class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"');
+		expect(page).toContain("sendChatMessage(chat_input)");
+		expect(page).toContain("chat_queue = [...chat_queue, { text: t }]");
+	});
+});
+
+describe('/chess/learn settings modal', () => {
+	it('uses the warm product design system instead of the shared checkout modal shell', () => {
+		expect(page).toContain('data-testid="learn-settings-modal"');
+		expect(page).toContain('bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]');
+		expect(page).toContain('font-display text-2xl font-medium text-ink');
+		expect(page).toContain('bg-surface-card p-4');
+		expect(page).toContain('rounded-lg border border-hairline bg-canvas');
+		expect(page).not.toContain('modal-card max-w-sm');
+	});
+
+	it('moves difficulty into settings and uses compact icon controls above chat', () => {
+		expect(page).toContain("import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
+		expect(page).toContain('data-testid="learn-status-toolbar"');
+		expect(page).toContain('aria-label="New game"');
+		expect(page).toContain('<RotateCcw');
+		expect(page).toContain('aria-label="Undo move"');
+		expect(page).toContain('<Undo2');
+		expect(page).toContain('aria-label="Show hint"');
+		expect(page).toContain('<Lightbulb');
+		expect(page).toContain('aria-label="Settings"');
+		expect(page).toContain('<Settings');
+		expect(page).toContain('data-testid="settings-difficulty"');
+		expect(page).not.toContain('<span class="text-muted">Move:</span>');
+		expect(page).not.toContain('<button class="button-secondary text-xs ml-auto"');
+	});

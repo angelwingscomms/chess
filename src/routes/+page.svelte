@@ -73,6 +73,29 @@ Keep responses concise. End conversationally.`;
 	let total_p = $state(0);
 	let total_c = $state(0);
 	let total_cost = $state(0);
+	let buy_amount = $state(500);
+	let buy_loading = $state(false);
+	const TOKEN_PACKS = [
+		{ label: '500 NGN', kobo: 50_000, tokens: 50_000 },
+		{ label: '1,000 NGN', kobo: 100_000, tokens: 100_000 },
+		{ label: '2,000 NGN', kobo: 200_000, tokens: 200_000 },
+		{ label: '5,000 NGN', kobo: 500_000, tokens: 500_000 },
+	];
+
+	async function buy_tokens(amount_kobo: number) {
+		buy_loading = true;
+		try {
+			const r = await fetch('/api/buy-tokens', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ amount_kobo })
+			});
+			const d = await r.json();
+			if (d.authorization_url) window.location.href = d.authorization_url;
+			else alert(d.error || 'Failed to initialize payment');
+		} catch { alert('Network error'); }
+		finally { buy_loading = false; }
+	}
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
 	let pending_user_idx = $derived.by(() => {
@@ -948,6 +971,20 @@ Keep responses concise. End conversationally.`;
 				{:else}
 					<p class="text-sm text-muted text-center py-6">No tokens used yet.</p>
 				{/if}
+				<div class="border-t border-hairline pt-4 space-y-3">
+					<p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Buy Tokens</p>
+					<div class="grid grid-cols-2 gap-2">
+						{#each TOKEN_PACKS as p}
+							<button class="rounded-lg border border-hairline px-3 py-2.5 text-left transition-colors hover:border-primary hover:bg-primary/5 {buy_amount === p.kobo ? 'border-primary bg-primary/5' : ''}" onclick={() => buy_amount = p.kobo}>
+								<span class="block text-sm font-medium text-ink">{p.tokens.toLocaleString()}</span>
+								<span class="block text-xs text-muted">{p.label}</span>
+							</button>
+						{/each}
+					</div>
+					<button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => buy_tokens(buy_amount)} disabled={buy_loading}>
+						{buy_loading ? 'Processing…' : `Buy ₦${(buy_amount / 100).toLocaleString()}`}
+					</button>
+				</div>
 			</div>
 			<div class="shrink-0 flex justify-end border-t border-hairline bg-surface-soft px-6 py-4">
 				<button class="button-primary" onclick={() => show_token_modal = false}>Close</button>

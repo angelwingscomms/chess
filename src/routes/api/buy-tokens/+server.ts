@@ -23,7 +23,8 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 			user.email,
 			amount_kobo,
 			ref,
-			callback_url
+			callback_url,
+			{ user_id: user.id }
 		);
 
 		return json({
