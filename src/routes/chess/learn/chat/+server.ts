@@ -96,10 +96,10 @@ export const POST: RequestHandler = async ({ request }) => {
 				if (!request.signal.aborted && wrote) {
 					try {
 						const u = await result.usage;
-						if (u?.totalTokens != null) {
-						const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
-						controller.enqueue(event('usage', { p, c, t: u.totalTokens, cost: calc_cost(m, p, c) }));
-					}
+							if (u?.totalTokens != null) {
+							const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
+							controller.enqueue(event('usage', { p, c, t: u.totalTokens, cost: calc_cost(m, p, c) }));
+						}
 					} catch {}
 				}
 			} catch (e) {
