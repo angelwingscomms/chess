@@ -1,5 +1,6 @@
 import { google_client } from '$lib/server/oauth';
 import { encode_session } from '$lib/server/session';
+import { save_user } from '$lib/server/user';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function GET(event: RequestEvent): Promise<Response> {
@@ -20,6 +21,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
     headers: { Authorization: `Bearer ${tokens.accessToken()}` }
   });
   const guser = await ures.json();
+  await save_user(event, guser.sub, guser.name, guser.picture, guser.email);
   const session = await encode_session({ id: guser.sub, name: guser.name, picture: guser.picture, email: guser.email });
   event.cookies.set('session', session, { path: '/', httpOnly: true, maxAge: 604800, sameSite: 'lax' });
   event.cookies.delete('oauth_state', { path: '/' });
