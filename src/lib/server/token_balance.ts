@@ -24,11 +24,7 @@ async function read_bal(user_id: string): Promise<number> {
 
 async function write_bal(user_id: string, n: number): Promise<void> {
 	local.set(user_id, n);
-	try {
-		await client().setPayload(C, { payload: { t: n, u: user_id }, points: [user_id] });
-	} catch {
-		await client().upsert(C, { points: [{ id: user_id, vector: ZV, payload: { t: n, u: user_id } }] });
-	}
+	await client().upsert(C, { points: [{ id: user_id, vector: ZV, payload: { t: n, u: user_id } }] });
 }
 
 export async function credit(_event: unknown, user_id: string, amount_kobo: number): Promise<number> {
