@@ -69,8 +69,12 @@ Keep responses concise. End conversationally.`;
 	let show_model_menu = $state(false);
 	let show_token_modal = $state(false);
 	let token_balance = $state(0);
+	let bal_ver = $state(0);
 	$effect(() => {
-		if (show_token_modal) fetch('/api/balance').then(r => r.json()).then(d => token_balance = d.balance).catch(() => {});
+		if (show_token_modal) {
+			const v = bal_ver;
+			fetch('/api/balance').then(r => r.json()).then(d => { if (v === bal_ver) token_balance = d.balance; }).catch(() => {});
+		}
 	});
 	let show_msg_modal = $state(false);
 	let msg_modal_idx = $state(0);
@@ -110,8 +114,11 @@ Keep responses concise. End conversationally.`;
 				onSuccess: (tx: { reference: string }) => {
 					clearTimeout(fb);
 					fetch('/api/verify-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reference: tx.reference }) })
-						.then(r => r.json()).then(d => { if (d.success) token_balance = d.balance; })
-						.catch(() => {});
+						.then(r => r.json()).then(d => {
+							if (d.success) { token_balance = d.balance; bal_ver++; }
+							else fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; bal_ver++; }).catch(() => {});
+						})
+						.catch(() => fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; bal_ver++; }).catch(() => {}));
 					buy_loading = false;
 				},
 				onCancel: () => { clearTimeout(fb); buy_loading = false; },
