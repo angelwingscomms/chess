@@ -37,7 +37,7 @@
     <a href="/">
       <img src="/logo.svg" alt="Chess AI" class="nav-logo" />
     </a>
-    <div class="nav-actions">
+    <div class="nav-end">
       {#if user}
         <div class="user-menu-wrap" bind:this={wrap}>
           <button onclick={toggle} class="user-btn" aria-label="User menu">
@@ -141,4 +141,13 @@
     height: 36px;
     width: auto;
   }
+  .nav-end {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
 </style>
