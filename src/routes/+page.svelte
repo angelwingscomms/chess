@@ -107,9 +107,11 @@ Keep responses concise. End conversationally.`;
 			const fb = setTimeout(() => { window.location.href = auth_url; }, 15000);
 			popup.resumeTransaction(d.access_code, {
 				onLoad: () => clearTimeout(fb),
-				onSuccess: () => {
+				onSuccess: (tx: { reference: string }) => {
 					clearTimeout(fb);
-					fetch('/api/balance').then(r => r.json()).then(d => token_balance = d.balance).catch(() => {});
+					fetch('/api/verify-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reference: tx.reference }) })
+						.then(r => r.json()).then(d => { if (d.success) token_balance = d.balance; })
+						.catch(() => {});
 					buy_loading = false;
 				},
 				onCancel: () => { clearTimeout(fb); buy_loading = false; },
