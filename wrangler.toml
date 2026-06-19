@@ -14,10 +14,6 @@ name = "SEND_EMAIL"
 enabled = true
 head_sampling_rate = 1
 
-[vars]
-OPENROUTER_KEY = "sk-or-v1-placeholder"
-PAYSTACK_TEST = "."
-
 [observability.logs]
 enabled = true
 head_sampling_rate = 1
