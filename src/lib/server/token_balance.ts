@@ -13,27 +13,7 @@ function client(): QdrantClient {
 
 const ZV: number[] = new Array(3072).fill(0);
 
-export async function credit(_event: unknown, user_id: string, amount_kobo: number): Promise<number> {
-	const t = Math.floor(amount_kobo / TOKEN_RATE);
-	try {
-		const r = await client().retrieve(C, { ids: [user_id] });
-		const cur = (r[0]?.payload?.t as number) || 0;
-		const n = cur + t;
-		try {
-			await client().setPayload(C, { payload: { t: n, u: user_id }, points: [user_id] });
-		} catch {
-			await client().upsert(C, { points: [{ id: user_id, vector: ZV, payload: { t: n, u: user_id } }] });
-		}
-		return n;
-	} catch {
-		const cur = local.get(user_id) || 0;
-		const n = cur + t;
-		local.set(user_id, n);
-		return n;
-	}
-}
-
-export async function get_balance(_event: unknown, user_id: string): Promise<number> {
+async function read_bal(user_id: string): Promise<number> {
 	try {
 		const r = await client().retrieve(C, { ids: [user_id] });
 		return (r[0]?.payload?.t as number) || 0;
@@ -42,23 +22,32 @@ export async function get_balance(_event: unknown, user_id: string): Promise<num
 	}
 }
 
-export async function deduct(_event: unknown, user_id: string, amount: number): Promise<number> {
+async function write_bal(user_id: string, n: number): Promise<void> {
+	local.set(user_id, n);
 	try {
-		const r = await client().retrieve(C, { ids: [user_id] });
-		const cur = (r[0]?.payload?.t as number) || 0;
-		const n = Math.max(0, cur - amount);
-		try {
-			await client().setPayload(C, { payload: { t: n, u: user_id }, points: [user_id] });
-		} catch {
-			await client().upsert(C, { points: [{ id: user_id, vector: ZV, payload: { t: n, u: user_id } }] });
-		}
-		return n;
+		await client().setPayload(C, { payload: { t: n, u: user_id }, points: [user_id] });
 	} catch {
-		const cur = local.get(user_id) || 0;
-		const n = Math.max(0, cur - amount);
-		local.set(user_id, n);
-		return n;
+		await client().upsert(C, { points: [{ id: user_id, vector: ZV, payload: { t: n, u: user_id } }] });
 	}
+}
+
+export async function credit(_event: unknown, user_id: string, amount_kobo: number): Promise<number> {
+	const t = Math.floor(amount_kobo / TOKEN_RATE);
+	const cur = await read_bal(user_id);
+	const n = cur + t;
+	await write_bal(user_id, n);
+	return n;
+}
+
+export async function get_balance(_event: unknown, user_id: string): Promise<number> {
+	return read_bal(user_id);
+}
+
+export async function deduct(_event: unknown, user_id: string, amount: number): Promise<number> {
+	const cur = await read_bal(user_id);
+	const n = Math.max(0, cur - amount);
+	await write_bal(user_id, n);
+	return n;
 }
 
 export function tokens_per_kobo(): number {
