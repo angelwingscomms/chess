@@ -7,9 +7,11 @@
   let user = $state<{ id: string; name: string; picture?: string } | null>(null);
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
+  let img_err = $state(false);
+  let menu_img_err = $state(false);
   $effect(() => {
     if (!browser) return;
-    fetch('/api/me').then(r => r.ok && r.json().then(d => user = d.user)).catch(() => {});
+    fetch('/api/me').then(r => r.ok && r.json().then(d => { user = d.user; img_err = false; menu_img_err = false; })).catch(() => {});
   });
   $effect(() => {
     if (!open) return;
@@ -39,19 +41,19 @@
       {#if user}
         <div class="user-menu-wrap" bind:this={wrap}>
           <button onclick={toggle} class="user-btn" aria-label="User menu">
-            {#if user.picture}
-              <img src={user.picture} alt={user.name} class="user-avatar" />
+            {#if user.picture && !img_err}
+              <img src={user.picture} alt={user.name} class="user-avatar" onerror={() => img_err = true} />
             {:else}
-              <span class="user-fallback">{(user.name || '?')[0]}</span>
+              <span class="user-fallback">{(user.name || '')[0] || 'u'}</span>
             {/if}
           </button>
           {#if open}
             <div class="user-menu" role="menu">
               <div class="user-menu-header">
-                {#if user.picture}
-                  <img src={user.picture} alt={user.name} class="user-avatar large" />
+                {#if user.picture && !menu_img_err}
+                  <img src={user.picture} alt={user.name} class="user-avatar large" onerror={() => menu_img_err = true} />
                 {:else}
-                  <span class="user-fallback large">{(user.name || '?')[0]}</span>
+                  <span class="user-fallback large">{(user.name || '')[0] || 'u'}</span>
                 {/if}
                 <div>
                   <div class="user-name">{user.name}</div>
