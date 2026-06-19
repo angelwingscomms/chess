@@ -95,10 +95,25 @@ Keep responses concise. End conversationally.`;
 				body: JSON.stringify({ amount_kobo })
 			});
 			const d = await r.json();
-			if (d.authorization_url) window.location.href = d.authorization_url;
-			else alert(d.error || 'Failed to initialize payment');
-		} catch { alert('Network error'); }
-		finally { buy_loading = false; }
+			if (!d.access_code) {
+				alert(d.error || 'Failed to initialize payment');
+				buy_loading = false;
+				return;
+			}
+			const PaystackPop = (await import('@paystack/inline-js')).default;
+			const popup = new PaystackPop();
+			const fb = setTimeout(() => { window.location.href = d.authorization_url; }, 10000);
+			popup.resumeTransaction(d.access_code, {
+				onLoad: () => clearTimeout(fb),
+				onSuccess: () => {
+					clearTimeout(fb);
+					fetch('/api/balance').then(r => r.json()).then(d => token_balance = d.balance).catch(() => {});
+					buy_loading = false;
+				},
+				onCancel: () => { clearTimeout(fb); buy_loading = false; },
+				onError: () => { clearTimeout(fb); window.location.href = d.authorization_url; },
+			});
+		} catch { alert('Network error'); buy_loading = false; }
 	}
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
