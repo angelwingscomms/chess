@@ -6,6 +6,8 @@ import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { calc_cost } from '$lib/util/ai/pricing';
+import { deduct } from '$lib/server/token_balance';
+import { NGN_USD } from '$lib/util/rates';
 
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
@@ -62,7 +64,7 @@ function normalize_msg(v: any): Msg | null {
 	return { r, c, d: v?.d && typeof v.d === 'object' ? v.d : undefined };
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const body = await request.json().catch(() => null);
 	const raw = Array.isArray(body?.x) ? body.x : Array.isArray(body?.messages) ? body.messages : [];
 	const messages = raw.map(normalize_msg).filter(Boolean) as Msg[];
@@ -98,7 +100,13 @@ export const POST: RequestHandler = async ({ request }) => {
 						const u = await result.usage;
 							if (u?.totalTokens != null) {
 							const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
-							controller.enqueue(event('usage', { p, c, t: u.totalTokens, cost: calc_cost(m, p, c) }));
+							const cost = calc_cost(m, p, c);
+							const cost_kobo = Math.round(cost * NGN_USD * 100);
+							let bal = 0;
+							if (locals.user?.id && cost_kobo > 0) {
+								try { bal = await deduct({ platform }, locals.user.id, cost_kobo); } catch {}
+							}
+							controller.enqueue(event('usage', { p, c, t: u.totalTokens, cost, bal }));
 						}
 					} catch {}
 				}

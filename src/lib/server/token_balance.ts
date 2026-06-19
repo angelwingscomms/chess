@@ -46,6 +46,4 @@ export async function deduct(_event: unknown, user_id: string, amount: number): 
 	return n;
 }
 
-export function tokens_per_kobo(): number {
-	return TOKEN_RATE;
-}
+

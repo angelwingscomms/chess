@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { paystack_verify } from '$lib/paystack';
-import { credit, tokens_per_kobo, get_balance } from '$lib/server/token_balance';
+import { credit, get_balance } from '$lib/server/token_balance';
 
 export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const user = locals.user;
@@ -17,8 +17,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 
 		await credit({ platform }, user.id, result.amount);
 		const bal = await get_balance({ platform }, user.id);
-		const tokens = Math.floor(result.amount / tokens_per_kobo());
-		return json({ success: true, balance: bal, tokens });
+		return json({ success: true, balance: bal });
 	} catch (e) {
 		console.error('[verify-payment]', e);
 		return json({ success: false, error: 'Verification failed' }, { status: 500 });

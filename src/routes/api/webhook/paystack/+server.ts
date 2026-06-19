@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { verify_webhook_sig } from '$lib/paystack';
-import { credit, tokens_per_kobo } from '$lib/server/token_balance';
+import { credit } from '$lib/server/token_balance';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	const sig = request.headers.get('x-paystack-signature');
@@ -35,8 +35,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		try {
 			const bal = await credit({ platform }, user_id, amount);
-			const tokens = Math.floor(amount / tokens_per_kobo());
-			console.log('[webhook] credited', { user_id, amount, tokens, balance: bal, ref });
+			console.log('[webhook] credited', { user_id, amount, balance: bal, ref });
 		} catch (e) {
 			console.error('[webhook] credit failed', { user_id, ref, error: e });
 		}

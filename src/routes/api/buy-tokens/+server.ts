@@ -9,9 +9,10 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
-	const body = await request.json().catch(() => null);
+	const MIN_KOBO = 10_000;
+const body = await request.json().catch(() => null);
 	const amount_kobo = body?.amount_kobo;
-	if (!amount_kobo || typeof amount_kobo !== 'number' || amount_kobo <= 0) {
+	if (!amount_kobo || typeof amount_kobo !== 'number' || amount_kobo < MIN_KOBO) {
 		return json({ error: 'Invalid amount' }, { status: 400 });
 	}
 

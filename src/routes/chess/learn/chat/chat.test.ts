@@ -20,9 +20,13 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain("m.startsWith('deepseek/')");
 	});
 
-	it('imports calc_cost and emits cost in usage event', () => {
+	it('imports calc_cost, deduct, NGN_USD and deducts balance on usage', () => {
 		expect(route).toContain("import { calc_cost } from '$lib/util/ai/pricing'");
-		expect(route).toContain('cost: calc_cost(m, p, c)');
+		expect(route).toContain("import { deduct } from '$lib/server/token_balance'");
+		expect(route).toContain("import { NGN_USD } from '$lib/util/rates'");
+		expect(route).toContain('const cost = calc_cost(m, p, c)');
+		expect(route).toContain('cost_kobo');
+		expect(route).toContain('bal');
 	});
 
 	it('keeps chess context in user input instead of the system prompt', () => {

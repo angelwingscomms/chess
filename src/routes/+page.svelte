@@ -10,6 +10,7 @@
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 	import { calc_cost } from '$lib/util/ai/pricing';
+	import { NGN_USD } from '$lib/util/rates';
 
 	type ChatContext = { f: string; p: string; u: string; a: string };
 	type ChatData = Partial<ChatContext> & { h?: string };
@@ -81,16 +82,12 @@ Keep responses concise. End conversationally.`;
 	let total_p = $state(0);
 	let total_c = $state(0);
 	let total_cost = $state(0);
-	let buy_amount = $state(500);
+	let buy_amount = $state(50_000);
 	let buy_loading = $state(false);
-	const TOKEN_PACKS = [
-		{ label: '500 NGN', kobo: 50_000, tokens: 50_000 },
-		{ label: '1,000 NGN', kobo: 100_000, tokens: 100_000 },
-		{ label: '2,000 NGN', kobo: 200_000, tokens: 200_000 },
-		{ label: '5,000 NGN', kobo: 500_000, tokens: 500_000 },
-	];
+	const MIN_KOBO = 10_000;
+	const DEPOSIT_AMOUNTS = [50_000, 100_000, 200_000, 500_000];
 
-	async function buy_tokens(amount_kobo: number) {
+	async function deposit(amount_kobo: number) {
 		buy_loading = true;
 		let auth_url = '';
 		try {
@@ -283,6 +280,7 @@ Keep responses concise. End conversationally.`;
 			total_p += msg.p;
 			total_c += msg.c;
 			if (typeof msg.cost === 'number') total_cost += msg.cost;
+			if (typeof msg.bal === 'number') { token_balance = msg.bal; bal_ver++; }
 			const last = chat_messages.length - 1;
 			if (last >= 0 && chat_messages[last].role === 'assistant') {
 				chat_messages[last] = { ...chat_messages[last], u: { p: msg.p, c: msg.c, cost: msg.cost ?? 0 } };
@@ -716,7 +714,7 @@ Keep responses concise. End conversationally.`;
 									<button class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed text-left {msg.u ? 'cursor-pointer hover:ring-1 hover:ring-primary/30 transition-shadow' : ''}" onclick={() => { if (msg.u) { msg_modal_idx = i; show_msg_modal = true; } }}>
 										{@html marked.parse(msg.content)}
 										{#if msg.u}
-											<span class="mt-1.5 block text-[10px] text-muted/60">${msg.u.cost.toFixed(6)} · {msg.u.p + msg.u.c} tokens</span>
+											<span class="mt-1.5 block text-[10px] text-muted/60">${msg.u.cost.toFixed(6)} · {msg.u.p + msg.u.c} tok</span>
 										{/if}
 									</button>
 								{:else}
@@ -954,7 +952,7 @@ Keep responses concise. End conversationally.`;
 							</div>
 							<div class="flex items-center justify-between text-sm">
 								<span class="text-muted">Cost (NGN)</span>
-								<span class="font-medium text-primary">₦{(u.cost * 1440).toFixed(2)}</span>
+								<span class="font-medium text-primary">₦{(u.cost * NGN_USD).toFixed(2)}</span>
 							</div>
 						</div>
 					</div>
@@ -971,25 +969,25 @@ Keep responses concise. End conversationally.`;
 
 {#if show_token_modal}
 	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (show_token_modal = false)} onclick={() => show_token_modal = false}>
-		<div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="token-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_token_modal = false)} onclick={(e) => e.stopPropagation()}>
+		<div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="bal-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_token_modal = false)} onclick={(e) => e.stopPropagation()}>
 			<div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
 				<p class="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">Usage</p>
-				<h2 id="token-title" class="font-display text-2xl font-medium text-ink">Token Usage</h2>
+				<h2 id="bal-title" class="font-display text-2xl font-medium text-ink">Usage & Balance</h2>
 			</div>
 			<div class="grid gap-4 p-6">
 				{#if total_t > 0}
 					<div class="rounded-lg bg-surface-card p-4 space-y-2">
 						<div class="flex items-center justify-between text-sm">
 							<span class="text-muted">Total</span>
-							<span class="font-medium text-ink">{total_t}</span>
+							<span class="font-medium text-ink">{total_t.toLocaleString()} tok</span>
 						</div>
 						<div class="flex items-center justify-between text-sm">
 							<span class="text-muted">Input</span>
-							<span class="font-medium text-ink">{total_p}</span>
+							<span class="font-medium text-ink">{total_p.toLocaleString()} tok</span>
 						</div>
 						<div class="flex items-center justify-between text-sm">
 							<span class="text-muted">Output</span>
-							<span class="font-medium text-ink">{total_c}</span>
+							<span class="font-medium text-ink">{total_c.toLocaleString()} tok</span>
 						</div>
 						<div class="border-t border-hairline pt-2 space-y-1">
 							<div class="flex items-center justify-between text-sm">
@@ -998,31 +996,31 @@ Keep responses concise. End conversationally.`;
 							</div>
 							<div class="flex items-center justify-between text-sm">
 								<span class="text-muted">Cost (NGN)</span>
-								<span class="font-medium text-primary">₦{(total_cost * 1440).toFixed(2)}</span>
+								<span class="font-medium text-primary">₦{(total_cost * NGN_USD).toFixed(2)}</span>
 							</div>
 						</div>
 					</div>
 				{:else}
-					<p class="text-sm text-muted text-center py-6">No tokens used yet.</p>
+					<p class="text-sm text-muted text-center py-6">No usage yet.</p>
 				{/if}
 				<div class="rounded-lg bg-surface-card p-4 space-y-2 border border-hairline">
 					<div class="flex items-center justify-between text-sm">
 						<span class="text-muted">Your Balance</span>
-						<span class="font-medium text-ink">{token_balance.toLocaleString()} tokens</span>
+						<span class="font-medium text-ink">₦{(token_balance / 100).toFixed(2)}</span>
 					</div>
 				</div>
 				<div class="border-t border-hairline pt-4 space-y-3">
-					<p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Buy Tokens</p>
+					<p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Deposit</p>
 					<div class="grid grid-cols-2 gap-2">
-						{#each TOKEN_PACKS as p}
-							<button class="rounded-lg border border-hairline px-3 py-2.5 text-left transition-colors hover:border-primary hover:bg-primary/5 {buy_amount === p.kobo ? 'border-primary bg-primary/5' : ''}" onclick={() => buy_amount = p.kobo}>
-								<span class="block text-sm font-medium text-ink">{p.tokens.toLocaleString()}</span>
-								<span class="block text-xs text-muted">{p.label}</span>
+						{#each DEPOSIT_AMOUNTS as kobo}
+							<button class="rounded-lg border border-hairline px-3 py-2.5 text-left transition-colors hover:border-primary hover:bg-primary/5 {buy_amount === kobo ? 'border-primary bg-primary/5' : ''}" onclick={() => buy_amount = kobo}>
+								<span class="block text-sm font-medium text-ink">₦{(kobo / 100).toLocaleString()}</span>
 							</button>
 						{/each}
 					</div>
-					<button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => buy_tokens(buy_amount)} disabled={buy_loading}>
-						{buy_loading ? 'Processing…' : `Buy ₦${(buy_amount / 100).toLocaleString()}`}
+					<p class="text-[10px] text-muted/60">Minimum deposit: ₦100</p>
+					<button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(buy_amount)} disabled={buy_loading}>
+						{buy_loading ? 'Processing…' : `Deposit ₦${(buy_amount / 100).toLocaleString()}`}
 					</button>
 				</div>
 			</div>
