@@ -88,6 +88,7 @@ Keep responses concise. End conversationally.`;
 
 	async function buy_tokens(amount_kobo: number) {
 		buy_loading = true;
+		let auth_url = '';
 		try {
 			const r = await fetch('/api/buy-tokens', {
 				method: 'POST',
@@ -100,9 +101,10 @@ Keep responses concise. End conversationally.`;
 				buy_loading = false;
 				return;
 			}
+			auth_url = d.authorization_url;
 			const PaystackPop = (await import('@paystack/inline-js')).default;
 			const popup = new PaystackPop();
-			const fb = setTimeout(() => { window.location.href = d.authorization_url; }, 10000);
+			const fb = setTimeout(() => { window.location.href = auth_url; }, 15000);
 			popup.resumeTransaction(d.access_code, {
 				onLoad: () => clearTimeout(fb),
 				onSuccess: () => {
@@ -111,9 +113,12 @@ Keep responses concise. End conversationally.`;
 					buy_loading = false;
 				},
 				onCancel: () => { clearTimeout(fb); buy_loading = false; },
-				onError: () => { clearTimeout(fb); window.location.href = d.authorization_url; },
+				onError: () => { clearTimeout(fb); window.location.href = auth_url; },
 			});
-		} catch { alert('Network error'); buy_loading = false; }
+		} catch {
+			if (auth_url) window.location.href = auth_url;
+			else { alert('Network error'); buy_loading = false; }
+		}
 	}
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
