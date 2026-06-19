@@ -11,13 +11,16 @@ function client(): QdrantClient {
 	return q;
 }
 
+const ZV: number[] = new Array(3072).fill(0);
+
 export async function credit(_event: unknown, user_id: string, amount_kobo: number): Promise<number> {
 	const t = Math.floor(amount_kobo / TOKEN_RATE);
 	try {
-		const r = await client().retrieve(C, { ids: [user_id] });
+		const r = await client().retrieve(C, { ids: [user_id], with_vector: true });
 		const cur = (r[0]?.payload?.t as number) || 0;
+		const v = (r[0]?.vector as number[] | undefined) || ZV;
 		const n = cur + t;
-		await client().upsert(C, { points: [{ id: user_id, payload: { t: n, u: user_id } }] });
+		await client().upsert(C, { points: [{ id: user_id, vector: v, payload: { t: n, u: user_id } }] });
 		return n;
 	} catch {
 		const cur = local.get(user_id) || 0;
@@ -38,10 +41,11 @@ export async function get_balance(_event: unknown, user_id: string): Promise<num
 
 export async function deduct(_event: unknown, user_id: string, amount: number): Promise<number> {
 	try {
-		const r = await client().retrieve(C, { ids: [user_id] });
+		const r = await client().retrieve(C, { ids: [user_id], with_vector: true });
 		const cur = (r[0]?.payload?.t as number) || 0;
+		const v = (r[0]?.vector as number[] | undefined) || ZV;
 		const n = Math.max(0, cur - amount);
-		await client().upsert(C, { points: [{ id: user_id, payload: { t: n, u: user_id } }] });
+		await client().upsert(C, { points: [{ id: user_id, vector: v, payload: { t: n, u: user_id } }] });
 		return n;
 	} catch {
 		const cur = local.get(user_id) || 0;
