@@ -32,9 +32,8 @@
 
 <nav class="top-nav">
   <div class="container nav-inner">
-    <a href="/" class="brand-lockup">
-      <span class="spike-mark" />
-      Chess AI
+    <a href="/">
+      <img src="/logo.svg" alt="Chess AI" class="nav-logo" />
     </a>
     <div class="nav-actions">
       {#if user}
@@ -134,5 +133,10 @@
     font-size: 14px;
     font-weight: 500;
     color: var(--ink);
+  }
+  .nav-logo {
+    display: block;
+    height: 36px;
+    width: auto;
   }
 </style>
