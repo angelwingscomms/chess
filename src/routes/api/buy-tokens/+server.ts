@@ -30,6 +30,7 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 		return json({
 			success: true,
 			authorization_url: result.authorization_url,
+			access_code: result.access_code,
 			reference: result.reference
 		});
 	} catch (e) {
