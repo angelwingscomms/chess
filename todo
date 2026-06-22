@@ -1,7 +1,7 @@
-
-chat message suggestion for user based on board state. use the design-taste skill for this (not the v1 one)
 let deposit number input field be empty / not have default value
 update user balance as soon as message response done
+
+default hint time to 2.7seconds
 
 instead of hint think time being slider let it be number input w/ plus minus buttons to the left and right of it. tapping increases the buttons, holding on buttons increases them continuously w/ 144ms interval. use the same design-taste skill for this
 
