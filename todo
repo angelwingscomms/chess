@@ -4,6 +4,7 @@ hint elo slider
 number of hints to make
 add left right arrows to move between hints when hints > 1
 
+save game progress and chat to user profile on move/message
 hint think time instead of hint intelligence
 add redo button
 show captured pieces

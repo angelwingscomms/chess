@@ -3,7 +3,7 @@
 	import { Chess as ChessJS } from 'chess.js';
 	import { marked } from 'marked';
 	import { browser } from '$app/environment';
-	import { LearnEngine, DIFFICULTY_PRESETS, HINT_PRESETS, getHints } from '$lib/util/chess/engine';
+	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 	import { ArrowUp, Info, Lightbulb, Mic, Redo2, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
@@ -64,7 +64,7 @@ Keep responses concise. End conversationally.`;
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
 	let hint_count = $state(browser && parseInt(localStorage.getItem('hint_count') || '1', 10) || 1);
-	let hint_intelligence = $state(browser && parseInt(localStorage.getItem('hint_intelligence') || '10', 10) || 10);
+	let hint_think_time = $state(browser && parseInt(localStorage.getItem('hint_think_time') || '5', 10) || 5);
 	let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
@@ -89,7 +89,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_count', String(hint_count)); });
-	$effect(() => { if (browser) localStorage.setItem('hint_intelligence', String(hint_intelligence)); });
+	$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(hint_think_time)); });
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
 	$effect(() => {
 		const el = chat_body;
@@ -101,7 +101,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 	const presets = DIFFICULTY_PRESETS;
 	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
-	const hint_labels = ['Lightning', 'Very Fast', 'Fast', 'Quick', 'Moderate', 'Balanced', 'Thorough', 'Deep', 'Very Deep', 'Maximum'];
 	const hint_from_class = 'bg-amber/70';
 	const hint_to_class = 'bg-teal/70';
 	let model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);

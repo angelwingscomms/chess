@@ -339,3 +339,430 @@ RetryError [AI_RetryError]: Failed after 3 attempts. Last error: Cannot connect 
 9:25:08 PM [vite] (ssr) page reload src/routes/+page.svelte
 9:25:12 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
 9:25:12 PM [vite] (ssr) page reload src/routes/+page.svelte
+9:28:16 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+9:28:16 PM [vite] (ssr) page reload src/routes/+page.svelte
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+9:28:20 PM [vite] (ssr) page reload src/routes/+page.svelte
+9:28:24 PM [vite] (ssr) page reload src/routes/+page.svelte
+9:36:41 PM [vite] (client) Pre-transform error: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:36:41 PM [vite] Internal server error: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:23 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:24 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:24 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:25 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+Avoid calling `fetch` eagerly during server-side rendering — put your `fetch` calls inside `onMount` or a `load` function instead
+9:37:26 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:27 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:27 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:28 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:29 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:29 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:30 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:31 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:31 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:32 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:33 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:33 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:34 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:35 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:35 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:36 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:37 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:38 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:38 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:39 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:40 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+Avoid calling `fetch` eagerly during server-side rendering — put your `fetch` calls inside `onMount` or a `load` function instead
+9:37:40 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+9:37:41 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+
+[1;31m[500] GET /[0m
+
+9:37:42 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:42 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
+9:37:53 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
+https://svelte.dev/e/bind_invalid_value
+  Plugin: vite-plugin-svelte:compile
+  File: src/routes/+page.svelte:857:18
+   855 |              min="1"
+   856 |              max="10"
+   857 |              bind:value={hint_intelligence}
+                                                   ^
+   858 |              class="w-full accent-primary"
+   859 |            />
+
+[1;31m[500] GET /[0m
+
