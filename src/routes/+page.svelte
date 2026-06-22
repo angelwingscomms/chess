@@ -3,6 +3,7 @@
 	import { Chess as ChessJS } from 'chess.js';
 	import { marked } from 'marked';
 	import { browser } from '$app/environment';
+	import { page } from '$app/stores';
 	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
@@ -89,6 +90,75 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(hint_think_time)); });
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
+	let save_timeout: ReturnType<typeof setTimeout> | null = null;
+	let saved_data: Record<string, unknown> | null = null;
+
+	async function save_game_debounced() {
+		if (!($page.data as any)?.user) return;
+		if (save_timeout) clearTimeout(save_timeout);
+		save_timeout = setTimeout(async () => {
+			const c = chat_messages.map(m => {
+				const r: Record<string, unknown> = { r: m.role === 'user' ? 'u' : 'a', c: m.content };
+				if (m.u) r.u = m.u;
+				return r;
+			});
+			try {
+				await fetch('/api/save', {
+					method: 'POST',
+					body: JSON.stringify({
+						f: fen, h: history.join(' '), m: moveNum, o: orientation,
+						u: last_user_move, a: last_ai_move, r: redo_stack.join('|'),
+						v: gameOver, x: resultMsg, g: groq_api_key, l: level,
+						c: JSON.stringify(c)
+					})
+				});
+			} catch {}
+		}, 2000);
+	}
+
+	function restore_game(d: Record<string, unknown>) {
+		if (!chessRef) return;
+		chessRef.load(d.f as string);
+		fen = d.f as string;
+		const h = d.h as string;
+		if (h) history = h.split(' ').filter(Boolean);
+		moveNum = (d.m as number) ?? 0;
+		orientation = (d.o as 'w' | 'b') ?? 'w';
+		last_user_move = (d.u as string) ?? '';
+		last_ai_move = (d.a as string) ?? '';
+		const r = d.r as string;
+		if (r) redo_stack = r.split('|').filter(Boolean);
+		gameOver = (d.v as boolean) ?? false;
+		resultMsg = (d.x as string) ?? '';
+		level = (d.l as number) ?? 3;
+		const gk = d.g as string;
+		if (gk) groq_api_key = gk;
+		const cc = d.c as string;
+		if (cc) {
+			try {
+				const parsed = JSON.parse(cc);
+				if (Array.isArray(parsed)) chat_messages = parsed.map((m: any) => ({
+					role: m.r === 'u' ? 'user' as const : 'assistant' as const,
+					content: m.c,
+					...(m.u ? { u: m.u as { p: number; c: number; cost: number } } : {})
+				}));
+			} catch {}
+		}
+		saved_data = null;
+	}
+
+	$effect(() => {
+		if (browser && ($page.data as any)?.user) {
+			fetch('/api/load').then(r => r.json()).then(({data: sd}) => { if (sd) saved_data = sd; }).catch(() => {});
+		}
+	});
+
+	$effect(() => {
+		if (ready && saved_data) {
+			restore_game(saved_data);
+		}
+	});
+
 	$effect(() => {
 		const el = chat_body;
 		if (!el) return;
@@ -305,6 +375,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				}
 			} catch {}
 		}
+		save_game_debounced();
 	}
 
 	function sync_chat_moves() {
@@ -337,6 +408,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		redo_stack = [];
 		hideHints(true);
 		if (m.color === 'b' && auto_hint) request_hint();
+		save_game_debounced();
 	}
 
 	function onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -478,6 +550,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			if (!(await read_chat_stream(res))) throw Error('Request failed');
 			}
 			successful_context = sent_context;
+		save_game_debounced();
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'AbortError') return;
 			console.error('[chat] error:', e);

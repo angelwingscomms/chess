@@ -77,6 +77,18 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain("sendChatMessage(chat_input)");
 		expect(page).toContain("chat_queue = [...chat_queue, { text: t }]");
 	});
+
+	it('saves game progress and chat to user profile on move and message', () => {
+		expect(page).toContain("import { page } from '$app/stores'");
+		expect(page).toContain('save_game_debounced');
+		expect(page).toContain('/api/save');
+		expect(page).toContain('/api/load');
+		expect(page).toContain('fetch(\'/api/load\')');
+		expect(page).toContain("chessRef.load(d.f as string)");
+		expect(page).toContain('clearTimeout');
+		expect(page).toContain('join(\'|\')');
+		expect(page).toContain("m.r === 'u' ? 'user'");
+	});
 });
 
 describe('/chess/learn settings modal', () => {
