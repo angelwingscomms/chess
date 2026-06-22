@@ -14,7 +14,7 @@ name = "SEND_EMAIL"
 enabled = true
 
 [vars]
-ELEVENLABS_API_KEY = ""
+RESEMBLE_API_KEY = ""
 head_sampling_rate = 1
 
 [observability.logs]

@@ -9,8 +9,9 @@ $ vite --port 2160
 8:29:38 AM [vite] server restarted.
 10:02:31 AM [vite] .env changed, restarting server...
 10:02:33 AM [vite] server restarted.
-.svelte?svelte&type=style&lang.css
-7:59:47 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
+10:43:55 AM [vite] .env changed, restarting server...
+10:43:56 AM [vite] server restarted.
+ual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
 7:59:47 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
 7:59:47 AM [vite] Internal server error: Invalid declaration: `<script>export let square`
   Plugin: @tailwindcss/vite:generate:serve
@@ -303,3 +304,9 @@ Using secrets defined in .env
 https://svelte.dev/e/state_referenced_locally
 10:42:37 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
+10:43:14 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+10:43:14 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+10:43:55 AM [vite] .env changed, restarting server...
+10:43:55 AM [vite] server restarted.
