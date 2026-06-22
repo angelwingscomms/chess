@@ -6,7 +6,7 @@
 	import { LearnEngine, DIFFICULTY_PRESETS, HINT_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { ArrowUp, Info, Lightbulb, Mic, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import { ArrowUp, Info, Lightbulb, Mic, Redo2, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 	import { calc_cost } from '$lib/util/ai/pricing';
@@ -56,6 +56,7 @@ Keep responses concise. End conversationally.`;
 	let interaction_id = $state('');
 	let last_user_move = $state('');
 	let last_ai_move = $state('');
+	let redo_stack = $state<string[]>([]);
 	let successful_context = $state<Partial<ChatContext>>({});
 
 	let model = $state(browser && localStorage.getItem('explain_model') || 'openai/gpt-oss-120b');
@@ -336,6 +337,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		inCheck = (e.detail as any).check ?? false;
 		if (m.color === 'w') last_user_move = move_text(m);
 		else last_ai_move = move_text(m);
+		redo_stack = [];
 		hideHints(true);
 		if (m.color === 'b' && auto_hint) request_hint();
 	}
@@ -360,11 +362,13 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		history = [];
 		last_user_move = '';
 		last_ai_move = '';
+		redo_stack = [];
 		clearChat();
 	}
 
 	function undoMove() {
 		if (!chessRef) return;
+		redo_stack.push(fen);
 		if (moveNum >= 2) {
 			chessRef.undo();
 			chessRef.undo();
@@ -376,6 +380,14 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		}
 		gameOver = false;
 		resultMsg = '';
+		sync_chat_moves();
+		hideHints(true);
+	}
+
+	function redoMove() {
+		if (!chessRef || !redo_stack.length) return;
+		const f = redo_stack.pop()!;
+		chessRef.load(f);
 		sync_chat_moves();
 		hideHints(true);
 	}
@@ -699,6 +711,9 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					</button>
 					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={undoMove} disabled={!ready || moveNum === 0 || gameOver} aria-label="Undo move">
 						<Undo2 size={15} strokeWidth={1.8} />
+					</button>
+					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={redoMove} disabled={!ready || !redo_stack.length} aria-label="Redo move">
+						<Redo2 size={15} strokeWidth={1.8} />
 					</button>
 					{#if show_hints}
 						<button class="grid size-8 place-items-center rounded-full bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-label="Hide hints" aria-busy={hint_loading}>
