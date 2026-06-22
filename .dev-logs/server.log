@@ -310,3 +310,15 @@ https://svelte.dev/e/state_referenced_locally
 https://svelte.dev/e/state_referenced_locally
 10:43:55 AM [vite] .env changed, restarting server...
 10:43:55 AM [vite] server restarted.
+Using secrets defined in .env
+11:29:29 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+11:29:29 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+[chat] request: messages=1 model=openai/gpt-oss-120b
+11:29:33 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:29:33 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+11:29:33 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+[chat] stream closed: wrote=true aborted=false
+[chat] request: messages=3 model=openai/gpt-oss-120b
+[chat] stream closed: wrote=true aborted=false
