@@ -318,15 +318,16 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			return true;
 		}
 		if (name === 'usage' && typeof msg.p === 'number') {
-			total_p += msg.p;
-			total_c += msg.c;
-			if (typeof msg.cost === 'number') total_cost += msg.cost;
-			const last = chat_messages.length - 1;
-			if (last >= 0 && chat_messages[last].role === 'assistant') {
-				chat_messages[last] = { ...chat_messages[last], u: { p: msg.p, c: msg.c, cost: msg.cost ?? 0 } };
+				total_p += msg.p;
+				total_c += msg.c;
+				if (typeof msg.cost === 'number') total_cost += msg.cost;
+				const last = chat_messages.length - 1;
+				if (last >= 0 && chat_messages[last].role === 'assistant') {
+					chat_messages[last] = { ...chat_messages[last], u: { p: msg.p, c: msg.c, cost: msg.cost ?? 0 } };
+				}
+				if (typeof msg.bal === 'number') window.dispatchEvent(new CustomEvent('balance-update', { detail: msg.bal }));
+				return true;
 			}
-			return true;
-		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
 		return false;
 	}
@@ -398,6 +399,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				}
 			} catch {}
 		}
+		fetch('/api/balance').then(r => r.json()).then(d => { if (typeof d.balance === 'number') window.dispatchEvent(new CustomEvent('balance-update', { detail: d.balance })); }).catch(() => {});
 		save_game_debounced();
 	}
 

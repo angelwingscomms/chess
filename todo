@@ -4,7 +4,7 @@ default hint time to 2.7seconds
 
 instead of hint think time being slider let it be number input w/ plus minus buttons to the left and right of it. tapping increases the buttons, holding on buttons increases them continuously w/ 144ms interval. use the same design-taste skill for this
 
-instead of 
+instead of difficulty slider let it be computer think time w/ number input w/ buttons like hint think time. show text that says the longer the computer opponent thinks 
 
 in view (do not implement)
     training modes

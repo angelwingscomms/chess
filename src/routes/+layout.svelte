@@ -2,6 +2,7 @@
   import '../app.css';
   import Seo from '$lib/components/seo/Seo.svelte';
   import JsonLd from '$lib/components/seo/JsonLd.svelte';
+  import { browser } from '$app/environment';
   import type { LayoutProps } from './$types';
   let { data, children }: LayoutProps = $props();
   let user = $state<{ id: string; name: string; picture?: string } | null>(data.user);
@@ -18,6 +19,12 @@
 	$effect(() => {
 		if (bal_ver === 0) return;
 		fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; }).catch(() => {});
+	});
+	$effect(() => {
+		if (!browser) return;
+		function handler(e: Event) { token_balance = (e as CustomEvent).detail; }
+		window.addEventListener('balance-update', handler);
+		return () => window.removeEventListener('balance-update', handler);
 	});
   $effect(() => {
     if (!open) return;
