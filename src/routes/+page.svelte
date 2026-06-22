@@ -69,62 +69,11 @@ Keep responses concise. End conversationally.`;
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
 	let show_token_modal = $state(false);
-	let token_balance = $state(0);
-	let bal_ver = $state(0);
-	$effect(() => {
-		if (show_token_modal) {
-			const v = bal_ver;
-			fetch('/api/balance').then(r => r.json()).then(d => { if (v === bal_ver) token_balance = d.balance; }).catch(() => {});
-		}
-	});
 	let show_msg_modal = $state(false);
 	let msg_modal_idx = $state(0);
 	let total_p = $state(0);
 	let total_c = $state(0);
 	let total_cost = $state(0);
-	let buy_amount = $state(10_000);
-	let buy_loading = $state(false);
-	const MIN_KOBO = 10_000;
-
-	async function deposit(amount_kobo: number) {
-		buy_loading = true;
-		let auth_url = '';
-		try {
-			const r = await fetch('/api/buy-tokens', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ amount_kobo })
-			});
-			const d = await r.json();
-			if (!d.access_code) {
-				alert(d.error || 'Failed to initialize payment');
-				buy_loading = false;
-				return;
-			}
-			auth_url = d.authorization_url;
-			const PaystackPop = (await import('@paystack/inline-js')).default;
-			const popup = new PaystackPop();
-			const fb = setTimeout(() => { window.location.href = auth_url; }, 15000);
-			popup.resumeTransaction(d.access_code, {
-				onLoad: () => clearTimeout(fb),
-				onSuccess: (tx: { reference: string }) => {
-					clearTimeout(fb);
-					fetch('/api/verify-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reference: tx.reference }) })
-						.then(r => r.json()).then(d => {
-							if (d.success) { token_balance = d.balance; bal_ver++; }
-							else fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; bal_ver++; }).catch(() => {});
-						})
-						.catch(() => fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; bal_ver++; }).catch(() => {}));
-					buy_loading = false;
-				},
-				onCancel: () => { clearTimeout(fb); buy_loading = false; },
-				onError: () => { clearTimeout(fb); window.location.href = auth_url; },
-			});
-		} catch {
-			if (auth_url) window.location.href = auth_url;
-			else { alert('Network error'); buy_loading = false; }
-		}
-	}
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
 	let pending_user_idx = $derived.by(() => {
@@ -279,7 +228,6 @@ Keep responses concise. End conversationally.`;
 			total_p += msg.p;
 			total_c += msg.c;
 			if (typeof msg.cost === 'number') total_cost += msg.cost;
-			if (typeof msg.bal === 'number') { token_balance = msg.bal; bal_ver++; }
 			const last = chat_messages.length - 1;
 			if (last >= 0 && chat_messages[last].role === 'assistant') {
 				chat_messages[last] = { ...chat_messages[last], u: { p: msg.p, c: msg.c, cost: msg.cost ?? 0 } };
