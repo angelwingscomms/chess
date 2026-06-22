@@ -8,7 +8,6 @@
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
   let img_err = $state(false);
-  let menu_img_err = $state(false);
   let show_profile = $state(false);
   let token_balance = $state(data.balance);
   let bal_ver = $state(0);
@@ -94,16 +93,7 @@
           </button>
           {#if open}
             <div class="user-menu" role="menu">
-              <div class="user-menu-header">
-                {#if user.picture && !menu_img_err}
-                  <img src={user.picture} alt={user.name} class="user-avatar large" onerror={() => menu_img_err = true} />
-                {:else}
-                  <span class="user-fallback large">{(user.name || '')[0] || 'u'}</span>
-                {/if}
-                <div>
-                  <div class="user-name">{user.name}</div>
-                </div>
-              </div>
+
               <button onclick={() => { show_profile = true; open = false; }} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">Profile</button>
               <button onclick={logout} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">Logout</button>
             </div>
@@ -173,10 +163,6 @@
     height: 100%;
     object-fit: cover;
   }
-  .user-avatar.large {
-    width: 44px;
-    height: 44px;
-  }
   .user-fallback {
     width: 100%;
     height: 100%;
@@ -186,9 +172,6 @@
     font-weight: 600;
     color: var(--muted);
     background: var(--surface-card);
-  }
-  .user-fallback.large {
-    font-size: 18px;
   }
   .user-menu {
     position: absolute;
@@ -203,16 +186,6 @@
     display: grid;
     gap: 12px;
     z-index: 70;
-  }
-  .user-menu-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .user-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ink);
   }
   .nav-logo {
     display: block;

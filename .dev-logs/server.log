@@ -215,3 +215,82 @@ https://svelte.dev/e/state_referenced_locally
 https://svelte.dev/e/state_referenced_locally
 9:45:16 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:167:2 Unused CSS selector ".user-avatar.large"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:181:2 Unused CSS selector ".user-fallback.large"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:198:2 Unused CSS selector ".user-menu-header"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:203:2 Unused CSS selector ".user-name"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite] (client) hmr update /src/routes/+layout.svelte, /src/routes/+layout.svelte?svelte&type=style&lang.css, /src/app.css
+9:48:02 AM [vite] (ssr) page reload src/routes/+layout.svelte
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:167:2 Unused CSS selector ".user-avatar.large"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:181:2 Unused CSS selector ".user-fallback.large"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:198:2 Unused CSS selector ".user-menu-header"
+https://svelte.dev/e/css_unused_selector
+9:48:02 AM [vite-plugin-svelte] src/routes/+layout.svelte:203:2 Unused CSS selector ".user-name"
+https://svelte.dev/e/css_unused_selector
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:166:2 Unused CSS selector ".user-avatar.large"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:180:2 Unused CSS selector ".user-fallback.large"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:197:2 Unused CSS selector ".user-menu-header"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:202:2 Unused CSS selector ".user-name"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
+9:48:22 AM [vite] (ssr) page reload src/routes/+layout.svelte
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:166:2 Unused CSS selector ".user-avatar.large"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:180:2 Unused CSS selector ".user-fallback.large"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:197:2 Unused CSS selector ".user-menu-header"
+https://svelte.dev/e/css_unused_selector
+9:48:22 AM [vite-plugin-svelte] src/routes/+layout.svelte:202:2 Unused CSS selector ".user-name"
+https://svelte.dev/e/css_unused_selector
+9:48:23 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:23 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:23 AM [vite-plugin-svelte] src/routes/+layout.svelte:190:2 Unused CSS selector ".user-menu-header"
+https://svelte.dev/e/css_unused_selector
+9:48:23 AM [vite-plugin-svelte] src/routes/+layout.svelte:195:2 Unused CSS selector ".user-name"
+https://svelte.dev/e/css_unused_selector
+9:48:23 AM [vite] (client) hmr update /src/routes/+layout.svelte?svelte&type=style&lang.css, /src/app.css
+9:48:23 AM [vite] (ssr) page reload src/routes/+layout.svelte
+9:48:24 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:24 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:48:24 AM [vite] (client) hmr update /src/routes/+layout.svelte?svelte&type=style&lang.css, /src/app.css
+9:48:24 AM [vite] (ssr) page reload src/routes/+layout.svelte
