@@ -3,6 +3,7 @@
 	import { Chess as ChessJS } from 'chess.js';
 	import { marked } from 'marked';
 	import { browser } from '$app/environment';
+	import StepperInput from '$components/stepper-input.svelte';
 	import { page } from '$app/stores';
 	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
@@ -963,20 +964,14 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4" data-testid="settings-hint-think-time">
 					<div class="flex items-center justify-between gap-3">
 						<h3 class="text-sm font-medium text-ink">Hint think time</h3>
-						<span class="text-sm font-medium text-primary">{hint_think_time}s</span>
 					</div>
-					<input
-						type="range"
-						min="1"
-						max="30"
-						step="0.1"
-						bind:value={hint_think_time}
-						class="w-full accent-primary"
-					/>
+					<div class="flex items-center justify-between gap-3">
+						<span class="text-xs text-muted">Quick</span>
+						<StepperInput bind:value={hint_think_time} {min=1} {max=30} {step=0.5} />
+						<span class="text-xs text-muted">Deep</span>
+					</div>
 					<div class="flex items-center justify-between gap-3 text-xs text-muted">
-						<span>Quick</span>
 						<span>Stockfish searches for {hint_think_time} second{hint_think_time === 1 ? '' : 's'} per move</span>
-						<span>Deep</span>
 					</div>
 					<p class="text-xs leading-5 text-muted">More think time yields stronger hints but takes longer.</p>
 				</section>
