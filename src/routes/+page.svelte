@@ -5,7 +5,7 @@
 	import { browser } from '$app/environment';
 	import StepperInput from '$components/stepper-input.svelte';
 	import { page } from '$app/stores';
-	import { LearnEngine, DIFFICULTY_PRESETS, getHints } from '$lib/util/chess/engine';
+	import { LearnEngine, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 	import { ArrowUp, Info, Lightbulb, Mic, Redo2, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
@@ -88,8 +88,9 @@ Keep responses concise. End conversationally.`;
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
-	let hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
-	let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
+let hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
+let computer_think_time = $state(1.5);
+let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
@@ -133,6 +134,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						f: fen, h: history.join(' '), m: moveNum, o: orientation,
 						u: last_user_move, a: last_ai_move, r: redo_stack.join('|'),
 						v: gameOver, x: resultMsg, g: groq_api_key, l: level,
+						t: computer_think_time,
 						c: JSON.stringify(c)
 					})
 				});
@@ -155,6 +157,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		gameOver = (d.v as boolean) ?? false;
 		resultMsg = (d.x as string) ?? '';
 		level = (d.l as number) ?? 3;
+		computer_think_time = (d.t as number) ?? 1.5;
 		const gk = d.g as string;
 		if (gk) groq_api_key = gk;
 		const cc = d.c as string;
@@ -191,8 +194,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	});
 
 
-	const presets = DIFFICULTY_PRESETS;
-	const labels = ['Beginner', 'Novice', 'Casual', 'Intermediate', 'Intermediate+', 'Advanced', 'Strong', 'Expert', 'Master', 'Grandmaster'];
 	const hint_from_class = 'bg-amber/70';
 	const hint_to_class = 'bg-teal/70';
 	let model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
@@ -240,8 +241,8 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	});
 
 	function buildEngine() {
-		const p = presets[level - 1];
-		return new LearnEngine({ elo: p.elo, depth: p.depth, moveTime: p.moveTime, color: 'b' });
+		const mt = Math.round(computer_think_time * 1000);
+		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: 'b' });
 	}
 
 	let engine = $derived.by(() => buildEngine());
@@ -756,7 +757,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 			<div class="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,640px)_minmax(0,640px)] lg:items-start lg:justify-center">
 			<div class="relative mx-auto w-full max-w-[640px] lg:mx-0">
-			{#key level}
+			{#key computer_think_time}
 				<Chess
 					class="cg-default-style board-themed"
 					bind:this={chessRef}
@@ -945,21 +946,14 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			<div class="grid min-h-0 gap-3 overflow-y-auto p-6">
 				<section class="grid gap-3 rounded-lg bg-surface-card p-4" data-testid="settings-difficulty">
 					<div class="flex items-center justify-between gap-3">
-						<h3 class="text-sm font-medium text-ink">Difficulty</h3>
-						<span class="text-sm font-medium text-primary">{labels[level - 1]}</span>
+						<h3 class="text-sm font-medium text-ink">Computer think time</h3>
 					</div>
-					<input
-						type="range"
-						min="1"
-						max="10"
-						bind:value={level}
-						class="w-full accent-primary"
-					/>
-					<div class="flex items-center justify-between gap-3 text-xs text-muted">
-						<span>Easy</span>
-						<span>Elo: {presets[level - 1].elo ?? '∞'} · Depth: {presets[level - 1].depth} · Time: {presets[level - 1].moveTime}ms</span>
-						<span>Hard</span>
+					<div class="flex items-center justify-between gap-3">
+						<span class="text-xs text-muted">Fast</span>
+						<StepperInput bind:value={computer_think_time} {min=0.5} {max=10} {step=0.5} />
+						<span class="text-xs text-muted">Deep</span>
 					</div>
+					<p class="text-xs leading-5 text-muted">The longer the computer opponent thinks, the smarter it plays. Current: {computer_think_time} second{computer_think_time === 1 ? '' : 's'} per move.</p>
 				</section>
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4" data-testid="settings-hint-think-time">
 					<div class="flex items-center justify-between gap-3">
