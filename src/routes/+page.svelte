@@ -72,6 +72,17 @@ Keep responses concise. End conversationally.`;
 		} catch { return { w: [], b: [] }; }
 	});
 
+	let chat_suggestions = $derived.by(() => {
+		if (chat_messages.length > 0 || gameOver) return [];
+		const s: string[] = [];
+		if (inCheck) s.push('How do I get out of check?');
+		if (moveNum === 0) s.push('Suggest a good opening move');
+		else if (last_ai_move) s.push('Why did Stockfish play that?');
+		if (moveNum > 0) s.push('What is the best move for me?');
+		if (moveNum >= 4) { s.push('Who is winning right now?'); s.push('What is the plan here?'); }
+		return s.slice(0, 3);
+	});
+
 	let model = $state(browser && localStorage.getItem('explain_model') || 'openai/gpt-oss-120b');
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
@@ -874,6 +885,13 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 							</div>
 						{/each}
 					</div>
+					{#if chat_suggestions.length > 0}
+						<div class="flex flex-wrap items-center gap-1.5 px-3 pb-1">
+							{#each chat_suggestions as s}
+								<button onclick={() => sendChatMessage(s)} class="rounded-full border border-hairline bg-canvas px-3 py-1 text-xs text-muted transition-colors hover:border-primary/40 hover:text-ink">{s}</button>
+							{/each}
+						</div>
+					{/if}
 					<div class="flex items-center gap-2 p-3">
 						<input
 							bind:this={chat_input_ref}

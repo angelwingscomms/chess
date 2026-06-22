@@ -100,6 +100,17 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('aria-label="Redo move"');
 		expect(page).toContain('<Redo2');
 	});
+
+	it('shows board-state-aware chat suggestions above the input', () => {
+		expect(page).toContain('chat_suggestions');
+		expect(page).toContain("How do I get out of check?");
+		expect(page).toContain("Suggest a good opening move");
+		expect(page).toContain("Why did Stockfish play that?");
+		expect(page).toContain("What is the best move for me?");
+		expect(page).toContain("Who is winning right now?");
+		expect(page).toContain("What is the plan here?");
+		expect(page).toContain('rounded-full border border-hairline bg-canvas px-3 py-1 text-xs');
+	});
 });
 
 describe('/chess/learn settings modal', () => {
