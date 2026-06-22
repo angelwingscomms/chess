@@ -404,8 +404,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		hint_ac = new AbortController();
 		const sig = hint_ac.signal;
 		try {
-			const hp = HINT_PRESETS[hint_intelligence - 1];
-			hints = await getHints(fen, hint_count, undefined, sig, hp.depth, hp.moveTime);
+			hints = await getHints(fen, hint_count, undefined, sig, undefined, hint_think_time * 1000);
 			if (sig.aborted) return;
 			hint_fen = fen;
 			console.log('hints:', hints);
@@ -844,24 +843,24 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						<span>Hard</span>
 					</div>
 				</section>
-				<section class="grid gap-2 rounded-lg bg-surface-card p-4" data-testid="settings-hint-intelligence">
+				<section class="grid gap-2 rounded-lg bg-surface-card p-4" data-testid="settings-hint-think-time">
 					<div class="flex items-center justify-between gap-3">
-						<h3 class="text-sm font-medium text-ink">Hint intelligence</h3>
-						<span class="text-sm font-medium text-primary">{hint_labels[hint_intelligence - 1]}</span>
+						<h3 class="text-sm font-medium text-ink">Hint think time</h3>
+						<span class="text-sm font-medium text-primary">{hint_think_time}s</span>
 					</div>
 					<input
 						type="range"
 						min="1"
-						max="10"
-						bind:value={hint_intelligence}
+						max="30"
+						bind:value={hint_think_time}
 						class="w-full accent-primary"
 					/>
 					<div class="flex items-center justify-between gap-3 text-xs text-muted">
-						<span>Fast</span>
-						<span>Depth: {HINT_PRESETS[hint_intelligence - 1].depth} · Time: {HINT_PRESETS[hint_intelligence - 1].moveTime}ms</span>
+						<span>Quick</span>
+						<span>Stockfish searches for {hint_think_time} second{hint_think_time === 1 ? '' : 's'} per move</span>
 						<span>Deep</span>
 					</div>
-					<p class="text-xs leading-5 text-muted">Smarter hints search deeper but take longer.</p>
+					<p class="text-xs leading-5 text-muted">More think time yields stronger hints but takes longer.</p>
 				</section>
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
 					<label class="text-sm font-medium text-ink" for="hint-count">Hints per request</label>
