@@ -1,0 +1,12 @@
+[    1403ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:2160/node_modules/.pnpm/@sveltejs+kit@2.65.2_@opentelemetry+api@1.9.1_@sveltejs+vite-plugin-svelte@7.1.2_svelte_b61bb663a3fc78613419e2e0ae61e39b/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=745ca672:3389
+[    1403ms] [ERROR] SyntaxError: The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN' @ http://localhost:2160/@fs/home/ed/i/chess/.svelte-kit/generated/client/app.js:29
+[    1412ms] The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN'
+[    1414ms] The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN'
+[   64431ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:2160/node_modules/.pnpm/@sveltejs+kit@2.65.2_@opentelemetry+api@1.9.1_@sveltejs+vite-plugin-svelte@7.1.2_svelte_b61bb663a3fc78613419e2e0ae61e39b/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=745ca672:3389
+[   64432ms] [ERROR] SyntaxError: The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN' @ http://localhost:2160/@fs/home/ed/i/chess/.svelte-kit/generated/client/app.js:29
+[   64437ms] The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN'
+[   64438ms] The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN'
+[   95760ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:2160/node_modules/.pnpm/@sveltejs+kit@2.65.2_@opentelemetry+api@1.9.1_@sveltejs+vite-plugin-svelte@7.1.2_svelte_b61bb663a3fc78613419e2e0ae61e39b/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=745ca672:3389
+[   95760ms] [ERROR] SyntaxError: The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN' @ http://localhost:2160/@fs/home/ed/i/chess/.svelte-kit/generated/client/app.js:29
+[   95785ms] The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN'
+[   95785ms] The requested module '/@id/__x00__virtual:env/static/public' does not provide an export named 'PUBLIC_DOMAIN'

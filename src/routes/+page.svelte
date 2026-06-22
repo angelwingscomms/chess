@@ -6,7 +6,7 @@
 	import { LearnEngine, DIFFICULTY_PRESETS, HINT_PRESETS, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { ArrowUp, Info, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import { ArrowUp, Info, Lightbulb, Mic, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 	import { calc_cost } from '$lib/util/ai/pricing';
@@ -52,7 +52,7 @@ Keep responses concise. End conversationally.`;
 	let chat_loading = $state(false);
 	let chat_abort = $state<AbortController | null>(null);
 	let chat_input = $state('');
-	let chat_queue = $state<{ text: string; hint?: string }[]>([]);
+	let chat_queue = $state<{ text: string; hint?: string; voice?: boolean }[]>([]);
 	let interaction_id = $state('');
 	let last_user_move = $state('');
 	let last_ai_move = $state('');
@@ -76,6 +76,9 @@ Keep responses concise. End conversationally.`;
 	let total_cost = $state(0);
 	let chat_body = $state<HTMLDivElement | null>(null);
 	let chat_input_ref = $state<HTMLInputElement | null>(null);
+	let recording = $state(false);
+	let voice_tts = $state(false);
+	let recorder: MediaRecorder | null = null;
 	let pending_user_idx = $derived.by(() => {
 		if (!chat_loading) return -1;
 		for (let i = chat_messages.length - 1; i >= 0; i--) if (chat_messages[i].role === 'user') return i;
@@ -433,6 +436,11 @@ Keep responses concise. End conversationally.`;
 		chat_messages = [...chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) chat_input = '';
 		await execute_chat();
+		if (voice_tts) {
+			voice_tts = false;
+			const last = chat_messages.at(-1);
+			if (last?.role === 'assistant' && last.content) speak(last.content);
+		}
 		processQueue();
 	}
 
@@ -483,6 +491,7 @@ Keep responses concise. End conversationally.`;
 		if (chat_queue.length > 0) {
 			const [next, ...rest] = chat_queue;
 			chat_queue = rest;
+			if (next.voice) voice_tts = true;
 			send_chess_chat(next.text, next.hint ?? '', true);
 		}
 	}
@@ -491,7 +500,7 @@ Keep responses concise. End conversationally.`;
 		chat_queue = chat_queue.filter((_, idx) => idx !== i);
 	}
 
-	function promoteFromQueue(i: number) {
+	async function promoteFromQueue(i: number) {
 		const item = chat_queue[i];
 		if (!item) return;
 		chat_queue = chat_queue.filter((_, idx) => idx !== i);
@@ -501,11 +510,16 @@ Keep responses concise. End conversationally.`;
 		}
 		const last = chat_messages[chat_messages.length - 1];
 		if (last?.role === 'assistant') {
+			if (item.voice) voice_tts = true;
 			send_chess_chat(item.text, item.hint ?? '', true);
 		} else {
 			interaction_id = '';
 			chat_messages = [...chat_messages, { role: 'user', content: item.text, d: build_chat_data(item.hint) }];
-			execute_chat();
+			await execute_chat();
+			if (item.voice) {
+				const ll = chat_messages.at(-1);
+				if (ll?.role === 'assistant' && ll.content) speak(ll.content);
+			}
 		}
 	}
 
@@ -528,6 +542,72 @@ Keep responses concise. End conversationally.`;
 			chat_abort.abort();
 			chat_abort = null;
 			chat_loading = false;
+		}
+	}
+
+	async function toggleMic() {
+		if (recording) {
+			recorder?.stop();
+			return;
+		}
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			const chunks: Blob[] = [];
+			recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+			recorder.ondataavailable = (e) => chunks.push(e.data);
+			recorder.onstop = async () => {
+				stream.getTracks().forEach((t) => t.stop());
+				const blob = new Blob(chunks, { type: 'audio/webm' });
+				recording = false;
+				const text = await transcribeAudio(blob);
+				if (text) sendVoiceMessage(text);
+			};
+			recorder.start();
+			recording = true;
+		} catch (e) {
+			console.error('[voice] mic error:', e);
+			recording = false;
+		}
+	}
+
+	async function transcribeAudio(blob: Blob): Promise<string> {
+		try {
+			const fd = new FormData();
+			fd.append('audio', blob, 'voice.webm');
+			const res = await fetch('/api/voice/stt', { method: 'POST', body: fd });
+			const data = await res.json();
+			return data.text || '';
+		} catch (e) {
+			console.error('[voice] stt error:', e);
+			return '';
+		}
+	}
+
+	function sendVoiceMessage(text: string) {
+		if (!text.trim()) return;
+		chat_input = '';
+		voice_tts = true;
+		if (chat_loading) {
+			chat_queue = [...chat_queue, { text, voice: true }];
+			return;
+		}
+		send_chess_chat(text, '', true);
+	}
+
+	async function speak(text: string) {
+		try {
+			const res = await fetch('/api/voice/tts', {
+				method: 'POST',
+				body: JSON.stringify({ t: text.replace(/<[^>]*>/g, '').slice(0, 2000) }),
+			});
+			if (!res.ok) return;
+			const blob = await res.blob();
+			const url = URL.createObjectURL(blob);
+			const audio = new Audio(url);
+			audio.onended = () => URL.revokeObjectURL(url);
+			audio.play();
+		} catch (e) {
+			console.error('[voice] tts error:', e);
 		}
 	}
 
@@ -693,6 +773,14 @@ Keep responses concise. End conversationally.`;
 							placeholder="Ask about the position..."
 							class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"
 						/>
+						<button
+							onclick={toggleMic}
+							disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
+							class={'grid size-[40px] shrink-0 place-items-center rounded-lg border !px-0 !min-h-[40px] transition-colors shrink-0 ' + (recording ? 'border-red-400 bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'border-hairline bg-canvas text-ink hover:border-primary/40')}
+							aria-label={recording ? 'Stop recording' : 'Voice input'}
+						>
+							<Mic size={16} strokeWidth={1.8} />
+						</button>
 						<button
 							onclick={() => sendChatMessage(chat_input)}
 							disabled={!chat_loading && !chat_input.trim()}

@@ -12,6 +12,10 @@ name = "SEND_EMAIL"
 
 [observability]
 enabled = true
+
+[vars]
+AZURE_SPEECH_KEY = ""
+AZURE_SPEECH_REGION = ""
 head_sampling_rate = 1
 
 [observability.logs]
