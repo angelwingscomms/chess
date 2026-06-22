@@ -112,3 +112,23 @@ Using secrets defined in .env
 8:31:06 AM [vite] (ssr) page reload src/routes/+page.svelte
 8:58:56 AM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
 8:58:56 AM [vite] (ssr) page reload src/routes/+layout.svelte
+9:26:13 AM [vite] (client) hmr update /src/app.css
+9:26:13 AM [vite] (ssr) page reload src/lib/server/session.ts
+9:26:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:26:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:26:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:26:25 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:26:25 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:26:25 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:26:25 AM [vite] (client) page reload .svelte-kit/generated/root.js
+9:26:25 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:26:25 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:26:39 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:26:39 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:26:39 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:26:39 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:26:39 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:26:39 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:26:39 AM [vite] (client) page reload .svelte-kit/generated/root.js
+9:26:39 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:26:40 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
