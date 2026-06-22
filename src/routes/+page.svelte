@@ -59,6 +59,18 @@ Keep responses concise. End conversationally.`;
 	let last_ai_move = $state('');
 	let redo_stack = $state<string[]>([]);
 	let successful_context = $state<Partial<ChatContext>>({});
+	let captured = $derived.by(() => {
+		if (!chessRef) return { w: [], b: [] };
+		try {
+			const moves = chessRef.getHistory({ verbose: true }) as any[];
+			const w: string[] = [], b: string[] = [];
+			for (const m of moves) if (m.captured) {
+				if (m.color === 'w') b.push(m.captured);
+				else w.push(m.captured);
+			}
+			return { w, b };
+		} catch { return { w: [], b: [] }; }
+	});
 
 	let model = $state(browser && localStorage.getItem('explain_model') || 'openai/gpt-oss-120b');
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
@@ -762,6 +774,20 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			</div>
 
 			<div class="mx-auto w-full max-w-[640px] space-y-2 rounded-xl bg-surface-card p-3 lg:mx-0">
+				{#if captured.w.length > 0 || captured.b.length > 0}
+					<div class="flex items-center justify-between gap-2 text-sm">
+						<div class="flex items-center gap-0.5">
+							{#each captured.w as p}
+								<span class="text-sm opacity-70">{'♔♕♖♗♘♙'['KQRBNP'.indexOf(p.toUpperCase())] || p}</span>
+							{/each}
+						</div>
+						<div class="flex items-center gap-0.5">
+							{#each captured.b as p}
+								<span class="text-sm opacity-70">{'♚♛♜♝♞♟'['kqrbnp'.indexOf(p)] || p}</span>
+							{/each}
+						</div>
+					</div>
+				{/if}
 				<div class="flex items-center gap-1.5" data-testid="learn-status-toolbar">
 					<span class="mr-1 rounded-full bg-canvas px-2 py-1 text-[11px] font-medium text-muted">
 						{turn === 'w' ? 'White' : 'Black'}

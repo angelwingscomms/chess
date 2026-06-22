@@ -174,3 +174,16 @@ APICallError [AI_APICallError]: This model is unavailable for free. The paid ver
 11:33:05 PM [vite] (client) page reload .svelte-kit/generated/root.js
 11:33:05 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
 11:33:05 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+11:36:11 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+11:36:11 PM [vite] (ssr) page reload src/routes/+page.svelte
+11:36:28 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+11:36:28 PM [vite] (ssr) page reload src/routes/+page.svelte
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: ConnectTimeoutError: Connect Timeout Error (attempted address: api.groq.com:443, timeout: 10000ms)
+      at onConnectTimeout (node:internal/deps/undici/undici:1981:23)
+      at Immediate._onImmediate (node:internal/deps/undici/undici:1962:11)
+      at process.processImmediate (node:internal/timers:504:21) {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[ELIFECYCLE] Command failed.

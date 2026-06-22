@@ -89,6 +89,17 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('join(\'|\')');
 		expect(page).toContain("m.r === 'u' ? 'user'");
 	});
+
+	it('undo pushes FEN to redo_stack and redo restores it', () => {
+		expect(page).toContain('redo_stack.push(fen)');
+		expect(page).toContain('redo_stack.pop()');
+		expect(page).toContain("chessRef.load(f)");
+		expect(page).toContain('redo_stack = []');
+		expect(page).toContain('redo_stack.length');
+		expect(page).toContain('aria-label="Undo move"');
+		expect(page).toContain('aria-label="Redo move"');
+		expect(page).toContain('<Redo2');
+	});
 });
 
 describe('/chess/learn settings modal', () => {
@@ -186,7 +197,6 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('total_cost * 1440).toFixed(2)}');
 		expect(page).toContain('Input');
 		expect(page).toContain('Output');
-	});
 	});
 
 	it('stores per-message usage and shows on click', () => {
