@@ -1,7 +1,4 @@
-[*] remove hints per request setting
-
-
-save game progress and chat to user profile on move/message, let payload fields be single characters. save info/data in the most compact/efficient way (still as json not binary)
+[*] save game progress and chat to user profile on move/message, let payload fields be single characters. save info/data in the most compact/efficient way (still as json not binary)
 
 add redo button
 show captured pieces
