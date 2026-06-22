@@ -1,34 +1,25 @@
 $ vite --host --port 2160
+Port 2160 is in use, trying another one...
 
-  VITE v8.0.16  ready in 2740 ms
+  VITE v8.0.16  ready in 2143 ms
 
-  ➜  Local:   http://localhost:2160/
-  ➜  Network: http://10.121.77.100:2160/
+  ➜  Local:   http://localhost:2161/
+  ➜  Network: http://10.121.77.100:2161/
   ➜  press h + enter to show help
 Using secrets defined in .env
-8:34:23 PM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+Using secrets defined in .env
+*** Fatal uncaught kj::Exception: workerd/util/sqlite.c++:842: failed: SENTRY_DO SQLite failed; NOSENTRY database is locked: SQLITE_BUSY (extended: SQLITE_BUSY_RECOVERY)
+stack: /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@32b44cb /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fd1cb5 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@201d952 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fdd3dc /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fdce32 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f9b8a2 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@2017dff /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@201b155 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f6d389 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bf855 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bfd78 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bd83e /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bd63e /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f54d17 /usr/lib/libc.so.6@2abfb /usr/lib/libc.so.6@2acb4 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f54024
+10:53:07 PM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-8:34:23 PM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+10:53:07 PM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-8:34:45 PM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+
+[1;31m[404] GET /favicon.ico[0m
+10:53:31 PM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-8:34:45 PM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+10:53:31 PM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-[models] fetch error: [TypeError: fetch failed] {
-  [cause]: AggregateError [ETIMEDOUT]: 
-      at internalConnectMultiple (node:net:1142:49)
-      at internalConnectMultiple (node:net:1218:5)
-      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
-      at listOnTimeout (node:internal/timers:607:11)
-      at process.processTimers (node:internal/timers:541:7) {
-    code: 'ETIMEDOUT',
-    [errors]: [ [Error], [Error], [Error], [Error] ]
-  }
-}
-[chat] request: messages=1 model=openai/gpt-oss-120b
-[chat] request: messages=1 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] stream closed: wrote=true aborted=false
 [models] fetch error: [TypeError: fetch failed] {
   [cause]: Error: getaddrinfo EAI_AGAIN api.groq.com
       at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
@@ -40,284 +31,78 @@ https://svelte.dev/e/state_referenced_locally
 }
 [chat] request: messages=1 model=openai/gpt-oss-120b
 [chat] stream closed: wrote=true aborted=false
+[chat] request: messages=3 model=openai/gpt-oss-120b
+[chat] stream closed: wrote=true aborted=false
+[chat] request: messages=1 model=nex-agi/nex-n2-pro:free
+APICallError [AI_APICallError]: This model is unavailable for free. The paid version is available now - use this slug instead: nex-agi/nex-n2-pro
+    at file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2657:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2500:28)
+    at async OpenAIResponsesLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+openai@3.0.72_zod@4.4.3/node_modules/@ai-sdk/openai/dist/index.mjs:5651:50)
+    at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
+    at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
+    at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
+    at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
+    at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
+    at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
+  cause: undefined,
+  url: 'https://openrouter.ai/api/v1/responses',
+  requestBodyValues: {
+    model: 'nex-agi/nex-n2-pro:free',
+    input: [ [Object], [Object] ],
+    temperature: undefined,
+    top_p: undefined,
+    max_output_tokens: undefined,
+    conversation: undefined,
+    max_tool_calls: undefined,
+    metadata: undefined,
+    parallel_tool_calls: undefined,
+    previous_response_id: undefined,
+    store: undefined,
+    user: undefined,
+    instructions: undefined,
+    service_tier: undefined,
+    include: undefined,
+    prompt_cache_key: undefined,
+    prompt_cache_retention: undefined,
+    safety_identifier: undefined,
+    top_logprobs: undefined,
+    truncation: undefined,
+    tools: undefined,
+    tool_choice: undefined,
+    stream: true
+  },
+  statusCode: 404,
+  responseHeaders: {
+    'access-control-allow-origin': '*',
+    'access-control-expose-headers': 'X-Generation-Id,cf-ray',
+    'cf-ray': 'a0fe9047698a94a1-LHR',
+    connection: 'keep-alive',
+    'content-encoding': 'gzip',
+    'content-type': 'application/json',
+    date: 'Mon, 22 Jun 2026 22:07:02 GMT',
+    'permissions-policy': 'payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com" "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")',
+    'referrer-policy': 'no-referrer, strict-origin-when-cross-origin',
+    server: 'cloudflare',
+    'transfer-encoding': 'chunked',
+    'x-content-type-options': 'nosniff'
+  },
+  responseBody: '{"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: nex-agi/nex-n2-pro","code":404},"user_id":"user_38GEzlggUUkdvyY9vset3wNapEx"}',
+  isRetryable: false,
+  data: {
+    error: {
+      message: 'This model is unavailable for free. The paid version is available now - use this slug instead: nex-agi/nex-n2-pro',
+      code: 404
+    }
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_APICallError): true
+}
+[chat] stream closed: wrote=false aborted=false
 [chat] request: messages=1 model=openai/gpt-oss-120b
-RetryError [AI_RetryError]: Failed after 3 attempts. Last error: Cannot connect to API: 
-    at _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2708:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-    at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-    at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9)
-    at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24 {
-  cause: undefined,
-  reason: 'maxRetriesExceeded',
-  errors: [
-    APICallError [AI_APICallError]: Cannot connect to API: 
-        at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-        at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-        at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-        at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-        at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-        at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-        at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-      cause: [AggregateError],
-      url: 'https://api.groq.com/openai/v1/chat/completions',
-      requestBodyValues: [Object],
-      statusCode: undefined,
-      responseHeaders: undefined,
-      responseBody: undefined,
-      isRetryable: true,
-      data: undefined,
-      Symbol(vercel.ai.error): true,
-      Symbol(vercel.ai.error.AI_APICallError): true
-    },
-    APICallError [AI_APICallError]: Cannot connect to API: 
-        at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-        at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-        at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-        at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-        at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-        at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-        at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-      cause: [AggregateError],
-      url: 'https://api.groq.com/openai/v1/chat/completions',
-      requestBodyValues: [Object],
-      statusCode: undefined,
-      responseHeaders: undefined,
-      responseBody: undefined,
-      isRetryable: true,
-      data: undefined,
-      Symbol(vercel.ai.error): true,
-      Symbol(vercel.ai.error.AI_APICallError): true
-    },
-    APICallError [AI_APICallError]: Cannot connect to API: 
-        at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-        at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-        at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-        at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-        at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-        at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-        at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-      cause: [AggregateError],
-      url: 'https://api.groq.com/openai/v1/chat/completions',
-      requestBodyValues: [Object],
-      statusCode: undefined,
-      responseHeaders: undefined,
-      responseBody: undefined,
-      isRetryable: true,
-      data: undefined,
-      Symbol(vercel.ai.error): true,
-      Symbol(vercel.ai.error.AI_APICallError): true
-    }
-  ],
-  lastError: APICallError [AI_APICallError]: Cannot connect to API: 
-      at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-      at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-      at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-      at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-      at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-      at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-      at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-      at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-      at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-    cause: AggregateError [ETIMEDOUT]: 
-        at internalConnectMultiple (node:net:1142:49)
-        at internalConnectMultiple (node:net:1218:5)
-        at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
-        at listOnTimeout (node:internal/timers:607:11)
-        at process.processTimers (node:internal/timers:541:7) {
-      code: 'ETIMEDOUT',
-      [errors]: [Array]
-    },
-    url: 'https://api.groq.com/openai/v1/chat/completions',
-    requestBodyValues: {
-      model: 'openai/gpt-oss-120b',
-      user: undefined,
-      parallel_tool_calls: undefined,
-      max_tokens: undefined,
-      temperature: undefined,
-      top_p: undefined,
-      frequency_penalty: undefined,
-      presence_penalty: undefined,
-      stop: undefined,
-      seed: undefined,
-      response_format: undefined,
-      reasoning_format: undefined,
-      reasoning_effort: undefined,
-      service_tier: undefined,
-      messages: [Array],
-      tools: undefined,
-      tool_choice: undefined,
-      stream: true
-    },
-    statusCode: undefined,
-    responseHeaders: undefined,
-    responseBody: undefined,
-    isRetryable: true,
-    data: undefined,
-    Symbol(vercel.ai.error): true,
-    Symbol(vercel.ai.error.AI_APICallError): true
-  },
-  Symbol(vercel.ai.error): true,
-  Symbol(vercel.ai.error.AI_RetryError): true
-}
-[chat] stream closed: wrote=false aborted=false
-[chat] request: messages=3 model=openai/gpt-oss-120b
 [chat] stream closed: wrote=true aborted=false
-[chat] request: messages=3 model=openai/gpt-oss-120b
-RetryError [AI_RetryError]: Failed after 3 attempts. Last error: Cannot connect to API: 
-    at _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2708:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-    at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-    at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9)
-    at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24 {
-  cause: undefined,
-  reason: 'maxRetriesExceeded',
-  errors: [
-    APICallError [AI_APICallError]: Cannot connect to API: 
-        at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-        at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-        at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-        at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-        at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-        at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-        at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-      cause: [AggregateError],
-      url: 'https://api.groq.com/openai/v1/chat/completions',
-      requestBodyValues: [Object],
-      statusCode: undefined,
-      responseHeaders: undefined,
-      responseBody: undefined,
-      isRetryable: true,
-      data: undefined,
-      Symbol(vercel.ai.error): true,
-      Symbol(vercel.ai.error.AI_APICallError): true
-    },
-    APICallError [AI_APICallError]: Cannot connect to API: 
-        at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-        at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-        at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-        at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-        at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-        at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-        at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-      cause: [AggregateError],
-      url: 'https://api.groq.com/openai/v1/chat/completions',
-      requestBodyValues: [Object],
-      statusCode: undefined,
-      responseHeaders: undefined,
-      responseBody: undefined,
-      isRetryable: true,
-      data: undefined,
-      Symbol(vercel.ai.error): true,
-      Symbol(vercel.ai.error.AI_APICallError): true
-    },
-    APICallError [AI_APICallError]: Cannot connect to API: 
-        at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-        at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-        at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-        at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-        at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-        at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-        at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-        at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-      cause: [AggregateError],
-      url: 'https://api.groq.com/openai/v1/chat/completions',
-      requestBodyValues: [Object],
-      statusCode: undefined,
-      responseHeaders: undefined,
-      responseBody: undefined,
-      isRetryable: true,
-      data: undefined,
-      Symbol(vercel.ai.error): true,
-      Symbol(vercel.ai.error.AI_APICallError): true
-    }
-  ],
-  lastError: APICallError [AI_APICallError]: Cannot connect to API: 
-      at handleFetchError (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:605:14)
-      at postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2542:11)
-      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-      at async GroqChatLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+groq@3.0.42_zod@4.4.3/node_modules/@ai-sdk/groq/dist/index.mjs:521:50)
-      at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
-      at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
-      at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
-      at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
-      at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
-      at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
-    cause: AggregateError [ETIMEDOUT]: 
-        at internalConnectMultiple (node:net:1142:49)
-        at internalConnectMultiple (node:net:1218:5)
-        at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
-        at listOnTimeout (node:internal/timers:607:11)
-        at process.processTimers (node:internal/timers:541:7) {
-      code: 'ETIMEDOUT',
-      [errors]: [Array]
-    },
-    url: 'https://api.groq.com/openai/v1/chat/completions',
-    requestBodyValues: {
-      model: 'openai/gpt-oss-120b',
-      user: undefined,
-      parallel_tool_calls: undefined,
-      max_tokens: undefined,
-      temperature: undefined,
-      top_p: undefined,
-      frequency_penalty: undefined,
-      presence_penalty: undefined,
-      stop: undefined,
-      seed: undefined,
-      response_format: undefined,
-      reasoning_format: undefined,
-      reasoning_effort: undefined,
-      service_tier: undefined,
-      messages: [Array],
-      tools: undefined,
-      tool_choice: undefined,
-      stream: true
-    },
-    statusCode: undefined,
-    responseHeaders: undefined,
-    responseBody: undefined,
-    isRetryable: true,
-    data: undefined,
-    Symbol(vercel.ai.error): true,
-    Symbol(vercel.ai.error.AI_APICallError): true
-  },
-  Symbol(vercel.ai.error): true,
-  Symbol(vercel.ai.error.AI_RetryError): true
-}
-[chat] stream closed: wrote=false aborted=false
-[chat] request: messages=5 model=openai/gpt-oss-120b
+[chat] request: messages=1 model=openai/gpt-oss-120b
 [chat] stream closed: wrote=true aborted=false
-[chat] request: messages=7 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=9 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=11 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=13 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=15 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=17 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-9:24:46 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:24:46 PM [vite] (ssr) page reload src/routes/+page.svelte
 [models] fetch error: [TypeError: fetch failed] {
   [cause]: AggregateError [ETIMEDOUT]: 
       at internalConnectMultiple (node:net:1142:49)
@@ -329,440 +114,8 @@ RetryError [AI_RetryError]: Failed after 3 attempts. Last error: Cannot connect 
     [errors]: [ [Error], [Error], [Error], [Error] ]
   }
 }
-9:24:49 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:24:49 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:24:58 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:24:58 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:25:03 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:25:03 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:25:08 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:25:08 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:25:12 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:25:12 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:28:16 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-9:28:16 PM [vite] (ssr) page reload src/routes/+page.svelte
-[models] fetch error: [TypeError: fetch failed] {
-  [cause]: AggregateError [ETIMEDOUT]: 
-      at internalConnectMultiple (node:net:1142:49)
-      at internalConnectMultiple (node:net:1218:5)
-      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
-      at listOnTimeout (node:internal/timers:607:11)
-      at process.processTimers (node:internal/timers:541:7) {
-    code: 'ETIMEDOUT',
-    [errors]: [ [Error], [Error], [Error], [Error] ]
-  }
-}
-9:28:20 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:28:24 PM [vite] (ssr) page reload src/routes/+page.svelte
-9:36:41 PM [vite] (client) Pre-transform error: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:36:41 PM [vite] Internal server error: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:23 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:24 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:24 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:25 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-Avoid calling `fetch` eagerly during server-side rendering — put your `fetch` calls inside `onMount` or a `load` function instead
-9:37:26 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:27 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:27 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:28 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:29 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:29 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:30 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:31 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:31 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:32 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:33 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:33 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:34 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:35 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:35 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:36 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:37 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:38 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:38 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:39 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:40 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-Avoid calling `fetch` eagerly during server-side rendering — put your `fetch` calls inside `onMount` or a `load` function instead
-9:37:40 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-9:37:41 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-
-[1;31m[500] GET /[0m
-
-9:37:42 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:42 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
-9:37:53 PM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: src/routes/+page.svelte:857:18 Can only bind to state or props
-https://svelte.dev/e/bind_invalid_value
-  Plugin: vite-plugin-svelte:compile
-  File: src/routes/+page.svelte:857:18
-   855 |              min="1"
-   856 |              max="10"
-   857 |              bind:value={hint_intelligence}
-                                                   ^
-   858 |              class="w-full accent-primary"
-   859 |            />
-
-[1;31m[500] GET /[0m
-
+11:19:42 PM [vite] (ssr) page reload src/routes/+page.svelte
+11:19:46 PM [vite] (ssr) page reload src/routes/+page.svelte
+11:19:51 PM [vite] (ssr) page reload src/routes/+page.svelte
+11:19:59 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+11:19:59 PM [vite] (ssr) page reload src/routes/+page.svelte

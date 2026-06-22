@@ -1,16 +1,17 @@
-payment
-make gpt oss 120 default
-hint elo slider
-number of hints to make
-add left right arrows to move between hints when hints > 1
+[*] remove hints per request setting
 
-save game progress and chat to user profile on move/message
-hint think time instead of hint intelligence
+
+save game progress and chat to user profile on move/message, let payload fields be single characters. save info/data in the most compact/efficient way (still as json not binary)
+
 add redo button
 show captured pieces
-training modes
+
 chat message suggestion from board state
-deposit field empty
+let deposit number input field be empty / not have default value
 update user balance as soon as message response done
-easy way to show word meanings
-nararouter for chess
+
+
+in view (do not implement)
+    training modes
+    easy way to show word meanings
+    nararouter for chess

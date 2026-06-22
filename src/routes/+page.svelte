@@ -63,7 +63,6 @@ Keep responses concise. End conversationally.`;
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
-	let hint_count = $state(browser && parseInt(localStorage.getItem('hint_count') || '1', 10) || 1);
 	let hint_think_time = $state(browser && parseInt(localStorage.getItem('hint_think_time') || '5', 10) || 5);
 	let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	let start_hint_done = $state(false);
@@ -88,7 +87,6 @@ Keep responses concise. End conversationally.`;
 $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
-	$effect(() => { if (browser) localStorage.setItem('hint_count', String(hint_count)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(hint_think_time)); });
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
 	$effect(() => {
@@ -404,7 +402,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		hint_ac = new AbortController();
 		const sig = hint_ac.signal;
 		try {
-			hints = await getHints(fen, hint_count, undefined, sig, undefined, hint_think_time * 1000);
+			hints = await getHints(fen, 1, undefined, sig, undefined, hint_think_time * 1000);
 			if (sig.aborted) return;
 			hint_fen = fen;
 			console.log('hints:', hints);
@@ -861,17 +859,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						<span>Deep</span>
 					</div>
 					<p class="text-xs leading-5 text-muted">More think time yields stronger hints but takes longer.</p>
-				</section>
-				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
-					<label class="text-sm font-medium text-ink" for="hint-count">Hints per request</label>
-					<input
-						id="hint-count"
-						type="number"
-						min="1"
-						max="10"
-						bind:value={hint_count}
-						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
-					/>
 				</section>
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="model-label">Analysis model</h3>
