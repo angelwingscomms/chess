@@ -132,3 +132,47 @@ Using secrets defined in .env
 9:26:39 AM [vite] (client) page reload .svelte-kit/generated/root.js
 9:26:39 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
 9:26:40 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[chat] request: messages=1 model=openai/gpt-oss-120b
+[chat] stream closed: wrote=true aborted=false
+[chat] request: messages=3 model=openai/gpt-oss-120b
+[chat] stream closed: wrote=true aborted=false
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+9:33:57 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+9:33:57 AM [vite] (ssr) page reload src/routes/+page.svelte
+[chat] request: messages=1 model=openai/gpt-oss-120b
+9:34:06 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+9:34:06 AM [vite] (ssr) page reload src/routes/+page.svelte
+[chat] stream closed: wrote=true aborted=false
+[chat] request: messages=1 model=openai/gpt-oss-120b
+[chat] stream closed: wrote=true aborted=false
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:34:25 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:34:25 AM [vite] (client) page reload .svelte-kit/generated/root.js
+9:34:25 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:34:25 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}

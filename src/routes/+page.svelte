@@ -84,8 +84,7 @@ Keep responses concise. End conversationally.`;
 		for (let i = chat_messages.length - 1; i >= 0; i--) if (chat_messages[i].role === 'user') return i;
 		return -1;
 	});
-	let total_t = $derived(total_p + total_c);
-	$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
+$effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexplain)); });
 	$effect(() => { if (browser) localStorage.setItem('auto_hint', String(auto_hint)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_count', String(hint_count)); });
@@ -1010,29 +1009,11 @@ Keep responses concise. End conversationally.`;
 				<h2 id="bal-title" class="font-display text-2xl font-medium text-ink">Usage</h2>
 			</div>
 			<div class="grid gap-4 p-6">
-				{#if total_t > 0}
-					<div class="rounded-lg bg-surface-card p-4 space-y-2">
+				{#if total_cost > 0}
+					<div class="rounded-lg bg-surface-card p-4">
 						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Total</span>
-							<span class="font-medium text-ink">{total_t.toLocaleString()} tok</span>
-						</div>
-						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Input</span>
-							<span class="font-medium text-ink">{total_p.toLocaleString()} tok</span>
-						</div>
-						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Output</span>
-							<span class="font-medium text-ink">{total_c.toLocaleString()} tok</span>
-						</div>
-						<div class="border-t border-hairline pt-2 space-y-1">
-							<div class="flex items-center justify-between text-sm">
-								<span class="text-muted">Cost (USD)</span>
-								<span class="font-medium text-primary">${(total_cost).toFixed(6)}</span>
-							</div>
-							<div class="flex items-center justify-between text-sm">
-								<span class="text-muted">Cost (NGN)</span>
-								<span class="font-medium text-primary">₦{(total_cost * NGN_USD).toFixed(2)}</span>
-							</div>
+							<span class="text-muted">Cost (NGN)</span>
+							<span class="font-medium text-primary">₦{(total_cost * NGN_USD).toFixed(2)}</span>
 						</div>
 					</div>
 				{:else}
