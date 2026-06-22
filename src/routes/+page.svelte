@@ -82,10 +82,9 @@ Keep responses concise. End conversationally.`;
 	let total_p = $state(0);
 	let total_c = $state(0);
 	let total_cost = $state(0);
-	let buy_amount = $state(50_000);
+	let buy_amount = $state(10_000);
 	let buy_loading = $state(false);
 	const MIN_KOBO = 10_000;
-	const DEPOSIT_AMOUNTS = [50_000, 100_000, 200_000, 500_000];
 
 	async function deposit(amount_kobo: number) {
 		buy_loading = true;
@@ -1011,14 +1010,11 @@ Keep responses concise. End conversationally.`;
 				</div>
 				<div class="border-t border-hairline pt-4 space-y-3">
 					<p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Deposit</p>
-					<div class="grid grid-cols-2 gap-2">
-						{#each DEPOSIT_AMOUNTS as kobo}
-							<button class="rounded-lg border border-hairline px-3 py-2.5 text-left transition-colors hover:border-primary hover:bg-primary/5 {buy_amount === kobo ? 'border-primary bg-primary/5' : ''}" onclick={() => buy_amount = kobo}>
-								<span class="block text-sm font-medium text-ink">₦{(kobo / 100).toLocaleString()}</span>
-							</button>
-						{/each}
+					<div class="relative">
+						<span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">₦</span>
+						<input type="number" min={MIN_KOBO / 100} value={buy_amount / 100} oninput={(e) => { const v = parseInt((e.target as HTMLInputElement).value) * 100 || MIN_KOBO; buy_amount = Math.max(v, MIN_KOBO); }} class="w-full rounded-lg border border-hairline bg-surface-card py-2.5 pl-7 pr-3 text-sm text-ink outline-none transition-colors focus:border-primary" />
 					</div>
-					<p class="text-[10px] text-muted/60">Minimum deposit: ₦100</p>
+					<p class="text-[10px] text-muted/60">Minimum: ₦100</p>
 					<button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(buy_amount)} disabled={buy_loading}>
 						{buy_loading ? 'Processing…' : `Deposit ₦${(buy_amount / 100).toLocaleString()}`}
 					</button>
