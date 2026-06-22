@@ -298,3 +298,8 @@ https://svelte.dev/e/state_referenced_locally
 9:48:24 AM [vite] (ssr) page reload src/routes/+layout.svelte
 10:02:31 AM [vite] .env changed, restarting server...
 10:02:33 AM [vite] server restarted.
+Using secrets defined in .env
+10:42:37 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+10:42:37 AM [vite-plugin-svelte] src/routes/+layout.svelte:12:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
