@@ -11,8 +11,9 @@
   let show_profile = $state(false);
   let token_balance = $state(data.balance);
   let bal_ver = $state(0);
-  let buy_amount = $state(10_000);
-  let buy_loading = $state(false);
+	let buy_amount = $state(10_000);
+	let buy_loading = $state(false);
+	let buy_input = $state('');
   const MIN_KOBO = 10_000;
 	$effect(() => {
 		if (bal_ver === 0) return;
@@ -123,11 +124,11 @@
           <p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Deposit</p>
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">₦</span>
-            <input type="number" min={MIN_KOBO / 100} value={buy_amount / 100} oninput={(e) => { const v = parseInt((e.target as HTMLInputElement).value) * 100 || MIN_KOBO; buy_amount = Math.max(v, MIN_KOBO); }} class="w-full rounded-lg border border-hairline bg-surface-card py-2.5 pl-7 pr-3 text-sm text-ink outline-none transition-colors focus:border-primary" />
+            <input type="number" min={MIN_KOBO / 100} bind:value={buy_input} placeholder="100" class="w-full rounded-lg border border-hairline bg-surface-card py-2.5 pl-7 pr-3 text-sm text-ink outline-none transition-colors focus:border-primary" />
           </div>
           <p class="text-[10px] text-muted/60">Min: ₦100</p>
-          <button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(buy_amount)} disabled={buy_loading}>
-            {buy_loading ? 'Processing…' : `Deposit ₦${(buy_amount / 100).toLocaleString()}`}
+          <button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(parseInt(buy_input) * 100 || MIN_KOBO)} disabled={buy_loading}>
+            {buy_loading ? 'Processing…' : `Deposit ₦${(parseInt(buy_input) * 100 || MIN_KOBO) / 100}`}
           </button>
         </div>
       </div>
