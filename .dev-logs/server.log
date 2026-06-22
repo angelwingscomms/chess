@@ -180,3 +180,38 @@ Using secrets defined in .env
 [chat] stream closed: wrote=true aborted=false
 9:35:34 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
 9:35:34 AM [vite] (ssr) page reload src/routes/+page.svelte
+9:44:16 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:44:29 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:44:29 AM [vite] (client) page reload .svelte-kit/generated/root.js
+9:44:29 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:44:29 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:44:49 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:44:49 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:44:49 AM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
+9:44:49 AM [vite] (ssr) page reload src/routes/+layout.svelte
+9:44:49 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:44:49 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:45:15 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:45:15 AM [vite] (client) page reload .svelte-kit/generated/root.js
+9:45:15 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:45:15 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:45:16 AM [vite-plugin-svelte] src/routes/+layout.svelte:7:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+9:45:16 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally

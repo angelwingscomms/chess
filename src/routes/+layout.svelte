@@ -1,27 +1,23 @@
 <script lang="ts">
   import '../app.css';
-  import { browser } from '$app/environment';
   import Seo from '$lib/components/seo/Seo.svelte';
   import JsonLd from '$lib/components/seo/JsonLd.svelte';
-  let { children } = $props();
-  let user = $state<{ id: string; name: string; picture?: string } | null>(null);
+  import type { LayoutProps } from './$types';
+  let { data, children }: LayoutProps = $props();
+  let user = $state<{ id: string; name: string; picture?: string } | null>(data.user);
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
   let img_err = $state(false);
   let menu_img_err = $state(false);
   let show_profile = $state(false);
-  let token_balance = $state(0);
+  let token_balance = $state(data.balance);
   let bal_ver = $state(0);
   let buy_amount = $state(10_000);
   let buy_loading = $state(false);
   const MIN_KOBO = 10_000;
-  $effect(() => {
-    if (!browser) return;
-    fetch('/api/me').then(r => r.ok && r.json().then(d => { user = d.user; img_err = false; menu_img_err = false; })).catch(() => {});
-  });
 	$effect(() => {
-		const v = bal_ver;
-		fetch('/api/balance').then(r => r.json()).then(d => { if (v === bal_ver) token_balance = d.balance; }).catch(() => {});
+		if (bal_ver === 0) return;
+		fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; }).catch(() => {});
 	});
   $effect(() => {
     if (!open) return;
