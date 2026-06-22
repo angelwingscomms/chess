@@ -110,3 +110,5 @@ Using secrets defined in .env
 8:30:36 AM [vite] (ssr) page reload src/routes/+page.svelte
 8:30:41 AM [vite] (ssr) page reload src/routes/+page.svelte
 8:31:06 AM [vite] (ssr) page reload src/routes/+page.svelte
+8:58:56 AM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
+8:58:56 AM [vite] (ssr) page reload src/routes/+layout.svelte

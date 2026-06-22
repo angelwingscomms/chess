@@ -19,11 +19,10 @@
     if (!browser) return;
     fetch('/api/me').then(r => r.ok && r.json().then(d => { user = d.user; img_err = false; menu_img_err = false; })).catch(() => {});
   });
-  $effect(() => {
-    if (!show_profile) return;
-    const v = bal_ver;
-    fetch('/api/balance').then(r => r.json()).then(d => { if (v === bal_ver) token_balance = d.balance; }).catch(() => {});
-  });
+	$effect(() => {
+		const v = bal_ver;
+		fetch('/api/balance').then(r => r.json()).then(d => { if (v === bal_ver) token_balance = d.balance; }).catch(() => {});
+	});
   $effect(() => {
     if (!open) return;
     function listener(e: MouseEvent) {
