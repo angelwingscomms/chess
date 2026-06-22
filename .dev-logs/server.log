@@ -7,7 +7,9 @@ $ vite --port 2160
   ➜  press h + enter to show help
 7:59:478:29:37 AM [vite] .env changed, restarting server...
 8:29:38 AM [vite] server restarted.
-ules/.pnpm/svelte-chess@0.11.1_svelte@5.56.3/node_modules/svelte-chess/dist/PromotionDialog.svelte?svelte&type=style&lang.css
+10:02:31 AM [vite] .env changed, restarting server...
+10:02:33 AM [vite] server restarted.
+.svelte?svelte&type=style&lang.css
 7:59:47 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
 7:59:47 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
 7:59:47 AM [vite] Internal server error: Invalid declaration: `<script>export let square`
@@ -294,3 +296,5 @@ https://svelte.dev/e/state_referenced_locally
 https://svelte.dev/e/state_referenced_locally
 9:48:24 AM [vite] (client) hmr update /src/routes/+layout.svelte?svelte&type=style&lang.css, /src/app.css
 9:48:24 AM [vite] (ssr) page reload src/routes/+layout.svelte
+10:02:31 AM [vite] .env changed, restarting server...
+10:02:33 AM [vite] server restarted.
