@@ -176,3 +176,7 @@ Using secrets defined in .env
     [errors]: [ [Error], [Error], [Error], [Error] ]
   }
 }
+[chat] request: messages=1 model=openai/gpt-oss-120b
+[chat] stream closed: wrote=true aborted=false
+9:35:34 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+9:35:34 AM [vite] (ssr) page reload src/routes/+page.svelte

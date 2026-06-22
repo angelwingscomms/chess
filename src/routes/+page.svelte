@@ -966,28 +966,10 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			</div>
 			<div class="grid gap-4 p-6">
 				{#if u}
-					<div class="rounded-lg bg-surface-card p-4 space-y-2">
+					<div class="rounded-lg bg-surface-card p-4">
 						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Total</span>
-							<span class="font-medium text-ink">{u.p + u.c}</span>
-						</div>
-						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Input</span>
-							<span class="font-medium text-ink">{u.p}</span>
-						</div>
-						<div class="flex items-center justify-between text-sm">
-							<span class="text-muted">Output</span>
-							<span class="font-medium text-ink">{u.c}</span>
-						</div>
-						<div class="border-t border-hairline pt-2 space-y-1">
-							<div class="flex items-center justify-between text-sm">
-								<span class="text-muted">Cost (USD)</span>
-								<span class="font-medium text-primary">${u.cost.toFixed(6)}</span>
-							</div>
-							<div class="flex items-center justify-between text-sm">
-								<span class="text-muted">Cost (NGN)</span>
-								<span class="font-medium text-primary">₦{(u.cost * NGN_USD).toFixed(2)}</span>
-							</div>
+							<span class="text-muted">Cost (NGN)</span>
+							<span class="font-medium text-primary">₦{(u.cost * NGN_USD).toFixed(2)}</span>
 						</div>
 					</div>
 				{:else}
