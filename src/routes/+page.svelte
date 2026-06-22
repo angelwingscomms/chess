@@ -87,7 +87,7 @@ Keep responses concise. End conversationally.`;
 	let autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
 	let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
-	let hint_think_time = $state(browser && parseInt(localStorage.getItem('hint_think_time') || '5', 10) || 5);
+	let hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
 	let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
@@ -969,6 +969,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						type="range"
 						min="1"
 						max="30"
+						step="0.1"
 						bind:value={hint_think_time}
 						class="w-full accent-primary"
 					/>
