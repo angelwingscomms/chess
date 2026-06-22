@@ -971,7 +971,7 @@ Keep responses concise. End conversationally.`;
 		<div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="bal-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_token_modal = false)} onclick={(e) => e.stopPropagation()}>
 			<div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
 				<p class="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">Usage</p>
-				<h2 id="bal-title" class="font-display text-2xl font-medium text-ink">Usage & Balance</h2>
+				<h2 id="bal-title" class="font-display text-2xl font-medium text-ink">Usage</h2>
 			</div>
 			<div class="grid gap-4 p-6">
 				{#if total_t > 0}
@@ -1002,23 +1002,6 @@ Keep responses concise. End conversationally.`;
 				{:else}
 					<p class="text-sm text-muted text-center py-6">No usage yet.</p>
 				{/if}
-				<div class="rounded-lg bg-surface-card p-4 space-y-2 border border-hairline">
-					<div class="flex items-center justify-between text-sm">
-						<span class="text-muted">Your Balance</span>
-						<span class="font-medium text-ink">₦{(token_balance / 100).toFixed(2)}</span>
-					</div>
-				</div>
-				<div class="border-t border-hairline pt-4 space-y-3">
-					<p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Deposit</p>
-					<div class="relative">
-						<span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">₦</span>
-						<input type="number" min={MIN_KOBO / 100} value={buy_amount / 100} oninput={(e) => { const v = parseInt((e.target as HTMLInputElement).value) * 100 || MIN_KOBO; buy_amount = Math.max(v, MIN_KOBO); }} class="w-full rounded-lg border border-hairline bg-surface-card py-2.5 pl-7 pr-3 text-sm text-ink outline-none transition-colors focus:border-primary" />
-					</div>
-					<p class="text-[10px] text-muted/60">Minimum: ₦100</p>
-					<button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(buy_amount)} disabled={buy_loading}>
-						{buy_loading ? 'Processing…' : `Deposit ₦${(buy_amount / 100).toLocaleString()}`}
-					</button>
-				</div>
 			</div>
 			<div class="shrink-0 flex justify-end border-t border-hairline bg-surface-soft px-6 py-4">
 				<button class="button-primary" onclick={() => show_token_modal = false}>Close</button>
