@@ -29,7 +29,7 @@ When the player asks "why {move}" (analyzing a hint), explain what that move acc
 
 When the player makes a mistake: state what happened factually, mention one principle, move on. When they make a good move: note why in chess terms. Vary the domain — tactics, structure, endgame, psychology, openings.
 
-Keep responses concise. End conversationally.`;
+Keep responses very short — 2-3 sentences max. End conversationally.`;
 
 	let level = $state(3);
 	let turn = $state<Color>('w');
