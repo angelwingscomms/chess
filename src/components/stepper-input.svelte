@@ -2,7 +2,7 @@
   let {
     value = $bindable(5),
     min = 1,
-    max = 30,
+    max = undefined as number | undefined,
     step = 0.5,
   }: {
     value?: number;
@@ -16,22 +16,30 @@
 
   function inc(e: MouseEvent) {
     e.preventDefault();
-    if (value < max) value = Math.min(max, Math.round((value + step) * 10) / 10);
+    const nv = Math.round((value + step) * 10) / 10;
+    if (max !== undefined && nv > max) { if (value < max) value = max; return; }
+    value = nv;
   }
   function dec(e: MouseEvent) {
     e.preventDefault();
-    if (value > min) value = Math.max(min, Math.round((value - step) * 10) / 10);
+    const nv = Math.round((value - step) * 10) / 10;
+    if (nv < min) { if (value > min) value = min; return; }
+    value = nv;
   }
   function start_inc() {
     if (inc_timer) return;
     inc_timer = setInterval(() => {
-      if (value < max) value = Math.min(max, Math.round((value + step) * 10) / 10);
+      const nv = Math.round((value + step) * 10) / 10;
+      if (max !== undefined && nv > max) { if (value < max) value = max; return; }
+      value = nv;
     }, 144);
   }
   function start_dec() {
     if (dec_timer) return;
     dec_timer = setInterval(() => {
-      if (value > min) value = Math.max(min, Math.round((value - step) * 10) / 10);
+      const nv = Math.round((value - step) * 10) / 10;
+      if (nv < min) { if (value > min) value = min; return; }
+      value = nv;
     }, 144);
   }
   function stop_inc() { if (inc_timer) { clearInterval(inc_timer); inc_timer = undefined; } }
@@ -56,14 +64,13 @@
     type="number"
     bind:value
     {min}
-    {max}
-    {step}
+    step={step}
     class="h-9 w-14 border-x border-hairline bg-transparent text-center text-sm text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
   />
   <button
     type="button"
     class="flex h-9 w-9 shrink-0 items-center justify-center text-sm text-muted transition-colors duration-150 hover:text-ink disabled:opacity-30"
-    disabled={value >= max}
+    disabled={max !== undefined && value >= max}
     onclick={inc}
     onmousedown={start_inc}
     onmouseup={stop_inc}

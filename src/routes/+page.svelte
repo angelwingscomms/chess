@@ -950,7 +950,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					</div>
 					<div class="flex items-center justify-between gap-3">
 						<span class="text-xs text-muted">Fast</span>
-						<StepperInput bind:value={computer_think_time} min={0.5} max={10} step={0.5} />
+						<StepperInput bind:value={computer_think_time} min={0.5} step={0.5} />
 						<span class="text-xs text-muted">Deep</span>
 					</div>
 					<p class="text-xs leading-5 text-muted">The longer the computer opponent thinks, the smarter it plays. Current: {computer_think_time} second{computer_think_time === 1 ? '' : 's'} per move.</p>
@@ -961,7 +961,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					</div>
 					<div class="flex items-center justify-between gap-3">
 						<span class="text-xs text-muted">Quick</span>
-						<StepperInput bind:value={hint_think_time} min={1} max={30} step={0.5} />
+						<StepperInput bind:value={hint_think_time} min={1} step={0.5} />
 						<span class="text-xs text-muted">Deep</span>
 					</div>
 					<div class="flex items-center justify-between gap-3 text-xs text-muted">
