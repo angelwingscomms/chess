@@ -139,3 +139,5 @@ https://svelte.dev/e/expected_token
 1:04:21 AM [vite] (ssr) page reload src/routes/+page.svelte
 1:04:25 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
 1:04:25 AM [vite] (ssr) page reload src/routes/+page.svelte
+1:13:29 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+1:13:29 AM [vite] (ssr) page reload src/routes/+page.svelte

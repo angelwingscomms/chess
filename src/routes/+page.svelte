@@ -946,28 +946,23 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			<div class="grid min-h-0 gap-3 overflow-y-auto p-6">
 				<section class="grid gap-3 rounded-lg bg-surface-card p-4" data-testid="settings-difficulty">
 					<div class="flex items-center justify-between gap-3">
-						<h3 class="text-sm font-medium text-ink">Computer think time</h3>
+						<h3 class="text-sm font-medium text-ink">Computer think time (seconds)</h3>
 					</div>
 					<div class="flex items-center justify-between gap-3">
 						<span class="text-xs text-muted">Fast</span>
 						<StepperInput bind:value={computer_think_time} min={0.5} step={0.5} />
 						<span class="text-xs text-muted">Deep</span>
 					</div>
-					<p class="text-xs leading-5 text-muted">The longer the computer opponent thinks, the smarter it plays. Current: {computer_think_time} second{computer_think_time === 1 ? '' : 's'} per move.</p>
 				</section>
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4" data-testid="settings-hint-think-time">
 					<div class="flex items-center justify-between gap-3">
-						<h3 class="text-sm font-medium text-ink">Hint think time</h3>
+						<h3 class="text-sm font-medium text-ink">Hint think time (seconds)</h3>
 					</div>
 					<div class="flex items-center justify-between gap-3">
 						<span class="text-xs text-muted">Quick</span>
 						<StepperInput bind:value={hint_think_time} min={1} step={0.5} />
 						<span class="text-xs text-muted">Deep</span>
 					</div>
-					<div class="flex items-center justify-between gap-3 text-xs text-muted">
-						<span>Stockfish searches for {hint_think_time} second{hint_think_time === 1 ? '' : 's'} per move</span>
-					</div>
-					<p class="text-xs leading-5 text-muted">More think time yields stronger hints but takes longer.</p>
 				</section>
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="model-label">Analysis model</h3>
