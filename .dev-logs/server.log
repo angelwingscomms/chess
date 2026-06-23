@@ -27,3 +27,109 @@ https://svelte.dev/e/expected_token
 https://svelte.dev/e/state_referenced_locally
 12:56:10 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
+12:56:39 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+12:56:39 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+12:56:39 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+12:56:39 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+12:56:39 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+12:56:39 AM [vite] (client) page reload .svelte-kit/generated/root.js
+12:56:39 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+12:56:39 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+12:56:41 AM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: /home/ed/i/chess/src/routes/+page.svelte:953:57 Expected token }
+https://svelte.dev/e/expected_token
+  Plugin: vite-plugin-svelte:compile
+  File: /home/ed/i/chess/src/routes/+page.svelte:953:57
+   951 |            <div class="flex items-center justify-between gap-3">
+   952 |              <span class="text-xs text-muted">Fast</span>
+   953 |              <StepperInput bind:value={computer_think_time} {min=0.5} {max=10} {step=0.5} />
+                                                                         ^
+   954 |              <span class="text-xs text-muted">Deep</span>
+   955 |            </div>
+
+[1;31m[500] GET /[0m
+
+12:56:52 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+12:56:52 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+12:56:52 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+12:56:52 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+12:56:52 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+12:56:52 AM [vite] (client) page reload .svelte-kit/generated/root.js
+12:56:52 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+12:56:52 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+12:56:53 AM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: /home/ed/i/chess/src/routes/+page.svelte:953:57 Expected token }
+https://svelte.dev/e/expected_token
+  Plugin: vite-plugin-svelte:compile
+  File: /home/ed/i/chess/src/routes/+page.svelte:953:57
+   951 |            <div class="flex items-center justify-between gap-3">
+   952 |              <span class="text-xs text-muted">Fast</span>
+   953 |              <StepperInput bind:value={computer_think_time} {min=0.5} {max=10} {step=0.5} />
+                                                                         ^
+   954 |              <span class="text-xs text-muted">Deep</span>
+   955 |            </div>
+
+[1;31m[500] GET /[0m
+
+12:57:08 AM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: /home/ed/i/chess/src/routes/+page.svelte:953:57 Expected token }
+https://svelte.dev/e/expected_token
+  Plugin: vite-plugin-svelte:compile
+  File: /home/ed/i/chess/src/routes/+page.svelte:953:57
+   951 |            <div class="flex items-center justify-between gap-3">
+   952 |              <span class="text-xs text-muted">Fast</span>
+   953 |              <StepperInput bind:value={computer_think_time} {min=0.5} {max=10} {step=0.5} />
+                                                                         ^
+   954 |              <span class="text-xs text-muted">Deep</span>
+   955 |            </div>
+
+[1;31m[500] GET /[0m
+
+12:57:49 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+12:57:49 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+12:57:49 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+12:57:49 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+12:57:49 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+12:57:49 AM [vite] (client) page reload .svelte-kit/generated/root.js
+12:57:49 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+12:57:49 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+12:57:51 AM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: /home/ed/i/chess/src/routes/+page.svelte:953:57 Expected token }
+https://svelte.dev/e/expected_token
+  Plugin: vite-plugin-svelte:compile
+  File: /home/ed/i/chess/src/routes/+page.svelte:953:57
+   951 |            <div class="flex items-center justify-between gap-3">
+   952 |              <span class="text-xs text-muted">Fast</span>
+   953 |              <StepperInput bind:value={computer_think_time} {min=0.5} {max=10} {step=0.5} />
+                                                                         ^
+   954 |              <span class="text-xs text-muted">Deep</span>
+   955 |            </div>
+
+[1;31m[500] GET /[0m
+
+12:58:32 AM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: /home/ed/i/chess/src/routes/+page.svelte:953:57 Expected token }
+https://svelte.dev/e/expected_token
+  Plugin: vite-plugin-svelte:compile
+  File: /home/ed/i/chess/src/routes/+page.svelte:953:57
+   951 |            <div class="flex items-center justify-between gap-3">
+   952 |              <span class="text-xs text-muted">Fast</span>
+   953 |              <StepperInput bind:value={computer_think_time} {min=0.5} {max=10} {step=0.5} />
+                                                                         ^
+   954 |              <span class="text-xs text-muted">Deep</span>
+   955 |            </div>
+
+[1;31m[500] GET /[0m
+
+12:59:44 AM [vite] (client) hmr update /src/app.css
+12:59:44 AM [vite] (ssr) page reload src/routes/+page.svelte
+12:59:45 AM [vite] (ssr) Error when evaluating SSR module /src/routes/+page.svelte: /home/ed/i/chess/src/routes/+page.svelte:964:53 Expected token }
+https://svelte.dev/e/expected_token
+  Plugin: vite-plugin-svelte:compile
+  File: /home/ed/i/chess/src/routes/+page.svelte:964:53
+   962 |            <div class="flex items-center justify-between gap-3">
+   963 |              <span class="text-xs text-muted">Quick</span>
+   964 |              <StepperInput bind:value={hint_think_time} {min=1} {max=30} {step=0.5} />
+                                                                     ^
+   965 |              <span class="text-xs text-muted">Deep</span>
+   966 |            </div>
+
+[1;31m[500] GET /[0m
+
+12:59:49 AM [vite] (client) hmr update /src/app.css
+12:59:49 AM [vite] (ssr) page reload src/routes/+page.svelte
