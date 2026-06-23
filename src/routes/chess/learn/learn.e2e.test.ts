@@ -210,14 +210,11 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('Output');
 	});
 
-	it('stores per-message usage and shows on click', () => {
+	it('stores per-message usage and shows NGN cost inline', () => {
 		expect(page).toContain('type ChatUsage = { p: number; c: number; cost: number };');
 		expect(page).toContain("u?: ChatUsage");
-		expect(page).toContain('let show_msg_modal = $state(false)');
-		expect(page).toContain('let msg_modal_idx = $state(0)');
 		expect(page).toContain('chat_messages[last] = { ...chat_messages[last], u:');
-		expect(page).toContain('Message Usage');
-		expect(page).toContain("No usage data for this message.");
+		expect(page).toContain('msg.u.cost * NGN_USD).toFixed(2)}');
 	});
 
 	it('shows model combobox regardless of api key', () => {
