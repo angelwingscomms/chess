@@ -4,7 +4,6 @@
 
   let affiliate_code = $state(browser ? (new URLSearchParams(location.search).get('i') || '') : '');
 
-}
 </script>
 
 <Seo meta={{t:'Sign in — Chess AI',d:'Sign in to your Chess AI account to track progress and unlock features.'}} />
