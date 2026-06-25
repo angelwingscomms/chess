@@ -8,7 +8,7 @@
 	onMount(() => {
 		const t = setInterval(() => {
 			countdown--;
-			if (countdown <= 0) { clearInterval(t); goto('/', { replaceState: true }); }
+			if (countdown <= 0) { clearInterval(t); goto('/i', { replaceState: true }); }
 		}, 1000);
 	});
 </script>

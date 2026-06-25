@@ -28,5 +28,5 @@ export async function GET(event: RequestEvent): Promise<Response> {
   event.cookies.set('session', session, { path: '/', httpOnly: true, maxAge: 604800, sameSite: 'lax' });
   event.cookies.delete('oauth_state', { path: '/' });
   event.cookies.delete('oauth_verifier', { path: '/' });
-  return new Response(null, { status: 302, headers: { Location: '/' } });
+  return new Response(null, { status: 302, headers: { Location: '/i' } });
 }
