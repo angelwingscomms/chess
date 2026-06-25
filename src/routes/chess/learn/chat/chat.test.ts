@@ -6,18 +6,20 @@ import { describe, expect, it } from 'vitest';
 const route = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '+server.ts'), 'utf8');
 
 describe('/chess/learn/chat route', () => {
-	it('uses AI SDK streamText with Groq, Google, and OpenRouter', () => {
+	it('uses AI SDK streamText with Groq, Google, OpenRouter, and Bynara', () => {
 		expect(route).toContain("{ createGroq } from '@ai-sdk/groq'");
 		expect(route).toContain("{ createGoogleGenerativeAI } from '@ai-sdk/google'");
 		expect(route).toContain("{ createOpenAI } from '@ai-sdk/openai'");
 		expect(route).toContain('GROQ');
 		expect(route).toContain('GEMINI');
 		expect(route).toContain('OPENROUTER_KEY');
+		expect(route).toContain('BYNARA_KEY');
+		expect(route).toContain("baseURL: 'https://router.bynara.id/v1'");
 		expect(route).toContain('streamText');
 		expect(route).toContain('textStream');
 		expect(route).toContain("event('text'");
 		expect(route).toContain('system: sys');
-		expect(route).toContain("m.startsWith('deepseek/')");
+		expect(route).toContain("m.startsWith('bynara/')");
 	});
 
 	it('imports calc_cost, deduct, NGN_USD and deducts balance on usage', () => {

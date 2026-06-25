@@ -1,3 +1,14 @@
+[*] on user create, set user.c to unique 6 character code using squid library, search net for it
+add copy affiliate link to user info modal, use gpt-taste skill for this
+add number of affiliate sign ups to user info modal, use gpt-taste skill for this
+when user signs up with affiliate code, add user's id to affiliate user's 'r' field, or increment number, depending on search findings
+
+add number of affiliate
+affiliate link to profile modal
+
+add /affiliates
+
+in view (do not implement items below)
     training modes
     easy way to show word meanings
     nararouter for chess

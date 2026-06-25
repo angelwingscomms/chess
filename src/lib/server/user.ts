@@ -1,10 +1,12 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { QDRANT_KEY, QDRANT_URL } from '$env/static/private';
+import Sqids from 'sqids';
 import type { User } from '$lib/types/user';
 
 const C = 'i';
 const local = new Map<string, User>();
 let q: QdrantClient | null = null;
+const sqids = new Sqids({ minLength: 6 });
 
 function client(): QdrantClient {
 	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY, checkCompatibility: false });
@@ -20,7 +22,8 @@ export async function save_user(
 	id: string,
 	name: string,
 	picture?: string,
-	email?: string
+	email?: string,
+	affiliate_code?: string
 ): Promise<void> {
 	const u: User = {
 		s: 'u',
@@ -34,6 +37,10 @@ export async function save_user(
 		const cur = r[0]?.payload as Record<string, unknown> | undefined;
 		if (cur?.s === 'u') {
 			u.d = (cur.d as number) || u.d;
+			if (cur.c) u.c = cur.c as string;
+			if (cur.r) u.r = cur.r as string[];
+		} else {
+			u.c = sqids.encode([Math.floor(Date.now() / 1000), Math.floor(Math.random() * 9000) + 1000]);
 		}
 		await client().upsert(C, { points: [{ id: pid(id), payload: u as unknown as Record<string, unknown> }] });
 	} catch {
@@ -51,6 +58,8 @@ export async function get_user(_event: unknown, id: string): Promise<User | null
 				n: u.n as string,
 				p: u.p as string | undefined,
 				m: u.m as string | undefined,
+				c: u.c as string | undefined,
+				r: u.r as string[] | undefined,
 				d: u.d as number
 			};
 		}

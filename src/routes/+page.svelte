@@ -2,7 +2,7 @@
 	import { Chess } from 'svelte-chess';
 	import { Chess as ChessJS } from 'chess.js';
 	import { marked } from 'marked';
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import StepperInput from '$components/stepper-input.svelte';
 	import { page } from '$app/stores';
 	import { LearnEngine, getHints } from '$lib/util/chess/engine';
@@ -104,6 +104,13 @@ let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '')
 	let recording = $state(false);
 	let voice_tts = $state(false);
 	let recorder: MediaRecorder | null = null;
+	let toasts = $state<{ id: number; msg: string }[]>([]);
+	let toast_id = $state(0);
+	function add_toast(msg: string) {
+		const id = ++toast_id;
+		toasts = [...toasts, { id, msg }];
+		setTimeout(() => toasts = toasts.filter(t => t.id !== id), 4000);
+	}
 	let pending_user_idx = $derived.by(() => {
 		if (!chat_loading) return -1;
 		for (let i = chat_messages.length - 1; i >= 0; i--) if (chat_messages[i].role === 'user') return i;
@@ -212,23 +219,39 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				if (!res.ok) throw Error(`${res.status}`);
 				model_options = await res.json();
 			}
-			const prio = ['nex-agi/nex-n2-pro:free', 'deepseek/deepseek-v4-flash', 'gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
+			const prio = ['nex-agi/nex-n2-pro:free', 'deepseek/deepseek-v4-flash', 'bynara/mimo-v2.5-pro-free', 'bynara/mimo-v2.5-free', 'bynara/mistral-large', 'gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
 			model_options.sort((a, b) => {
 				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
 				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
 			});
+			const extra: Record<string, { l: string; d: string }> = {
+				'nex-agi/nex-n2-pro:free': { l: 'Nex-N2-Pro', d: 'openrouter' },
+				'deepseek/deepseek-v4-flash': { l: 'DeepSeek V4 Flash', d: 'openrouter' },
+				'bynara/mimo-v2.5-pro-free': { l: 'MiMo V2.5 Pro', d: 'bynara' },
+				'bynara/mimo-v2.5-free': { l: 'MiMo V2.5', d: 'bynara' },
+				'bynara/mistral-large': { l: 'Mistral Large', d: 'bynara' },
+				'gemma-4-26b-a4b-it': { l: 'Gemma 4 26B', d: 'google' },
+				'gemma-4-31b-it': { l: 'Gemma 4 31B', d: 'google' },
+				'openai/gpt-oss-120b': { l: 'GPT-OSS 120B', d: 'groq' },
+				'qwen/qwen3-32b': { l: 'Qwen3 32B', d: 'groq' },
+				'llama-3.3-70b-versatile': { l: 'Llama 3.3 70B', d: 'meta' },
+			};
+			for (const id of prio) {
+				if (!model_options.find((m: any) => m.v === id) && extra[id]) model_options.push({ v: id, ...extra[id] });
+			}
 			const first = model_options[0];
 			if (first) first.r = true;
 		} catch {
-			model_options = [
-				{ v: 'nex-agi/nex-n2-pro:free', l: 'Nex-N2-Pro', d: 'openrouter', r: true },
-				{ v: 'deepseek/deepseek-v4-flash', l: 'DeepSeek V4 Flash', d: 'openrouter' },
-				{ v: 'gemma-4-26b-a4b-it', l: 'Gemma 4 26B', d: 'google' },
-				{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google' },
-				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
-				{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
-				{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
-			];
+		model_options = [
+			{ v: 'nex-agi/nex-n2-pro:free', l: 'Nex-N2-Pro', d: 'openrouter', r: true },
+			{ v: 'deepseek/deepseek-v4-flash', l: 'DeepSeek V4 Flash', d: 'openrouter' },
+			{ v: 'bynara/mimo-v2.5-pro-free', l: 'MiMo V2.5 Pro', d: 'bynara' },
+			{ v: 'gemma-4-26b-a4b-it', l: 'Gemma 4 26B', d: 'google' },
+			{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google' },
+			{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
+			{ v: 'qwen/qwen3-32b', l: 'Qwen3 32B', d: 'groq' },
+			{ v: 'llama-3.3-70b-versatile', l: 'Llama 3.3 70B', d: 'meta' },
+		];
 		}
 		if (model_options.length && !model_options.find((o) => o.v === model)) {
 			model = model_options[0].v;
@@ -556,7 +579,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		chat_abort = ac;
 
 		try {
-			if (!model.startsWith('deepseek/') && groq_api_key.trim() && model.includes('/')) {
+			if (!model.startsWith('deepseek/') && !model.startsWith('bynara/') && groq_api_key.trim() && model.includes('/')) {
 				await send_direct_generation(ac, chat_messages, model);
 				interaction_id = '';
 			} else {
@@ -671,7 +694,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			recorder.start();
 			recording = true;
 		} catch (e) {
-			console.error('[voice] mic error:', e);
+			if (dev) add_toast('Mic: ' + (e instanceof Error ? e.message : String(e)));
 			recording = false;
 		}
 	}
@@ -684,7 +707,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			const data = await res.json();
 			return data.text || '';
 		} catch (e) {
-			console.error('[voice] stt error:', e);
+			if (dev) add_toast('STT: ' + (e instanceof Error ? e.message : String(e)));
 			return '';
 		}
 	}
@@ -701,19 +724,25 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	}
 
 	async function speak(text: string) {
+		const clean = text.replace(/<[^>]*>/g, '').slice(0, 2000);
+		if (!clean) { if (dev) add_toast('TTS: empty text after stripping HTML'); return; }
 		try {
 			const res = await fetch('/api/voice/tts', {
 				method: 'POST',
-				body: JSON.stringify({ t: text.replace(/<[^>]*>/g, '').slice(0, 2000) }),
+				body: JSON.stringify({ t: clean }),
 			});
-			if (!res.ok) return;
+			if (!res.ok) {
+				const err = await res.json().catch(() => ({ error: res.statusText }));
+				throw Error(err.error || `HTTP ${res.status}`);
+			}
 			const blob = await res.blob();
 			const url = URL.createObjectURL(blob);
 			const audio = new Audio(url);
 			audio.onended = () => URL.revokeObjectURL(url);
-			audio.play();
+			audio.onerror = () => { if (dev) add_toast('TTS: audio playback failed'); };
+			await audio.play();
 		} catch (e) {
-			console.error('[voice] tts error:', e);
+			if (dev) add_toast('TTS: ' + (e instanceof Error ? e.message : String(e)));
 		}
 	}
 
@@ -747,6 +776,13 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 <Seo meta={{t:'Chess — Train with AI',d:'Train your chess skills against adaptive Stockfish AI. Get hints, analyze positions, and chat with AI coaches to improve your game.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Chess AI','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 <main class="page-shell">
+	{#if dev && toasts.length}
+		<div class="fixed left-1/2 top-4 z-[99] flex -translate-x-1/2 flex-col items-center gap-2">
+			{#each toasts as t (t.id)}
+				<div class="rounded-lg px-4 py-2 text-sm text-white shadow-lg" style="background:var(--error)">{t.msg}</div>
+			{/each}
+		</div>
+	{/if}
 	<div class="container py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">

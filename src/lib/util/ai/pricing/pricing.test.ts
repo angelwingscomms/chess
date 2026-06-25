@@ -36,6 +36,11 @@ describe('calc_cost', () => {
 		expect(cost).toBeCloseTo(0.2955, 6);
 	});
 
+	it('calculates bynara/mimo-v2.5-pro-free as free', () => {
+		const cost = calc_cost('bynara/mimo-v2.5-pro-free', 1_000_000, 500_000);
+		expect(cost).toBe(0);
+	});
+
 	it('handles zero tokens', () => {
 		expect(calc_cost('deepseek/deepseek-v4-flash', 0, 0)).toBe(0);
 	});

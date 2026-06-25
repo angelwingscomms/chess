@@ -1,75 +1,88 @@
 $ vite --host --port 2160
 
-  VITE v8.0.16  ready in 3606 ms
+  VITE v8.0.16  ready in 2037 ms
 
   ➜  Local:   http://localhost:2160/
-  ➜  Network: http://10.196.121.211:2160/
+  ➜  Network: http://10.93.46.211:2160/
   ➜  press h + enter to show help
 Using secrets defined in .env
-Using secrets defined in .env
-*** Fatal uncaught kj::Exception: workerd/util/sqlite.c++:842: failed: SENTRY_DO SQLite failed; NOSENTRY database is locked: SQLITE_BUSY (extended: SQLITE_BUSY_RECOVERY)
-stack: /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@32b44cb /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fd1cb5 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@201d952 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fdd3dc /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fdce32 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f9b8a2 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@2017dff /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@201b155 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f6d389 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bf855 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bfd78 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bd83e /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bd63e /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f54d17 /usr/lib/libc.so.6@2abfb /usr/lib/libc.so.6@2acb4 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f54024
-10:03:10 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+5:24:54 AM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-10:03:10 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+5:24:54 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-
-[1;31m[404] GET /favicon.ico[0m
-10:05:45 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+5:25:44 AM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-10:05:45 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+5:25:44 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-[chat] request: messages=1 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=3 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-10:09:31 PM [vite] (client) hmr update /src/app.css
-10:09:31 PM [vite] (ssr) page reload src/routes/chess/learn/chat/+server.ts
-10:09:32 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-10:09:32 PM [vite] (ssr) page reload src/routes/+page.svelte
-[chat] request: messages=5 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=5 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-10:09:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-10:09:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-10:09:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-10:09:59 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
-10:09:59 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-10:09:59 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-10:09:59 PM [vite] (client) page reload .svelte-kit/generated/root.js
-10:09:59 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
-10:09:59 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-10:13:23 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-10:13:23 PM [vite] (ssr) page reload src/routes/+page.svelte
-10:13:25 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-10:13:25 PM [vite] (ssr) page reload src/routes/+page.svelte
-10:13:28 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-10:13:28 PM [vite] (ssr) page reload src/routes/+page.svelte
-10:13:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-10:13:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-10:13:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-10:13:45 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
-10:13:45 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-10:13:45 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-10:13:45 PM [vite] (client) page reload .svelte-kit/generated/root.js
-10:13:45 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
-10:13:45 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-10:14:02 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-10:14:02 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-10:14:02 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-10:14:02 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
-10:14:02 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-10:14:02 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-10:14:02 PM [vite] (client) page reload .svelte-kit/generated/root.js
-10:14:02 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
-10:14:02 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-10:14:14 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-10:14:14 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-10:14:14 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-10:14:14 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
-10:14:14 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-10:14:14 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-10:14:14 PM [vite] (client) page reload .svelte-kit/generated/root.js
-10:14:14 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
-10:14:14 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[chat] request: messages=1 model=bynara/mimo-v2.5-free
+APICallError [AI_APICallError]: The requested endpoint does not exist.
+    at file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2657:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async postToApi (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+provider-utils@4.0.30_zod@4.4.3/node_modules/@ai-sdk/provider-utils/dist/index.mjs:2500:28)
+    at async OpenAIResponsesLanguageModel.doStream (file:///home/ed/i/chess/node_modules/.pnpm/@ai-sdk+openai@3.0.72_zod@4.4.3/node_modules/@ai-sdk/openai/dist/index.mjs:5651:50)
+    at async wrapStream (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:12205:35)
+    at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7611:27)
+    at async file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2374:24
+    at async _retryWithExponentialBackoff (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:2696:12)
+    at async streamStep (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:7568:17)
+    at async fn (file:///home/ed/i/chess/node_modules/.pnpm/ai@6.0.207_zod@4.4.3/node_modules/ai/dist/index.mjs:8001:9) {
+  cause: undefined,
+  url: 'https://router.bynara.id/v1/responses',
+  requestBodyValues: {
+    model: 'mimo-v2.5-free',
+    input: [ [Object], [Object] ],
+    temperature: undefined,
+    top_p: undefined,
+    max_output_tokens: undefined,
+    conversation: undefined,
+    max_tool_calls: undefined,
+    metadata: undefined,
+    parallel_tool_calls: undefined,
+    previous_response_id: undefined,
+    store: undefined,
+    user: undefined,
+    instructions: undefined,
+    service_tier: undefined,
+    include: undefined,
+    prompt_cache_key: undefined,
+    prompt_cache_retention: undefined,
+    safety_identifier: undefined,
+    top_logprobs: undefined,
+    truncation: undefined,
+    tools: undefined,
+    tool_choice: undefined,
+    stream: true
+  },
+  statusCode: 404,
+  responseHeaders: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': 'a11137af0b599491-LHR',
+    connection: 'keep-alive',
+    'content-encoding': 'br',
+    'content-security-policy': "default-src 'none'; frame-ancestors 'none'",
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Thu, 25 Jun 2026 04:27:03 GMT',
+    nel: '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}',
+    'referrer-policy': 'no-referrer',
+    'report-to': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=UFnEcEUsrcpUW9sQOsZBtdAc9xv73fr0gcGT2c2Uxod7bIYUbeTBMb8ec%2BZzwxALKc9ZkSHFHmNs9OJhd4u%2FOWSK62f3WT0YImCVeDGJny1rAY1QA2vDEo3Mdu6PJxIj0A6N"}]}',
+    server: 'cloudflare',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains',
+    'transfer-encoding': 'chunked',
+    via: '1.1 Caddy, 1.1 Caddy',
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'x-request-id': '7b81de43-664a-49e4-8c16-b505c2413ee5'
+  },
+  responseBody: '{"error":{"type":"not_found","message":"The requested endpoint does not exist.","request_id":"7b81de43-664a-49e4-8c16-b505c2413ee5"}}\n',
+  isRetryable: false,
+  data: {
+    error: {
+      message: 'The requested endpoint does not exist.',
+      type: 'not_found'
+    }
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_APICallError): true
+}
+[chat] stream closed: wrote=false aborted=false

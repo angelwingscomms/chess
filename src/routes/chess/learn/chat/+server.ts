@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GROQ, GEMINI, OPENROUTER_KEY } from '$env/static/private';
+import { GROQ, GEMINI, OPENROUTER_KEY, BYNARA_KEY } from '$env/static/private';
 import { streamText, wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
@@ -12,9 +12,10 @@ import { NGN_USD } from '$lib/util/rates';
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 const openrouter = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: OPENROUTER_KEY });
+const bynara = createOpenAI({ baseURL: 'https://router.bynara.id/v1', apiKey: BYNARA_KEY });
 
 const getModel = (m: string) => wrapLanguageModel({
-	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : m.startsWith('deepseek/') || m.startsWith('nex-agi/') ? openrouter(m) : groq(m),
+	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : m.startsWith('bynara/') ? bynara(m.slice(7)) : m.startsWith('deepseek/') || m.startsWith('nex-agi/') ? openrouter(m) : groq(m),
 	middleware: extractReasoningMiddleware({ tagName: 'think' }),
 });
 
