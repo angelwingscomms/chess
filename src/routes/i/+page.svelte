@@ -835,7 +835,8 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 <Seo meta={{t:'Chess — Train with AI',d:'Train your chess skills against adaptive Stockfish AI. Get hints, analyze positions, and chat with AI coaches to improve your game.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Chess AI','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
-<main class="page-shell">
+<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
+	<div class="absolute inset-0 bg-surface-dark/85"></div>
 	{#if dev && toasts.length}
 		<div class="fixed left-1/2 top-4 z-[99] flex -translate-x-1/2 flex-col items-center gap-2">
 			{#each toasts as t (t.id)}
@@ -843,7 +844,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			{/each}
 		</div>
 	{/if}
-	<div class="container py-4">
+	<div class="container relative z-[1] py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">
 				<h1 class="display-sm">Chess — Train</h1>
