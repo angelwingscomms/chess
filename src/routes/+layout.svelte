@@ -146,7 +146,7 @@
   </div>
 {/if}
 
-<div style="padding-top: 64px;">
+<div>
   {@render children()}
 </div>
 
@@ -158,13 +158,14 @@
     width: 36px;
     height: 36px;
     border-radius: 999px;
-    border: 1px solid var(--hairline);
-    background: var(--canvas);
+    border: 1px solid rgba(250,249,245,0.12);
+    background: rgba(250,249,245,0.08);
     cursor: pointer;
     display: grid;
     place-items: center;
     overflow: hidden;
     padding: 0;
+    backdrop-filter: blur(8px);
   }
   .user-avatar {
     width: 100%;
@@ -178,8 +179,8 @@
     place-items: center;
     font-size: 14px;
     font-weight: 600;
-    color: var(--muted);
-    background: var(--surface-card);
+    color: var(--on-dark);
+    background: var(--surface-dark-elevated);
   }
   .user-menu {
     position: absolute;
@@ -187,9 +188,9 @@
     top: calc(100% + 8px);
     width: 220px;
     border-radius: 12px;
-    border: 1px solid var(--hairline);
-    background: var(--canvas);
-    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(250,249,245,0.1);
+    background: rgba(24,23,21,0.8);
+    backdrop-filter: blur(18px);
     padding: 12px;
     display: grid;
     gap: 12px;
@@ -199,12 +200,13 @@
     display: block;
     height: 36px;
     width: auto;
+    filter: brightness(0) invert(1);
   }
   .nav-end {
     display: flex;
     align-items: center;
     gap: 22px;
-    color: var(--ink);
+    color: var(--on-dark);
     font-size: 14px;
     font-weight: 500;
   }

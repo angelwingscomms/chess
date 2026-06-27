@@ -1,14 +1,542 @@
-[*] on user create, set user.c to unique 6 character code using squid library, search net for it
-add copy affiliate link to user info modal, use gpt-taste skill for this
-add number of affiliate sign ups to user info modal, use gpt-taste skill for this
-when user signs up with affiliate code, add user's id to affiliate user's 'r' field, or increment number, depending on search findings
+# Research Topics: Grandmaster Protocol → Webapp Implementation
 
-add number of affiliate
-affiliate link to profile modal
+## High-Level Organization
 
-add /affiliates
+The Grandmaster Protocol research reveals 8 findings that must be operationalized in
+software. Each requires its own research stream before implementation can begin.
 
-in view (do not implement items below)
-    training modes
-    easy way to show word meanings
-    nararouter for chess
+---
+
+## A. Pattern Recognition Engine
+
+### A1. Template Instantiation in Software
+The report says templates (10-15 pieces with variable slots) are instantiated in
+~250ms. What does this mean for UI design?
+- How to measure template formation speed in users?
+- What granularity of "position similarity" triggers template matching?
+- Can we model template slots as parameterized FEN patterns?
+- Literature: Gobet & Simon (1998), Gobet & Chassy (2023), CHREST model
+
+### A2. The CHREST Model → UI Architecture
+CHREST says: chunk creation ~8s, familiarization ~2s, slot instantiation ~250ms.
+Visual STM holds 3 chunks.
+- Design constraint: positions should max out at 3 new chunks per screen
+- Timing constraint: flashcard exposure should start at ~8s, drop to ~2s, target ~250ms
+- What's the optimal UI for chunk-inspection (highlight which chunks exist in a position)?
+- Literature: Gobet (2015), CHREST tutorial (Lane & Gobet 2010), Chassy & Gobet (2011)
+
+### A3. Perceptual Intuition Test Design
+The 2023 Gobet-Chassy study showed 44% of evaluation variance explained by Elo
+at 5-second exposure, with intuition's work done in 3-4 seconds.
+- Can we replicate this as a diagnostic in the webapp?
+- What's the minimum set of positions for a valid intuition diagnostic?
+- How to score "intuition quality" (not just accuracy, but speed + confidence)?
+- Literature: Chassy et al. (2023), Kahneman & Klein (2009)
+
+### A4. Pattern Set Selection
+The report notes "optimal position selection: which patterns unlock the most chess
+understanding per unit of time?"
+- What is the minimal viable pattern set (MVPS) for triggering a micro-fold?
+- How to compute pattern coverage overlap between positions?
+- Can we algorithmically generate positions that isolate specific patterns?
+- What are the "leverage point" patterns that generalize most?
+- Literature: Smith & Parra (Woodpecker Method), de la Maza (400 Points)
+- Existing sources: Chess.com puzzles, Lichess puzzles, Chess Tempo, Chesstempo API
+
+---
+
+## B. Micro-Woodpecker System
+
+### B1. Cycle Timing Algorithms
+The protocol uses 3-4 cycles of 20-30 positions at decreasing time intervals.
+- What's the optimal cycle decay function? (geometric? exponential? adaptive?)
+- How to schedule cycles across sessions (not just one session)?
+- What time-control formats map to each cycle phase?
+- Literature: spaced repetition theory (Ebbinghaus, SM-2, FSRS)
+
+### B2. Puzzle Selection for Compression
+The Woodpecker Method uses 2000 puzzles. The protocol compresses to 20-30.
+- Which 20-30 positions maximize compression?
+- What's the selection algorithm: manual curation vs. automated filtering?
+- How to tag positions by cognitive load (pieces count, tactical depth, novelty)?
+- Can we use Stockfish to auto-grade positions by pattern density?
+
+### B3. Progress Tracking Metrics
+- "Cycles completed" is too coarse. What granular metrics matter?
+- Recognition time (RT) per position, per pattern class
+- Accuracy decay curve (how fast does the user forget between cycles?)
+- "Fold detection": at what point does conscious calculation drop off?
+
+### B4. Inter-Session Spaced Repetition
+- Can we build an FSRS (Free Spaced Repetition Scheduler) for chess patterns?
+- How to map chess positions to review items?
+- Should patterns repeat at the same interval as cards in Anki?
+- Literature: SM-2 algorithm, FSRS (2023+), Wozniak's research
+
+---
+
+## C. Socratic AI Teaching Engine
+
+### C1. Ramesh RB Method in Prompt Engineering
+Core principle: "Teaching is not transferring — never give the answer, engineer
+discovery."
+- How to structure system prompts that enforce Socratic questioning?
+- What's the taxonomy of Socratic probes for chess?
+  (a) "Which principle are you breaking?"
+  (b) "What does your opponent want?"
+  (c) "What changed after that move?"
+  (d) "What would you do if I told you that move is wrong?"
+  (e) "So what?" (Gulko drill)
+- How to detect when the user has "discovered" vs. is guessing?
+- Literature: Ramesh RB interviews (Studer 2022, ChessBase India, Belenkaya 2026)
+
+### C2. Position-Dependent Question Generation
+- How does the AI select the right question for the current position?
+- Mapping: position features → error type → Socratic probe
+- If user blunders a fork: "What's the relationship between your knight and my pieces?"
+- If user misses a threat: "If you were me, what would you play next?"
+- Can we pre-engineer these mappings for the MVPS?
+
+### C3. Discovery Moment Detection
+- How to detect when a "fold" or "aha" moment occurs in chat?
+- Lexical markers: "oh", "I see", "wait", "so that's why"
+- Behavioral markers: faster response time, accurate follow-up moves
+- Can we score "discovery quality" per interaction?
+
+### C4. Teaching Strategy Selection
+- Given the user's Dreyfus stage, which teaching strategy fits?
+  Novice: guided discovery + pattern flooding
+  Advanced Beginner: Socratic questioning + minimal hints
+  Competent: challenge positions + self-explanation
+- How to switch strategies mid-session based on performance?
+
+---
+
+## D. Folding Framework Measurement
+
+### D1. Operationalizing "The Fold"
+Hassabis's folding is a metaphor. What measurable phenomena indicate a fold?
+- Response time curve: exponential drop-off in think time on known patterns
+- Accuracy plateau followed by sudden jump (phase transition)
+- Self-report: user says "I just *saw* it instead of calculating"
+- Piece focus shift: from calculating individual pieces to seeing clusters
+- Literature: Hassabis (Lex Fridman 2021), McGrath et al. (2022 AlphaZero PNAS)
+
+### D2. Phase Transition Detection Algorithms
+AlphaZero showed phase transitions at ~32,000 training steps.
+- Can we detect phase transitions in human learning in real-time?
+- What statistical methods? (change-point detection, CUSUM, Bayesian online detection)
+- What data granularity is needed? (per-move, per-position, per-session?)
+
+### D3. Dreyfus Stage Classification
+The 5 Dreyfus stages map to folding. How to classify users?
+- Stage 1 (Novice): slow, rule-based, frequent basic errors
+- Stage 2 (Adv. Beginner): recognizes situational aspects, inconsistent
+- Stage 3 (Competent): conscious planning, deliberate
+- Stage 4 (Proficient): intuitive pattern-driven, mostly accurate
+- Stage 5 (Expert): holistic, creative, fast
+- Can we classify from behavior? (think time, accuracy pattern, error type, chat responses)
+
+### D4. Learning Curve Modeling
+- What function best fits chess skill acquisition? (power law? exponential?
+  logistic?)
+- How to model inter-individual variance in compressibility?
+- Can we predict a user's "folding potential" from baseline tests?
+
+---
+
+## E. Position Engineering
+
+### E1. Algorithmic Position Generation
+- Can we use Stockfish + heuristics to generate teaching positions?
+- Constraints: minimal pieces, clear theme, one concept at a time
+- How to verify a position teaches its intended pattern?
+- Literature: Dvoretsky's "positional sketches", Soviet training methods
+
+### E2. Position Complexity Metrics
+- What makes a position "simple" vs. "complex" for learning?
+- Variables: piece count, material imbalance, pawn structure complexity,
+  number of threats, tactical density, king safety
+- How to order positions by complexity for progressive loading?
+
+### E3. Pattern Map of Chess
+- What's the complete graph of chess patterns and their dependencies?
+- Fork → double attack → discovered attack → pin → skewer
+- Pawn structure → outpost → open file → seventh rank
+- King safety → attack → sacrifice → breakthrough
+- If we can build this map, we can sequence learning optimally.
+- Literature: comprehensive tactic taxonomy (e.g., Chess Tempo's categories)
+
+### E4. Reduced Position Design
+- The report insists on "minimalist positions" (5-8 pieces)
+- What's the smallest position that teaches each concept?
+- Can we find the "minimum viable position" for each of the 50 core patterns?
+- How to verify a minimal position doesn't create artificial/unrealistic scenarios?
+
+### E5. Blindfold Training Positions
+- Ramesh has students solve without moving pieces.
+- Can we implement a "blindfold mode" where Stockfish evaluates mental moves?
+- What positions work best for blindfold training?
+
+---
+
+## F. Psychological Frameworks in UI
+
+### F1. Smirnov's Three Principles as Interactive Drills
+- Principle 1 (Attack): position trainer that flags non-attacking moves as suboptimal
+- Principle 2 (Activate least active piece): heatmap of piece activity, highlight
+  the piece with least mobility
+- Principle 3 (Restrict opponent): after each user move, show opponent's best response
+  and ask "did you consider this?"
+- Literature: Smirnov's Remote Chess Academy materials
+
+### F2. Gulko's "So What?" as UI Interaction
+- After every candidate move selection, force user to answer "So what?"
+- UI: move tree that shows opponent's best reply after user's candidate
+- Track: does the user naturally start doing this without prompting?
+- Literature: Gulko & Sneed (2022), Analyzing the Chess Mind
+
+### F3. Kuljasevic's Tri-Currency Evaluation
+- Material, time, space as three equivalent axes
+- UI: radar chart showing position evaluation across all three
+- Ask user to evaluate each dimension separately before deciding
+- Literature: Kuljasevic (2021), How to Study Chess on Your Own
+
+### F4. Prophylactic Thinking Training
+- Gulko: "What does my opponent want?" every move
+- UI: after user selects a move, highlight opponent's best plan
+- Score user on prophylactic awareness (did their move address opponent's threat?)
+
+---
+
+## G. Digital Protocol Design
+
+### G1. 60-Minute Protocol → Multi-Session App
+The report's protocol is a single 60-minute in-person session. The app needs to
+translate this into digital form:
+- How to decompose the 5 phases into sessions?
+- What session length is optimal for digital delivery? (15 min? 30 min?)
+- How to maintain the "board-only" constraint when screens are involved?
+- What's lost and gained in the digital translation?
+
+### G2. Phase 1: Priming (Digital)
+- How to teach the 3 core principles without a live grandmaster?
+- Interactive tutorial vs. AI-guided discovery vs. pre-scripted sequence
+- How to verify the user has internalized the questioning framework?
+
+### G3. Phase 2: Micro-Woodpecker (Digital)
+- Timed flashcard mode with progressive speed increases
+- How to implement the "3 cycles at 10s → 5s → 3s" progression?
+- Audio/metronome pacing vs. visual timer vs. automatic advancement
+
+### G4. Phase 3: Template Construction (Digital)
+- Timed position exposure (show position, hide, ask questions)
+- What questions to ask after each position?
+- "What did you see?" → free-text, then AI scores perception quality
+- "What's unbalanced?" → multiple choice or open response
+
+### G5. Phase 4: Compression Simulation (Digital)
+- Guided game play against Stockfish at adjustable strength
+- Stockfish should create teachable moments (not just win)
+- How to program Stockfish to play "instructively"?
+- After each game, pattern retrospection
+- Literature: Kasparov's accelerated training, Red Bull chess immersion
+
+### G6. Phase 5: Integration (Digital)
+- Auto-generated review of patterns seen in session
+- Identification of "folding moments" (did any occur?)
+- Homework: daily 10-second position review for next week
+
+### G7. Protocol Variations
+- 15-minute express version (commute-friendly)
+- 30-minute standard version
+- 60-minute deep dive
+- Multi-week program (60 minutes/week for 8 weeks)
+- What adjusts? Position count, cycle count, depth of Socratic interaction
+
+---
+
+## H. User Modeling & Analytics
+
+### H1. Pattern Recognition Speed
+- Track RT for each pattern type (forks, pins, skewers, discovered attacks)
+- Normalize for position complexity
+- Produce a "pattern recognition speed profile" per user
+
+### H2. Decision Quality Metrics
+- For each user decision, compare to Stockfish evaluation delta
+- Categorize errors: tactical (missed calculation) vs. positional (misjudgment)
+- Track improvement per error category
+
+### H3. Folding Index
+- Composite metric: (speed + accuracy + intuition consistency + verbal fluency)
+- How to weigh each component?
+- Is folding binary or continuous?
+
+### H4. Long-Term Learning Curves
+- How does pattern recognition degrade without reinforcement?
+- What's the optimal review schedule?
+- Does the micro-fold persist or require maintenance?
+
+### H5. User Archetype Discovery
+- Are there distinct learning types? (visual, analytical, intuitive, brute-force)
+- Does compressibility correlate with anything measurable?
+- Can we predict who will benefit most from the protocol?
+
+---
+
+## I. Stockfish as Teaching Tool
+
+### I1. Evaluation Bar for Intuition Drills
+- Show position for N seconds, then show evaluation bar
+- User predicts evaluation → compare to actual Stockfish eval
+- Score: prediction accuracy by exposure time
+
+### I2. Best Move Confirmation
+- User selects intuitive move → Stockfish confirms or refutes
+- Track: how often does the user's intuition match the engine?
+- Timed: does this correlation improve with the protocol?
+
+### I3. Position Analysis for Pattern Discovery
+- After user plays a position, Stockfish highlights critical moments
+- Which positions had the highest evaluation swings?
+- What patterns were missed?
+
+### I4. Play Strength Calibration
+- The protocol says "GM plays at 50% strength"
+- How to calibrate Stockfish to play at specific levels?
+- Maia Chess (human-like neural net) may be better than pure Stockfish
+- Literature: Maia Chess (McIlroy-Young et al. 2020, 2021)
+
+### I5. Lucena (LC0) and Neural Network Evaluation
+- LC0's policy network outputs are more human-interpretable than Stockfish
+- Can we use LC0 to identify which patterns the user should have seen?
+- Literature: Leela Chess Zero, policy network interpretability
+
+---
+
+## J. AI Chat as Grandmaster Proxy
+
+### J1. Grandmaster Persona Modeling
+- What makes effective chess teaching personalities?
+- Ramesh (Socratic, demanding, engineer positions)
+- Polgar (systematic, progressive, flooding)
+- Smirnov (essence-based, compression-obsessed)
+- Dvoretsky (positional feel, scientific)
+- Multiple personas the user can choose?
+- How to prompt engineer each consistently?
+
+### J2. Teaching Strategy Decision Tree
+- Input: user level, error type, position features, history
+- Output: which teaching strategy to use?
+- Strategy options: drill, Socratic probe, explanation, demonstration, challenge
+- Can this be pre-computed with rules + Stockfish evaluation?
+
+### J3. Error Diagnosis from Chat + Board
+- User makes a move → AI analyzes with Stockfish → diagnoses error class
+- Error classes: tactical blindness, positional misjudgment, planlessness,
+  calculation failure, prophylactic neglect, over-aggression, passivity
+- Each class has a prescribed teaching response
+- Literature: Gulko's cognitive-behavioral error taxonomy
+
+### J4. Engagement & Motivation
+- The Polgar experiment required 5-6 hours/day from age 3.
+- How to maintain motivation in a digital self-directed format?
+- Gamification vs. intrinsic motivation vs. social features?
+- Should the AI track and manage user motivation?
+
+### J5. Session State Tracking for AI
+- What must the AI remember across sessions?
+- Patterns installed, errors made, feedback given, Dreyfus stage
+- How to serialize this state for the AI's context window?
+
+---
+
+## K. Spaced Repetition for Chess
+
+### K1. FSRS Adaptation for Positions
+- FSRS (Free Spaced Repetition Scheduler) is the successor to SM-2.
+- Three parameters: stability, difficulty, retrievability
+- How to map chess position patterns to these parameters?
+- Literature: FSRS (Ye & Deng 2023+), Anki SM-2
+
+### K2. Interleaving vs. Blocking
+- Blocking: drill the same pattern type repeatedly
+- Interleaving: mix pattern types in the same session
+- For rapid compression, which works better?
+- Literature: Rohrer (2012), Bjork's desirable difficulties
+
+### K3. Difficulty Modeling
+- What makes a position "easy" or "hard" to remember?
+- Features: piece count, familiarity, similarity to other positions,
+  tactical depth, number of patterns present
+- Can we learn difficulty from user data?
+
+### K4. Retention Curve Visualization
+- Show user how their pattern recognition decays without review
+- Motivational: "You've retained 92% of fork patterns"
+- Prescriptive: "Review your 10 weakest patterns today"
+
+---
+
+## L. Validation & Testing
+
+### L1. Diagnostic Test Design
+- How to measure if the protocol works?
+- Pre/post test: 20 positions, 5 seconds each, score evaluation accuracy
+- Control group: no intervention, just playing games
+- Experiment design for statistical significance
+
+### L2. Metric Validation
+- Does "pattern recognition speed" correlate with playing strength?
+- Does "folding index" predict skill acquisition rate?
+- What's the minimum detectable effect size for a 60-minute protocol?
+
+### L3. Ablation Studies
+- Which phase of the protocol contributes most?
+- Remove Phase 2 (micro-Woodpecker): what changes?
+- Remove Phase 3 (template construction): what changes?
+- Can we determine this without a full clinical trial?
+
+### L4. Long-Term Follow-Up
+- Do gains persist at 1 week? 1 month? 6 months?
+- What's the minimal maintenance schedule?
+
+---
+
+## M. Competitive & Market Research
+
+### M1. Existing Platform Audit
+- Chess.com: lessons, puzzles, game analysis, video library
+- Lichess: puzzles, studies, analysis board, coordinate training
+- Chessable: spaced repetition for openings, courses
+- Aimchess: AI-powered analysis, pattern training
+- List: what compression techniques do they use?
+- Gap analysis: what's missing that the Grandmaster Protocol offers?
+
+### M2. Demand Estimation
+- Who wants rapid chess improvement?
+- Beginners (under 1200): frustrated, want quick wins
+- Intermediates (1200-1800): plateaued, frustrated
+- Advanced (1800+): seeking marginal gains
+- Which segment has highest willingness to pay?
+
+### M3. Pricing Models
+- One-time 60-minute session
+- Subscription: weekly protocol sessions
+- Outcome-based: money-back guarantee for specific Elo gain
+- Literature: de la Maza's 400 Points (proven demand for rapid improvement)
+
+---
+
+## N. Technical Implementation Research
+
+### N1. Position Database Design
+- Schema for storing annotated positions with:
+  pattern tags, complexity score, template ID, variant slots,
+  FEN, PGN, teaching questions, Stockfish eval, time-to-solve
+- Search: find positions by pattern, complexity, piece count, theme
+
+### N2. Real-Time Pattern Detection
+- Can we use Stockfish to detect patterns in user moves in real-time?
+- "User just created a fork opportunity" → trigger teaching moment
+- "User missed a pin" → flag for review
+- Latency requirement: < 100ms for real-time feedback
+
+### N3. Chat → Board Integration
+- The AI chat currently has board context (FEN, move history)
+- How to extend this for the protocol?
+- AI needs to: set up positions, run timed drills, ask questions,
+  evaluate responses, adjust difficulty
+- State machine for protocol phases
+
+### N4. Performance Constraints
+- Stockfish in Web Worker: is it fast enough for real-time teaching?
+- How many evaluations per second needed for pattern detection?
+- Can we pre-compute evaluations for the MVPS?
+
+### N5. Mobile Adaptation
+- The protocol assumes a physical board
+- On mobile, how to maintain the same immersion?
+- Touch-based interaction: slower than physical pieces
+- Design implications for mobile-first implementation
+
+---
+
+## O. Neuroscience & Cognitive Load
+
+### O1. Cognitive Load Management
+- The protocol is intense: 60 minutes of concentrated learning
+- What's the optimal session length for digital delivery?
+- How to detect cognitive fatigue?
+- Adaptations: break timing, difficulty adjustment, mode switching
+
+### O2. Sleep Consolidation
+- The report mentions "this learning will continue overnight"
+- How to leverage sleep consolidation in digital training?
+- Schedule sessions before sleep? Review after waking?
+- Literature: Walker (2017), Stickgold (2005) on sleep and skill consolidation
+
+### O3. Interference Prevention
+- Learning new patterns can interfere with old ones
+- How to schedule pattern introduction to minimize interference?
+- Similar patterns should be spaced apart?
+- Literature: interference theory of forgetting
+
+### O4. Attention Optimization
+- The protocol demands sustained focused attention
+- How to design UI that minimizes distraction?
+- Full-screen mode, no notifications, dark mode
+
+---
+
+## P. Open Questions from the Report
+
+### P1. Can a micro-fold occur in 60 minutes?
+- The report labels this its "weakest evidence" claim
+- What empirical test could confirm or refute this?
+- How to define "micro-fold" operationally?
+
+### P2. Optimal position sequence
+- The report's 8 positions are speculative
+- What rigorous methodology could determine the optimal sequence?
+- Can we A/B test position sequences?
+
+### P3. Board-only constraint digital equivalent
+- In-person: 0 technology, just pieces
+- Digital: screen, mouse/touch, Stockfish, AI
+- What's gained (instant feedback, data tracking, AI teaching)?
+- What's lost (physical piece feel, GM presence, social pressure)?
+- Can the digital version exceed the board-only version?
+
+### P4. Individual differences in compressibility
+- Some users may respond; others won't
+- What predicts compressibility?
+- Can we screen users before the protocol?
+
+### P5. Long-term retention without reinforcement
+- Even successful folding may decay
+- What's the minimum maintenance dose?
+
+---
+
+## Priority Matrix
+
+| Priority | Topic | Implementation Dependency |
+|----------|-------|---------------------------|
+| P0 | C (Socratic AI Teaching) | Core value prop, builds on existing AI chat |
+| P0 | A (Pattern Recognition Engine) | Core science, informs all other features |
+| P0 | E (Position Engineering) | Content layer, everything else depends on positions |
+| P0 | G (Digital Protocol Design) | Product architecture, system design |
+| P1 | B (Micro-Woodpecker System) | Secondary feature, depends on A + E |
+| P1 | I (Stockfish as Teaching Tool) | Core technical integration |
+| P1 | J (AI Chat as GM Proxy) | Extends C |
+| P1 | N (Technical Implementation) | Infrastructure decisions |
+| P2 | D (Folding Measurement) | Analytics, not blocking MVP |
+| P2 | F (Psychological Frameworks UI) | Enhancement, not core |
+| P2 | H (User Modeling) | Analytics, data-dependent |
+| P2 | K (Spaced Repetition) | Long-term retention, not initial delivery |
+| P3 | L (Validation & Testing) | After MVP |
+| P3 | M (Competitive & Market) | Business layer |
+| P3 | O (Neuroscience) | Deep optimization layer |
+| P3 | P (Open Questions) | Academic, not blocking product |

@@ -8,7 +8,7 @@
 	import { LearnEngine, getHints } from '$lib/util/chess/engine';
 	import type { Color, Hint } from '$lib/util/chess/engine';
 	import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
-	import { ArrowUp, Info, Lightbulb, Mic, Redo2, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
+	import { ArrowUp, Info, Lightbulb, Mic, Plus, Redo2, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 	import { calc_cost } from '$lib/util/ai/pricing';
@@ -100,8 +100,10 @@ let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '')
 	let total_c = $state(0);
 	let total_cost = $state(0);
 	let chat_body = $state<HTMLDivElement | null>(null);
-	let chat_input_ref = $state<HTMLInputElement | null>(null);
+	let chat_input_ref = $state<HTMLTextAreaElement | null>(null);
 	let recording = $state(false);
+	let sel_text = $state('');
+	let sel_pos = $state<{ x: number; y: number } | null>(null);
 	let voice_tts = $state(false);
 	let recorder: MediaRecorder | null = null;
 	let toasts = $state<{ id: number; msg: string }[]>([]);
@@ -123,28 +125,29 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
 	let save_timeout: ReturnType<typeof setTimeout> | null = null;
 	let saved_data: Record<string, unknown> | null = null;
+	const LS_KEY = 'chess_save';
 
 	async function save_game_debounced() {
-		if (!($page.data as any)?.user) return;
 		if (save_timeout) clearTimeout(save_timeout);
 		save_timeout = setTimeout(async () => {
-			const c = chat_messages.map(m => {
+			const serialize_chat = (msgs: ChatMsg[]) => msgs.map(m => {
 				const r: Record<string, unknown> = { r: m.role === 'user' ? 'u' : 'a', c: m.content };
 				if (m.u) r.u = m.u;
 				return r;
 			});
-			try {
-				await fetch('/api/save', {
-					method: 'POST',
-					body: JSON.stringify({
-						f: fen, h: history.join(' '), m: moveNum, o: orientation,
-						u: last_user_move, a: last_ai_move, r: redo_stack.join('|'),
-						v: gameOver, x: resultMsg, g: groq_api_key, l: level,
-						t: computer_think_time,
-						c: JSON.stringify(c)
-					})
-				});
-			} catch {}
+			const payload = {
+				f: fen, h: history.join(' '), m: moveNum, o: orientation,
+				u: last_user_move, a: last_ai_move, r: redo_stack.join('|'),
+				v: gameOver, x: resultMsg, g: groq_api_key, l: level,
+				t: computer_think_time,
+				c: JSON.stringify(serialize_chat(chat_messages)),
+				d: Date.now()
+			};
+			if (browser) {
+				try { localStorage.setItem(LS_KEY, JSON.stringify({ ...payload, c: JSON.stringify(serialize_chat(chat_messages.slice(-50))) })); } catch {}
+			}
+			if (!($page.data as any)?.user) return;
+			try { await fetch('/api/save', { method: 'POST', body: JSON.stringify(payload) }); } catch {}
 		}, 2000);
 	}
 
@@ -181,8 +184,19 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	}
 
 	$effect(() => {
-		if (browser && ($page.data as any)?.user) {
-			fetch('/api/load').then(r => r.json()).then(({data: sd}) => { if (sd) saved_data = sd; }).catch(() => {});
+		if (!browser) return;
+		let best: Record<string, unknown> | null = null;
+		try {
+			const ls = localStorage.getItem(LS_KEY);
+			if (ls) best = JSON.parse(ls);
+		} catch {}
+		if (($page.data as any)?.user) {
+			fetch('/api/load').then(r => r.json()).then(({data: sd}) => {
+				if (sd && (!best || (sd.d ?? 0) > (best.d ?? 0))) best = sd;
+				if (best) saved_data = best;
+			}).catch(() => { if (best) saved_data = best; });
+		} else if (best) {
+			saved_data = best;
 		}
 	});
 
@@ -765,12 +779,58 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		if (!text.trim()) return;
 		const t = text.trim();
 		chat_input = '';
+		if (chat_input_ref) chat_input_ref.style.height = 'auto';
 		if (chat_loading) {
 			chat_queue = [...chat_queue, { text: t }];
 			return;
 		}
 		await send_chess_chat(t, '', true);
 	}
+
+	function handle_selection() {
+		if (!chat_body) return;
+		const sel = window.getSelection();
+		if (!sel || sel.isCollapsed || !sel.rangeCount) {
+			sel_text = '';
+			sel_pos = null;
+			return;
+		}
+		const range = sel.getRangeAt(0);
+		if (!chat_body.contains(range.commonAncestorContainer)) {
+			sel_text = '';
+			sel_pos = null;
+			return;
+		}
+		const text = sel.toString().trim();
+		if (!text) {
+			sel_text = '';
+			sel_pos = null;
+			return;
+		}
+		const rect = range.getBoundingClientRect();
+		const body_rect = chat_body.getBoundingClientRect();
+		sel_text = text;
+		sel_pos = {
+			x: rect.left + rect.width / 2 - body_rect.left,
+			y: rect.top - body_rect.top - 8
+		};
+	}
+
+	function append_selection() {
+		if (!sel_text) return;
+		const sep = chat_input.trim() ? ' ' : '';
+		chat_input = chat_input + sep + sel_text;
+		sel_text = '';
+		sel_pos = null;
+		window.getSelection()?.removeAllRanges();
+		chat_input_ref?.focus();
+	}
+
+	$effect(() => {
+		if (!browser) return;
+		document.addEventListener('selectionchange', handle_selection);
+		return () => document.removeEventListener('selectionchange', handle_selection);
+	});
 </script>
 
 <Seo meta={{t:'Chess — Train with AI',d:'Train your chess skills against adaptive Stockfish AI. Get hints, analyze positions, and chat with AI coaches to improve your game.'}} />
@@ -839,7 +899,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					</div>
 				{/if}
 				<div class="flex items-center gap-1.5" data-testid="learn-status-toolbar">
-					<span class="mr-1 rounded-full bg-canvas px-2 py-1 text-[11px] font-medium text-muted">
+					<span class="mr-1 rounded-full px-2 py-1 text-[11px] font-medium {turn === 'b' && !gameOver ? 'bg-primary text-white motion-safe:animate-opponent-thinking' : 'bg-canvas text-muted'}">
 						{turn === 'w' ? 'White' : 'Black'}
 					</span>
 					{#if inCheck}
@@ -890,7 +950,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					</span>
 				</div>
 				<div class="w-full rounded-xl bg-surface-card overflow-hidden">
-					<div bind:this={chat_body} class="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
+					<div bind:this={chat_body} class="relative max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 						{#if chat_messages.length === 0}
 							<p class="text-sm text-muted text-center py-6">No messages yet</p>
 						{/if}
@@ -923,6 +983,16 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 								</div>
 							</div>
 						{/each}
+						{#if sel_text && sel_pos}
+							<button
+								onclick={append_selection}
+								style="left:{sel_pos.x}px;top:{sel_pos.y}px"
+								class="absolute z-50 -translate-x-1/2 -translate-y-full grid size-6 place-items-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-110 active:scale-95"
+								aria-label="Append selected text to message"
+							>
+								<Plus size={14} strokeWidth={2.5} />
+							</button>
+						{/if}
 					</div>
 					{#if chat_suggestions.length > 0}
 						<div class="flex flex-wrap items-center gap-1.5 px-3 pb-1">
@@ -932,13 +1002,15 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						</div>
 					{/if}
 					<div class="flex items-center gap-2 p-3">
-						<input
+						<textarea
+							rows={1}
 							bind:this={chat_input_ref}
 							bind:value={chat_input}
 							onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(chat_input); } }}
+							oninput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }}
 							placeholder="Ask about the position..."
-							class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"
-						/>
+							class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"
+						></textarea>
 						<button
 							onclick={toggleMic}
 							disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}

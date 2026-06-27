@@ -27,6 +27,7 @@
 
    --animate-hint-pulse: hint-pulse 3.2s ease-in-out infinite;
    --animate-chat-loading: chat-loading 2s ease-in-out infinite;
+   --animate-opponent-thinking: opponent-thinking 2s ease-in-out infinite;
 
    @keyframes hint-loading {
      0%,
@@ -60,6 +61,19 @@
 
      50% {
        opacity: 0.4;
+     }
+   }
+
+   @keyframes opponent-thinking {
+     0%,
+     100% {
+       background-color: var(--color-canvas);
+       color: var(--color-muted);
+     }
+
+     50% {
+       background-color: #ffffff;
+       color: var(--color-primary);
      }
    }
  }
@@ -191,8 +205,7 @@ img {
   top: 0;
   z-index: 30;
   height: 64px;
-  border-bottom: 1px solid var(--hairline-soft);
-  background: rgba(250, 249, 245, 0.92);
+  border-bottom: 1px solid rgba(250,249,245,0.08);
   backdrop-filter: blur(18px);
 }
 
@@ -405,7 +418,6 @@ img {
 .display-md,
 .display-sm {
   margin: 0;
-  color: var(--ink);
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: 0;

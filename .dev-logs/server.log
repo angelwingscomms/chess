@@ -1,53 +1,114 @@
 $ vite --host --port 2160
 
-  VITE v8.0.16  ready in 1646 ms
+  VITE v8.0.16  ready in 4076 ms
 
   ➜  Local:   http://localhost:2160/
-  ➜  Network: http://10.93.46.211:2160/
+  ➜  Network: http://192.168.43.40:2160/
+  ➜  Network: http://192.168.240.1:2160/
+  ➜  Network: http://169.254.250.135:2160/
+  ➜  Network: http://10.214.177.10:2160/
   ➜  press h + enter to show help
 Using secrets defined in .env
 Using secrets defined in .env
-5:28:28 AM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+9:29:53 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-5:28:28 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+9:29:53 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-5:28:50 AM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+9:29:55 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-5:28:50 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+9:29:55 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-5:35:53 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-5:35:53 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-5:35:53 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-5:35:53 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
-5:35:53 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-5:35:53 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-5:35:53 AM [vite] (client) page reload .svelte-kit/generated/root.js
-5:35:53 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
-5:35:53 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-5:36:04 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-5:36:04 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-5:36:04 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-5:36:04 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
-5:36:04 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-5:36:04 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-5:36:04 AM [vite] (client) page reload .svelte-kit/generated/root.js
-5:36:04 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
-5:36:04 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-5:36:14 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-5:36:14 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-5:36:14 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-5:36:14 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
-5:36:14 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-5:36:14 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-5:36:14 AM [vite] (client) page reload .svelte-kit/generated/root.js
-5:36:14 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
-5:36:14 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-[models] fetch error: [TypeError: fetch failed] {
-  [cause]: Error: getaddrinfo EAI_AGAIN api.groq.com
-      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
-    errno: -3001,
-    code: 'EAI_AGAIN',
-    syscall: 'getaddrinfo',
-    hostname: 'api.groq.com'
-  }
-}
+9:31:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:31:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:31:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:31:51 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:31:51 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:31:51 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:31:51 PM [vite] (client) page reload .svelte-kit/generated/root.js
+9:31:51 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:31:51 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:32:02 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:32:02 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:32:02 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:32:02 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:32:02 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:32:02 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:32:02 PM [vite] (client) page reload .svelte-kit/generated/root.js
+9:32:02 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:32:02 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:39:59 PM [vite] (client) hmr update /src/app.css
+9:39:59 PM [vite] (ssr) page reload src/routes/+page.server.ts
+9:40:28 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+9:40:28 PM [vite] (ssr) page reload src/routes/+page.svelte
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:40:51 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:40:51 PM [vite] (client) page reload .svelte-kit/generated/root.js
+9:40:51 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:40:51 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:59:42 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:59:42 PM [vite] (client) page reload .svelte-kit/generated/root.js
+9:59:42 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:59:42 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+9:59:53 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+9:59:53 PM [vite] (client) page reload .svelte-kit/generated/root.js
+9:59:53 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+9:59:53 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+10:00:04 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+10:00:04 PM [vite] (client) page reload .svelte-kit/generated/root.js
+10:00:04 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+10:00:04 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+10:02:17 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+10:02:17 PM [vite] (ssr) page reload src/routes/+page.svelte
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+10:02:32 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+10:02:32 PM [vite] (client) page reload .svelte-kit/generated/root.js
+10:02:32 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+10:02:32 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+10:02:46 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+10:02:46 PM [vite] (client) page reload .svelte-kit/generated/root.js
+10:02:46 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+10:02:46 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+10:02:57 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+10:02:57 PM [vite] (client) page reload .svelte-kit/generated/root.js
+10:02:57 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+10:02:57 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte

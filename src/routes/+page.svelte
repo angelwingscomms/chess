@@ -8,7 +8,7 @@
 	<Seo meta={{t:'Beee Chess — Train with an AI coach',d:'Play chess against Stockfish with adaptive difficulty, real-time hints, and an AI coach that explains every move.'}} />
 	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Beee Chess','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
-	<main class="page-shell" style="background: url(/cosmic-chess-bg.png) center/cover fixed; position: relative;">
+	<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 		<div class="absolute inset-0 bg-surface-dark/60"></div>
 		<div class="container min-h-[calc(100dvh-64px)] grid place-items-center relative">
 			<div class="mx-auto w-full max-w-4xl space-y-10 py-16 text-center">
@@ -28,7 +28,7 @@
 	<Seo meta={{t:'Beee Chess — Train with an AI coach',d:'Play chess against Stockfish with adaptive difficulty, real-time hints, and an AI coach that explains every move. No sign-up needed.'}} />
 	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Beee Chess','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
-	<main class="page-shell" style="background: url(/cosmic-chess-bg.png) center/cover fixed; position: relative;">
+	<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 		<div class="absolute inset-0 bg-surface-dark/60"></div>
 		<div class="container min-h-[calc(100dvh-64px)] grid place-items-center relative">
 			<div class="mx-auto w-full max-w-4xl space-y-10 py-16 text-center">
