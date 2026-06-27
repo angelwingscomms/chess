@@ -576,7 +576,7 @@ img {
   background-color: var(--surface-soft) !important;
   background-image: repeating-conic-gradient(var(--primary) 0% 25%, transparent 0% 50%) !important;
   background-size: 25% 25% !important;
-  opacity: 0.63 !important;
+  opacity: 0.72 !important;
 }
 
 .cg-default-style.cg-wrap piece.pawn.white { background-image: url('/pieces/gioco/wP.svg') !important; }
