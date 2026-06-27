@@ -847,8 +847,8 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	<div class="container relative z-[1] py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">
-				<h1 class="display-sm">Chess — Train</h1>
-				<p class="text-muted text-sm">Play, learn, and analyze with every move.</p>
+				<h1 class="display-sm text-on-dark">Chess — Train</h1>
+				<p class="text-sm text-on-dark/70">Play, learn, and analyze with every move.</p>
 			</div>
 
 			<div class="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,640px)_minmax(0,640px)] lg:items-start lg:justify-center">
