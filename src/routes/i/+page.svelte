@@ -950,7 +950,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						</button>
 					</span>
 				</div>
-				<div class="w-full rounded-xl bg-surface-card overflow-hidden">
+				<div class="w-full rounded-xl bg-surface-card/72 overflow-hidden">
 					<div bind:this={chat_body} class="relative max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 						{#if chat_messages.length === 0}
 							<p class="text-sm text-muted text-center py-6">No messages yet</p>
