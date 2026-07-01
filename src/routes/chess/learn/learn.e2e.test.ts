@@ -124,7 +124,12 @@ describe('/chess/learn settings modal', () => {
 	});
 
 	it('moves difficulty into settings and uses compact icon controls above chat', () => {
-		expect(page).toContain("import { ArrowUp, Lightbulb, RotateCcw, Settings, Undo2, X } from '@lucide/svelte';");
+		expect(page).toContain("import ArrowUpIcon from '$lib/components/icons/arrow-up-icon.svelte';");
+		expect(page).toContain("import BulbIcon from '$lib/components/icons/bulb-icon.svelte';");
+		expect(page).toContain("import GearIcon from '$lib/components/icons/gear-icon.svelte';");
+		expect(page).toContain("import RefreshIcon from '$lib/components/icons/refresh-icon.svelte';");
+		expect(page).toContain("import UndoIcon from '$lib/components/icons/undo-icon.svelte';");
+		expect(page).toContain("import XIcon from '$lib/components/icons/x-icon.svelte';");
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="New game"');
 		expect(page).toContain('<RotateCcw');

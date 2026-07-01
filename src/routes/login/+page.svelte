@@ -17,7 +17,8 @@
         placeholder="Affiliate code (optional)"
         class="w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none focus:border-primary/40"
       /> -->
-      <a href="/login/google?i={encodeURIComponent(affiliate_code)}" class="button-primary mt-4 inline-block">Sign in with Google</a>
+      <!-- <a href="/login/google?i={encodeURIComponent(affiliate_code)}" class="button-primary mt-4 inline-block">Sign in with Google</a> -->
+      <a href="/login/google" class="button-primary mt-4 inline-block">Sign in with Google</a>
     </div>
   </div>
 </main>

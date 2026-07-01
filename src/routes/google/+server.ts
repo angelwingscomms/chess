@@ -21,9 +21,9 @@ export async function GET(event: RequestEvent): Promise<Response> {
     headers: { Authorization: `Bearer ${tokens.accessToken()}` }
   });
   const guser = await ures.json();
-  const aff = event.cookies.get('affiliate_code') || '';
-  await save_user(event, guser.sub, guser.name, guser.picture, guser.email, aff);
-  event.cookies.delete('affiliate_code', { path: '/' });
+  // const aff = event.cookies.get('affiliate_code') || '';
+  await save_user(event, guser.sub, guser.name, guser.picture, guser.email);
+  // event.cookies.delete('affiliate_code', { path: '/' });
   const session = await encode_session({ id: guser.sub, name: guser.name, picture: guser.picture, email: guser.email });
   event.cookies.set('session', session, { path: '/', httpOnly: true, maxAge: 604800, sameSite: 'lax' });
   event.cookies.delete('oauth_state', { path: '/' });

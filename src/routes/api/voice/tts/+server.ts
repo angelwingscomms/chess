@@ -1,8 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-
-const VOICE_UUID = '819fcc57'; // Luma
+import { GROQ } from '$env/static/private';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json().catch(() => null);
@@ -11,42 +9,31 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Missing text' }, { status: 400 });
 	}
 
-	const key = env.RESEMBLE_API_KEY;
-	if (!key) {
-		return json({ error: 'Resemble not configured' }, { status: 501 });
-	}
-
-	const res = await fetch('https://f.cluster.resemble.ai/synthesize', {
+	const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
 		method: 'POST',
 		headers: {
-			Authorization: key,
+			Authorization: `Bearer ${GROQ}`,
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			voice_uuid: VOICE_UUID,
-			data: text,
-			output_format: 'mp3',
-			sample_rate: 24000,
+			model: 'canopylabs/orpheus-v1-english',
+			input: text,
+			voice: 'austin',
+			response_format: 'wav',
 		}),
 	});
 
 	if (!res.ok) {
 		const err = await res.text().catch(() => 'unknown');
-		console.error('[tts] resemble error:', res.status, err);
+		console.error('[tts] groq error:', res.status, err);
 		return json({ error: `TTS failed: ${res.status}` }, { status: 502 });
 	}
 
-	const data = await res.json();
-	if (!data.success || !data.audio_content) {
-		console.error('[tts] resemble api error:', data);
-		return json({ error: 'TTS failed' }, { status: 502 });
-	}
-
-	const audio = Uint8Array.from(atob(data.audio_content), (c) => c.charCodeAt(0));
+	const audio = await res.arrayBuffer();
 
 	return new Response(audio, {
 		headers: {
-			'Content-Type': 'audio/mpeg',
+			'Content-Type': 'audio/wav',
 			'Content-Length': audio.byteLength.toString(),
 		},
 	});

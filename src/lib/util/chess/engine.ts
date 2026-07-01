@@ -6,6 +6,14 @@ export interface Hint {
 	depth: number
 }
 
+export type EvalResult = {
+	best_move: string;
+	best_score: number;
+	best_depth: number;
+	best_pv: string[];
+	multi_pv: { move: string; score: number; depth: number; pv: string[] }[];
+};
+
 export function getHints(fen: string, count = 5, stockfishPath?: string, signal?: AbortSignal, depth?: number, moveTime?: number): Promise<Hint[]> {
 	const sp = stockfishPath ?? '/stockfish.js';
 	const mt = moveTime ?? 8000;
@@ -60,6 +68,83 @@ export interface LearnEngineOpts {
 
 const S = { Un: 'uninitialised', In: 'initialising', Wa: 'waiting', Se: 'searching' } as const;
 type St = (typeof S)[keyof typeof S];
+
+export function analyzePosition(fen: string, multiPv = 3, stockfishPath?: string, signal?: AbortSignal, moveTime = 3000): Promise<EvalResult> {
+	const sp = stockfishPath ?? '/stockfish.js';
+	const log = (msg: string) => console.log(`[engine] ${msg}`);
+	log(`analyzePosition called fen=${fen.slice(0, 40)}... multiPv=${multiPv} moveTime=${moveTime}`);
+	let w: Worker | undefined;
+	try { w = new Worker(sp); } catch (e) { log(`Worker creation failed: ${e}`); return Promise.reject(e); }
+	const ww = w!;
+	return new Promise((res, rej) => {
+		if (signal?.aborted) { log('aborted before start'); ww.terminate(); rej(signal.reason); return; }
+		const lines: EvalResult['multi_pv'] = [];
+		let best_move = '';
+		let best_score = 0;
+		let best_depth = 0;
+		let pv_buf: string[] = [];
+		let uciok = false;
+		let readyok = false;
+		let info_count = 0;
+		const t = setTimeout(() => { log('TIMEOUT after 60000ms — terminating worker'); ww.terminate(); rej(new Error('timeout')); }, 60000);
+		signal?.addEventListener('abort', () => { log('abort signal received'); clearTimeout(t); ww.terminate(); rej(signal.reason); }, { once: true });
+		ww.addEventListener('message', ({ data }) => {
+			const u = data as string;
+			if (u === 'uciok') {
+				uciok = true;
+				log('uciok -> setting MultiPV');
+				ww.postMessage(`setoption name MultiPV value ${multiPv}`);
+				ww.postMessage('setoption name UCI_LimitStrength value false');
+				ww.postMessage('isready');
+			} else if (u === 'readyok') {
+				readyok = true;
+				log(`readyok -> starting search position=${fen.slice(0, 40)}...`);
+				ww.postMessage('position fen ' + fen);
+				ww.postMessage(`go movetime ${moveTime}`);
+			} else if (u.startsWith('info') && u.includes('multipv')) {
+				info_count++;
+				const mpv = parseInt(u.match(/multipv\s+(\d+)/)?.[1] ?? '0');
+				const depth = parseInt(u.match(/depth\s+(\d+)/)?.[1] ?? '0');
+				const sc = u.match(/score\s+mate\s+([-\d]+)/);
+				const sc2 = u.match(/score\s+cp\s+([-\d]+)/);
+				let score = 0;
+				if (sc) score = parseInt(sc[1]) > 0 ? 100000 : -100000;
+				else if (sc2) score = parseInt(sc2[1]);
+				const pv_match = u.match(/\bpv\s+(.+)/);
+				const pv = pv_match ? pv_match[1].split(' ') : [];
+				const move = pv[0] ?? '';
+				if (move && mpv > 0 && mpv <= multiPv) {
+					lines[mpv - 1] = { move, score, depth, pv };
+				}
+				if (mpv === 1 && move) {
+					best_move = move;
+					best_score = score;
+					best_depth = depth;
+					pv_buf = pv;
+				}
+				if (info_count === 1) log(`first info: mpv=${mpv} depth=${depth} score=${score} move=${move}`);
+			} else if (u.startsWith('bestmove')) {
+				const bm = u.split(' ')[1];
+				log(`bestmove=${bm} best_move=${best_move} lines=${lines.filter(Boolean).length} info_count=${info_count} uciok=${uciok} readyok=${readyok}`);
+				clearTimeout(t);
+				ww.terminate();
+				if (!best_move) log('WARNING: best_move is empty — Stockfish may not have produced any info lines');
+				res({
+					best_move,
+					best_score,
+					best_depth,
+					best_pv: pv_buf,
+					multi_pv: lines.filter(Boolean),
+				});
+			} else if (u.startsWith('info')) {
+				// non-multipv info lines from Stockfish — ignore
+			} else {
+				log(`unhandled message: ${u.slice(0, 100)}`);
+			}
+		});
+		ww.postMessage('uci');
+	});
+}
 
 export const DIFFICULTY_PRESETS = [
 	{ elo: 800,  depth: 4,  moveTime: 500  },
@@ -156,6 +241,7 @@ export class LearnEngine {
 	}
 
 	getColor() { return this.co; }
+	setColor(c: Color | 'both' | 'none') { this.co = c; }
 	isSearching() { return this.st === S.Se; }
 
 	stopSearch(): Promise<void> {

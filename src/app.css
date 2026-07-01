@@ -201,7 +201,8 @@ img {
 }
 
 .top-nav {
-  position: sticky;
+  position: absolute;
+  left: 90vw;
   top: 0;
   z-index: 30;
   height: 64px;

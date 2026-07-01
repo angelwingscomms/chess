@@ -93,11 +93,17 @@ No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`
 	let last_eval = $state<string>('');
 
 	function get_training_eval(fen_str: string, user_move_san: string): Promise<string> {
+		const log = (msg: string) => console.log(`[eval] ${msg}`);
+		log(`get_training_eval fen=${fen_str.slice(0, 50)} user_move="${user_move_san}"`);
 		return new Promise((res) => {
 			const ac = new AbortController();
-			const timeout = setTimeout(() => { ac.abort(); res(''); }, 10000);
+			const timeout = setTimeout(() => { log('TIMEOUT after 10000ms — aborting'); ac.abort(); res(''); }, 10000);
 			analyzePosition(fen_str, 3, undefined, ac.signal, 3000).then((er) => {
 				clearTimeout(timeout);
+				log(`analyzePosition done: best_move=${er.best_move} score=${er.best_score} depth=${er.best_depth} multi_pv_lines=${(er.multi_pv ?? []).length}`);
+				if (!er.best_move) {
+					log('WARNING: best_move is empty from analyzePosition');
+				}
 				const data: Record<string, unknown> = {
 					fen: fen_str,
 					best_move: er.best_move,
@@ -118,14 +124,23 @@ No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`
 					else if ((data.delta as number) > 50) data.error_type = 'prophylactic';
 					else if ((data.delta as number) > 30) data.error_type = 'positional';
 					else data.error_type = 'none';
+					log(`user_line found: move=${user_line.move} score=${user_line.score} delta=${data.delta} error_type=${data.error_type}`);
 				} else if (user_move_san) {
 					data.delta = 999;
 					data.error_type = 'strategic';
+					log(`user_move "${user_move_san}" not in multi_pv — treating as strategic error`);
+				} else {
+					log('no user_move_san provided — storing eval without user analysis');
 				}
 				const json = JSON.stringify(data);
 				last_eval = json;
+				log(`stored last_eval (${json.length} chars)`);
 				res(json);
-			}).catch(() => { clearTimeout(timeout); res(''); });
+			}).catch((err) => {
+				clearTimeout(timeout);
+				log(`analyzePosition REJECTED: ${err instanceof Error ? err.message : String(err)}`);
+				res('');
+			});
 		});
 	}
 	let interaction_id = $state('');
@@ -164,6 +179,40 @@ No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`
 let hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
 let computer_think_time = $state(1.5);
 let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
+	let voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
+	let voice_options = [
+		{ v: 'Kore', l: 'Kore', d: 'Firm' },
+		{ v: 'Zephyr', l: 'Zephyr', d: 'Bright' },
+		{ v: 'Orus', l: 'Orus', d: 'Firm' },
+		{ v: 'Puck', l: 'Puck', d: 'Upbeat' },
+		{ v: 'Fenrir', l: 'Fenrir', d: 'Excitable' },
+		{ v: 'Aoede', l: 'Aoede', d: 'Breezy' },
+		{ v: 'Charon', l: 'Charon', d: 'Informative' },
+		{ v: 'Leda', l: 'Leda', d: 'Youthful' },
+		{ v: 'Umbriel', l: 'Umbriel', d: 'Easy-going' },
+		{ v: 'Erinome', l: 'Erinome', d: 'Clear' },
+		{ v: 'Algieba', l: 'Algieba', d: 'Smooth' },
+		{ v: 'Achernar', l: 'Achernar', d: 'Soft' },
+		{ v: 'Gacrux', l: 'Gacrux', d: 'Mature' },
+		{ v: 'Despina', l: 'Despina', d: 'Smooth' },
+		{ v: 'Sulafat', l: 'Sulafat', d: 'Warm' },
+		{ v: 'Autonoe', l: 'Autonoe', d: 'Bright' },
+		{ v: 'Laomedeia', l: 'Laomedeia', d: 'Upbeat' },
+		{ v: 'Schedar', l: 'Schedar', d: 'Even' },
+		{ v: 'Achird', l: 'Achird', d: 'Friendly' },
+		{ v: 'Sadachbia', l: 'Sadachbia', d: 'Lively' },
+		{ v: 'Enceladus', l: 'Enceladus', d: 'Breathy' },
+		{ v: 'Algenib', l: 'Algenib', d: 'Gravelly' },
+		{ v: 'Zubenelgenubi', l: 'Zubenelgenubi', d: 'Casual' },
+		{ v: 'Sadaltager', l: 'Sadaltager', d: 'Knowledgeable' },
+		{ v: 'Callirrhoe', l: 'Callirrhoe', d: 'Easy-going' },
+		{ v: 'Iapetus', l: 'Iapetus', d: 'Clear' },
+		{ v: 'Rasalgethi', l: 'Rasalgethi', d: 'Informative' },
+		{ v: 'Alnilam', l: 'Alnilam', d: 'Firm' },
+		{ v: 'Pulcherrima', l: 'Pulcherrima', d: 'Forward' },
+		{ v: 'Vindemiatrix', l: 'Vindemiatrix', d: 'Gentle' },
+	];
+	let show_voice_menu = $state(false);
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
@@ -182,6 +231,8 @@ let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '')
 	let gemini_live_audio_ctx: AudioContext | null = null;
 	let gemini_live_mic_stream: MediaStream | null = null;
 	let gemini_live_processor: ScriptProcessorNode | null = null;
+	let gemini_live_audio_queue: AudioBuffer[] = [];
+	let gemini_live_audio_playing = false;
 	let toasts = $state<{ id: number; msg: string }[]>([]);
 	let toast_id = $state(0);
 	function add_toast(msg: string) {
@@ -199,6 +250,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(hint_think_time)); });
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
+	$effect(() => { if (browser) localStorage.setItem('voice_name', voice_name); });
 	$effect(() => {
 		if (!browser) return;
 		const state_fen = $page.state?.fen as string | undefined;
@@ -310,6 +362,8 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		if (gemini_live_mic_stream) { gemini_live_mic_stream.getTracks().forEach(t => t.stop()); gemini_live_mic_stream = null; }
 		if (gemini_live_session) { gemini_live_session.close(); gemini_live_session = null; }
 		if (gemini_live_audio_ctx) { gemini_live_audio_ctx.close(); gemini_live_audio_ctx = null; }
+		gemini_live_audio_queue = [];
+		gemini_live_audio_playing = false;
 		recording = false;
 	}
 
@@ -596,6 +650,12 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			get_training_eval(fen, move_text(m));
 		}
 		save_game_debounced();
+
+		if (gemini_live_session && recording) {
+			const last = history[history.length - 1] ?? '';
+			const c = `[board_context]\nfen:${fen}\nlast_move:${last}\nturn:${turn}\n[/board_context]`;
+			try { gemini_live_session.sendRealtimeInput({ text: c }); } catch {}
+		}
 	}
 
 	function onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -845,20 +905,42 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	}
 
 	async function toggleGeminiLive() {
+		const log = (msg: string) => console.log(`[gemini-live] ${msg}`);
 		if (gemini_live_session) {
 			cleanup_gemini_live();
 			return;
 		}
 		try {
+			log('connecting...');
 			add_toast('Connecting voice...');
 			const res = await fetch('/api/voice/gemini-live/key');
 			const { k: key } = await res.json();
 			if (!key) throw Error('No API key available');
+			log('got API key');
+
+			log('triggering Stockfish eval for voice session...');
+			await get_training_eval(fen, last_user_move);
+			log(`post-eval: last_eval length=${last_eval.length}, has_eval=${!!last_eval}`);
 
 			init_tool_state({
 				get_fen: () => fen,
 				get_eval: () => last_eval,
+				get_board_state: () => ({
+					fen,
+					turn,
+					in_check: inCheck,
+					game_over: gameOver,
+					result: resultMsg,
+					move_count: moveNum,
+					last_user_move,
+					last_ai_move,
+					orientation,
+					captured,
+					history_index: board_history_idx,
+					history_length: board_history.length,
+				}),
 				set_fen: (f) => {
+					log(`set_fen called with fen=${f.slice(0, 40)}`);
 					if (chessRef) chessRef.load(f);
 					fen = f;
 					history = [];
@@ -873,8 +955,42 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					board_history_idx = board_history.length - 1;
 					pushState('', { fen: f });
 				},
+				make_move: (uci) => {
+					if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
+					if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
+					try {
+						const from = uci.slice(0, 2);
+						const to = uci.slice(2, 4);
+						const promotion = uci.charAt(4) || undefined;
+						chessRef.move({ from, to, promotion });
+						return {
+							valid: true,
+							uci,
+							san: history[history.length - 1] ?? uci,
+							fen,
+							turn,
+							in_check: inCheck,
+							game_over: gameOver,
+						};
+					} catch (e) {
+						return { valid: false, uci, error: e instanceof Error ? e.message : 'Illegal move.' };
+					}
+				},
+				toggle_voice_show: (active) => {
+					if (!engine) return { active: false };
+					if (active) {
+						if (engine.isSearching()) engine.stopSearch();
+						engine.setColor('none');
+					} else {
+						engine.setColor('b');
+					}
+					return { active };
+				},
 			});
 
+			const devices = await navigator.mediaDevices.enumerateDevices();
+			const audio_inputs = devices.filter(d => d.kind === 'audioinput');
+			log(`${audio_inputs.length} audio input(s) found: ${audio_inputs.map(d => d.label || d.deviceId.slice(0, 16)).join(', ')}`);
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			gemini_live_mic_stream = stream;
 			const audioCtx = new AudioContext();
@@ -883,46 +999,77 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			const processor = audioCtx.createScriptProcessor(2048, 1, 1);
 			processor.onaudioprocess = gemini_process_audio;
 			micSource.connect(processor);
-			processor.connect(audioCtx.destination);
+			const micGain = audioCtx.createGain();
+			micGain.gain.value = 0;
+			processor.connect(micGain);
+			micGain.connect(audioCtx.destination);
 			gemini_live_processor = processor;
 
 			const ctx = current_chat_context();
+			const has_eval_ctx = !!ctx.e;
+			log(`system prompt: fen=${ctx.f.slice(0, 40)} has_move_history=${!!ctx.p} has_eval=${has_eval_ctx} eval_preview=${has_eval_ctx ? ctx.e!.slice(0, 80) : 'none'}`);
 			const sys = `${current_sys}
+Your name is ${voice_name}.
 
 Current board state:
 fen: ${ctx.f}
 move_history: ${ctx.p || 'none'}
 last_user_move: ${ctx.u || 'none'}
 last_ai_move: ${ctx.a || 'none'}
-${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
+${ctx.e ? `evaluation: ${ctx.e}` : ''}
+
+[board_context] tags contain silent board state updates sent by the system so you always know the current position. They are not user speech. Never read them aloud or respond to them. Silently update your knowledge of the board.`;
 
 			const { GoogleGenAI } = await import('@google/genai');
-			const ai = new GoogleGenAI({ apiKey: key });
+			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
+			log('connecting to Gemini Live WebSocket...');
 			const session = await ai.live.connect({
-				model: 'gemini-2.5-flash-live-preview',
+				model: 'gemini-3.1-flash-live-preview',
 				callbacks: {
-					onopen: () => { recording = true; add_toast('Voice connected'); },
-					onmessage: (msg: any) => gemini_live_handle(msg),
-					onerror: () => add_toast('Voice connection error'),
-					onclose: () => cleanup_gemini_live(),
+				onopen: () => { log('WebSocket opened'); recording = true; add_toast('Voice connected'); },
+				onmessage: (msg: any) => gemini_live_handle(msg),
+				onerror: (e: any) => { console.error('[gemini-live] WS error', e); add_toast('Voice connection error: ' + (e?.message || e)); },
+				onclose: (e: any) => { log(`WS close code=${e?.code} reason=${e?.reason}`); cleanup_gemini_live(); },
 				},
 				config: {
-					responseModalities: ['AUDIO' as any],
+					responseModalities: ['AUDIO'] as any,
+					speechConfig: {
+						voiceConfig: {
+							prebuiltVoiceConfig: {
+								voiceName: voice_name,
+							},
+						},
+					} as any,
 					systemInstruction: { parts: [{ text: sys }] } as any,
 					tools: get_tool_declarations() as any,
 					inputAudioTranscription: { enabled: true } as any,
 				},
 			});
 			gemini_live_session = session;
+			log('session established');
 		} catch (e) {
-			if (dev) add_toast('Gemini Live: ' + (e instanceof Error ? e.message : String(e)));
+			console.error('[gemini-live] setup error', e);
+			if (e instanceof DOMException && e.name === 'NotFoundError') {
+				try {
+					const devices = await navigator.mediaDevices.enumerateDevices();
+					const audio_inputs = devices.filter(d => d.kind === 'audioinput');
+					console.warn(`[gemini-live] audio devices: ${audio_inputs.length} found`, audio_inputs.map(d => ({ label: d.label, id: d.deviceId.slice(0, 16), group: d.groupId.slice(0, 16) })));
+					add_toast(audio_inputs.length === 0
+						? 'No microphone detected. Plug one in, then refresh the page.'
+						: `Mic found (${audio_inputs.length} device(s)) but couldn\'t access it. It may be in use by another app.`);
+				} catch {
+					add_toast('No microphone found. Connect a mic and refresh.');
+				}
+			} else {
+				add_toast('Voice setup error: ' + (e instanceof Error ? e.message : String(e)));
+			}
 			cleanup_gemini_live();
 		}
 	}
 
 	function gemini_process_audio(e: AudioProcessingEvent) {
 		const s = gemini_live_session;
-		if (!s) return;
+		if (!s || !recording) return;
 		const input = e.inputBuffer.getChannelData(0);
 		const nativeRate = gemini_live_audio_ctx?.sampleRate || 48000;
 		const targetRate = 16000;
@@ -940,15 +1087,36 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 		} catch {}
 	}
 
+	function play_next_audio() {
+		if (!gemini_live_audio_ctx || gemini_live_audio_playing || gemini_live_audio_queue.length === 0) return;
+		gemini_live_audio_playing = true;
+		const buffer = gemini_live_audio_queue[0];
+		gemini_live_audio_queue = gemini_live_audio_queue.slice(1);
+		const source = gemini_live_audio_ctx.createBufferSource();
+		source.buffer = buffer;
+		source.connect(gemini_live_audio_ctx.destination);
+		source.onended = () => {
+			gemini_live_audio_playing = false;
+			play_next_audio();
+		};
+		source.start();
+	}
+
 	function gemini_live_handle(msg: any) {
 		if (msg.toolCall?.functionCalls?.length) {
+			console.log(`[gemini-live] received ${msg.toolCall.functionCalls.length} tool call(s)`, msg.toolCall.functionCalls.map((f: any) => f.name).join(', '));
 			for (const fc of msg.toolCall.functionCalls) {
+				console.log(`[gemini-live] dispatching tool: "${fc.name}" id=${fc.id ?? 'none'}`);
 				dispatch_tool_call(fc).then((r) => {
+					console.log(`[gemini-live] tool response for "${fc.name}":`, JSON.stringify(r).slice(0, 300));
 					gemini_live_session?.sendToolResponse({ functionResponses: [r] } as any);
+				}).catch((err) => {
+					console.error(`[gemini-live] dispatch_tool_call ERROR for "${fc.name}":`, err);
 				});
 			}
 		}
 		if (msg.serverContent?.modelTurn?.parts) {
+			console.log(`[gemini-live] modelTurn with ${msg.serverContent.modelTurn.parts.length} parts`);
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
 					try {
@@ -961,13 +1129,15 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 						if (!gemini_live_audio_ctx) return;
 						const buffer = gemini_live_audio_ctx.createBuffer(1, float32.length, 24000);
 						buffer.getChannelData(0).set(float32);
-						const source = gemini_live_audio_ctx.createBufferSource();
-						source.buffer = buffer;
-						source.connect(gemini_live_audio_ctx.destination);
-						source.start();
+						gemini_live_audio_queue = [...gemini_live_audio_queue, buffer];
+						play_next_audio();
 					} catch {}
 				}
 			}
+		}
+		if (msg.serverContent?.interrupted) {
+			gemini_live_audio_queue = [];
+			gemini_live_audio_playing = false;
 		}
 	}
 
@@ -1344,6 +1514,42 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 						Get your Groq API key @
 						<a class="text-primary underline-offset-2 hover:underline" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">https://console.groq.com/keys</a>
 					</p>
+				</section>
+				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
+					<h3 class="text-sm font-medium text-ink" id="voice-label">Gemini Live voice</h3>
+					<button
+						type="button"
+						class="flex min-h-[40px] w-full items-center justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-left text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+						role="combobox"
+						aria-labelledby="voice-label"
+						aria-haspopup="listbox"
+						aria-controls="voice-listbox"
+						aria-expanded={show_voice_menu}
+						onclick={() => show_voice_menu = !show_voice_menu}
+						onkeydown={(e) => { if (e.key === 'Escape') show_voice_menu = false; }}
+					>
+						<span>
+							<span class="block font-medium">{voice_options.find((o) => o.v === voice_name)?.l ?? voice_name}</span>
+							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{(voice_options.find((o) => o.v === voice_name)?.d) ?? ''}</span>
+						</span>
+						<span class="text-primary">⌄</span>
+					</button>
+					{#if show_voice_menu}
+						<div id="voice-listbox" class="absolute left-4 right-4 top-[calc(100%-10px)] z-10 max-h-60 overflow-y-auto rounded-lg border border-hairline bg-canvas shadow-[0_16px_48px_rgba(20,20,19,0.16)]" role="listbox" aria-labelledby="voice-label">
+							{#each voice_options as option (option.v)}
+								<button
+									type="button"
+									class={option.v === voice_name ? 'grid w-full gap-0.5 bg-surface-soft px-3.5 py-2.5 text-left text-sm text-ink' : 'grid w-full gap-0.5 px-3.5 py-2.5 text-left text-sm text-muted hover:bg-surface-soft hover:text-ink'}
+									role="option"
+									aria-selected={option.v === voice_name}
+									onclick={() => { voice_name = option.v; show_voice_menu = false; }}
+								>
+									<span class="font-medium">{option.l}</span>
+									<span class="text-xs text-muted">{option.d}</span>
+								</button>
+							{/each}
+						</div>
+					{/if}
 				</section>
 				<section class="rounded-lg border border-hairline bg-canvas p-4">
 					<label class="flex cursor-pointer items-center justify-between gap-4">

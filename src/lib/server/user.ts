@@ -23,7 +23,7 @@ export async function save_user(
 	name: string,
 	picture?: string,
 	email?: string,
-	affiliate_code?: string
+	// affiliate_code?: string
 ): Promise<void> {
 	const u: User = {
 		s: 'u',

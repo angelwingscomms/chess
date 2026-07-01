@@ -16,9 +16,13 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('BYNARA_KEY');
 		expect(route).toContain("baseURL: 'https://router.bynara.id/v1'");
 		expect(route).toContain('streamText');
-		expect(route).toContain('textStream');
+		expect(route).toContain('fullStream');
 		expect(route).toContain("event('text'");
-		expect(route).toContain('system: sys');
+		expect(route).toContain("event('board'");
+		expect(route).toContain('stepCountIs');
+		expect(route).toContain('set_puzzle_fen');
+		expect(route).toContain("$lib/util/chat/tools/set_puzzle_fen");
+		expect(route).toContain("system: sys");
 		expect(route).toContain("m.startsWith('bynara/')");
 	});
 
@@ -39,7 +43,8 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('last_user_move:');
 		expect(route).toContain('last_ai_move:');
 		expect(route).toContain('hint:');
-		expect(route).toContain('CRITICAL: You are not a teacher');
+		expect(route).toContain("const sys_i = messages.findIndex((msg) => msg.r === 'system')");
+		expect(route).not.toContain('CRITICAL: You are not a teacher');
 		expect(route).not.toContain('Position (FEN)');
 	});
 });
