@@ -62,10 +62,23 @@ Ask naturally, like a real coach:
 
 No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`;
 
+const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend.
+
+You are a chess coach helping the user win. Your job: find the best move and explain why it's best in concrete terms — what it threatens, what it prevents, what weakness it exploits.
+
+You have analysis tools — never mention them, you just know. Never mention engines or scores.
+
+When the player makes a move: tell them the best move in the position and explain why. Compare their move to the best move when there's a meaningful difference.
+
+When the player asks about a position: tell them the strongest continuation and the idea behind it. Be specific about squares and pieces.
+
+No formal wrap-ups. Just end naturally.`;
+
 	let { sys = default_sys, r: r_init = false } = $props();
 	let r = $state(r_init);
 
-	let current_sys = $derived(r ? train_sys : sys);
+	let vibe = $state<'socratic' | 'assistant'>('socratic');
+	let current_sys = $derived(r ? (vibe === 'assistant' ? assistant_sys : train_sys) : sys);
 
 	let level = $state(3);
 	let turn = $state<Color>('w');
@@ -149,7 +162,7 @@ No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`
 		if (bg_eval_ac) { bg_eval_ac.abort(); bg_eval_ac = null; }
 		const ac = new AbortController();
 		bg_eval_ac = ac;
-		get_training_eval(fen, last_user_move, Math.round(computer_think_time * 1000)).then(data => {
+		get_training_eval(fen, '', Math.round(computer_think_time * 1000)).then(data => {
 			if (ac.signal.aborted) return;
 			if (data) { cached_eval_data = data; cached_eval_fen = fen; }
 			if (bg_eval_ac === ac) bg_eval_ac = null;
@@ -230,6 +243,7 @@ let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '')
 	let start_hint_done = $state(false);
 	let show_settings = $state(false);
 	let show_model_menu = $state(false);
+	let show_vibe_menu = $state(false);
 	let show_token_modal = $state(false);
 
 	let total_p = $state(0);
@@ -955,7 +969,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			init_tool_state({
 				get_fen: () => fen,
 				run_eval: async (f, u) => {
-				if (f === cached_eval_fen && cached_eval_data) return cached_eval_data;
+				if (!u && f === cached_eval_fen && cached_eval_data) return cached_eval_data;
 				return get_training_eval(f, u, 300);
 			},
 				get_board_state: () => ({
@@ -989,10 +1003,11 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					pushState('', { fen: f });
 					start_background_eval();
 				},
-				make_move: (uci) => {
-					if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
-					if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
-					if (!r && turn === 'b') return { valid: false, uci, error: 'Can only move your pieces in this mode.' };
+			make_move: (uci, confirmed) => {
+				if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
+				if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
+				if (!r && turn === 'b') return { valid: false, uci, error: 'Can only move your pieces in this mode.' };
+				if (r && turn === orientation && !confirmed) return { valid: false, uci, error: 'pending_confirmation' };
 					try {
 						const from = uci.slice(0, 2);
 						const to = uci.slice(2, 4);
@@ -1059,7 +1074,9 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			const sys = `${current_sys}
 Your name is ${voice_name}.
 
-Board position and turn signals arrive via real-time text alongside audio. When you receive your_turn:true in train mode, use evaluate_position then make a move with move_piece. In play mode, only move when asked by the user.`;
+Board position and turn signals arrive via real-time text alongside audio. When you receive your_turn:true in train mode, use evaluate_position then make a move with move_piece. Do not speak before making your move — only after you have played your opponent's move may you briefly comment on the position. In play mode, only move when asked by the user.
+
+IMPORTANT — In train mode, when it's the user's turn, never call move_piece without asking for confirmation first. If move_piece returns pending_confirmation, ask the user if they want to play that move, then retry with confirmed:true. You may always move the opponent's pieces freely.`;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
@@ -1648,6 +1665,50 @@ Board position and turn signals arrive via real-time text alongside audio. When 
 							<span class={hint_on_start ? 'size-3 rounded-full bg-primary' : 'size-3 rounded-full bg-transparent'}></span>
 						</span>
 					</label>
+				</section>
+				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
+					<h3 class="text-sm font-medium text-ink" id="vibe-label">Coach style</h3>
+					<button
+						type="button"
+						class="flex min-h-[40px] w-full items-center justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-left text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+						role="combobox"
+						aria-labelledby="vibe-label"
+						aria-haspopup="listbox"
+						aria-controls="vibe-listbox"
+						aria-expanded={show_vibe_menu}
+						onclick={() => show_vibe_menu = !show_vibe_menu}
+						onkeydown={(e) => { if (e.key === 'Escape') show_vibe_menu = false; }}
+					>
+						<span>
+							<span class="block font-medium">{vibe === 'socratic' ? 'Socratic' : 'Assistant'}</span>
+							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{vibe === 'socratic' ? 'Questions guide your learning' : 'Best move and why'}</span>
+						</span>
+						<span class="text-primary">⌄</span>
+					</button>
+					{#if show_vibe_menu}
+						<div id="vibe-listbox" class="absolute left-4 right-4 top-[calc(100%-10px)] z-10 overflow-hidden rounded-lg border border-hairline bg-canvas shadow-[0_16px_48px_rgba(20,20,19,0.16)]" role="listbox" aria-labelledby="vibe-label">
+							<button
+								type="button"
+								class={vibe === 'socratic' ? 'grid w-full gap-0.5 bg-surface-soft px-3.5 py-2.5 text-left text-sm text-ink' : 'grid w-full gap-0.5 px-3.5 py-2.5 text-left text-sm text-muted hover:bg-surface-soft hover:text-ink'}
+								role="option"
+								aria-selected={vibe === 'socratic'}
+								onclick={() => { vibe = 'socratic'; show_vibe_menu = false; }}
+							>
+								<span class="font-medium">Socratic</span>
+								<span class="text-xs text-muted">Questions guide your learning</span>
+							</button>
+							<button
+								type="button"
+								class={vibe === 'assistant' ? 'grid w-full gap-0.5 bg-surface-soft px-3.5 py-2.5 text-left text-sm text-ink' : 'grid w-full gap-0.5 px-3.5 py-2.5 text-left text-sm text-muted hover:bg-surface-soft hover:text-ink'}
+								role="option"
+								aria-selected={vibe === 'assistant'}
+								onclick={() => { vibe = 'assistant'; show_vibe_menu = false; }}
+							>
+								<span class="font-medium">Assistant</span>
+								<span class="text-xs text-muted">Best move and why</span>
+							</button>
+						</div>
+					{/if}
 				</section>
 			</div>
 			<div class="shrink-0 grid grid-cols-2 gap-3 border-t border-hairline bg-surface-soft px-6 py-4">

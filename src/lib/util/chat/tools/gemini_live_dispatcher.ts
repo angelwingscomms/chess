@@ -32,7 +32,7 @@ type ToolState = {
 	run_eval: (fen: string, user_move_san: string) => Promise<string>;
 	set_fen: (fen: string) => void;
 	get_board_state: () => BoardState;
-	make_move: (uci: string) => MoveResult;
+	make_move: (uci: string, confirmed?: boolean) => MoveResult;
 	undo_move: () => { valid: boolean; error?: string };
 	redo_move: () => { valid: boolean; error?: string };
 	reset_board: () => { valid: boolean; error?: string };
@@ -91,11 +91,12 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'move_piece',
-				description: 'Make a chess move on the board using UCI notation (e.g. "e2e4", "g1f3", "d7d8q" for promotion). The move is validated for legality. In train mode you can move pieces for both sides; in normal mode you can only move the user\'s pieces. Call this multiple times in sequence to show a full variation with alternating moves. Use this when the user asks to play a move, or when you want to demonstrate a line on the board.',
+				description: 'Make a chess move on the board using UCI notation (e.g. "e2e4", "g1f3", "d7d8q" for promotion). The move is validated for legality. In train mode you can move pieces for both sides; in normal mode you can only move the user\'s pieces. Call this multiple times in sequence to show a full variation with alternating moves. Use this when the user asks to play a move, or when you want to demonstrate a line on the board. IMPORTANT: In train mode, when moving the user\'s pieces (it\'s their turn), you must first ask for confirmation. If the move is rejected with pending_confirmation, ask the user if they want to play it, then retry with confirmed:true.',
 				parameters: {
 					type: 'OBJECT',
 					properties: {
 						uci: { type: 'STRING', description: 'The UCI move string: 4 characters for from/to squares, optional 5th for promotion piece (q/r/b/n). Examples: "e2e4" (pawn), "g1f3" (knight), "e7e8q" (promotion to queen).' },
+						confirmed: { type: 'BOOLEAN', description: 'In train mode, set to true only after asking the user and receiving explicit verbal confirmation to play this move. Not needed when moving the opponent\'s pieces.' },
 					},
 					required: ['uci'],
 				},
@@ -248,7 +249,8 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 				log('move_piece FAILED — make_move callback not available');
 				return { id: fc.id, name, response: { valid: false, uci, error: 'Move execution not available.' } };
 			}
-			const r = state.make_move(uci);
+			const confirmed = args.confirmed === true;
+			const r = state.make_move(uci, confirmed);
 			log(`move_piece: uci=${uci} valid=${r.valid} san=${r.san ?? '?'} fen=${(r.fen ?? '').slice(0, 40)}`);
 			return { id: fc.id, name, response: r };
 		}
