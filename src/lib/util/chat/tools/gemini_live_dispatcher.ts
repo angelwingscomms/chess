@@ -33,7 +33,10 @@ type ToolState = {
 	set_fen: (fen: string) => void;
 	get_board_state: () => BoardState;
 	make_move: (uci: string) => MoveResult;
-	toggle_voice_show: (active: boolean) => { active: boolean };
+	undo_move: () => { valid: boolean; error?: string };
+	redo_move: () => { valid: boolean; error?: string };
+	reset_board: () => { valid: boolean; error?: string };
+	toggle_train_mode: () => { train_mode: boolean };
 };
 
 let state: ToolState | null = null;
@@ -88,7 +91,7 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'move_piece',
-				description: 'Make a chess move on the board using UCI notation (e.g. "e2e4", "g1f3", "d7d8q" for promotion). The move is validated for legality. You can move any piece for either side — the tool automatically plays whichever side is to move. Call this multiple times in sequence to show a full variation with alternating moves. Use this when the user asks to play a move, or when you want to demonstrate a line on the board.',
+				description: 'Make a chess move on the board using UCI notation (e.g. "e2e4", "g1f3", "d7d8q" for promotion). The move is validated for legality. In train mode you can move pieces for both sides; in normal mode you can only move the user\'s pieces. Call this multiple times in sequence to show a full variation with alternating moves. Use this when the user asks to play a move, or when you want to demonstrate a line on the board.',
 				parameters: {
 					type: 'OBJECT',
 					properties: {
@@ -98,15 +101,24 @@ export function get_tool_declarations() {
 				},
 			},
 			{
-				name: 'toggle_voice_show',
-				description: 'Toggle "voice show" mode so you can move pieces for both sides. ONLY activate this when you need to move the opponent\'s pieces (e.g. demonstrating a variation, showing alternative lines, responding to "what if" questions). If you only need to move the user\'s pieces, just use move_piece directly. When done showing the variation, ALWAYS toggle voice show back off so the engine can resume normally, then call get_board_state to refresh your view of the board — the engine may have already responded to the last move.',
-				parameters: {
-					type: 'OBJECT',
-					properties: {
-						active: { type: 'BOOLEAN', description: 'Set to true to enable voice show mode, false to disable it.' },
-					},
-					required: ['active'],
-				},
+				name: 'undo_move',
+				description: 'Undo the last move (or last pair of moves). Use this when the user asks to take back a move.',
+				parameters: { type: 'OBJECT', properties: {} },
+			},
+			{
+				name: 'redo_move',
+				description: 'Redo a previously undone move. Only works if an undo was performed. Use this when the user asks to redo a move they took back.',
+				parameters: { type: 'OBJECT', properties: {} },
+			},
+			{
+				name: 'reset_board',
+				description: 'Reset the chess board to the starting position. Clears all move history and starts a new game. Use this when the user asks to start a new game or reset the board.',
+				parameters: { type: 'OBJECT', properties: {} },
+			},
+			{
+				name: 'toggle_train_mode',
+				description: 'Toggle train mode on/off. In train mode you can move pieces for both sides and act as the opponent. In normal mode the engine plays the opponent and you can only move the user\'s pieces. Use this when you need to demonstrate a variation that requires moving the opponent\'s pieces in normal mode, or when the user asks to switch modes. Always announce the mode change to the user.',
+				parameters: { type: 'OBJECT', properties: {} },
 			},
 		],
 	}];
@@ -225,19 +237,44 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			return { id: fc.id, name, response: r };
 		}
 
-		case 'toggle_voice_show': {
-			const active = args.active as boolean;
-			if (typeof active !== 'boolean') {
-				log(`toggle_voice_show invalid arg: ${JSON.stringify(args.active)}`);
-				return { id: fc.id, name, response: { error: 'Expected boolean "active" parameter.' } };
+		case 'undo_move': {
+			if (!state?.undo_move) {
+				log('undo_move FAILED — callback not available');
+				return { id: fc.id, name, response: { valid: false, error: 'Undo not available.' } };
 			}
-			if (!state?.toggle_voice_show) {
-				log('toggle_voice_show FAILED — callback not available');
-				return { id: fc.id, name, response: { error: 'Voice show toggle not available.' } };
+			const ur = state.undo_move();
+			log(`undo_move: valid=${ur.valid}`);
+			return { id: fc.id, name, response: ur };
+		}
+
+		case 'redo_move': {
+			if (!state?.redo_move) {
+				log('redo_move FAILED — callback not available');
+				return { id: fc.id, name, response: { valid: false, error: 'Redo not available.' } };
 			}
-			const r = state.toggle_voice_show(active);
-			log(`toggle_voice_show: active=${r.active}`);
-			return { id: fc.id, name, response: r };
+			const rr = state.redo_move();
+			log(`redo_move: valid=${rr.valid}`);
+			return { id: fc.id, name, response: rr };
+		}
+
+		case 'reset_board': {
+			if (!state?.reset_board) {
+				log('reset_board FAILED — callback not available');
+				return { id: fc.id, name, response: { valid: false, error: 'Reset not available.' } };
+			}
+			state.reset_board();
+			log('reset_board: done');
+			return { id: fc.id, name, response: { valid: true } };
+		}
+
+		case 'toggle_train_mode': {
+			if (!state?.toggle_train_mode) {
+				log('toggle_train_mode FAILED — callback not available');
+				return { id: fc.id, name, response: { train_mode: false, error: 'Toggle not available.' } };
+			}
+			const tr = state.toggle_train_mode();
+			log(`toggle_train_mode: train_mode=${tr.train_mode}`);
+			return { id: fc.id, name, response: tr };
 		}
 
 		default:

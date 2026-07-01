@@ -20,6 +20,7 @@
 	import RedoIcon from '$lib/components/icons/redo-icon.svelte';
 	import RefreshIcon from '$lib/components/icons/refresh-icon.svelte';
 	import UndoIcon from '$lib/components/icons/undo-icon.svelte';
+	import FlipIcon from '$lib/components/icons/flip-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
@@ -60,7 +61,8 @@ Ask naturally, like a real coach:
 
 No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`;
 
-	let { sys = default_sys, r = false } = $props();
+	let { sys = default_sys, r: r_init = false } = $props();
+	let r = $state(r_init);
 
 	let current_sys = $derived(r ? train_sys : sys);
 
@@ -233,6 +235,7 @@ let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '')
 	let gemini_live_processor: ScriptProcessorNode | null = null;
 	let gemini_live_audio_queue: AudioBuffer[] = [];
 	let gemini_live_audio_playing = false;
+	let pending_board_context: string | null = null;
 	let toasts = $state<{ id: number; msg: string }[]>([]);
 	let toast_id = $state(0);
 	function add_toast(msg: string) {
@@ -364,6 +367,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		if (gemini_live_audio_ctx) { gemini_live_audio_ctx.close(); gemini_live_audio_ctx = null; }
 		gemini_live_audio_queue = [];
 		gemini_live_audio_playing = false;
+		pending_board_context = null;
 		recording = false;
 	}
 
@@ -436,7 +440,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 	function buildEngine() {
 		const mt = Math.round(computer_think_time * 1000);
-		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: 'b' });
+		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: r ? 'none' : 'b' });
 	}
 
 	let engine = $derived.by(() => buildEngine());
@@ -653,8 +657,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 		if (gemini_live_session && recording) {
 			const last = history[history.length - 1] ?? '';
-			const c = `[board_context]\nfen:${fen}\nlast_move:${last}\nturn:${turn}\n[/board_context]`;
-			try { gemini_live_session.sendRealtimeInput({ text: c }); } catch {}
+			pending_board_context = `fen:${fen} last_move:${last} turn:${turn}`;
 		}
 	}
 
@@ -706,6 +709,17 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		chessRef.load(f);
 		sync_chat_moves();
 		hideHints(true);
+	}
+
+	function flipColor() {
+		if (!chessRef) return;
+		chessRef.toggleOrientation();
+		const cur = engine?.getColor();
+		if (cur && cur !== 'none') {
+			const new_color = cur === 'b' ? 'w' : 'b';
+			engine.setColor(new_color);
+			if (new_color === turn) chessRef.playEngineMove();
+		}
 	}
 
 	function go_back_board() {
@@ -958,6 +972,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				make_move: (uci) => {
 					if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
 					if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
+					if (!r && turn === 'b') return { valid: false, uci, error: 'Can only move your pieces in this mode.' };
 					try {
 						const from = uci.slice(0, 2);
 						const to = uci.slice(2, 4);
@@ -976,15 +991,28 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 						return { valid: false, uci, error: e instanceof Error ? e.message : 'Illegal move.' };
 					}
 				},
-				toggle_voice_show: (active) => {
-					if (!engine) return { active: false };
-					if (active) {
+				undo_move: () => {
+					if (!chessRef || moveNum === 0) return { valid: false, error: 'No moves to undo.' };
+					undoMove();
+					return { valid: true };
+				},
+				redo_move: () => {
+					if (!chessRef || !redo_stack.length) return { valid: false, error: 'No moves to redo.' };
+					redoMove();
+					return { valid: true };
+				},
+				reset_board: () => {
+					if (!chessRef) return { valid: false, error: 'Board not initialized.' };
+					resetGame();
+					return { valid: true };
+				},
+				toggle_train_mode: () => {
+					r = !r;
+					if (engine) {
 						if (engine.isSearching()) engine.stopSearch();
-						engine.setColor('none');
-					} else {
-						engine.setColor('b');
+						engine.setColor(r ? 'none' : 'b');
 					}
-					return { active };
+					return { train_mode: r };
 				},
 			});
 
@@ -1016,9 +1044,7 @@ fen: ${ctx.f}
 move_history: ${ctx.p || 'none'}
 last_user_move: ${ctx.u || 'none'}
 last_ai_move: ${ctx.a || 'none'}
-${ctx.e ? `evaluation: ${ctx.e}` : ''}
-
-[board_context] tags contain silent board state updates sent by the system so you always know the current position. They are not user speech. Never read them aloud or respond to them. Silently update your knowledge of the board.`;
+${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
@@ -1070,6 +1096,10 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}
 	function gemini_process_audio(e: AudioProcessingEvent) {
 		const s = gemini_live_session;
 		if (!s || !recording) return;
+		if (pending_board_context) {
+			try { s.sendRealtimeInput({ text: pending_board_context }); } catch {}
+			pending_board_context = null;
+		}
 		const input = e.inputBuffer.getChannelData(0);
 		const nativeRate = gemini_live_audio_ctx?.sampleRate || 48000;
 		const targetRate = 16000;
@@ -1297,48 +1327,54 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}
 					{#if !ready}
 						<span class="mr-1 text-[11px] font-medium text-amber animate-pulse">Loading...</span>
 					{/if}
-					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={resetGame} disabled={!ready} aria-label="New game">
+					<button title="New game" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={resetGame} disabled={!ready}>
 						<RefreshIcon size={15} strokeWidth={1.8} />
 					</button>
-					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={undoMove} disabled={!ready || moveNum === 0 || gameOver} aria-label="Undo move">
+					<button title="Undo move" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={undoMove} disabled={!ready || moveNum === 0 || gameOver}>
 						<UndoIcon size={15} strokeWidth={1.8} />
 					</button>
-					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={redoMove} disabled={!ready || !redo_stack.length} aria-label="Redo move">
+					<button title="Redo move" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={redoMove} disabled={!ready || !redo_stack.length}>
 						<RedoIcon size={15} strokeWidth={1.8} />
 					</button>
+					<button title="Flip board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => chessRef?.toggleOrientation()}>
+						<span style="display:inline-flex;transform:scaleX(-1)"><FlipIcon size={15} strokeWidth={1.8} /></span>
+					</button>
+					<button title="Switch sides" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={flipColor}>
+						<FlipIcon size={15} strokeWidth={1.8} />
+					</button>
 					{#if show_hints}
-						<button class="grid size-8 place-items-center rounded-full bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-label="Hide hints" aria-busy={hint_loading}>
+						<button title="Hide hints" class="grid size-8 place-items-center rounded-full bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-busy={hint_loading}>
 							<BulbIcon size={15} strokeWidth={1.8} />
 						</button>
 					{:else}
-						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={showHint} disabled={!ready || gameOver || hint_loading} aria-label="Show hint">
+						<button title="Show hint" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={showHint} disabled={!ready || gameOver || hint_loading}>
 							<BulbIcon size={15} strokeWidth={1.8} />
 						</button>
 					{/if}
 					<span class="ml-auto flex items-center gap-1.5">
-						<button class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={() => show_token_modal = true} aria-label="Token usage">
+						<button title="Token usage" class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={() => show_token_modal = true}>
 							<InfoIcon size={13} strokeWidth={1.8} />
 						</button>
 						{#if chat_messages.length > 0}
-							<button class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat} aria-label="Clear chat">
+							<button title="Clear chat" class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={clearChat}>
 								<XIcon size={13} strokeWidth={1.8} />
 							</button>
 						{/if}
-						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true} aria-label="Settings">
+						<button title="Settings" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => show_settings = true}>
 							<GearIcon size={15} strokeWidth={1.8} />
 						</button>
 					</span>
 				</div>
 				<div class="flex items-center gap-1.5">
-					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={go_back_board} disabled={board_history_idx <= 0} aria-label="Previous board">
+					<button title="Previous board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={go_back_board} disabled={board_history_idx <= 0}>
 						<ArrowLeftIcon size={15} strokeWidth={1.8} />
 					</button>
-					<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={go_forward_board} disabled={board_history_idx >= board_history.length - 1} aria-label="Next board">
+					<button title="Next board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={go_forward_board} disabled={board_history_idx >= board_history.length - 1}>
 						<ArrowRightIcon size={15} strokeWidth={1.8} />
 					</button>
 					{#if show_hints && !hint_loading && hints.length > 0}
 						<span class="ml-2 rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{uciToSan(fen, hints[hint_index].move)}</span>
-						<button class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint} aria-label="Explain hint">
+						<button title="Explain hint" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint}>
 							<span class="text-[11px]">?</span>
 						</button>
 					{/if}
@@ -1368,21 +1404,20 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}
 							<div class="flex justify-end">
 								<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm leading-relaxed flex items-center gap-2">
 									<span>{q_msg.text}</span>
-									<button onclick={() => promoteFromQueue(i)} class="shrink-0 grid place-items-center" aria-label="Send this message now">
+									<button title="Send this message now" onclick={() => promoteFromQueue(i)} class="shrink-0 grid place-items-center">
 										<ArrowUpIcon size={12} strokeWidth={2} />
 									</button>
-									<button onclick={() => removeFromQueue(i)} class="shrink-0 grid place-items-center" aria-label="Remove queued message">
+									<button title="Remove queued message" onclick={() => removeFromQueue(i)} class="shrink-0 grid place-items-center">
 										<XIcon size={12} strokeWidth={2} />
 									</button>
 								</div>
 							</div>
 						{/each}
 						{#if sel_text && sel_pos}
-							<button
+							<button title="Append selected text to message"
 								onclick={append_selection}
 								style="left:{sel_pos.x}px;top:{sel_pos.y}px"
 								class="absolute z-50 -translate-x-1/2 -translate-y-full grid size-6 place-items-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-110 active:scale-95"
-								aria-label="Append selected text to message"
 							>
 								<PlusIcon size={14} strokeWidth={2.5} />
 							</button>
@@ -1405,19 +1440,17 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}
 							placeholder="Ask about the position..."
 							class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"
 						></textarea>
-						<button
+						<button title={recording ? 'Stop recording' : 'Voice input'}
 							onclick={toggleGeminiLive}
 							disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
 							class={'grid size-[40px] shrink-0 place-items-center rounded-lg border !px-0 !min-h-[40px] transition-colors shrink-0 ' + (recording ? 'border-red-400 bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'border-hairline bg-canvas text-ink hover:border-primary/40')}
-							aria-label={recording ? 'Stop recording' : 'Voice input'}
 						>
 							<MicIcon size={16} strokeWidth={1.8} />
 						</button>
-						<button
+						<button title="Send"
 							onclick={() => sendChatMessage(chat_input)}
 							disabled={!chat_loading && !chat_input.trim()}
 							class="button-primary !border-0 !px-3 !min-h-[40px] !rounded-lg shrink-0"
-							aria-label="Send"
 						>→</button>
 					</div>
 				</div>
