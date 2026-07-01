@@ -16,6 +16,7 @@
 	import GearIcon from '$lib/components/icons/gear-icon.svelte';
 	import InfoIcon from '$lib/components/icons/info-icon.svelte';
 	import MicIcon from '$lib/components/icons/mic-icon.svelte';
+	import MicMuteIcon from '$lib/components/icons/mic-mute-icon.svelte';
 	import PlusIcon from '$lib/components/icons/plus-icon.svelte';
 	import RedoIcon from '$lib/components/icons/redo-icon.svelte';
 	import RefreshIcon from '$lib/components/icons/refresh-icon.svelte';
@@ -28,8 +29,8 @@
 	import { NGN_USD } from '$lib/util/rates';
 	import { init_tool_state, get_tool_declarations, dispatch_tool_call } from '$lib/util/chat/tools/gemini_live_dispatcher';
 
-	type ChatContext = { f: string; p: string; u: string; a: string; e?: string };
-	type ChatData = Partial<ChatContext> & { h?: string };
+	type ChatContext = { f: string; p: string; u: string; a: string; };
+	type ChatData = { f?: string; p?: string; u?: string; a?: string; h?: string; e?: string };
 	type ChatUsage = { p: number; c: number; cost: number };
 	type ChatMsg = { role: 'system' | 'user' | 'assistant'; content: string; d?: ChatData; u?: ChatUsage };
 
@@ -91,16 +92,15 @@ No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`
 	let chat_loading = $state(false);
 	let chat_abort = $state<AbortController | null>(null);
 	let chat_input = $state('');
-	let chat_queue = $state<{ text: string; hint?: string; voice?: boolean; eval?: string }[]>([]);
-	let last_eval = $state<string>('');
+	let chat_queue = $state<{ text: string; hint?: string; voice?: boolean }[]>([]);
 
-	function get_training_eval(fen_str: string, user_move_san: string): Promise<string> {
+	function get_training_eval(fen_str: string, user_move_san: string, move_time_ms = 3000): Promise<string> {
 		const log = (msg: string) => console.log(`[eval] ${msg}`);
 		log(`get_training_eval fen=${fen_str.slice(0, 50)} user_move="${user_move_san}"`);
 		return new Promise((res) => {
 			const ac = new AbortController();
 			const timeout = setTimeout(() => { log('TIMEOUT after 10000ms — aborting'); ac.abort(); res(''); }, 10000);
-			analyzePosition(fen_str, 3, undefined, ac.signal, 3000).then((er) => {
+			analyzePosition(fen_str, 3, undefined, ac.signal, move_time_ms).then((er) => {
 				clearTimeout(timeout);
 				log(`analyzePosition done: best_move=${er.best_move} score=${er.best_score} depth=${er.best_depth} multi_pv_lines=${(er.multi_pv ?? []).length}`);
 				if (!er.best_move) {
@@ -135,14 +135,26 @@ No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`
 					log('no user_move_san provided — storing eval without user analysis');
 				}
 				const json = JSON.stringify(data);
-				last_eval = json;
-				log(`stored last_eval (${json.length} chars)`);
 				res(json);
 			}).catch((err) => {
 				clearTimeout(timeout);
 				log(`analyzePosition REJECTED: ${err instanceof Error ? err.message : String(err)}`);
 				res('');
 			});
+		});
+	}
+	function start_background_eval() {
+		if (!browser || !r) return;
+		if (fen === cached_eval_fen && cached_eval_data) return;
+		if (bg_eval_ac) { bg_eval_ac.abort(); bg_eval_ac = null; }
+		const ac = new AbortController();
+		bg_eval_ac = ac;
+		get_training_eval(fen, last_user_move, Math.round(computer_think_time * 1000)).then(data => {
+			if (ac.signal.aborted) return;
+			if (data) { cached_eval_data = data; cached_eval_fen = fen; }
+			if (bg_eval_ac === ac) bg_eval_ac = null;
+		}).catch(() => {
+			if (bg_eval_ac === ac) bg_eval_ac = null;
 		});
 	}
 	let interaction_id = $state('');
@@ -229,13 +241,17 @@ let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '')
 	let sel_text = $state('');
 	let sel_pos = $state<{ x: number; y: number } | null>(null);
 	let voice_tts = $state(false);
+	let voice_muted = $state(false);
 	let gemini_live_session: any = null;
 	let gemini_live_audio_ctx: AudioContext | null = null;
 	let gemini_live_mic_stream: MediaStream | null = null;
 	let gemini_live_processor: ScriptProcessorNode | null = null;
 	let gemini_live_audio_queue: AudioBuffer[] = [];
 	let gemini_live_audio_playing = false;
-	let pending_board_context: string | null = null;
+	let last_sent_fen = '';
+	let cached_eval_data = $state<string>('');
+	let cached_eval_fen = $state<string>('');
+	let bg_eval_ac: AbortController | null = null;
 	let toasts = $state<{ id: number; msg: string }[]>([]);
 	let toast_id = $state(0);
 	function add_toast(msg: string) {
@@ -367,7 +383,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		if (gemini_live_audio_ctx) { gemini_live_audio_ctx.close(); gemini_live_audio_ctx = null; }
 		gemini_live_audio_queue = [];
 		gemini_live_audio_playing = false;
-		pending_board_context = null;
+		last_sent_fen = '';
 		recording = false;
 	}
 
@@ -469,17 +485,17 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	}
 
 	function current_chat_context(): ChatContext {
-		return { f: fen, p: history.join(' '), u: last_user_move, a: last_ai_move, e: last_eval || undefined };
+		return { f: fen, p: history.join(' '), u: last_user_move, a: last_ai_move };
 	}
 
-	function build_chat_data(h = ''): ChatData {
+	function build_chat_data(h = '', eval_data?: string): ChatData {
 		const c = current_chat_context();
 		const d: ChatData = {};
 		if (c.f !== successful_context.f) d.f = c.f;
 		if (c.p && c.p !== successful_context.p) d.p = c.p;
 		if (c.u && c.u !== successful_context.u) d.u = c.u;
 		if (c.a && c.a !== successful_context.a) d.a = c.a;
-		if (c.e && c.e !== (successful_context as ChatContext).e) d.e = c.e;
+		if (eval_data) d.e = eval_data;
 		if (h) d.h = h;
 		return d;
 	}
@@ -650,21 +666,14 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		redo_stack = [];
 		hideHints(true);
 		if (m.color === 'b' && auto_hint) request_hint();
-		if (browser) {
-			if (gemini_live_session && recording) {
-				get_training_eval(fen, move_text(m));
-			} else if (r && m.color === 'w') {
-				get_training_eval(fen, move_text(m));
-			}
-		}
 		save_game_debounced();
 
-		if (gemini_live_session && recording) {
-			console.log(`[gemini-live] onMove pending${r ? '' : ' SKIPPED (not train mode)'} turn=${turn}`);
-			if (!r) return;
-			const last = history[history.length - 1] ?? '';
-			pending_board_context = `fen:${fen} last_move:${last} turn:${turn} train_mode:${r}`;
+		if (gemini_live_session && recording && r && m.color === 'w') {
+			gemini_live_session.sendRealtimeInput({
+				text: `fen:${fen} your_turn:true user_played:${last_user_move} train_mode:${r}`
+			});
 		}
+		start_background_eval();
 	}
 
 	function onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -689,6 +698,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		last_ai_move = '';
 		redo_stack = [];
 		clearChat();
+		start_background_eval();
 	}
 
 	function undoMove() {
@@ -707,6 +717,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		resultMsg = '';
 		sync_chat_moves();
 		hideHints(true);
+		start_background_eval();
 	}
 
 	function redoMove() {
@@ -715,6 +726,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		chessRef.load(f);
 		sync_chat_moves();
 		hideHints(true);
+		start_background_eval();
 	}
 
 	function flipColor() {
@@ -742,6 +754,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		last_user_move = '';
 		last_ai_move = '';
 		redo_stack = [];
+		start_background_eval();
 	}
 
 	function go_forward_board() {
@@ -758,6 +771,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		last_user_move = '';
 		last_ai_move = '';
 		redo_stack = [];
+		start_background_eval();
 	}
 
 	async function showHint() {
@@ -809,8 +823,8 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		}
 	}
 
-	async function send_chess_chat(user_msg: string, h = '', clear = false) {
-		const d = build_chat_data(h);
+	async function send_chess_chat(user_msg: string, h = '', clear = false, eval_data?: string) {
+		const d = build_chat_data(h, eval_data);
 		chat_messages = [...chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) chat_input = '';
 		await execute_chat();
@@ -938,13 +952,12 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			if (!key) throw Error('No API key available');
 			log('got API key');
 
-			log('triggering Stockfish eval for voice session...');
-			await get_training_eval(fen, last_user_move);
-			log(`post-eval: last_eval length=${last_eval.length}, has_eval=${!!last_eval}`);
-
 			init_tool_state({
 				get_fen: () => fen,
-				get_eval: () => last_eval,
+				run_eval: async (f, u) => {
+				if (f === cached_eval_fen && cached_eval_data) return cached_eval_data;
+				return get_training_eval(f, u, 300);
+			},
 				get_board_state: () => ({
 					fen,
 					turn,
@@ -974,6 +987,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					board_history = [...board_history.slice(0, board_history_idx + 1), f];
 					board_history_idx = board_history.length - 1;
 					pushState('', { fen: f });
+					start_background_eval();
 				},
 				make_move: (uci) => {
 					if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
@@ -1041,17 +1055,11 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			gemini_live_processor = processor;
 
 			const ctx = current_chat_context();
-			const has_eval_ctx = !!ctx.e;
-			log(`system prompt: fen=${ctx.f.slice(0, 40)} has_move_history=${!!ctx.p} has_eval=${has_eval_ctx} eval_preview=${has_eval_ctx ? ctx.e!.slice(0, 80) : 'none'}`);
+			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
 			const sys = `${current_sys}
 Your name is ${voice_name}.
 
-Current board state:
-fen: ${ctx.f}
-move_history: ${ctx.p || 'none'}
-last_user_move: ${ctx.u || 'none'}
-last_ai_move: ${ctx.a || 'none'}
-${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
+Board position and turn signals arrive via real-time text alongside audio. When you receive your_turn:true in train mode, use evaluate_position then make a move with move_piece. In play mode, only move when asked by the user.`;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
@@ -1102,12 +1110,7 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 
 	function gemini_process_audio(e: AudioProcessingEvent) {
 		const s = gemini_live_session;
-		if (!s || !recording) return;
-		if (pending_board_context) {
-			console.log(`[gemini-live] process_audio sending board context: ${pending_board_context.slice(0, 60)}`);
-			try { s.sendRealtimeInput({ text: pending_board_context }); } catch {}
-			pending_board_context = null;
-		}
+		if (!s || !recording || voice_muted) return;
 		const input = e.inputBuffer.getChannelData(0);
 		const nativeRate = gemini_live_audio_ctx?.sampleRate || 48000;
 		const targetRate = 16000;
@@ -1121,7 +1124,13 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 		let binary = '';
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
 		try {
-			s.sendRealtimeInput({ audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' } });
+			s.sendRealtimeInput({
+				audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
+				...(r && fen !== last_sent_fen ? {
+					text: `fen:${fen} train_mode:${r} game_over:${gameOver}`
+				} : {}),
+			});
+			if (r && fen !== last_sent_fen) last_sent_fen = fen;
 		} catch {}
 	}
 
@@ -1188,7 +1197,6 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 		total_p = 0;
 		total_c = 0;
 		total_cost = 0;
-		last_eval = '';
 		if (chat_abort) {
 			chat_abort.abort();
 			chat_abort = null;
@@ -1204,10 +1212,8 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 			chat_queue = [...chat_queue, { text: t }];
 			return;
 		}
-		if (r && !last_eval && browser) {
-			await get_training_eval(fen, last_user_move);
-		}
-		await send_chess_chat(t, '', true);
+		const eval_json = r && browser ? await get_training_eval(fen, last_user_move) : undefined;
+		await send_chess_chat(t, '', true, eval_json);
 	}
 
 	function handle_selection() {
@@ -1383,6 +1389,25 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; console.log(`[train-mode] toggled by UI → ${r}`); if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
 						T
 					</button>
+					<button title={recording ? 'Stop recording' : 'Voice input'}
+						onclick={toggleGeminiLive}
+						disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
+						class={'grid size-8 place-items-center rounded-full transition-colors ' + (recording ? 'bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'bg-canvas text-ink hover:text-primary disabled:text-muted')}
+					>
+						<MicIcon size={15} strokeWidth={1.8} />
+					</button>
+					{#if recording}
+					<button title={voice_muted ? 'Unmute mic' : 'Mute mic'}
+						onclick={() => voice_muted = !voice_muted}
+						class={'grid size-8 place-items-center rounded-full transition-colors ' + (voice_muted ? 'bg-red-500/10 text-red-400' : 'bg-canvas text-ink hover:text-primary')}
+					>
+						{#if voice_muted}
+							<MicMuteIcon size={15} strokeWidth={1.8} />
+						{:else}
+							<MicIcon size={15} strokeWidth={1.8} />
+						{/if}
+					</button>
+					{/if}
 					{#if show_hints && !hint_loading && hints.length > 0}
 						<span class="ml-2 rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{uciToSan(fen, hints[hint_index].move)}</span>
 						<button title="Explain hint" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={explainHint}>
@@ -1451,13 +1476,6 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 							placeholder="Ask about the position..."
 							class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"
 						></textarea>
-						<button title={recording ? 'Stop recording' : 'Voice input'}
-							onclick={toggleGeminiLive}
-							disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
-							class={'grid size-[40px] shrink-0 place-items-center rounded-lg border !px-0 !min-h-[40px] transition-colors shrink-0 ' + (recording ? 'border-red-400 bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'border-hairline bg-canvas text-ink hover:border-primary/40')}
-						>
-							<MicIcon size={16} strokeWidth={1.8} />
-						</button>
 						<button title="Send"
 							onclick={() => sendChatMessage(chat_input)}
 							disabled={!chat_loading && !chat_input.trim()}
