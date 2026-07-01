@@ -1351,6 +1351,9 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 							<BulbIcon size={15} strokeWidth={1.8} />
 						</button>
 					{/if}
+					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
+						T
+					</button>
 					<span class="ml-auto flex items-center gap-1.5">
 						<button title="Token usage" class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={() => show_token_modal = true}>
 							<InfoIcon size={13} strokeWidth={1.8} />
