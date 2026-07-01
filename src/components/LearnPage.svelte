@@ -1340,12 +1340,6 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 					<button title="Redo move" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={redoMove} disabled={!ready || !redo_stack.length}>
 						<RedoIcon size={15} strokeWidth={1.8} />
 					</button>
-					<button title="Flip board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => chessRef?.toggleOrientation()}>
-						<span style="display:inline-flex;transform:scaleX(-1)"><FlipIcon size={15} strokeWidth={1.8} /></span>
-					</button>
-					<button title="Switch sides" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={flipColor}>
-						<FlipIcon size={15} strokeWidth={1.8} />
-					</button>
 					{#if show_hints}
 						<button title="Hide hints" class="grid size-8 place-items-center rounded-full bg-primary text-white transition-colors disabled:bg-primary-disabled disabled:text-muted {hint_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => hideHints()} aria-busy={hint_loading}>
 							<BulbIcon size={15} strokeWidth={1.8} />
@@ -1355,9 +1349,6 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 							<BulbIcon size={15} strokeWidth={1.8} />
 						</button>
 					{/if}
-					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
-						T
-					</button>
 					<span class="ml-auto flex items-center gap-1.5">
 						<button title="Token usage" class="grid size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={() => show_token_modal = true}>
 							<InfoIcon size={13} strokeWidth={1.8} />
@@ -1378,6 +1369,15 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 					</button>
 					<button title="Next board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={go_forward_board} disabled={board_history_idx >= board_history.length - 1}>
 						<ArrowRightIcon size={15} strokeWidth={1.8} />
+					</button>
+					<button title="Flip board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => chessRef?.toggleOrientation()}>
+						<span style="display:inline-flex;transform:scaleX(-1)"><FlipIcon size={15} strokeWidth={1.8} /></span>
+					</button>
+					<button title="Switch sides" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={flipColor}>
+						<FlipIcon size={15} strokeWidth={1.8} />
+					</button>
+					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
+						T
 					</button>
 					{#if show_hints && !hint_loading && hints.length > 0}
 						<span class="ml-2 rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{uciToSan(fen, hints[hint_index].move)}</span>
