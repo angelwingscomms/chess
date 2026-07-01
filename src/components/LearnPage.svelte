@@ -650,8 +650,12 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		redo_stack = [];
 		hideHints(true);
 		if (m.color === 'b' && auto_hint) request_hint();
-		if (r && m.color === 'w' && browser) {
-			get_training_eval(fen, move_text(m));
+		if (browser) {
+			if (gemini_live_session && recording) {
+				get_training_eval(fen, move_text(m));
+			} else if (r && m.color === 'w') {
+				get_training_eval(fen, move_text(m));
+			}
 		}
 		save_game_debounced();
 
