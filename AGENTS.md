@@ -51,8 +51,8 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 # Git Workflow
 
-- Before every edit turn: `git add .; git commit -m"before ..." ; git push`
-- After every edit turn: `git add .` + detailed commit + `git push`
+- Every single change, no matter how trivial: `git add .` + detailed commit + `git push`
+- Do not skip commits — commit and push after every file edit, creation, or deletion
 
 # Env
 

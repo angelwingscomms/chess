@@ -660,8 +660,10 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		save_game_debounced();
 
 		if (gemini_live_session && recording) {
+			console.log(`[gemini-live] onMove pending${r ? '' : ' SKIPPED (not train mode)'} turn=${turn}`);
+			if (!r) return;
 			const last = history[history.length - 1] ?? '';
-			pending_board_context = `fen:${fen} last_move:${last} turn:${turn}`;
+			pending_board_context = `fen:${fen} last_move:${last} turn:${turn} train_mode:${r}`;
 		}
 	}
 
@@ -1012,6 +1014,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				},
 				toggle_train_mode: () => {
 					r = !r;
+					console.log(`[train-mode] toggled by Gemini → ${r}`);
 					if (engine) {
 						if (engine.isSearching()) engine.stopSearch();
 						engine.setColor(r ? 'none' : 'b');
@@ -1101,6 +1104,7 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 		const s = gemini_live_session;
 		if (!s || !recording) return;
 		if (pending_board_context) {
+			console.log(`[gemini-live] process_audio sending board context: ${pending_board_context.slice(0, 60)}`);
 			try { s.sendRealtimeInput({ text: pending_board_context }); } catch {}
 			pending_board_context = null;
 		}
@@ -1376,7 +1380,7 @@ ${ctx.e ? `evaluation: ${ctx.e}` : ''}`;
 					<button title="Switch sides" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={flipColor}>
 						<FlipIcon size={15} strokeWidth={1.8} />
 					</button>
-					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
+					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; console.log(`[train-mode] toggled by UI → ${r}`); if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
 						T
 					</button>
 					{#if show_hints && !hint_loading && hints.length > 0}
