@@ -9,7 +9,7 @@ import { calc_cost } from '$lib/util/ai/pricing';
 import { deduct } from '$lib/server/token_balance';
 import { NGN_USD } from '$lib/util/rates';
 import { get_fen } from '$lib/util/chat/tools/get_fen';
-import { evaluate_position, evaluate_user_move, get_multi_pv, classify_error } from '$lib/util/chat/tools/stockfish_analysis';
+import { evaluate_position } from '$lib/util/chat/tools/stockfish_analysis';
 
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
@@ -84,7 +84,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 						role: msg.r as 'user' | 'assistant',
 						content: msg.r === 'user' ? build_input(msg) : msg.c,
 					})),
-					tools: { get_fen, evaluate_position, evaluate_user_move, get_multi_pv, classify_error },
+					tools: { get_fen, evaluate_position },
 					stopWhen: stepCountIs(10),
 				});
 				for await (const part of result.fullStream) {
