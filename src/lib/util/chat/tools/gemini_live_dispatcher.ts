@@ -28,8 +28,7 @@ type MoveResult = {
 
 type ToolState = {
 	get_fen: () => string;
-	run_eval: (fen: string) => Promise<string>;
-	// set_fen: (fen: string) => void;
+	run_eval: (fen: string, user_move_san?: string) => Promise<string>;
 	get_board_state: () => BoardState;
 	// make_move: (uci: string, confirmed?: boolean) => MoveResult;
 	// undo_move: () => { valid: boolean; error?: string };
@@ -54,18 +53,13 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'evaluate_position',
-				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score (positive = advantage to side to move), depth searched, and principal variation. Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
-				parameters: { type: 'OBJECT', properties: {} },
-			},
-			{
-				name: 'evaluate_user_move',
-				description: "Get the best Stockfish move and how it compares to the user's last move.",
-				parameters: { type: 'OBJECT', properties: {} },
-			},
-			{
-				name: 'classify_error',
-				description: 'Get the best Stockfish move and the user\'s last move for comparison.',
-				parameters: { type: 'OBJECT', properties: {} },
+				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score, depth, principal variation, and optionally the centipawn loss (delta) and error type if you provide the user\'s last move (user_move parameter — SAN format like "e4" or "Nf3"). Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
+				parameters: {
+					type: 'OBJECT',
+					properties: {
+						user_move: { type: 'STRING', description: "The user's last move in SAN format (e.g. 'e4', 'Nf3', 'Bxc6'). Optional — omit to just get the best move." },
+					},
+				},
 			},
 			{
 				name: 'get_board_state',
@@ -132,41 +126,32 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 
 		case 'evaluate_position': {
 			const fen_ep = state?.get_fen?.() ?? '';
-			log(`evaluate_position: calling run_eval for fen=${fen_ep.slice(0, 40)}...`);
-			const eval_json_ep = await state?.run_eval?.(fen_ep) ?? '';
+			const user_move = (args.user_move as string) || '';
+			log(`evaluate_position: calling run_eval for fen=${fen_ep.slice(0, 40)} user_move=${user_move}`);
+			const eval_json_ep = await state?.run_eval?.(fen_ep, user_move || undefined) ?? '';
 			const e_ep = parse_eval(eval_json_ep);
 			if (!e_ep) {
 				log('evaluate_position FAILED — no eval data returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
-			log(`evaluate_position: best_move=${e_ep.best_move} score=${e_ep.best_score} depth=${e_ep.best_depth} fen=${(e_ep.fen ?? '').slice(0, 40)} pv=${((e_ep.best_pv ?? []) as string[]).join(' ')}`);
-			return { id: fc.id, name, response: { fen: e_ep.fen, best_move: e_ep.best_move, score: e_ep.best_score, depth: e_ep.best_depth, pv: e_ep.best_pv, available: true } };
-		}
-
-		case 'evaluate_user_move': {
-			const fen_eum = state?.get_fen?.() ?? '';
-			const board_eum = state?.get_board_state?.();
-			log(`evaluate_user_move: calling run_eval for fen=${fen_eum.slice(0, 40)}`);
-			const eval_json_eum = await state?.run_eval?.(fen_eum) ?? '';
-			const e_eum = parse_eval(eval_json_eum);
-			if (!e_eum) {
-				log('evaluate_user_move FAILED — no eval data returned');
-				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
+			const resp: Record<string, unknown> = {
+				fen: e_ep.fen,
+				best_move: e_ep.best_move,
+				score: e_ep.best_score,
+				depth: e_ep.best_depth,
+				pv: e_ep.best_pv,
+				available: true,
+			};
+			if (user_move) {
+				resp.user_move = user_move;
+				if (e_ep.delta !== undefined) {
+					resp.delta = e_ep.delta;
+					resp.error_type = e_ep.error_type ?? 'none';
+					resp.severity = (e_ep.delta as number) > 100 ? 'severe' : (e_ep.delta as number) > 50 ? 'moderate' : (e_ep.delta as number) > 30 ? 'minor' : 'negligible';
+				}
 			}
-			return { id: fc.id, name, response: { best_move: e_eum.best_move, best_score: e_eum.best_score, last_user_move: board_eum?.last_user_move, available: true } };
-		}
-
-		case 'classify_error': {
-			const fen_ce = state?.get_fen?.() ?? '';
-			const board_ce = state?.get_board_state?.();
-			log(`classify_error: calling run_eval for fen=${fen_ce.slice(0, 40)}`);
-			const eval_json_ce = await state?.run_eval?.(fen_ce) ?? '';
-			const e_ce = parse_eval(eval_json_ce);
-			if (!e_ce) {
-				log('classify_error FAILED — no eval data returned');
-				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
-			}
-			return { id: fc.id, name, response: { best_move: e_ce.best_move, last_user_move: board_ce?.last_user_move, available: true } };
+			log(`evaluate_position: best_move=${e_ep.best_move} score=${e_ep.best_score} depth=${e_ep.best_depth} user_move=${user_move} delta=${e_ep.delta} error_type=${e_ep.error_type}`);
+			return { id: fc.id, name, response: resp };
 		}
 
 		case 'get_board_state': {

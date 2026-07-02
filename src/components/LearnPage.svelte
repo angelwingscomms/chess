@@ -110,22 +110,37 @@ No formal wrap-ups. Just end naturally.`;
 	let chat_input = $state('');
 	let chat_queue = $state<{ text: string; hint?: string; voice?: boolean }[]>([]);
 
-	function get_training_eval(fen_str: string, move_time_ms = 3000): Promise<string> {
+	function get_training_eval(fen_str: string, move_time_ms = 3000, user_move_san = ''): Promise<string> {
 		const log = (msg: string) => console.log(`[eval] ${msg}`);
-		log(`get_training_eval fen=${fen_str.slice(0, 50)} moveTime=${move_time_ms}`);
+		const multiPv = user_move_san ? 5 : 1;
+		log(`get_training_eval fen=${fen_str.slice(0, 50)} moveTime=${move_time_ms} multiPv=${multiPv}`);
 		return new Promise((res) => {
 			const ac = new AbortController();
 			const timeout = setTimeout(() => { log('TIMEOUT after 10000ms — aborting'); ac.abort(); res(''); }, 10000);
-			analyzePosition(fen_str, 1, undefined, ac.signal, move_time_ms).then((er) => {
+			analyzePosition(fen_str, multiPv, undefined, ac.signal, move_time_ms).then((er) => {
 				clearTimeout(timeout);
 				log(`analyzePosition done: best_move=${er.best_move} score=${er.best_score} depth=${er.best_depth}`);
-				const json = JSON.stringify({
+				const data: Record<string, unknown> = {
 					fen: fen_str,
 					best_move: er.best_move,
 					best_score: er.best_score,
 					best_depth: er.best_depth,
 					best_pv: er.best_pv,
-				});
+				};
+				if (user_move_san) {
+					const user_line = er.multi_pv.find((l: { move: string }) => l.move === user_move_san);
+					if (user_line) {
+						data.delta = Math.abs(er.best_score - user_line.score);
+						if ((data.delta as number) > 100) data.error_type = 'tactical';
+						else if ((data.delta as number) > 50) data.error_type = 'prophylactic';
+						else if ((data.delta as number) > 30) data.error_type = 'positional';
+						else data.error_type = 'none';
+					} else {
+						data.delta = 999;
+						data.error_type = 'strategic';
+					}
+				}
+				const json = JSON.stringify(data);
 				res(json);
 			}).catch((err) => {
 				clearTimeout(timeout);
@@ -927,7 +942,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 			init_tool_state({
 				get_fen: () => fen,
-				run_eval: (f) => get_training_eval(f, 300),
+				run_eval: (f, u) => get_training_eval(f, 300, u ?? ''),
 				get_board_state: () => ({
 					fen,
 					turn,
