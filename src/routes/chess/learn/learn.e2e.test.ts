@@ -158,7 +158,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain("localStorage.setItem('hint_on_start', String(hint_on_start))");
 		expect(page).toContain('function request_hint()');
 		expect(page).toContain('if (hint_on_start && !start_hint_done)');
-		expect(page).toContain("this.hints = [{ move: best_move, score: best_score, depth: best_depth }];");
+		expect(page).toContain("const hints = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);");
 		expect(page).toContain('Auto hint');
 		expect(page).toContain('Hint on start');
 	});

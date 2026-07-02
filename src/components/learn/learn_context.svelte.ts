@@ -504,20 +504,19 @@ export class LearnState {
 			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			this.start_thinking_sound();
 
-			const eval_json = await this.get_training_eval(this.fen, '', this.hint_think_time * 1000);
+			const hints = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
 			this.stop_thinking_sound();
 
-			let best_move = '', best_score = 0, best_depth = 0;
-			if (eval_json) try { const e = JSON.parse(eval_json); best_move = e.best_move; best_score = e.best_score; best_depth = e.best_depth; } catch {}
+			const bm = hints[0]?.move ?? '';
 
-			if (best_move && this.auto_hint) {
-				this.hints = [{ move: best_move, score: best_score, depth: best_depth }];
+			if (bm && this.auto_hint) {
+				this.hints = hints;
 				this.hint_fen = this.fen;
 				this.hint_index = 0;
 				this.show_hints = true;
 			}
 
-			const eval_str = best_move ? ` evaluation: best_move=${best_move} score=${best_score} depth=${best_depth}` : '';
+			const eval_str = bm ? ` evaluation: best_move=${bm}` : '';
 			try { this.gemini_live_session!.sendRealtimeInput({
 				text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}${eval_str}`
 			}); } catch {}
