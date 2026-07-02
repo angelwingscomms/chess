@@ -110,64 +110,28 @@ No formal wrap-ups. Just end naturally.`;
 	let chat_input = $state('');
 	let chat_queue = $state<{ text: string; hint?: string; voice?: boolean }[]>([]);
 
-	function get_training_eval(fen_str: string, user_move_san: string, move_time_ms = 3000): Promise<string> {
+	function get_training_eval(fen_str: string, move_time_ms = 3000): Promise<string> {
 		const log = (msg: string) => console.log(`[eval] ${msg}`);
-		log(`get_training_eval fen=${fen_str.slice(0, 50)} user_move="${user_move_san}"`);
+		log(`get_training_eval fen=${fen_str.slice(0, 50)} moveTime=${move_time_ms}`);
 		return new Promise((res) => {
 			const ac = new AbortController();
 			const timeout = setTimeout(() => { log('TIMEOUT after 10000ms — aborting'); ac.abort(); res(''); }, 10000);
-			analyzePosition(fen_str, 3, undefined, ac.signal, move_time_ms).then((er) => {
+			analyzePosition(fen_str, 1, undefined, ac.signal, move_time_ms).then((er) => {
 				clearTimeout(timeout);
-				log(`analyzePosition done: best_move=${er.best_move} score=${er.best_score} depth=${er.best_depth} multi_pv_lines=${(er.multi_pv ?? []).length}`);
-				if (!er.best_move) {
-					log('WARNING: best_move is empty from analyzePosition');
-				}
-				const data: Record<string, unknown> = {
+				log(`analyzePosition done: best_move=${er.best_move} score=${er.best_score} depth=${er.best_depth}`);
+				const json = JSON.stringify({
 					fen: fen_str,
 					best_move: er.best_move,
 					best_score: er.best_score,
 					best_depth: er.best_depth,
 					best_pv: er.best_pv,
-					user_move: user_move_san || undefined,
-					user_score: er.multi_pv.find((l) => l.move === user_move_san)?.score,
-					multi_pv: er.multi_pv,
-				};
-				const user_line = er.multi_pv.find((l) => l.move === user_move_san);
-				if (user_line) {
-					data.user_score = user_line.score;
-					data.user_depth = user_line.depth;
-					data.user_pv = user_line.pv;
-					data.delta = Math.abs(er.best_score - user_line.score);
-					if ((data.delta as number) > 100) data.error_type = 'tactical';
-					else if ((data.delta as number) > 50) data.error_type = 'prophylactic';
-					else if ((data.delta as number) > 30) data.error_type = 'positional';
-					else data.error_type = 'none';
-					log(`user_line found: move=${user_line.move} score=${user_line.score} delta=${data.delta} error_type=${data.error_type}`);
-				} else if (user_move_san) {
-					data.delta = 999;
-					data.error_type = 'strategic';
-					log(`user_move "${user_move_san}" not in multi_pv — treating as strategic error`);
-				} else {
-					log('no user_move_san provided — storing eval without user analysis');
-				}
-				const json = JSON.stringify(data);
+				});
 				res(json);
 			}).catch((err) => {
 				clearTimeout(timeout);
 				log(`analyzePosition REJECTED: ${err instanceof Error ? err.message : String(err)}`);
 				res('');
 			});
-		});
-	}
-	function start_background_eval() {
-		if (!browser) return;
-		if (bg_eval_ac) { bg_eval_ac.abort(); bg_eval_ac = null; }
-		const ac = new AbortController();
-		bg_eval_ac = ac;
-		get_training_eval(fen, '', Math.round(computer_think_time * 1000)).then(() => {
-			if (bg_eval_ac === ac) bg_eval_ac = null;
-		}).catch(() => {
-			if (bg_eval_ac === ac) bg_eval_ac = null;
 		});
 	}
 	let interaction_id = $state('');
@@ -264,7 +228,6 @@ let quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	let gemini_live_audio_queue: AudioBuffer[] = [];
 	let gemini_live_audio_playing = false;
 	let last_sent_fen = '';
-	let bg_eval_ac: AbortController | null = null;
 	let toasts = $state<{ id: number; msg: string }[]>([]);
 	let toast_id = $state(0);
 	function add_toast(msg: string) {
@@ -689,7 +652,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 				text: `fen:${fen} user_played:${last_user_move} opponent_played:${last_ai_move}`
 			});
 		}
-		start_background_eval();
 	}
 
 	function onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -714,7 +676,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		last_ai_move = '';
 		redo_stack = [];
 		clearChat();
-		start_background_eval();
 	}
 
 	function undoMove() {
@@ -733,7 +694,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		resultMsg = '';
 		sync_chat_moves();
 		hideHints(true);
-		start_background_eval();
 	}
 
 	function redoMove() {
@@ -742,7 +702,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		chessRef.load(f);
 		sync_chat_moves();
 		hideHints(true);
-		start_background_eval();
 	}
 
 	function flipColor() {
@@ -770,7 +729,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		last_user_move = '';
 		last_ai_move = '';
 		redo_stack = [];
-		start_background_eval();
 	}
 
 	function go_forward_board() {
@@ -787,7 +745,6 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		last_user_move = '';
 		last_ai_move = '';
 		redo_stack = [];
-		start_background_eval();
 	}
 
 	async function showHint() {
@@ -970,7 +927,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 			init_tool_state({
 				get_fen: () => fen,
-				run_eval: (f, u) => get_training_eval(f, u, 300),
+				run_eval: (f) => get_training_eval(f, 300),
 				get_board_state: () => ({
 					fen,
 					turn,
@@ -1216,7 +1173,7 @@ Your name is ${voice_name}.`;
 			chat_queue = [...chat_queue, { text: t }];
 			return;
 		}
-		const eval_json = browser ? await get_training_eval(fen, last_user_move) : undefined;
+		const eval_json = browser ? await get_training_eval(fen) : undefined;
 		await send_chess_chat(t, '', true, eval_json);
 	}
 

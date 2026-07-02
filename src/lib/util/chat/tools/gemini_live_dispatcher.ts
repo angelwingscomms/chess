@@ -28,7 +28,7 @@ type MoveResult = {
 
 type ToolState = {
 	get_fen: () => string;
-	run_eval: (fen: string, user_move_san: string) => Promise<string>;
+	run_eval: (fen: string) => Promise<string>;
 	// set_fen: (fen: string) => void;
 	get_board_state: () => BoardState;
 	// make_move: (uci: string, confirmed?: boolean) => MoveResult;
@@ -59,17 +59,17 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'evaluate_user_move',
-				description: "Get how the user's last move compares to Stockfish's best move. Returns the centipawn loss (delta), error classification (tactical/positional/prophylactic/strategic/none), and the engine's evaluation of the user's move. This tool takes a few seconds — acknowledge the user first, then call it.",
+				description: "Get the best Stockfish move and how it compares to the user's last move.",
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
 				name: 'get_multi_pv',
-				description: 'Get multiple candidate moves ranked by Stockfish with their evaluations. Useful when you want to see alternative good moves and understand why the best move is better. This tool takes a few seconds — acknowledge the user first, then call it.',
+				description: 'Get the top candidate moves ranked by Stockfish with their evaluations. Useful when you want to see alternative good moves and understand why the best move is better.',
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
 				name: 'classify_error',
-				description: 'Classify the type of error the user made in their last move. Returns the error category (tactical/positional/prophylactic/strategic/none) and the centipawn loss. This tool takes a few seconds — acknowledge the user first, then call it.',
+				description: 'Get the best Stockfish move and the user\'s last move for comparison.',
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
@@ -137,9 +137,8 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 
 		case 'evaluate_position': {
 			const fen_ep = state?.get_fen?.() ?? '';
-			const board_ep = state?.get_board_state?.();
 			log(`evaluate_position: calling run_eval for fen=${fen_ep.slice(0, 40)}...`);
-			const eval_json_ep = await state?.run_eval?.(fen_ep, board_ep?.last_user_move ?? '') ?? '';
+			const eval_json_ep = await state?.run_eval?.(fen_ep) ?? '';
 			const e_ep = parse_eval(eval_json_ep);
 			if (!e_ep) {
 				log('evaluate_position FAILED — no eval data returned');
@@ -152,47 +151,39 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 		case 'evaluate_user_move': {
 			const fen_eum = state?.get_fen?.() ?? '';
 			const board_eum = state?.get_board_state?.();
-			const user_move_eum = board_eum?.last_user_move ?? '';
-			log(`evaluate_user_move: calling run_eval for fen=${fen_eum.slice(0, 40)} user_move=${user_move_eum}`);
-			const eval_json_eum = await state?.run_eval?.(fen_eum, user_move_eum) ?? '';
+			log(`evaluate_user_move: calling run_eval for fen=${fen_eum.slice(0, 40)}`);
+			const eval_json_eum = await state?.run_eval?.(fen_eum) ?? '';
 			const e_eum = parse_eval(eval_json_eum);
 			if (!e_eum) {
 				log('evaluate_user_move FAILED — no eval data returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
-			log(`evaluate_user_move: user_move=${e_eum.user_move} best_move=${e_eum.best_move} delta=${e_eum.delta} error_type=${e_eum.error_type}`);
-			return { id: fc.id, name, response: { user_move: e_eum.user_move, user_score: e_eum.user_score, user_depth: e_eum.user_depth, best_move: e_eum.best_move, best_score: e_eum.best_score, delta: e_eum.delta, error_type: e_eum.error_type ?? 'none', available: true } };
+			return { id: fc.id, name, response: { best_move: e_eum.best_move, best_score: e_eum.best_score, last_user_move: board_eum?.last_user_move, available: true } };
 		}
 
 		case 'get_multi_pv': {
 			const fen_gmp = state?.get_fen?.() ?? '';
-			const board_gmp = state?.get_board_state?.();
 			log(`get_multi_pv: calling run_eval for fen=${fen_gmp.slice(0, 40)}...`);
-			const eval_json_gmp = await state?.run_eval?.(fen_gmp, board_gmp?.last_user_move ?? '') ?? '';
+			const eval_json_gmp = await state?.run_eval?.(fen_gmp) ?? '';
 			const e_gmp = parse_eval(eval_json_gmp);
 			if (!e_gmp) {
 				log('get_multi_pv FAILED — no eval data returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
-			const lines_gmp = e_gmp.multi_pv as { move: string; score: number; depth: number; pv: string[] }[] | undefined;
-			log(`get_multi_pv: ${(lines_gmp ?? []).length} lines, best_move=${e_gmp.best_move}`);
-			return { id: fc.id, name, response: { lines: lines_gmp ?? [{ move: e_gmp.best_move, score: e_gmp.best_score, depth: e_gmp.best_depth, pv: e_gmp.best_pv }], available: true } };
+			return { id: fc.id, name, response: { lines: [{ move: e_gmp.best_move, score: e_gmp.best_score, depth: e_gmp.best_depth, pv: e_gmp.best_pv }], available: true } };
 		}
 
 		case 'classify_error': {
 			const fen_ce = state?.get_fen?.() ?? '';
 			const board_ce = state?.get_board_state?.();
-			const user_move_ce = board_ce?.last_user_move ?? '';
-			log(`classify_error: calling run_eval for fen=${fen_ce.slice(0, 40)} user_move=${user_move_ce}`);
-			const eval_json_ce = await state?.run_eval?.(fen_ce, user_move_ce) ?? '';
+			log(`classify_error: calling run_eval for fen=${fen_ce.slice(0, 40)}`);
+			const eval_json_ce = await state?.run_eval?.(fen_ce) ?? '';
 			const e_ce = parse_eval(eval_json_ce);
 			if (!e_ce) {
 				log('classify_error FAILED — no eval data returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
-			const delta_ce = e_ce.delta as number | undefined;
-			log(`classify_error: error_type=${e_ce.error_type} delta=${delta_ce} user_move=${e_ce.user_move} best_move=${e_ce.best_move}`);
-			return { id: fc.id, name, response: { error_type: e_ce.error_type ?? 'none', delta: delta_ce, user_move: e_ce.user_move, best_move: e_ce.best_move, severity: delta_ce !== undefined ? delta_ce > 100 ? 'severe' : delta_ce > 50 ? 'moderate' : delta_ce > 30 ? 'minor' : 'negligible' : 'unknown', available: true } };
+			return { id: fc.id, name, response: { best_move: e_ce.best_move, last_user_move: board_ce?.last_user_move, available: true } };
 		}
 
 		case 'get_board_state': {
