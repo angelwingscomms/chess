@@ -42,7 +42,7 @@ When the player asks "why {move}" (analyzing a hint), explain what that move acc
 
 When the player makes a mistake: state what happened factually, mention one principle, move on. When they make a good move: note why in chess terms. Vary the domain — tactics, structure, endgame, psychology, openings.`;
 
-const socratic_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend. Always answer whatever the user asks — that's your #1 job.
+const teacher_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend. Always answer whatever the user asks — that's your #1 job.
 
 You are a chess trainer. They're here to train, not play — internal note, don't say it.
 
@@ -80,8 +80,8 @@ No formal wrap-ups. Just end naturally.`;
 
 	let { sys = default_sys } = $props();
 
-	let vibe = $state<'socratic' | 'assistant'>(browser && (localStorage.getItem('vibe') as 'socratic' | 'assistant') || 'socratic');
-		let current_sys = $derived(vibe === 'assistant' ? assistant_sys : socratic_sys);
+	let vibe = $state<'teacher' | 'assistant'>(browser && (localStorage.getItem('vibe') as 'teacher' | 'assistant') || 'assistant');
+		let current_sys = $derived(vibe === 'assistant' ? assistant_sys : teacher_sys);
 
 	let level = $state(3);
 	let turn = $state<Color>('w');
@@ -1676,8 +1676,8 @@ Your name is ${voice_name}.`;
 						onkeydown={(e) => { if (e.key === 'Escape') show_vibe_menu = false; }}
 					>
 						<span>
-							<span class="block font-medium">{vibe === 'socratic' ? 'Socratic' : 'Assistant'}</span>
-							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{vibe === 'socratic' ? 'Questions guide your learning' : 'Best move and why'}</span>
+							<span class="block font-medium">{vibe === 'teacher' ? 'Teacher' : 'Assistant'}</span>
+							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{vibe === 'teacher' ? 'Questions guide your learning' : 'Best move and why'}</span>
 						</span>
 						<span class="text-primary">⌄</span>
 					</button>
@@ -1685,12 +1685,12 @@ Your name is ${voice_name}.`;
 						<div id="vibe-listbox" class="absolute left-4 right-4 top-[calc(100%-10px)] z-10 overflow-hidden rounded-lg border border-hairline bg-canvas shadow-[0_16px_48px_rgba(20,20,19,0.16)]" role="listbox" aria-labelledby="vibe-label">
 							<button
 								type="button"
-								class={vibe === 'socratic' ? 'grid w-full gap-0.5 bg-surface-soft px-3.5 py-2.5 text-left text-sm text-ink' : 'grid w-full gap-0.5 px-3.5 py-2.5 text-left text-sm text-muted hover:bg-surface-soft hover:text-ink'}
+								class={vibe === 'teacher' ? 'grid w-full gap-0.5 bg-surface-soft px-3.5 py-2.5 text-left text-sm text-ink' : 'grid w-full gap-0.5 px-3.5 py-2.5 text-left text-sm text-muted hover:bg-surface-soft hover:text-ink'}
 								role="option"
-								aria-selected={vibe === 'socratic'}
-								onclick={() => { vibe = 'socratic'; show_vibe_menu = false; }}
+								aria-selected={vibe === 'teacher'}
+								onclick={() => { vibe = 'teacher'; show_vibe_menu = false; }}
 							>
-								<span class="font-medium">Socratic</span>
+								<span class="font-medium">Teacher</span>
 								<span class="text-xs text-muted">Questions guide your learning</span>
 							</button>
 							<button
