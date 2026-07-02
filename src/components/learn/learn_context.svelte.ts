@@ -1,7 +1,7 @@
 import { Chess } from 'svelte-chess';
 import { Chess as ChessJS } from 'chess.js';
 import { browser } from '$app/environment';
-import { LearnEngine, getHints, analyzePosition } from '$lib/util/chess/engine';
+import { LearnEngine, getHints } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
@@ -43,7 +43,7 @@ const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain l
 
 You are a chess coach helping the user win. Your job: find the best move and explain why it's best in concrete terms — what it threatens, what it prevents, what weakness it exploits.
 
-Before you suggest any move, always call evaluate_position first to get the actual best move. Never make up a move — always use the tool. The model waits for the result before speaking, so the user sees no delay. Never mention engines, scores, or that you used a tool.
+Before you suggest any move, always call get_hints first to get the actual best move. Never make up a move — always use the tool. The model waits for the result before speaking, so the user sees no delay. Never mention engines, scores, or that you used a tool.
 
 When it's the user's turn: tell them the best move and explain why. Compare their last move to the best move when there's a meaningful difference.
 
@@ -171,9 +171,6 @@ export class LearnState {
 	gemini_live_audio_playing = false;
 	gemini_live_current_source: AudioBufferSourceNode | null = null;
 	last_sent_fen = '';
-	cached_eval_data = $state('');
-	cached_eval_fen = $state('');
-	bg_eval_ac: AbortController | null = null;
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
@@ -401,67 +398,6 @@ export class LearnState {
 			: msg.content;
 	}
 
-	get_training_eval(fen_str: string, user_move_san: string, move_time_ms = 3000): Promise<string> {
-		const log = (msg: string) => console.log(`[eval] ${msg}`);
-		log(`get_training_eval fen=${fen_str.slice(0, 50)} user_move="${user_move_san}"`);
-		return new Promise((res) => {
-			const ac = new AbortController();
-			const timeout = setTimeout(() => { log('TIMEOUT after 10000ms — aborting'); ac.abort(); res(''); }, 10000);
-			analyzePosition(fen_str, 3, undefined, ac.signal, move_time_ms).then((er) => {
-				clearTimeout(timeout);
-				log(`analyzePosition done: best_move=${er.best_move} score=${er.best_score} depth=${er.best_depth} multi_pv_lines=${(er.multi_pv ?? []).length}`);
-				if (!er.best_move) log('WARNING: best_move is empty from analyzePosition');
-				const data: Record<string, unknown> = {
-					fen: fen_str,
-					best_move: er.best_move,
-					best_score: er.best_score,
-					best_depth: er.best_depth,
-					best_pv: er.best_pv,
-					user_move: user_move_san || undefined,
-					user_score: er.multi_pv.find((l) => l.move === user_move_san)?.score,
-					multi_pv: er.multi_pv,
-				};
-				const user_line = er.multi_pv.find((l) => l.move === user_move_san);
-				if (user_line) {
-					data.user_score = user_line.score;
-					data.user_depth = user_line.depth;
-					data.user_pv = user_line.pv;
-					data.delta = Math.abs(er.best_score - user_line.score);
-					if ((data.delta as number) > 100) data.error_type = 'tactical';
-					else if ((data.delta as number) > 50) data.error_type = 'prophylactic';
-					else if ((data.delta as number) > 30) data.error_type = 'positional';
-					else data.error_type = 'none';
-					log(`user_line found: move=${user_line.move} score=${user_line.score} delta=${data.delta} error_type=${data.error_type}`);
-				} else if (user_move_san) {
-					data.delta = 999;
-					data.error_type = 'strategic';
-					log(`user_move "${user_move_san}" not in multi_pv — treating as strategic error`);
-				} else {
-					log('no user_move_san provided — storing eval without user analysis');
-				}
-				res(JSON.stringify(data));
-			}).catch((err) => {
-				clearTimeout(timeout);
-				log(`analyzePosition REJECTED: ${err instanceof Error ? err.message : String(err)}`);
-				res('');
-			});
-		});
-	}
-
-	start_background_eval() {
-		if (!browser) return;
-		if (this.fen === this.cached_eval_fen && this.cached_eval_data) return;
-		if (this.bg_eval_ac) { this.bg_eval_ac.abort(); this.bg_eval_ac = null; }
-		const ac = new AbortController();
-		this.bg_eval_ac = ac;
-		this.get_training_eval(this.fen, '', Math.round(this.computer_think_time * 1000)).then(data => {
-			if (ac.signal.aborted) return;
-			if (data) { this.cached_eval_data = data; this.cached_eval_fen = this.fen; }
-			if (this.bg_eval_ac === ac) this.bg_eval_ac = null;
-		}).catch(() => {
-			if (this.bg_eval_ac === ac) this.bg_eval_ac = null;
-		});
-	}
 
 	add_toast(msg: string) {
 		const id = ++this.toast_id;
@@ -505,9 +441,9 @@ export class LearnState {
 			this.start_thinking_sound();
 
 			const hints = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
-			this.stop_thinking_sound();
 
 			const bm = hints[0]?.move ?? '';
+			const sc = hints[0]?.score;
 
 			if (bm && this.auto_hint) {
 				this.hints = hints;
@@ -516,12 +452,12 @@ export class LearnState {
 				this.show_hints = true;
 			}
 
-			const eval_str = bm ? `|best_move:${bm}` : '';
+			const eval_str = bm && sc != null ? `|best_move:${bm}|score:${sc}` : '';
 			try { this.gemini_live_session!.sendRealtimeInput({
 				text: `fen:${this.fen}|user_played:${this.last_user_move}|opponent_played:${this.last_ai_move}${eval_str}`
 			}); } catch {}
 		}
-		this.start_background_eval();
+
 	}
 
 	onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -546,7 +482,7 @@ export class LearnState {
 		this.last_ai_move = '';
 		this.redo_stack = [];
 		this.clearChat();
-		this.start_background_eval();
+
 	}
 
 	undoMove() {
@@ -565,7 +501,7 @@ export class LearnState {
 		this.resultMsg = '';
 		this.sync_chat_moves();
 		this.hideHints(true);
-		this.start_background_eval();
+
 	}
 
 	redoMove() {
@@ -574,7 +510,7 @@ export class LearnState {
 		this.chessRef.load(f);
 		this.sync_chat_moves();
 		this.hideHints(true);
-		this.start_background_eval();
+
 	}
 
 	flipColor() {
@@ -602,7 +538,7 @@ export class LearnState {
 		this.last_user_move = '';
 		this.last_ai_move = '';
 		this.redo_stack = [];
-		this.start_background_eval();
+
 	}
 
 	go_forward_board() {
@@ -619,7 +555,7 @@ export class LearnState {
 		this.last_user_move = '';
 		this.last_ai_move = '';
 		this.redo_stack = [];
-		this.start_background_eval();
+
 	}
 
 	async showHint() {
@@ -915,7 +851,8 @@ export class LearnState {
 			this.chat_queue = [...this.chat_queue, { text: t }];
 			return;
 		}
-		const eval_json = browser ? await this.get_training_eval(this.fen, this.last_user_move) : undefined;
+		const hints = browser ? await getHints(this.fen, 1) : [];
+		const eval_json = hints[0] ? JSON.stringify({ best_move: hints[0].move, score: hints[0].score, depth: hints[0].depth }) : undefined;
 		await this.send_chess_chat(t, '', true, eval_json);
 	}
 
@@ -1036,7 +973,7 @@ export class LearnState {
 		this.redo_stack = [];
 		this.board_history = [...this.board_history.slice(0, this.board_history_idx + 1), fen_str];
 		this.board_history_idx = this.board_history.length - 1;
-		this.start_background_eval();
+
 	}
 
 	cleanup_gemini_live() {
@@ -1114,9 +1051,9 @@ export class LearnState {
 
 			init_tool_state({
 				get_fen: () => this.fen,
-		run_eval: async (f, u) => {
-			return this.get_training_eval(f, u ?? '', this.hint_think_time * 1000);
-		},
+				run_hints: async (f) => {
+					return getHints(f, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
+				},
 				get_board_state: () => this.get_board_state(),
 			});
 

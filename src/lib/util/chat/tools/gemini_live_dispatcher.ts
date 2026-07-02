@@ -28,7 +28,7 @@ type MoveResult = {
 
 type ToolState = {
 	get_fen: () => string;
-	run_eval: (fen: string, user_move_san?: string) => Promise<string>;
+	run_hints: (fen: string) => Promise<{ move: string; score: number; depth: number }[]>;
 	get_board_state: () => BoardState;
 	// make_move: (uci: string, confirmed?: boolean) => MoveResult;
 	// undo_move: () => { valid: boolean; error?: string };
@@ -52,14 +52,9 @@ export function get_tool_declarations() {
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
-				name: 'evaluate_position',
-				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score, depth, principal variation (pv), and optionally the centipawn loss (delta) if you provide the user\'s last move (user_move parameter — SAN format like "e4" or "Nf3"). Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
-				parameters: {
-					type: 'OBJECT',
-					properties: {
-						user_move: { type: 'STRING', description: "The user's last move in SAN format (e.g. 'e4', 'Nf3', 'Bxc6'). Optional — omit to just get the best move." },
-					},
-				},
+				name: 'get_hints',
+				description: 'Get the Stockfish evaluation of the current board position. Returns the best move and its centipawn score. Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
+				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
 				name: 'get_board_state',
@@ -102,17 +97,11 @@ export function get_tool_declarations() {
 	}];
 }
 
-function parse_eval(eval_json: string) {
-	if (!eval_json) return null;
-	try { return JSON.parse(eval_json); } catch { return null; }
-}
-
 export async function dispatch_tool_call(fc: { id?: string; name?: string; args?: Record<string, unknown> }) {
 	const name = fc.name || '';
-	const args = fc.args || {};
 	const log = (msg: string) => console.log(`[tool-dispatch] ${msg}`);
 
-	log(`dispatch_tool_call name="${name}" id=${fc.id ?? 'none'} args=${JSON.stringify(args)}`);
+	log(`dispatch_tool_call name="${name}" id=${fc.id ?? 'none'}`);
 	const has_state = state !== null;
 	const has_fen = !!state?.get_fen?.();
 	log(`state_initialized=${has_state} has_fen=${has_fen}`);
@@ -124,30 +113,17 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			return { id: fc.id, name, response: { fen: f, error: f ? undefined : 'No board position has been set yet.' } };
 		}
 
-		case 'evaluate_position': {
-			const fen_ep = state?.get_fen?.() ?? '';
-			const user_move = (args.user_move as string) || '';
-			log(`evaluate_position: calling run_eval for fen=${fen_ep.slice(0, 40)} user_move=${user_move}`);
-			const eval_json_ep = await state?.run_eval?.(fen_ep, user_move || undefined) ?? '';
-			const e_ep = parse_eval(eval_json_ep);
-			if (!e_ep) {
-				log('evaluate_position FAILED — no eval data returned');
+		case 'get_hints': {
+			const fen = state?.get_fen?.() ?? '';
+			log(`get_hints: calling run_hints for fen=${fen.slice(0, 40)}`);
+			const hints = await state?.run_hints?.(fen) ?? [];
+			const best = hints[0];
+			if (!best) {
+				log('get_hints FAILED — no hints returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
-			const resp: Record<string, unknown> = {
-				fen: e_ep.fen,
-				best_move: e_ep.best_move,
-				score: e_ep.best_score,
-				depth: e_ep.best_depth,
-				pv: e_ep.best_pv,
-				available: true,
-			};
-			if (user_move) {
-				resp.user_move = user_move;
-				if (e_ep.delta !== undefined) resp.delta = e_ep.delta;
-			}
-			log(`evaluate_position: best_move=${e_ep.best_move} score=${e_ep.best_score} depth=${e_ep.best_depth} user_move=${user_move} delta=${e_ep.delta}`);
-			return { id: fc.id, name, response: resp };
+			log(`get_hints: best_move=${best.move} score=${best.score} depth=${best.depth}`);
+			return { id: fc.id, name, response: { best_move: best.move, score: best.score, depth: best.depth, available: true } };
 		}
 
 		case 'get_board_state': {
