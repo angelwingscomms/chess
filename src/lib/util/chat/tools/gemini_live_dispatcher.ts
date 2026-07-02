@@ -54,7 +54,7 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'evaluate_position',
-				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score (positive = advantage to side to move), depth searched, and principal variation. Use this to understand what Stockfish thinks is the strongest move and why. This tool takes a few seconds — acknowledge the user first, then call it.',
+				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score (positive = advantage to side to move), depth searched, and principal variation. Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
