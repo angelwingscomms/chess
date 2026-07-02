@@ -63,11 +63,6 @@ export function get_tool_declarations() {
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
-				name: 'get_multi_pv',
-				description: 'Get the top candidate moves ranked by Stockfish with their evaluations. Useful when you want to see alternative good moves and understand why the best move is better.',
-				parameters: { type: 'OBJECT', properties: {} },
-			},
-			{
 				name: 'classify_error',
 				description: 'Get the best Stockfish move and the user\'s last move for comparison.',
 				parameters: { type: 'OBJECT', properties: {} },
@@ -159,18 +154,6 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
 			return { id: fc.id, name, response: { best_move: e_eum.best_move, best_score: e_eum.best_score, last_user_move: board_eum?.last_user_move, available: true } };
-		}
-
-		case 'get_multi_pv': {
-			const fen_gmp = state?.get_fen?.() ?? '';
-			log(`get_multi_pv: calling run_eval for fen=${fen_gmp.slice(0, 40)}...`);
-			const eval_json_gmp = await state?.run_eval?.(fen_gmp) ?? '';
-			const e_gmp = parse_eval(eval_json_gmp);
-			if (!e_gmp) {
-				log('get_multi_pv FAILED — no eval data returned');
-				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
-			}
-			return { id: fc.id, name, response: { lines: [{ move: e_gmp.best_move, score: e_gmp.best_score, depth: e_gmp.best_depth, pv: e_gmp.best_pv }], available: true } };
 		}
 
 		case 'classify_error': {
