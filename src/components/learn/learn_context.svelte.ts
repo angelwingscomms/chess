@@ -1145,7 +1145,7 @@ export class LearnState {
 
 			const ctx = this.current_chat_context();
 			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
-			const sys = `${this.current_sys}\nYour name is ${this.voice_name}.`;
+			const sys = this.current_sys;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
