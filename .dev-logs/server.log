@@ -141,3 +141,53 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 1:37:37 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
 1:37:45 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
 1:37:45 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+1:56:52 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:56:52 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:57:02 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:57:03 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:57:10 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:57:10 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+2:08:14 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:08:14 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:08:51 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:08:51 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:08:51 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:08:51 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:09:03 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:09:03 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:09:03 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:09:03 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte

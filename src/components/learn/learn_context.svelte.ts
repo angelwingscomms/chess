@@ -147,7 +147,6 @@ export class LearnState {
 
 	show_voice_menu = $state(false);
 	start_hint_done = $state(false);
-	pending_voice_context = false;
 	show_settings = $state(false);
 	show_model_menu = $state(false);
 	show_vibe_menu = $state(false);
@@ -490,8 +489,7 @@ export class LearnState {
 		}
 	}
 
-	onMove(e: CustomEvent<{ color: Color }>) {
-		this.pending_voice_context = false;
+	async onMove(e: CustomEvent<{ color: Color }>) {
 		const m = e.detail;
 		this.turn = m.color === 'w' ? 'b' : 'w';
 		this.moveNum++;
@@ -500,13 +498,29 @@ export class LearnState {
 		else this.last_ai_move = this.move_text(m);
 		this.redo_stack = [];
 		this.hideHints(true);
-		if (m.color === 'b' && this.auto_hint) this.request_hint();
 		this.save_game_debounced();
 
 		if (this.gemini_live_session && this.recording && !this.quiet && m.color !== this.orientation) {
 			if (this.gemini_live_audio_playing) this.interrupt_audio();
-			this.pending_voice_context = true;
-			if (!this.auto_hint) this.request_hint();
+			this.start_thinking_sound();
+
+			const eval_json = await this.get_training_eval(this.fen, '', this.hint_think_time * 1000);
+			this.stop_thinking_sound();
+
+			let best_move = '', best_score = 0, best_depth = 0;
+			if (eval_json) try { const e = JSON.parse(eval_json); best_move = e.best_move; best_score = e.best_score; best_depth = e.best_depth; } catch {}
+
+			if (best_move && this.auto_hint) {
+				this.hints = [{ move: best_move, score: best_score, depth: best_depth }];
+				this.hint_fen = this.fen;
+				this.hint_index = 0;
+				this.show_hints = true;
+			}
+
+			const eval_str = best_move ? ` evaluation: best_move=${best_move} score=${best_score} depth=${best_depth}` : '';
+			try { this.gemini_live_session!.sendRealtimeInput({
+				text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}${eval_str}`
+			}); } catch {}
 		}
 		this.start_background_eval();
 	}
@@ -627,16 +641,6 @@ export class LearnState {
 			this.hint_fen = this.fen;
 			console.log('hints:', this.hints);
 			this.hint_index = 0;
-			if (this.pending_voice_context) {
-				this.pending_voice_context = false;
-				if (this.gemini_live_session && this.recording) {
-					const bm = this.hints[0];
-					const eval_str = bm ? ` evaluation: best_move=${bm.move} score=${bm.score} depth=${bm.depth}` : '';
-					try { this.gemini_live_session.sendRealtimeInput({
-						text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}${eval_str}`
-					}); } catch {}
-				}
-			}
 			if (this.autoexplain) this.explainHint();
 		} catch (e) {
 			if ((e as Error)?.name === 'AbortError') return;
