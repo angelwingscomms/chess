@@ -74,10 +74,18 @@ When the player asks about a position: tell them the strongest continuation and 
 
 No formal wrap-ups. Just end naturally.`;
 
+const voice_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend.
+
+You are a chess coach. Your job: immediately tell the user the best move when it's their turn. Be specific about squares and pieces.
+
+When you receive board context with opponent_played: tell the user the best move and why — what it threatens, what it prevents, what weakness it exploits.
+
+Do not ask questions. Do not ask the user what they want to do. Just recommend the best move.`;
+
 	let { sys = default_sys, r: r_init = false } = $props();
 	let r = $state(r_init);
 
-	let vibe = $state<'socratic' | 'assistant'>('socratic');
+	let vibe = $state<'socratic' | 'assistant'>(browser && (localStorage.getItem('vibe') as 'socratic' | 'assistant') || 'socratic');
 	let current_sys = $derived(r ? (vibe === 'assistant' ? assistant_sys : train_sys) : sys);
 
 	let level = $state(3);
@@ -286,6 +294,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
 	$effect(() => { if (browser) localStorage.setItem('quiet', String(quiet)); });
 	$effect(() => { if (browser) localStorage.setItem('voice_name', voice_name); });
+	$effect(() => { if (browser) localStorage.setItem('vibe', vibe); });
 	$effect(() => {
 		if (!browser) return;
 		const state_fen = $page.state?.fen as string | undefined;
@@ -685,6 +694,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		save_game_debounced();
 
 		if (gemini_live_session && recording && !quiet && m.color !== orientation) {
+			console.log(`[voice] opponent move → sending context quiet=${quiet} vibe=${vibe}`);
 			gemini_live_session.sendRealtimeInput({
 				text: `fen:${fen} user_played:${last_user_move} opponent_played:${last_ai_move}`
 			});
@@ -1073,7 +1083,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 			const ctx = current_chat_context();
 			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
-			const sys = `${current_sys}
+			const sys = `${quiet ? current_sys : voice_sys}
 Your name is ${voice_name}.`;
 
 			const { GoogleGenAI } = await import('@google/genai');
