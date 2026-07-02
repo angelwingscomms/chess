@@ -516,7 +516,7 @@ export class LearnState {
 				this.show_hints = true;
 			}
 
-			const eval_str = bm ? ` evaluation: best_move=${bm}` : '';
+			const eval_str = bm ? ` best_move=${bm}` : '';
 			try { this.gemini_live_session!.sendRealtimeInput({
 				text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}${eval_str}`
 			}); } catch {}
