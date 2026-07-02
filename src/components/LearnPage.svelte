@@ -161,13 +161,10 @@ No formal wrap-ups. Just end naturally.`;
 	}
 	function start_background_eval() {
 		if (!browser) return;
-		if (fen === cached_eval_fen && cached_eval_data) return;
 		if (bg_eval_ac) { bg_eval_ac.abort(); bg_eval_ac = null; }
 		const ac = new AbortController();
 		bg_eval_ac = ac;
-		get_training_eval(fen, '', Math.round(computer_think_time * 1000)).then(data => {
-			if (ac.signal.aborted) return;
-			if (data) { cached_eval_data = data; cached_eval_fen = fen; }
+		get_training_eval(fen, '', Math.round(computer_think_time * 1000)).then(() => {
 			if (bg_eval_ac === ac) bg_eval_ac = null;
 		}).catch(() => {
 			if (bg_eval_ac === ac) bg_eval_ac = null;
@@ -267,8 +264,6 @@ let quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	let gemini_live_audio_queue: AudioBuffer[] = [];
 	let gemini_live_audio_playing = false;
 	let last_sent_fen = '';
-	let cached_eval_data = $state<string>('');
-	let cached_eval_fen = $state<string>('');
 	let bg_eval_ac: AbortController | null = null;
 	let toasts = $state<{ id: number; msg: string }[]>([]);
 	let toast_id = $state(0);
@@ -975,10 +970,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 			init_tool_state({
 				get_fen: () => fen,
-				run_eval: async (f, u) => {
-				if (!u && f === cached_eval_fen && cached_eval_data) return cached_eval_data;
-				return get_training_eval(f, u, 300);
-			},
+				run_eval: (f, u) => get_training_eval(f, u, 300),
 				get_board_state: () => ({
 					fen,
 					turn,

@@ -9,7 +9,7 @@ import { calc_cost } from '$lib/util/ai/pricing';
 import { deduct } from '$lib/server/token_balance';
 import { NGN_USD } from '$lib/util/rates';
 import { get_fen } from '$lib/util/chat/tools/get_fen';
-import { evaluate_position, evaluate_user_move, get_multi_pv, classify_error, set_eval } from '$lib/util/chat/tools/stockfish_analysis';
+import { evaluate_position, evaluate_user_move, get_multi_pv, classify_error } from '$lib/util/chat/tools/stockfish_analysis';
 
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
@@ -44,10 +44,6 @@ function build_input(msg: Msg) {
 		d.h && `hint: ${d.h}`,
 		d.e && `evaluation: ${d.e}`,
 	].filter(Boolean);
-
-	if (d.e) {
-		try { set_eval(JSON.parse(d.e)); } catch {}
-	}
 
 	return rows.length
 		? `${msg.c}\n\n[board_context]\n${rows.join('\n')}\n[/board_context]`
