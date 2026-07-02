@@ -75,11 +75,9 @@ After every meaningful commit, the agent should consider whether the change is t
 - Ship post with a surprise: *"shipped [feature]. took [N] iterations. what surprised me: [specific thing]"*
 - Cost transparency: *"[tool] spend $[N]. shipped [N] features this week."*
 - Behind-the-scenes: a specific decision, bug, or learning from the commit
-- Puzzle/move teaser: if the change touches the chess board, show a position
-
 **Format rules**: specific numbers, one surprising detail, no vague "working on something". Failure/struggle posts outperform wins 2-5x. Aim for 4-7 posts/week, post during peak hours (8-10am ET weekdays, 6-8pm ET evenings).
 
-Chess community responds to: "what's the best move here?" puzzles, behind-the-scenes of tool building, honest cost/revenue transparency.
+Chess community responds to: behind-the-scenes of tool building, honest cost/revenue transparency.
 
 # Svelte MCP
 

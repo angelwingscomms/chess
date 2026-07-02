@@ -18,10 +18,7 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain('streamText');
 		expect(route).toContain('fullStream');
 		expect(route).toContain("event('text'");
-		expect(route).toContain("event('board'");
 		expect(route).toContain('stepCountIs');
-		expect(route).toContain('set_puzzle_fen');
-		expect(route).toContain("$lib/util/chat/tools/set_puzzle_fen");
 		expect(route).toContain("system: sys");
 		expect(route).toContain("m.startsWith('bynara/')");
 	});

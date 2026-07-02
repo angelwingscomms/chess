@@ -44,7 +44,7 @@ When the player makes a mistake: state what happened factually, mention one prin
 
 	const train_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend. Always answer whatever the user asks — that's your #1 job.
 
-You are a chess trainer. Create puzzles for the user to solve, then guide their thinking. They're here to train, not play — internal note, don't say it.
+You are a chess trainer. They're here to train, not play — internal note, don't say it.
 
 You have analysis tools — never mention them, you just know. Never mention engines or scores.
 
@@ -68,7 +68,7 @@ You are a chess coach helping the user win. Your job: find the best move and exp
 
 You have analysis tools — never mention them, you just know. Never mention engines or scores.
 
-When the player makes a move: tell them the best move in the position and explain why. Compare their move to the best move when there's a meaningful difference.
+When it's the user's turn: tell them the best move and explain why. Compare their last move to the best move when there's a meaningful difference.
 
 When the player asks about a position: tell them the strongest continuation and the idea behind it. Be specific about squares and pieces.
 
@@ -206,6 +206,7 @@ No formal wrap-ups. Just end naturally.`;
 let hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
 let computer_think_time = $state(1.5);
 let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
+let quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	let voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
 	let voice_options = [
 		{ v: 'Kore', l: 'Kore', d: 'Firm' },
@@ -283,6 +284,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 	$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(hint_on_start)); });
 	$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(hint_think_time)); });
 	$effect(() => { if (browser) localStorage.setItem('groq_api_key', groq_api_key); });
+	$effect(() => { if (browser) localStorage.setItem('quiet', String(quiet)); });
 	$effect(() => { if (browser) localStorage.setItem('voice_name', voice_name); });
 	$effect(() => {
 		if (!browser) return;
@@ -682,9 +684,9 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 		if (m.color === 'b' && auto_hint) request_hint();
 		save_game_debounced();
 
-		if (gemini_live_session && recording && r && m.color === 'w') {
+		if (gemini_live_session && recording && !quiet && m.color !== orientation) {
 			gemini_live_session.sendRealtimeInput({
-				text: `fen:${fen} your_turn:true user_played:${last_user_move} train_mode:${r}`
+				text: `fen:${fen} user_played:${last_user_move} opponent_played:${last_ai_move}`
 			});
 		}
 		start_background_eval();
@@ -986,70 +988,70 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 					history_index: board_history_idx,
 					history_length: board_history.length,
 				}),
-				set_fen: (f) => {
-					log(`set_fen called with fen=${f.slice(0, 40)}`);
-					if (chessRef) chessRef.load(f);
-					fen = f;
-					history = [];
-					moveNum = 0;
-					gameOver = false;
-					resultMsg = '';
-					hideHints(true);
-					last_user_move = '';
-					last_ai_move = '';
-					redo_stack = [];
-					board_history = [...board_history.slice(0, board_history_idx + 1), f];
-					board_history_idx = board_history.length - 1;
-					pushState('', { fen: f });
-					start_background_eval();
-				},
-			make_move: (uci, confirmed) => {
-				if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
-				if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
-				if (!r && turn === 'b') return { valid: false, uci, error: 'Can only move your pieces in this mode.' };
-				if (r && turn === orientation && !confirmed) return { valid: false, uci, error: 'pending_confirmation' };
-					try {
-						const from = uci.slice(0, 2);
-						const to = uci.slice(2, 4);
-						const promotion = uci.charAt(4) || undefined;
-						chessRef.move({ from, to, promotion });
-						return {
-							valid: true,
-							uci,
-							san: history[history.length - 1] ?? uci,
-							fen,
-							turn,
-							in_check: inCheck,
-							game_over: gameOver,
-						};
-					} catch (e) {
-						return { valid: false, uci, error: e instanceof Error ? e.message : 'Illegal move.' };
-					}
-				},
-				undo_move: () => {
-					if (!chessRef || moveNum === 0) return { valid: false, error: 'No moves to undo.' };
-					undoMove();
-					return { valid: true };
-				},
-				redo_move: () => {
-					if (!chessRef || !redo_stack.length) return { valid: false, error: 'No moves to redo.' };
-					redoMove();
-					return { valid: true };
-				},
-				reset_board: () => {
-					if (!chessRef) return { valid: false, error: 'Board not initialized.' };
-					resetGame();
-					return { valid: true };
-				},
-				toggle_train_mode: () => {
-					r = !r;
-					console.log(`[train-mode] toggled by Gemini → ${r}`);
-					if (engine) {
-						if (engine.isSearching()) engine.stopSearch();
-						engine.setColor(r ? 'none' : 'b');
-					}
-					return { train_mode: r };
-				},
+			// set_fen: (f) => {
+			// 	log(`set_fen called with fen=${f.slice(0, 40)}`);
+			// 	if (chessRef) chessRef.load(f);
+			// 	fen = f;
+			// 	history = [];
+			// 	moveNum = 0;
+			// 	gameOver = false;
+			// 	resultMsg = '';
+			// 	hideHints(true);
+			// 	last_user_move = '';
+			// 	last_ai_move = '';
+			// 	redo_stack = [];
+			// 	board_history = [...board_history.slice(0, board_history_idx + 1), f];
+			// 	board_history_idx = board_history.length - 1;
+			// 	pushState('', { fen: f });
+			// 	start_background_eval();
+			// },
+			// make_move: (uci, confirmed) => {
+			// 	if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
+			// 	if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
+			// 	if (!r && turn === 'b') return { valid: false, uci, error: 'Can only move your pieces in this mode.' };
+			// 	if (r && turn === orientation && !confirmed) return { valid: false, uci, error: 'pending_confirmation' };
+			// 		try {
+			// 			const from = uci.slice(0, 2);
+			// 			const to = uci.slice(2, 4);
+			// 			const promotion = uci.charAt(4) || undefined;
+			// 			chessRef.move({ from, to, promotion });
+			// 			return {
+			// 				valid: true,
+			// 				uci,
+			// 				san: history[history.length - 1] ?? uci,
+			// 				fen,
+			// 				turn,
+			// 				in_check: inCheck,
+			// 				game_over: gameOver,
+			// 			};
+			// 		} catch (e) {
+			// 			return { valid: false, uci, error: e instanceof Error ? e.message : 'Illegal move.' };
+			// 		}
+			// 	},
+			// 	undo_move: () => {
+			// 		if (!chessRef || moveNum === 0) return { valid: false, error: 'No moves to undo.' };
+			// 		undoMove();
+			// 		return { valid: true };
+			// 	},
+			// 	redo_move: () => {
+			// 		if (!chessRef || !redo_stack.length) return { valid: false, error: 'No moves to redo.' };
+			// 		redoMove();
+			// 		return { valid: true };
+			// 	},
+			// 	reset_board: () => {
+			// 		if (!chessRef) return { valid: false, error: 'Board not initialized.' };
+			// 		resetGame();
+			// 		return { valid: true };
+			// 	},
+			// 	toggle_train_mode: () => {
+			// 		r = !r;
+			// 		console.log(`[train-mode] toggled by Gemini → ${r}`);
+			// 		if (engine) {
+			// 			if (engine.isSearching()) engine.stopSearch();
+			// 			engine.setColor(r ? 'none' : 'b');
+			// 		}
+			// 		return { train_mode: r };
+			// 	},
 			});
 
 			const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1072,11 +1074,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			const ctx = current_chat_context();
 			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
 			const sys = `${current_sys}
-Your name is ${voice_name}.
-
-Board position and turn signals arrive via real-time text alongside audio. When you receive your_turn:true in train mode, use evaluate_position then make a move with move_piece. Do not speak before making your move — only after you have played your opponent's move may you briefly comment on the position. In play mode, only move when asked by the user.
-
-IMPORTANT — In train mode, when it's the user's turn, never call move_piece without asking for confirmation first. If move_piece returns pending_confirmation, ask the user if they want to play that move, then retry with confirmed:true. You may always move the opponent's pieces freely.`;
+Your name is ${voice_name}.`;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
@@ -1143,11 +1141,11 @@ IMPORTANT — In train mode, when it's the user's turn, never call move_piece wi
 		try {
 			s.sendRealtimeInput({
 				audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
-				...(r && fen !== last_sent_fen ? {
-					text: `fen:${fen} train_mode:${r} game_over:${gameOver}`
+				...(!quiet && fen !== last_sent_fen ? {
+					text: `fen:${fen} game_over:${gameOver}`
 				} : {}),
 			});
-			if (r && fen !== last_sent_fen) last_sent_fen = fen;
+			if (!quiet && fen !== last_sent_fen) last_sent_fen = fen;
 		} catch {}
 	}
 
@@ -1403,9 +1401,9 @@ IMPORTANT — In train mode, when it's the user's turn, never call move_piece wi
 					<button title="Switch sides" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={flipColor}>
 						<FlipIcon size={15} strokeWidth={1.8} />
 					</button>
-					<button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; console.log(`[train-mode] toggled by UI → ${r}`); if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
+					<!-- <button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; console.log(`[train-mode] toggled by UI → ${r}`); if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
 						T
-					</button>
+					</button> -->
 					<button title={recording ? 'Stop recording' : 'Voice input'}
 						onclick={toggleGeminiLive}
 						disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
@@ -1663,6 +1661,18 @@ IMPORTANT — In train mode, when it's the user's turn, never call move_piece wi
 						<span class="grid size-5 place-items-center rounded-full border border-primary">
 							<input type="checkbox" bind:checked={hint_on_start} class="sr-only" aria-label="Hint on start" />
 							<span class={hint_on_start ? 'size-3 rounded-full bg-primary' : 'size-3 rounded-full bg-transparent'}></span>
+						</span>
+					</label>
+				</section>
+				<section class="rounded-lg border border-hairline bg-canvas p-4">
+					<label class="flex cursor-pointer items-center justify-between gap-4">
+						<span>
+							<span class="block text-sm font-medium text-ink">Quiet voice</span>
+							<span class="mt-1 block text-xs leading-5 text-muted">Only speak when spoken to.</span>
+						</span>
+						<span class="grid size-5 place-items-center rounded-full border border-primary">
+							<input type="checkbox" bind:checked={quiet} class="sr-only" aria-label="Quiet voice" />
+							<span class={quiet ? 'size-3 rounded-full bg-primary' : 'size-3 rounded-full bg-transparent'}></span>
 						</span>
 					</label>
 				</section>
