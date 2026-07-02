@@ -629,9 +629,9 @@ export class LearnState {
 				if (this.gemini_live_session && this.recording) {
 					const bm = this.hints[0];
 					const eval_str = bm ? ` evaluation: best_move=${bm.move} score=${bm.score} depth=${bm.depth}` : '';
-					this.gemini_live_session.sendRealtimeInput({
+					try { this.gemini_live_session.sendRealtimeInput({
 						text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}${eval_str}`
-					});
+					}); } catch {}
 				}
 			}
 			if (this.autoexplain) this.explainHint();
@@ -1041,6 +1041,7 @@ export class LearnState {
 		this.gemini_live_audio_queue = [];
 		this.gemini_live_audio_playing = false;
 		this.stop_thinking_sound();
+		this.thinking_sound_buf = null;
 		this.last_sent_fen = '';
 		this.recording = false;
 	}
