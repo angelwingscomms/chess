@@ -165,10 +165,12 @@ export class LearnState {
 	voice_muted = $state(false);
 	gemini_live_session: any = null;
 	gemini_live_audio_ctx: AudioContext | null = null;
+	gemini_live_audio_gain: GainNode | null = null;
 	gemini_live_mic_stream: MediaStream | null = null;
 	gemini_live_processor: ScriptProcessorNode | null = null;
 	gemini_live_audio_queue: AudioBuffer[] = [];
 	gemini_live_audio_playing = false;
+	gemini_live_current_source: AudioBufferSourceNode | null = null;
 	last_sent_fen = '';
 	cached_eval_data = $state('');
 	cached_eval_fen = $state('');
@@ -502,6 +504,7 @@ export class LearnState {
 		this.save_game_debounced();
 
 		if (this.gemini_live_session && this.recording && !this.quiet && m.color !== this.orientation) {
+			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			this.pending_voice_context = true;
 			if (!this.auto_hint) this.request_hint();
 		}
@@ -1034,13 +1037,15 @@ export class LearnState {
 	}
 
 	cleanup_gemini_live() {
+		this.interrupt_audio();
 		if (this.gemini_live_processor) { this.gemini_live_processor.disconnect(); this.gemini_live_processor = null; }
 		if (this.gemini_live_mic_stream) { this.gemini_live_mic_stream.getTracks().forEach(t => t.stop()); this.gemini_live_mic_stream = null; }
 		if (this.gemini_live_session) { this.gemini_live_session.close(); this.gemini_live_session = null; }
+		if (this.gemini_live_audio_gain) { this.gemini_live_audio_gain.disconnect(); this.gemini_live_audio_gain = null; }
 		if (this.gemini_live_audio_ctx) { this.gemini_live_audio_ctx.close(); this.gemini_live_audio_ctx = null; }
 		this.gemini_live_audio_queue = [];
 		this.gemini_live_audio_playing = false;
-		this.stop_thinking_sound();
+		this.gemini_live_current_source = null;
 		this.thinking_sound_buf = null;
 		this.last_sent_fen = '';
 		this.recording = false;
@@ -1119,6 +1124,10 @@ export class LearnState {
 			this.gemini_live_mic_stream = stream;
 			const audioCtx = new AudioContext();
 			this.gemini_live_audio_ctx = audioCtx;
+			const outputGain = audioCtx.createGain();
+			outputGain.gain.value = 1;
+			outputGain.connect(audioCtx.destination);
+			this.gemini_live_audio_gain = outputGain;
 			this.load_thinking_sound();
 			const micSource = audioCtx.createMediaStreamSource(stream);
 			const processor = audioCtx.createScriptProcessor(2048, 1, 1);
@@ -1208,18 +1217,38 @@ export class LearnState {
 	};
 
 	play_next_audio() {
-		if (!this.gemini_live_audio_ctx || this.gemini_live_audio_playing || this.gemini_live_audio_queue.length === 0) return;
+		if (!this.gemini_live_audio_ctx || !this.gemini_live_audio_gain || this.gemini_live_audio_playing || this.gemini_live_audio_queue.length === 0) return;
 		this.gemini_live_audio_playing = true;
 		const buffer = this.gemini_live_audio_queue[0];
 		this.gemini_live_audio_queue = this.gemini_live_audio_queue.slice(1);
 		const source = this.gemini_live_audio_ctx.createBufferSource();
 		source.buffer = buffer;
-		source.connect(this.gemini_live_audio_ctx.destination);
+		source.connect(this.gemini_live_audio_gain);
 		source.onended = () => {
+			this.gemini_live_current_source = null;
 			this.gemini_live_audio_playing = false;
 			this.play_next_audio();
 		};
+		this.gemini_live_current_source = source;
 		source.start();
+	}
+
+	interrupt_audio() {
+		this.stop_thinking_sound();
+		const ctx = this.gemini_live_audio_ctx;
+		const gain = this.gemini_live_audio_gain;
+		if (ctx && gain) {
+			gain.gain.cancelScheduledValues(ctx.currentTime);
+			gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
+			gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+		}
+		this.gemini_live_current_source?.stop();
+		this.gemini_live_current_source = null;
+		this.gemini_live_audio_queue = [];
+		this.gemini_live_audio_playing = false;
+		setTimeout(() => {
+			if (this.gemini_live_audio_gain) this.gemini_live_audio_gain.gain.value = 1;
+		}, 200);
 	}
 
 	gemini_live_handle(msg: any) {
@@ -1258,9 +1287,7 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.interrupted) {
-			this.stop_thinking_sound();
-			this.gemini_live_audio_queue = [];
-			this.gemini_live_audio_playing = false;
+			this.interrupt_audio();
 		}
 	}
 
