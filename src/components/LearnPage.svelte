@@ -42,26 +42,6 @@ When the player asks "why {move}" (analyzing a hint), explain what that move acc
 
 When the player makes a mistake: state what happened factually, mention one principle, move on. When they make a good move: note why in chess terms. Vary the domain — tactics, structure, endgame, psychology, openings.`;
 
-	const train_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend. Always answer whatever the user asks — that's your #1 job.
-
-You are a chess trainer. They're here to train, not play — internal note, don't say it.
-
-You have analysis tools — never mention them, you just know. Never mention engines or scores.
-
-Core principle: never give answers. Only ask questions that make the user figure it out themselves.
-
-Ask naturally, like a real coach:
-- Tactical error → "What's your opponent threatening?"
-- Missed opponent's plan → "What does your opponent want here?"
-- Passive move → "Any pieces not doing anything?"
-- No plan → "What's the position telling you?"
-- Broke a principle → "Which principle did you just break?"
-- Good move → "Which principle did you follow?"
-- "Is this right?" → "What do you think?"
-- "I don't know" → "Let's look at it differently. What stands out?"
-
-No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`;
-
 const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend.
 
 You are a chess coach helping the user win. Your job: find the best move and explain why it's best in concrete terms — what it threatens, what it prevents, what weakness it exploits.
@@ -82,11 +62,10 @@ When you receive board context with opponent_played: tell the user the best move
 
 Do not ask questions. Do not ask the user what they want to do. Just recommend the best move.`;
 
-	let { sys = default_sys, r: r_init = false } = $props();
-	let r = $state(r_init);
+	let { sys = default_sys } = $props();
 
 	let vibe = $state<'socratic' | 'assistant'>(browser && (localStorage.getItem('vibe') as 'socratic' | 'assistant') || 'socratic');
-	let current_sys = $derived(r ? (vibe === 'assistant' ? assistant_sys : train_sys) : sys);
+	let current_sys = $derived(vibe === 'assistant' ? assistant_sys : sys);
 
 	let level = $state(3);
 	let turn = $state<Color>('w');
@@ -165,7 +144,7 @@ Do not ask questions. Do not ask the user what they want to do. Just recommend t
 		});
 	}
 	function start_background_eval() {
-		if (!browser || !r) return;
+		if (!browser) return;
 		if (fen === cached_eval_fen && cached_eval_data) return;
 		if (bg_eval_ac) { bg_eval_ac.abort(); bg_eval_ac = null; }
 		const ac = new AbortController();
@@ -481,7 +460,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 
 	function buildEngine() {
 		const mt = Math.round(computer_think_time * 1000);
-		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: r ? 'none' : 'b' });
+		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: 'b' });
 	}
 
 	let engine = $derived.by(() => buildEngine());
@@ -1018,8 +997,8 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			// make_move: (uci, confirmed) => {
 			// 	if (!chessRef) return { valid: false, uci, error: 'Board not initialized.' };
 			// 	if (gameOver) return { valid: false, uci, error: 'Game is already over.' };
-			// 	if (!r && turn === 'b') return { valid: false, uci, error: 'Can only move your pieces in this mode.' };
-			// 	if (r && turn === orientation && !confirmed) return { valid: false, uci, error: 'pending_confirmation' };
+			// 	if (turn === 'b') return { valid: false, uci, error: 'Can only move your pieces.' };
+			// 	if (turn === orientation && !confirmed) return { valid: false, uci, error: 'pending_confirmation' };
 			// 		try {
 			// 			const from = uci.slice(0, 2);
 			// 			const to = uci.slice(2, 4);
@@ -1053,15 +1032,7 @@ $effect(() => { if (browser) localStorage.setItem('autoexplain', String(autoexpl
 			// 		resetGame();
 			// 		return { valid: true };
 			// 	},
-			// 	toggle_train_mode: () => {
-			// 		r = !r;
-			// 		console.log(`[train-mode] toggled by Gemini → ${r}`);
-			// 		if (engine) {
-			// 			if (engine.isSearching()) engine.stopSearch();
-			// 			engine.setColor(r ? 'none' : 'b');
-			// 		}
-			// 		return { train_mode: r };
-			// 	},
+
 			});
 
 			const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1237,7 +1208,7 @@ Your name is ${voice_name}.`;
 			chat_queue = [...chat_queue, { text: t }];
 			return;
 		}
-		const eval_json = r && browser ? await get_training_eval(fen, last_user_move) : undefined;
+		const eval_json = browser ? await get_training_eval(fen, last_user_move) : undefined;
 		await send_chess_chat(t, '', true, eval_json);
 	}
 
@@ -1411,9 +1382,6 @@ Your name is ${voice_name}.`;
 					<button title="Switch sides" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={flipColor}>
 						<FlipIcon size={15} strokeWidth={1.8} />
 					</button>
-					<!-- <button title={r ? 'Disable train mode' : 'Enable train mode'} class={'grid size-8 place-items-center rounded-full transition-colors text-[11px] font-bold ' + (r ? 'bg-primary text-white' : 'bg-canvas text-ink hover:text-primary')} onclick={() => { r = !r; console.log(`[train-mode] toggled by UI → ${r}`); if (engine) { if (engine.isSearching()) engine.stopSearch(); engine.setColor(r ? 'none' : 'b'); } }}>
-						T
-					</button> -->
 					<button title={recording ? 'Stop recording' : 'Voice input'}
 						onclick={toggleGeminiLive}
 						disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
