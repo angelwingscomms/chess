@@ -53,7 +53,7 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'evaluate_position',
-				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score, depth, principal variation, and optionally the centipawn loss (delta) and error type if you provide the user\'s last move (user_move parameter — SAN format like "e4" or "Nf3"). Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
+				description: 'Get the Stockfish evaluation of the current board position. Returns the best move, centipawn score, depth, principal variation (pv), and optionally the centipawn loss (delta) if you provide the user\'s last move (user_move parameter — SAN format like "e4" or "Nf3"). Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
 				parameters: {
 					type: 'OBJECT',
 					properties: {
@@ -144,13 +144,9 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			};
 			if (user_move) {
 				resp.user_move = user_move;
-				if (e_ep.delta !== undefined) {
-					resp.delta = e_ep.delta;
-					resp.error_type = e_ep.error_type ?? 'none';
-					resp.severity = (e_ep.delta as number) > 100 ? 'severe' : (e_ep.delta as number) > 50 ? 'moderate' : (e_ep.delta as number) > 30 ? 'minor' : 'negligible';
-				}
+				if (e_ep.delta !== undefined) resp.delta = e_ep.delta;
 			}
-			log(`evaluate_position: best_move=${e_ep.best_move} score=${e_ep.best_score} depth=${e_ep.best_depth} user_move=${user_move} delta=${e_ep.delta} error_type=${e_ep.error_type}`);
+			log(`evaluate_position: best_move=${e_ep.best_move} score=${e_ep.best_score} depth=${e_ep.best_depth} user_move=${user_move} delta=${e_ep.delta}`);
 			return { id: fc.id, name, response: resp };
 		}
 

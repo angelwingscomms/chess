@@ -129,16 +129,7 @@ No formal wrap-ups. Just end naturally.`;
 				};
 				if (user_move_san) {
 					const user_line = er.multi_pv.find((l: { move: string }) => l.move === user_move_san);
-					if (user_line) {
-						data.delta = Math.abs(er.best_score - user_line.score);
-						if ((data.delta as number) > 100) data.error_type = 'tactical';
-						else if ((data.delta as number) > 50) data.error_type = 'prophylactic';
-						else if ((data.delta as number) > 30) data.error_type = 'positional';
-						else data.error_type = 'none';
-					} else {
-						data.delta = 999;
-						data.error_type = 'strategic';
-					}
+					data.delta = user_line ? Math.abs(er.best_score - user_line.score) : 999;
 				}
 				const json = JSON.stringify(data);
 				res(json);
