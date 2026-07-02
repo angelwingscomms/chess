@@ -1,76 +1,51 @@
 $ vite --host --port 2160
 
-  VITE v8.0.16  ready in 4399 ms
+  VITE v8.0.16  ready in 3814 ms
 
   ➜  Local:   http://localhost:2160/
   ➜  Network: http://192.168.43.40:2160/
-  ➜  Network: http://192.168.240.1:2160/
-  ➜  Network: http://169.254.32.188:2160/
   ➜  press h + enter to show help
 Using secrets defined in .env
 Using secrets defined in .env
-*** Fatal uncaught kj::Exception: workerd/util/sqlite.c++:842: failed: SENTRY_DO SQLite failed; NOSENTRY database is locked: SQLITE_BUSY (extended: SQLITE_BUSY_RECOVERY)
-stack: /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@32b44cb /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fd1cb5 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@201d952 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fdd3dc /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1fdce32 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f9b8a2 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@2017dff /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@201b155 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f6d389 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bf855 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bfd78 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bd83e /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@52bd63e /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f54d17 /usr/lib/libc.so.6@2abfb /usr/lib/libc.so.6@2acb4 /home/ed/i/chess/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260616.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@1f54024
-10:54:36 AM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:19:49 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-10:54:36 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:19:49 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-10:54:39 AM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:19:50 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:75 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-10:54:39 AM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:19:50 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:13 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
-10:56:13 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
-10:56:13 AM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chess@0.11.1_svelte@5.56.3/node_modules/svelte-chess/dist/PromotionDialog.svelte?svelte&type=style&lang.css
-10:56:13 AM [vite] Internal server error: Invalid declaration: `<script>export let square`
-  Plugin: @tailwindcss/vite:generate:serve
-  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chess@0.11.1_svelte@5.56.3/node_modules/svelte-chess/dist/PromotionDialog.svelte?svelte&type=style&lang.css
-      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:2829)
-      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
-      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
-      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
-      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
-      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
-      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
-10:56:13 AM [vite] Internal server error: Invalid declaration: `Chessground`
-  Plugin: @tailwindcss/vite:generate:serve
-  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
-      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
-      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
-      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
-      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
-      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
-      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
-      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
-10:56:13 AM [vite] Internal server error: Invalid declaration: `Chessground`
+1:19:57 PM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
+1:19:57 PM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
+1:19:57 PM [vite] Internal server error: Invalid declaration: `Chessground`
   Plugin: @tailwindcss/vite:generate:serve
   File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
       at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
@@ -80,53 +55,62 @@ https://svelte.dev/e/a11y_no_static_element_interactions
       at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
       at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
       at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
-10:56:27 AM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:19:57 PM [vite] Internal server error: Invalid declaration: `Chessground`
+  Plugin: @tailwindcss/vite:generate:serve
+  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
+      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
+      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
+      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
+      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
+      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
+      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
+      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:27 AM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:27 AM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:27 AM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-10:56:28 AM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:20:02 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
 [models] fetch error: [TypeError: fetch failed] {
-  [cause]: Error: getaddrinfo EAI_AGAIN api.groq.com
-      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
-    errno: -3001,
-    code: 'EAI_AGAIN',
-    syscall: 'getaddrinfo',
-    hostname: 'api.groq.com'
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
   }
 }
-11:30:59 AM [vite] (client) hmr update /src/components/LearnPage.svelte, /src/app.css
-11:30:59 AM [vite] (ssr) page reload src/components/LearnPage.svelte
-11:33:02 AM [vite] (client) hmr update /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/app.css
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-11:36:33 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-11:36:33 AM [vite] (client) page reload .svelte-kit/generated/root.js
-11:36:33 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
-11:36:34 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+1:22:23 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:22:23 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:23:11 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:23:11 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:23:17 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:23:17 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:23:23 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:23:23 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:23:37 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+1:23:37 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts

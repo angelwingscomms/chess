@@ -147,6 +147,7 @@ export class LearnState {
 
 	show_voice_menu = $state(false);
 	start_hint_done = $state(false);
+	pending_voice_context = false;
 	show_settings = $state(false);
 	show_model_menu = $state(false);
 	show_vibe_menu = $state(false);
@@ -172,6 +173,8 @@ export class LearnState {
 	cached_eval_data = $state('');
 	cached_eval_fen = $state('');
 	bg_eval_ac: AbortController | null = null;
+	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
+	thinking_sound_buf: AudioBuffer | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
 	toast_id = $state(0);
 	model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
@@ -486,6 +489,7 @@ export class LearnState {
 	}
 
 	onMove(e: CustomEvent<{ color: Color }>) {
+		this.pending_voice_context = false;
 		const m = e.detail;
 		this.turn = m.color === 'w' ? 'b' : 'w';
 		this.moveNum++;
@@ -498,10 +502,8 @@ export class LearnState {
 		this.save_game_debounced();
 
 		if (this.gemini_live_session && this.recording && !this.quiet && m.color !== this.orientation) {
-			console.log(`[voice] opponent move → sending context quiet=${this.quiet} vibe=${this.vibe}`);
-			this.gemini_live_session.sendRealtimeInput({
-				text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}`
-			});
+			this.pending_voice_context = true;
+			if (!this.auto_hint) this.request_hint();
 		}
 		this.start_background_eval();
 	}
@@ -622,6 +624,16 @@ export class LearnState {
 			this.hint_fen = this.fen;
 			console.log('hints:', this.hints);
 			this.hint_index = 0;
+			if (this.pending_voice_context) {
+				this.pending_voice_context = false;
+				if (this.gemini_live_session && this.recording) {
+					const bm = this.hints[0];
+					const eval_str = bm ? ` evaluation: best_move=${bm.move} score=${bm.score} depth=${bm.depth}` : '';
+					this.gemini_live_session.sendRealtimeInput({
+						text: `fen:${this.fen} user_played:${this.last_user_move} opponent_played:${this.last_ai_move}${eval_str}`
+					});
+				}
+			}
 			if (this.autoexplain) this.explainHint();
 		} catch (e) {
 			if ((e as Error)?.name === 'AbortError') return;
@@ -1028,8 +1040,53 @@ export class LearnState {
 		if (this.gemini_live_audio_ctx) { this.gemini_live_audio_ctx.close(); this.gemini_live_audio_ctx = null; }
 		this.gemini_live_audio_queue = [];
 		this.gemini_live_audio_playing = false;
+		this.stop_thinking_sound();
 		this.last_sent_fen = '';
 		this.recording = false;
+	}
+
+	async load_thinking_sound() {
+		if (this.thinking_sound_buf) return;
+		try {
+			const ctx = this.gemini_live_audio_ctx;
+			if (!ctx) return;
+			const res = await fetch('/sounds/thinking.wav');
+			if (!res.ok) return;
+			const array_buf = await res.arrayBuffer();
+			this.thinking_sound_buf = await ctx.decodeAudioData(array_buf);
+		} catch {}
+	}
+
+	start_thinking_sound() {
+		const ctx = this.gemini_live_audio_ctx;
+		if (!ctx || this.thinking_sound || !this.thinking_sound_buf) return;
+		try {
+			const source = ctx.createBufferSource();
+			source.buffer = this.thinking_sound_buf;
+			source.loop = true;
+			const gain = ctx.createGain();
+			gain.gain.setValueAtTime(0, ctx.currentTime);
+			gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.3);
+			source.connect(gain);
+			gain.connect(ctx.destination);
+			source.start();
+			this.thinking_sound = { source, gain };
+		} catch {}
+	}
+
+	stop_thinking_sound() {
+		if (!this.thinking_sound) return;
+		const { source, gain } = this.thinking_sound;
+		const ctx = this.gemini_live_audio_ctx;
+		if (ctx) {
+			gain.gain.cancelScheduledValues(ctx.currentTime);
+			gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
+			gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+			source.stop(ctx.currentTime + 0.6);
+		} else {
+			source.stop();
+		}
+		this.thinking_sound = null;
 	}
 
 	async toggleGeminiLive() {
@@ -1048,10 +1105,9 @@ export class LearnState {
 
 			init_tool_state({
 				get_fen: () => this.fen,
-			run_eval: async (f, u) => {
-				if (!u && f === this.cached_eval_fen && this.cached_eval_data) return this.cached_eval_data;
-				return this.get_training_eval(f, u ?? '', 300);
-			},
+		run_eval: async (f, u) => {
+			return this.get_training_eval(f, u ?? '', this.hint_think_time * 1000);
+		},
 				get_board_state: () => this.get_board_state(),
 			});
 
@@ -1062,6 +1118,7 @@ export class LearnState {
 			this.gemini_live_mic_stream = stream;
 			const audioCtx = new AudioContext();
 			this.gemini_live_audio_ctx = audioCtx;
+			this.load_thinking_sound();
 			const micSource = audioCtx.createMediaStreamSource(stream);
 			const processor = audioCtx.createScriptProcessor(2048, 1, 1);
 			processor.onaudioprocess = this.gemini_process_audio;
@@ -1166,6 +1223,7 @@ export class LearnState {
 
 	gemini_live_handle(msg: any) {
 		if (msg.toolCall?.functionCalls?.length) {
+			this.start_thinking_sound();
 			console.log(`[gemini-live] received ${msg.toolCall.functionCalls.length} tool call(s)`, msg.toolCall.functionCalls.map((f: any) => f.name).join(', '));
 			for (const fc of msg.toolCall.functionCalls) {
 				console.log(`[gemini-live] dispatching tool: "${fc.name}" id=${fc.id ?? 'none'}`);
@@ -1178,6 +1236,7 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.modelTurn?.parts) {
+			this.stop_thinking_sound();
 			console.log(`[gemini-live] modelTurn with ${msg.serverContent.modelTurn.parts.length} parts`);
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
@@ -1198,6 +1257,7 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.interrupted) {
+			this.stop_thinking_sound();
 			this.gemini_live_audio_queue = [];
 			this.gemini_live_audio_playing = false;
 		}
