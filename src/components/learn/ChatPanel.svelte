@@ -20,19 +20,19 @@
 <div class="w-full rounded-xl bg-surface-card/72 overflow-hidden">
 	<div bind:this={s.chat_body} class="relative max-h-80 overflow-y-auto px-4 py-3 space-y-3">
 		{#if chat_messages.length === 0}
-			<p class="text-[9px] text-muted text-center py-6">No messages yet</p>
+			<p class="text-sm max-sm:text-[9px] text-muted text-center py-6">No messages yet</p>
 		{/if}
 		{#each chat_messages as msg, i (i)}
 			<div class="flex {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
 				{#if msg.role === 'assistant'}
-				<div class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-[9px] leading-relaxed text-left">
+				<div class="max-w-[85%] bg-canvas text-body rounded-[4px_16px_16px_16px] px-3.5 py-2.5 text-sm max-sm:text-[9px] leading-relaxed text-left">
 					{@html marked.parse(msg.content)}
 					{#if msg.u}
 						<span class="mt-1.5 block text-[10px] text-muted/60">₦{(msg.u.cost * NGN_USD).toFixed(2)}</span>
 					{/if}
 				</div>
 				{:else}
-				<div class="max-w-[85%] bg-primary text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-[9px] leading-relaxed {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">
+				<div class="max-w-[85%] bg-primary text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm max-sm:text-[9px] leading-relaxed {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">
 					{msg.content}
 				</div>
 				{/if}
@@ -40,7 +40,7 @@
 		{/each}
 		{#each chat_queue as q_msg, i (i)}
 			<div class="flex justify-end">
-				<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-[9px] leading-relaxed flex items-center gap-2">
+				<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm max-sm:text-[9px] leading-relaxed flex items-center gap-2">
 					<span>{q_msg.text}</span>
 					<button title="Send this message now" onclick={() => s.promoteFromQueue(i)} class="shrink-0 grid place-items-center">
 						<ArrowUpIcon size={12} strokeWidth={2} />
@@ -76,7 +76,7 @@
 			onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); s.sendChatMessage(s.chat_input); } }}
 			oninput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }}
 			placeholder="Ask about the position..."
-			class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-[9px] outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"
+			class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm max-sm:text-[9px] outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"
 		></textarea>
 		<button title="Send"
 			onclick={() => s.sendChatMessage(s.chat_input)}
