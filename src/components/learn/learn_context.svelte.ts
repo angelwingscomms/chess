@@ -161,7 +161,7 @@ export class LearnState {
 	last_hint: { fen: string; hint: Hint | null } | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
 	toast_id = $state(0);
-	output_transcript_timer: ReturnType<typeof setTimeout> | null = null;
+	output_turn_active = false;
 	model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
 	save_timeout: ReturnType<typeof setTimeout> | null = null;
 	saved_data: Record<string, unknown> | null = null;
@@ -610,6 +610,7 @@ export class LearnState {
 		this.chat_messages = [...this.chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) this.chat_input = '';
 		if (this.recording && this.gemini_live_session) {
+			this.output_turn_active = false;
 			this.gemini_live_session.sendRealtimeInput({ text: user_msg });
 		} else {
 			await this.execute_chat();
@@ -983,7 +984,6 @@ export class LearnState {
 	}
 
 	cleanup_gemini_live() {
-		if (this.output_transcript_timer) { clearTimeout(this.output_transcript_timer); this.output_transcript_timer = null; }
 		this.interrupt_audio();
 		if (this.gemini_live_processor) { this.gemini_live_processor.disconnect(); this.gemini_live_processor = null; }
 		if (this.gemini_live_mic_stream) { this.gemini_live_mic_stream.getTracks().forEach(t => t.stop()); this.gemini_live_mic_stream = null; }
@@ -1252,23 +1252,41 @@ export class LearnState {
 			this.interrupt_audio();
 		}
 		if (msg.serverContent?.inputTranscription?.text) {
+			this.output_turn_active = false;
 			this.chat_messages = [...this.chat_messages, { role: 'user', content: msg.serverContent.inputTranscription.text }];
 			this.save_game_debounced();
 		}
 		if (msg.serverContent?.outputTranscription?.text) {
-			if (this.output_transcript_timer) clearTimeout(this.output_transcript_timer);
-			this.output_transcript_timer = setTimeout(() => {
-				this.output_transcript_timer = null;
-				const text = msg.serverContent.outputTranscription.text;
+			const text = msg.serverContent.outputTranscription.text;
+			if (!this.output_turn_active) {
+				this.output_turn_active = true;
+				this.chat_messages = [...this.chat_messages, { role: 'assistant', content: text }];
+			} else {
+				const last = this.chat_messages[this.chat_messages.length - 1];
+				const updated = [...this.chat_messages];
+				updated[updated.length - 1] = { ...last, content: last.content + text };
+				this.chat_messages = updated;
+			}
+			this.save_game_debounced();
+		}
+		if (msg.serverContent?.turnComplete) {
+			this.output_turn_active = false;
+		}
+		if (msg.usageMetadata) {
+			const p = msg.usageMetadata.promptTokenCount ?? 0;
+			const c = msg.usageMetadata.responseTokenCount ?? 0;
+			if (p > 0 || c > 0) {
+				const cost = calc_cost('gemini-3.1-flash-live-preview', p, c);
+				this.total_p += p;
+				this.total_c += c;
+				this.total_cost += cost;
 				const last = this.chat_messages[this.chat_messages.length - 1];
 				if (last?.role === 'assistant') {
-					this.chat_messages[this.chat_messages.length - 1] = { ...last, content: text };
-					this.chat_messages = this.chat_messages;
-				} else {
-					this.chat_messages = [...this.chat_messages, { role: 'assistant', content: text }];
+					const updated = [...this.chat_messages];
+					updated[updated.length - 1] = { ...last, u: { p, c, cost } };
+					this.chat_messages = updated;
 				}
-				this.save_game_debounced();
-			}, 150);
+			}
 		}
 	}
 
@@ -1281,6 +1299,7 @@ export class LearnState {
 		this.total_p = 0;
 		this.total_c = 0;
 		this.total_cost = 0;
+		this.output_turn_active = false;
 		if (this.chat_abort) {
 			this.chat_abort.abort();
 			this.chat_abort = null;
