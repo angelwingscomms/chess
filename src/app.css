@@ -201,8 +201,9 @@ img {
 }
 
 .top-nav {
-  position: absolute;
-  left: 90vw;
+  position: fixed;
+  left: 0;
+  right: 0;
   top: 0;
   z-index: 30;
   height: 64px;

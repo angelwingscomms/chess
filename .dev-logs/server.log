@@ -113,3 +113,5 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 12:38:58 PM [vite] (ssr) page reload src/components/learn/ChatPanel.svelte
 12:43:40 PM [vite] (client) hmr update /src/components/learn/ChatPanel.svelte, /src/app.css
 12:43:40 PM [vite] (ssr) page reload src/components/learn/ChatPanel.svelte
+12:52:45 PM [vite] (client) hmr update /src/app.css
+12:52:45 PM [vite] (ssr) page reload src/app.css
