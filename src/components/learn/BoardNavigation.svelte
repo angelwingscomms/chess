@@ -5,12 +5,15 @@
 	import FlipIcon from '$lib/components/icons/flip-icon.svelte';
 	import MicIcon from '$lib/components/icons/mic-icon.svelte';
 	import MicMuteIcon from '$lib/components/icons/mic-mute-icon.svelte';
+	import SpeakerIcon from '$lib/components/icons/speaker-icon.svelte';
+	import SpeakerOffIcon from '$lib/components/icons/speaker-off-icon.svelte';
 	const s = get_learn_state();
 
 	let board_history = $derived(s.board_history);
 	let board_history_idx = $derived(s.board_history_idx);
 	let recording = $derived(s.recording);
 	let voice_muted = $derived(s.voice_muted);
+	let audio_muted = $derived(s.audio_muted);
 </script>
 
 <button title="Previous board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
@@ -41,6 +44,16 @@
 		<MicMuteIcon size={15} strokeWidth={1.8} />
 	{:else}
 		<MicIcon size={15} strokeWidth={1.8} />
+	{/if}
+</button>
+<button title={audio_muted ? 'Unmute speaker' : 'Mute speaker'}
+	onclick={() => s.toggle_audio()}
+	class={'grid size-8 place-items-center rounded-full transition-colors ' + (audio_muted ? 'bg-red-500/10 text-red-400' : 'bg-canvas text-ink hover:text-primary')}
+>
+	{#if audio_muted}
+		<SpeakerOffIcon size={15} strokeWidth={1.8} />
+	{:else}
+		<SpeakerIcon size={15} strokeWidth={1.8} />
 	{/if}
 </button>
 {/if}

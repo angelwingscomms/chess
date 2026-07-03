@@ -147,6 +147,7 @@ export class LearnState {
 	sel_pos = $state<{ x: number; y: number } | null>(null);
 	voice_tts = $state(false);
 	voice_muted = $state(false);
+	audio_muted = $state(false);
 	gemini_live_session: any = null;
 	gemini_live_audio_ctx: AudioContext | null = null;
 	gemini_live_audio_gain: GainNode | null = null;
@@ -1043,6 +1044,11 @@ export class LearnState {
 			source.stop();
 		}
 		this.thinking_sound = null;
+	}
+
+	toggle_audio() {
+		this.audio_muted = !this.audio_muted;
+		if (this.gemini_live_audio_gain) this.gemini_live_audio_gain.gain.value = this.audio_muted ? 0 : 1;
 	}
 
 	async toggleGeminiLive() {
