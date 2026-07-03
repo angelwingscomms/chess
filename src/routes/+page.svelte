@@ -3,22 +3,6 @@
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 
-	let start_pos = [
-		['r','n','b','q','k','b','n','r'],
-		['p','p','p','p','p','p','p','p'],
-		['','','','','','','',''],
-		['','','','','','','',''],
-		['','','','','','','',''],
-		['','','','','','','',''],
-		['P','P','P','P','P','P','P','P'],
-		['R','N','B','Q','K','B','N','R'],
-	];
-
-	let piece_map: Record<string, string> = {
-		'K': '&#9812;', 'Q': '&#9813;', 'R': '&#9814;', 'B': '&#9815;', 'N': '&#9816;', 'P': '&#9817;',
-		'k': '&#9818;', 'q': '&#9819;', 'r': '&#9820;', 'b': '&#9821;', 'n': '&#9822;', 'p': '&#9823;',
-	};
-
 	let features = [
 		{
 			icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/>`,
@@ -72,80 +56,35 @@
 	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Beee Chess','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with adaptive difficulty, AI coaching, hints, voice interface, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell">
-		<!-- Hero: split dark -->
+		<!-- Hero -->
 		<section class="min-h-[100dvh] relative overflow-hidden" style="background: url(/cosmic-chess-bg.webp) center/cover fixed;">
 			<div class="absolute inset-0 bg-surface-dark/60"></div>
-			<div class="container relative z-10 min-h-[100dvh] grid lg:grid-cols-[1fr_480px] gap-12 items-center pt-24 pb-16">
-				<div class="max-w-xl">
+			<div class="container relative z-10 min-h-[100dvh] flex items-center justify-center pt-24 pb-16">
+				<div class="max-w-2xl text-center">
 					<h1 class="display-lg text-on-dark mb-5">
 						Train chess with an AI coach that explains every move
 					</h1>
-					<p class="text-lg leading-relaxed text-on-dark/70 max-w-lg mb-8">
+					<p class="text-lg leading-relaxed text-on-dark/70 max-w-lg mx-auto mb-8">
 						Play Stockfish at your level. Get hints when you're stuck.
 						Ask the AI why any move works.
 					</p>
-					<div class="flex flex-wrap gap-3">
+					<div class="flex flex-wrap gap-3 justify-center">
 						<a href="/i" class="inline-flex min-w-[180px] items-center justify-center rounded-lg border border-primary/40 bg-primary/15 px-7 py-3 text-sm font-medium backdrop-blur-md transition-all hover:bg-primary/25" style="color:#fff">Start training</a>
 						<a href="/login" class="inline-flex min-w-[140px] items-center justify-center rounded-lg border border-on-dark/10 bg-surface-dark/50 px-7 py-3 text-sm font-medium backdrop-blur-sm transition-all hover:bg-surface-dark/70" style="color:#fff">Sign in</a>
-					</div>
-				</div>
-				<div class="hidden lg:block">
-					<div class="hero-artifact">
-						<div class="artifact-stage">
-							<div class="surreal-board">
-								<div class="board-plane"></div>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
 		</section>
 
-		<!-- Play the Engine: full-width text + product mockup -->
+		<!-- Play the Engine -->
 		<section class="section-band">
 			<div class="container">
-				<div class="mx-auto max-w-2xl text-center mb-12">
+				<div class="mx-auto max-w-2xl text-center">
 					<h2 class="display-md mb-4">Plays at your level, always</h2>
 					<p class="text-body text-lg leading-relaxed">
 						Stockfish adapts to you. Think time and search depth scale with your skill.
 						Strong when you want a challenge, room to learn when you don't.
 					</p>
-				</div>
-				<div class="rounded-xl bg-surface-dark text-on-dark overflow-hidden max-w-3xl mx-auto">
-					<div class="p-6 lg:p-8">
-						<div class="grid lg:grid-cols-[1fr_280px] gap-8 items-center">
-							<div class="grid grid-cols-8 gap-0 max-w-[360px] mx-auto w-full rounded-lg overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.3)] border border-on-dark/8">
-								{#each start_pos as row, r}
-									{#each row as cell, c}
-										<div class="aspect-square grid place-items-center text-sm lg:text-base {(r + c) % 2 === 0 ? 'bg-amber-900/35' : 'bg-amber-50/8'}" style="color:{(r + c) % 2 === 0 ? '#faf9f5' : '#181715'}">
-											{#if cell}
-												<span class="font-bold" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4))">{@html piece_map[cell]}</span>
-											{/if}
-										</div>
-									{/each}
-								{/each}
-							</div>
-							<div class="space-y-5 lg:border-l lg:border-on-dark/8 lg:pl-8">
-								<div class="flex items-center gap-3">
-									<span class="inline-block size-2 rounded-full bg-teal"></span>
-									<span class="text-sm text-on-dark/60">Stockfish 16</span>
-								</div>
-								<div class="space-y-3 text-sm">
-									<div class="flex justify-between"><span class="text-on-dark/60">Depth</span><span class="text-on-dark font-medium">12</span></div>
-									<div class="flex justify-between"><span class="text-on-dark/60">Think time</span><span class="text-on-dark font-medium">5s</span></div>
-									<div class="flex justify-between"><span class="text-on-dark/60">Level</span><span class="text-on-dark font-medium">Adaptive</span></div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="border-t border-on-dark/8 px-6 lg:px-8 py-3 flex items-center justify-between text-xs text-on-dark/60">
-						<span>Navigate move history</span>
-						<div class="flex gap-3">
-							<svg class="size-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
-							<svg class="size-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-							<svg class="size-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-						</div>
-					</div>
 				</div>
 			</div>
 		</section>
@@ -195,7 +134,7 @@
 			</div>
 		</section>
 
-		<!-- Smart Hints: editorial single column with inline board visual -->
+		<!-- Smart Hints -->
 		<section class="section-band">
 			<div class="container max-w-4xl">
 				<div class="mx-auto max-w-2xl">
@@ -204,27 +143,6 @@
 						See the best move highlighted on the board. Ask the AI why it's the right
 						choice in plain language. Every position analyzed in real time.
 					</p>
-				</div>
-				<div class="rounded-xl bg-surface-dark overflow-hidden max-w-sm mx-auto mt-10">
-					<div class="p-5">
-						<div class="grid grid-cols-8 gap-0 max-w-[280px] mx-auto w-full rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-on-dark/8 relative">
-							{#each Array(64) as _, i}
-								{@const r = Math.floor(i / 8)}
-								{@const c = i % 8}
-								{@const highlight = (r === 3 && c === 3) || (r === 4 && c === 4)}
-								<div class="aspect-square relative {(r + c) % 2 === 0 ? 'bg-amber-900/35' : 'bg-amber-50/8'}">
-									{#if highlight}
-										<div class="absolute inset-0 bg-primary/40 ring-2 ring-primary/60 z-10"></div>
-									{/if}
-								</div>
-							{/each}
-						</div>
-					</div>
-					<div class="border-t border-on-dark/8 px-5 py-3 flex items-center gap-2 text-xs text-on-dark/60">
-						<span class="inline-block size-2 rounded-full bg-amber"></span>
-						<span>Best move: Qxf7#</span>
-						<span class="ml-auto text-primary">Ask why</span>
-					</div>
 				</div>
 			</div>
 		</section>

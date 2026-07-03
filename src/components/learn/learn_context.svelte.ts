@@ -608,7 +608,11 @@ export class LearnState {
 		const d = this.build_chat_data(h, eval_data);
 		this.chat_messages = [...this.chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) this.chat_input = '';
-		await this.execute_chat();
+		if (this.recording && this.gemini_live_session) {
+			this.gemini_live_session.sendRealtimeInput({ text: user_msg });
+		} else {
+			await this.execute_chat();
+		}
 		if (this.voice_tts) {
 			this.voice_tts = false;
 			const last = this.chat_messages.at(-1);
@@ -848,9 +852,13 @@ export class LearnState {
 			this.chat_queue = [...this.chat_queue, { text: t }];
 			return;
 		}
-		const h = this.last_hint?.fen === this.fen ? this.last_hint.hint : (browser ? (await getHints(this.fen, 1))[0] ?? null : null);
-		const eval_json = h ? JSON.stringify({ best_move: h.move, score: h.score, depth: h.depth }) : undefined;
-		await this.send_chess_chat(t, '', true, eval_json);
+		if (this.recording && this.gemini_live_session) {
+			await this.send_chess_chat(t, '', true);
+		} else {
+			const h = this.last_hint?.fen === this.fen ? this.last_hint.hint : (browser ? (await getHints(this.fen, 1))[0] ?? null : null);
+			const eval_json = h ? JSON.stringify({ best_move: h.move, score: h.score, depth: h.depth }) : undefined;
+			await this.send_chess_chat(t, '', true, eval_json);
+		}
 	}
 
 	speak(text: string) {
@@ -1246,7 +1254,14 @@ export class LearnState {
 			this.save_game_debounced();
 		}
 		if (msg.serverContent?.outputTranscription?.text) {
-			this.chat_messages = [...this.chat_messages, { role: 'assistant', content: msg.serverContent.outputTranscription.text }];
+			const text = msg.serverContent.outputTranscription.text;
+			const last = this.chat_messages[this.chat_messages.length - 1];
+			if (last?.role === 'assistant') {
+				this.chat_messages[this.chat_messages.length - 1] = { ...last, content: text };
+				this.chat_messages = this.chat_messages;
+			} else {
+				this.chat_messages = [...this.chat_messages, { role: 'assistant', content: text }];
+			}
 			this.save_game_debounced();
 		}
 	}
