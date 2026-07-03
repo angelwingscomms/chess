@@ -444,6 +444,7 @@ export class LearnState {
 			const hint_data = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
 			const h = hint_data[0] ?? null;
 			this.last_hint = { fen: this.fen, hint: h };
+			console.log(`%c[last_hint] cached for ${this.fen.slice(0, 50)}`, 'color:#22cc66;font-weight:600');
 
 			const bm = h?.move ?? '';
 			const sc = h?.score;
@@ -1055,7 +1056,11 @@ export class LearnState {
 			init_tool_state({
 				get_fen: () => this.fen,
 				run_hints: async (f) => {
-					if (this.last_hint && this.last_hint.fen === f) return this.last_hint.hint;
+					if (this.last_hint && this.last_hint.fen === f) {
+						console.log(`%c[last_hint] CACHE HIT — returning instantly`, 'color:#22cc66;font-weight:700');
+						return this.last_hint.hint;
+					}
+					console.log(`%c[last_hint] cache miss — running Stockfish`, 'color:#ff8800');
 					return (await getHints(f, 1, undefined, undefined, undefined, this.hint_think_time * 1000))[0] ?? null;
 				},
 				get_board_state: () => this.get_board_state(),
@@ -1210,10 +1215,10 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.modelTurn?.parts) {
+			this.stop_thinking_sound();
 			console.log(`[gemini-live] modelTurn with ${msg.serverContent.modelTurn.parts.length} parts`);
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
-					this.stop_thinking_sound();
 					try {
 						const binary = atob(part.inlineData.data);
 						const bytes = new Uint8Array(binary.length);
