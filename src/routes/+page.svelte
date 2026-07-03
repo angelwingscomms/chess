@@ -57,9 +57,9 @@
 
 	<main class="page-shell">
 		<!-- Hero -->
-		<section class="min-h-[100dvh] relative overflow-hidden" style="background: url(/cosmic-chess-bg.webp) center/cover fixed;">
+		<section class="min-h-[calc(100dvh-64px)] relative overflow-hidden" style="background: url(/cosmic-chess-bg.webp) center/cover fixed;">
 			<div class="absolute inset-0 bg-surface-dark/60"></div>
-			<div class="container relative z-10 min-h-[100dvh] flex items-center justify-center pt-24 pb-16">
+			<div class="container relative z-10 min-h-[calc(100dvh-64px)] flex items-center justify-center pt-24 pb-16">
 				<div class="max-w-2xl text-center">
 					<h1 class="display-lg text-on-dark mb-5">
 						Train chess with an AI coach that explains every move

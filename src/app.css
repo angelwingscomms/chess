@@ -166,6 +166,7 @@ img {
   min-height: 100vh;
   overflow: hidden;
   background: var(--canvas);
+  padding-top: 64px;
 }
 
 .simple-home {

@@ -436,7 +436,6 @@ export class LearnState {
 		})();
 
 		if (this.gemini_live_session && this.recording && !this.quiet && m.color !== this.orientation) {
-			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			this.start_thinking_sound();
 
 			const hint_data = await getHints(post_fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
@@ -1241,6 +1240,7 @@ export class LearnState {
 		if (msg.serverContent?.modelTurn?.parts) {
 			this.stop_thinking_sound();
 			console.log(`[gemini-live] modelTurn with ${msg.serverContent.modelTurn.parts.length} parts`);
+			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
 					try {

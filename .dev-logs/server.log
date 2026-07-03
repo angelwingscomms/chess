@@ -115,3 +115,11 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 12:43:40 PM [vite] (ssr) page reload src/components/learn/ChatPanel.svelte
 12:52:45 PM [vite] (client) hmr update /src/app.css
 12:52:45 PM [vite] (ssr) page reload src/app.css
+12:55:25 PM [vite] (client) hmr update /src/app.css
+12:55:25 PM [vite] (ssr) page reload src/app.css
+12:55:29 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+12:55:29 PM [vite] (ssr) page reload src/routes/+page.svelte
+12:55:30 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/TokenModal.svelte
+12:55:30 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+12:55:31 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/TokenModal.svelte
+12:55:31 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
