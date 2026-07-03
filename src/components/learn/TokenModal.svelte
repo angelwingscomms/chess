@@ -4,6 +4,8 @@
 	const s = get_learn_state();
 
 	let show_token_modal = $derived(s.show_token_modal);
+	let total_p = $derived(s.total_p);
+	let total_c = $derived(s.total_c);
 	let total_cost = $derived(s.total_cost);
 </script>
 
@@ -15,11 +17,19 @@
 				<h2 id="bal-title" class="font-display text-2xl font-medium text-ink">Usage</h2>
 			</div>
 			<div class="grid gap-4 p-6">
-				{#if total_cost > 0}
-					<div class="rounded-lg bg-surface-card p-4">
-						<div class="flex items-center justify-between text-sm">
+				{#if total_cost > 0 || total_p > 0 || total_c > 0}
+					<div class="rounded-lg bg-surface-card divide-y divide-hairline [&>div]:flex [&>div]:items-center [&>div]:justify-between [&>div]:px-4 [&>div]:py-3 [&>div]:text-sm">
+						<div>
+							<span class="text-muted">Input tokens</span>
+							<span class="font-medium text-ink tabular-nums">{total_p.toLocaleString()}</span>
+						</div>
+						<div>
+							<span class="text-muted">Output tokens</span>
+							<span class="font-medium text-ink tabular-nums">{total_c.toLocaleString()}</span>
+						</div>
+						<div>
 							<span class="text-muted">Cost (NGN)</span>
-							<span class="font-medium text-primary">₦{(total_cost * NGN_USD).toFixed(2)}</span>
+							<span class="font-medium text-primary tabular-nums">₦{(total_cost * NGN_USD).toFixed(2)}</span>
 						</div>
 					</div>
 				{:else}

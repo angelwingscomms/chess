@@ -155,6 +155,9 @@ export class LearnState {
 	gemini_live_audio_queue: AudioBuffer[] = [];
 	gemini_live_audio_playing = false;
 	gemini_live_current_source: AudioBufferSourceNode | null = null;
+	gemini_last_usage_p = $state(0);
+	gemini_last_usage_c = $state(0);
+	gemini_deduct_pending = false;
 	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
@@ -1276,14 +1279,23 @@ export class LearnState {
 			const p = msg.usageMetadata.promptTokenCount ?? 0;
 			const c = msg.usageMetadata.responseTokenCount ?? 0;
 			if (p > 0 || c > 0) {
-				const cost = calc_cost('gemini-3.1-flash-live-preview', p, c);
-				this.total_p += p;
-				this.total_c += c;
+				const dp = p - this.gemini_last_usage_p;
+				const dc = c - this.gemini_last_usage_c;
+				this.gemini_last_usage_p = p;
+				this.gemini_last_usage_c = c;
+				const cost = calc_cost('gemini-3.1-flash-live-preview', dp, dc);
+				this.total_p += dp;
+				this.total_c += dc;
 				this.total_cost += cost;
+				if ((dp > 0 || dc > 0) && !this.gemini_deduct_pending) {
+					this.gemini_deduct_pending = true;
+					fetch('/api/voice/gemini-live/usage', { method: 'POST', body: JSON.stringify({ p: dp, c: dc }), headers: { 'Content-Type': 'application/json' } })
+						.finally(() => { this.gemini_deduct_pending = false; });
+				}
 				const last = this.chat_messages[this.chat_messages.length - 1];
 				if (last?.role === 'assistant') {
 					const updated = [...this.chat_messages];
-					updated[updated.length - 1] = { ...last, u: { p, c, cost } };
+					updated[updated.length - 1] = { ...last, u: { p: dp, c: dc, cost } };
 					this.chat_messages = updated;
 				}
 			}
@@ -1299,6 +1311,8 @@ export class LearnState {
 		this.total_p = 0;
 		this.total_c = 0;
 		this.total_cost = 0;
+		this.gemini_last_usage_p = 0;
+		this.gemini_last_usage_c = 0;
 		this.output_turn_active = false;
 		if (this.chat_abort) {
 			this.chat_abort.abort();

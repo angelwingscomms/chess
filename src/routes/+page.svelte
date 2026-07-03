@@ -160,8 +160,7 @@
 						<svg class="size-8 text-primary mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
 						<h3 class="text-lg font-medium text-ink mb-2">Talk to your coach</h3>
 						<p class="text-body text-sm leading-relaxed">
-							Use voice commands or Gemini Live. Ask questions, get spoken analysis.
-							Hands-free chess training.
+							Have voice conversations with your AI coach. Discuss your game, ask what moves to make, and get taught as you play.
 						</p>
 					</div>
 					<div class="feature-card min-h-0">
