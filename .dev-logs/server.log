@@ -691,3 +691,53 @@ https://svelte.dev/e/state_referenced_locally
 https://svelte.dev/e/state_referenced_locally
 11:13:34 AM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
+11:21:39 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+11:21:39 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+11:22:15 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+11:22:15 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+11:22:27 AM [vite] (client) hmr update /src/components/learn/BoardNavigation.svelte, /src/app.css
+11:22:27 AM [vite] (ssr) page reload src/components/learn/BoardNavigation.svelte
+11:22:27 AM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+11:22:27 AM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+11:22:36 AM [vite-plugin-svelte] src/components/learn/BoardNavigation.svelte:49:0 `<button>` cannot be a child of `<button>`. When rendering this component on the server, the resulting HTML will be modified by the browser (by moving, removing, or inserting elements), likely resulting in a `hydration_mismatch` warning
+https://svelte.dev/e/node_invalid_placement_ssr
+11:22:36 AM [vite] (client) hmr update /src/components/learn/BoardNavigation.svelte, /src/app.css
+11:22:36 AM [vite] (ssr) page reload src/components/learn/BoardNavigation.svelte
+11:22:36 AM [vite-plugin-svelte] src/components/learn/BoardNavigation.svelte:49:0 `<button>` cannot be a child of `<button>`. When rendering this component on the server, the resulting HTML will be modified by the browser (by moving, removing, or inserting elements), likely resulting in a `hydration_mismatch` warning
+https://svelte.dev/e/node_invalid_placement_ssr
+11:23:40 AM [vite] (client) hmr update /src/components/learn/BoardNavigation.svelte, /src/app.css
+11:23:40 AM [vite] (ssr) page reload src/components/learn/BoardNavigation.svelte
+11:25:43 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+11:25:43 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+11:25:48 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+11:25:48 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+11:25:58 AM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+11:25:58 AM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+11:26:39 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+11:26:39 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+11:27:08 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:27:08 AM [vite] (client) page reload .svelte-kit/generated/root.js
+11:27:08 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+11:27:08 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte

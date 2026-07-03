@@ -1128,9 +1128,17 @@ export class LearnState {
 					systemInstruction: { parts: [{ text: sys }] } as any,
 					tools: get_tool_declarations() as any,
 					inputAudioTranscription: { enabled: true } as any,
-				},
+					historyConfig: { initialHistoryInClientContent: true } as any,
+				} as any,
 			});
 			this.gemini_live_session = session;
+
+			const history_msgs = this.chat_messages
+				.filter(m => m.role !== 'system')
+				.slice(-50)
+				.map(m => ({ role: m.role === 'user' ? 'user' as const : 'model' as const, parts: [{ text: m.content }] }));
+			if (history_msgs.length > 0) session.sendClientContent({ turns: history_msgs, turnComplete: true });
+
 			log('session established');
 		} catch (e) {
 			console.error('[gemini-live] setup error', e);
