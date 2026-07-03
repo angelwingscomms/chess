@@ -161,6 +161,7 @@ export class LearnState {
 	last_hint: { fen: string; hint: Hint | null } | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
 	toast_id = $state(0);
+	output_transcript_timer: ReturnType<typeof setTimeout> | null = null;
 	model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
 	save_timeout: ReturnType<typeof setTimeout> | null = null;
 	saved_data: Record<string, unknown> | null = null;
@@ -982,6 +983,7 @@ export class LearnState {
 	}
 
 	cleanup_gemini_live() {
+		if (this.output_transcript_timer) { clearTimeout(this.output_transcript_timer); this.output_transcript_timer = null; }
 		this.interrupt_audio();
 		if (this.gemini_live_processor) { this.gemini_live_processor.disconnect(); this.gemini_live_processor = null; }
 		if (this.gemini_live_mic_stream) { this.gemini_live_mic_stream.getTracks().forEach(t => t.stop()); this.gemini_live_mic_stream = null; }
@@ -1254,15 +1256,19 @@ export class LearnState {
 			this.save_game_debounced();
 		}
 		if (msg.serverContent?.outputTranscription?.text) {
-			const text = msg.serverContent.outputTranscription.text;
-			const last = this.chat_messages[this.chat_messages.length - 1];
-			if (last?.role === 'assistant') {
-				this.chat_messages[this.chat_messages.length - 1] = { ...last, content: text };
-				this.chat_messages = this.chat_messages;
-			} else {
-				this.chat_messages = [...this.chat_messages, { role: 'assistant', content: text }];
-			}
-			this.save_game_debounced();
+			if (this.output_transcript_timer) clearTimeout(this.output_transcript_timer);
+			this.output_transcript_timer = setTimeout(() => {
+				this.output_transcript_timer = null;
+				const text = msg.serverContent.outputTranscription.text;
+				const last = this.chat_messages[this.chat_messages.length - 1];
+				if (last?.role === 'assistant') {
+					this.chat_messages[this.chat_messages.length - 1] = { ...last, content: text };
+					this.chat_messages = this.chat_messages;
+				} else {
+					this.chat_messages = [...this.chat_messages, { role: 'assistant', content: text }];
+				}
+				this.save_game_debounced();
+			}, 150);
 		}
 	}
 

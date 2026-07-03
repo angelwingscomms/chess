@@ -151,3 +151,189 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 9:12:19 AM [vite] (client) page reload .svelte-kit/generated/root.js
 9:12:19 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
 9:12:19 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN api.groq.com
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'api.groq.com'
+  }
+}
+9:16:05 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+9:16:05 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+9:16:11 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+9:16:11 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+9:16:18 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+9:16:18 AM [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/learn/learn_context.svelte.ts:1276:13 [38;5;246m][0m
+      [38;5;246m│[0m
+ [38;5;246m1276 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mC[0m[38;5;249mh[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m     │[0m                │ 
+ [38;5;240m     │[0m                ╰─ 
+ [38;5;240m     │[0m 
+ [38;5;240m     │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m──────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/ed/i/chess/src/components/learn/learn_context.svelte.ts
+      at transformWithOxc (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:3344:19)
+      at TransformPluginContext.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:3415:26)
+      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
+      at async loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:26)
+      at async viteTransformMiddleware (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24440:20)
+9:16:57 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+9:16:57 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: ConnectTimeoutError: Connect Timeout Error (attempted address: api.groq.com:443, timeout: 10000ms)
+      at onConnectTimeout (node:internal/deps/undici/undici:1981:23)
+      at Immediate._onImmediate (node:internal/deps/undici/undici:1962:11)
+      at process.processImmediate (node:internal/timers:504:21) {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+9:21:01 AM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+9:21:01 AM [vite] (ssr) page reload src/routes/+page.svelte

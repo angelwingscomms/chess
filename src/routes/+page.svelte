@@ -82,7 +82,8 @@
 				<div class="mx-auto max-w-2xl text-center">
 					<h2 class="display-md mb-4">Plays at your level, always</h2>
 					<p class="text-body text-lg leading-relaxed">
-						Stockfish adapts to you. Think time and search depth scale with your skill.
+						Stockfish adapts to you. The AI can choose how long to think about the best move
+						and can think for as long as it likes. Think time and search depth scale with your skill.
 						Strong when you want a challenge, room to learn when you don't.
 					</p>
 				</div>
