@@ -28,7 +28,7 @@ type MoveResult = {
 
 type ToolState = {
 	get_fen: () => string;
-	run_hints: (fen: string) => Promise<{ move: string; score: number; depth: number }[]>;
+	run_hints: (fen: string) => Promise<{ move: string; score: number; depth: number } | null>;
 	get_board_state: () => BoardState;
 	// make_move: (uci: string, confirmed?: boolean) => MoveResult;
 	// undo_move: () => { valid: boolean; error?: string };
@@ -116,8 +116,7 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 		case 'get_hints': {
 			const fen = state?.get_fen?.() ?? '';
 			log(`get_hints: calling run_hints for fen=${fen.slice(0, 40)}`);
-			const hints = await state?.run_hints?.(fen) ?? [];
-			const best = hints[0];
+			const best = await state?.run_hints?.(fen) ?? null;
 			if (!best) {
 				log('get_hints FAILED — no hints returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };

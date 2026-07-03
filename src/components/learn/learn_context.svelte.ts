@@ -43,7 +43,7 @@ const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain l
 
 You are a chess coach helping the user win. Your job: find the best move and explain why it's best in concrete terms — what it threatens, what it prevents, what weakness it exploits.
 
-Before you suggest any move, always call get_hints first to get the actual best move. Never make up a move — always use the tool. The model waits for the result before speaking, so the user sees no delay. Never mention engines, scores, or that you used a tool.
+The best_move and score for the current position are ALREADY provided in the context. NEVER call get_hints on the current position — use the provided data directly. The get_hints tool is ONLY for positions the user asks about that differ from the current board. Never mention engines, scores, or that you used a tool.
 
 When it's the user's turn: tell them the best move and explain why. Compare their last move to the best move when there's a meaningful difference.
 
@@ -173,6 +173,7 @@ export class LearnState {
 	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
+	last_hint: { fen: string; hint: Hint | null } | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
 	toast_id = $state(0);
 	model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
@@ -440,13 +441,15 @@ export class LearnState {
 			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			this.start_thinking_sound();
 
-			const hints = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
+			const hint_data = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
+			const h = hint_data[0] ?? null;
+			this.last_hint = { fen: this.fen, hint: h };
 
-			const bm = hints[0]?.move ?? '';
-			const sc = hints[0]?.score;
+			const bm = h?.move ?? '';
+			const sc = h?.score;
 
 			if (bm && this.auto_hint) {
-				this.hints = hints;
+				this.hints = hint_data;
 				this.hint_fen = this.fen;
 				this.hint_index = 0;
 				this.show_hints = true;
@@ -851,8 +854,8 @@ export class LearnState {
 			this.chat_queue = [...this.chat_queue, { text: t }];
 			return;
 		}
-		const hints = browser ? await getHints(this.fen, 1) : [];
-		const eval_json = hints[0] ? JSON.stringify({ best_move: hints[0].move, score: hints[0].score, depth: hints[0].depth }) : undefined;
+		const h = this.last_hint?.fen === this.fen ? this.last_hint.hint : (browser ? (await getHints(this.fen, 1))[0] ?? null : null);
+		const eval_json = h ? JSON.stringify({ best_move: h.move, score: h.score, depth: h.depth }) : undefined;
 		await this.send_chess_chat(t, '', true, eval_json);
 	}
 
@@ -1052,7 +1055,8 @@ export class LearnState {
 			init_tool_state({
 				get_fen: () => this.fen,
 				run_hints: async (f) => {
-					return getHints(f, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
+					if (this.last_hint && this.last_hint.fen === f) return this.last_hint.hint;
+					return (await getHints(f, 1, undefined, undefined, undefined, this.hint_think_time * 1000))[0] ?? null;
 				},
 				get_board_state: () => this.get_board_state(),
 			});
@@ -1206,10 +1210,10 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.modelTurn?.parts) {
-			this.stop_thinking_sound();
 			console.log(`[gemini-live] modelTurn with ${msg.serverContent.modelTurn.parts.length} parts`);
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
+					this.stop_thinking_sound();
 					try {
 						const binary = atob(part.inlineData.data);
 						const bytes = new Uint8Array(binary.length);
