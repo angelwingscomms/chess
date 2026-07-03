@@ -1188,6 +1188,7 @@ export class LearnState {
 		source.buffer = buffer;
 		source.connect(this.gemini_live_audio_gain);
 		source.onended = () => {
+			if (this.gemini_live_current_source !== source) return;
 			this.gemini_live_current_source = null;
 			this.gemini_live_audio_playing = false;
 			this.play_next_audio();
@@ -1205,10 +1206,10 @@ export class LearnState {
 			gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
 			gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
 		}
+		this.gemini_live_audio_playing = false;
+		this.gemini_live_audio_queue = [];
 		this.gemini_live_current_source?.stop();
 		this.gemini_live_current_source = null;
-		this.gemini_live_audio_queue = [];
-		this.gemini_live_audio_playing = false;
 		setTimeout(() => {
 			if (this.gemini_live_audio_gain) this.gemini_live_audio_gain.gain.value = 1;
 		}, 200);
