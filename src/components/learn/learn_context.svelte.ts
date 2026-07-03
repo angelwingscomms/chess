@@ -9,49 +9,34 @@ import { init_tool_state, get_tool_declarations, dispatch_tool_call } from '$lib
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
 import { getContext, setContext } from 'svelte';
 
-const default_sys = `Keep responses extremely short — 1-3 sentences, plain language. Always answer whatever the user asks — that's your #1 job. If you don't know, say so simply.
+const socratic_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like talking to a friend.
 
-You receive board context in [board_context] tags: FEN, move_history, last_user_move, last_ai_move, and optionally a hinted move. Ground every observation in concrete squares and piece locations. Never mention engines, scores, ratings, or that data was provided. Use objective voice — no "I see" or "I notice".
+You are a chess trainer asking questions to make the user think. Weave move types and strategic concepts into questions naturally — never lecture, just name the idea in context. Never mention engines or scores.
 
-When the player asks "why {move}" (analyzing a hint), explain what that move accomplishes in concrete positional or tactical terms. What does it threaten? What does it prevent? What weakness does it exploit?
-
-When the player makes a mistake: state what happened factually, mention one principle, move on. When they make a good move: note why in chess terms. Vary the domain — tactics, structure, endgame, psychology, openings.`;
-
-const socratic_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend. Always answer whatever the user asks — that's your #1 job.
-
-You are a chess trainer. They're here to train, not play — internal note, don't say it.
-
-You have analysis tools — never mention them, you just know. Never mention engines or scores.
-
-Core principle: never give answers. Only ask questions that make the user figure it out themselves.
-
-Ask naturally, like a real coach:
+Core: never give answers. Make the user figure it out. Use the move type and strategy as the frame:
 - Tactical error → "What's your opponent threatening?"
-- Missed opponent's plan → "What does your opponent want here?"
-- Passive move → "Any pieces not doing anything?"
+- Passive/aimless move → "What's the strategic goal of your last move?"
+- Missed idea → "What does that move accomplish?"
 - No plan → "What's the position telling you?"
 - Broke a principle → "Which principle did you just break?"
-- Good move → "Which principle did you follow?"
-- "Is this right?" → "What do you think?"
+- Good move → "What does that accomplish strategically?"
 - "I don't know" → "Let's look at it differently. What stands out?"
 
-Weave in strategic and technical concepts naturally when relevant — piece activity, pawn structure, outposts, weak squares, tempi, prophylaxis, initiative, undermining, simplification, color complexes, and so on. Never lecture — just name the idea as part of the question so it sticks.
+Weave in concepts: move types (development, attack, defense, prophylaxis, positional, tactical), initiative, pawn structure, outposts, weak squares, tempi, color complexes, simplification, undermining, openings. Every question teaches by naming the idea.
 
-No formal wrap-ups. No "What did you learn?" Just end naturally and keep going.`;
+No formal wrap-ups. End naturally.`;
 
-const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like you're talking to a friend.
+const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like talking to a friend.
 
-You are a chess coach helping the user win. Your job: find the best move and explain why it's best in concrete terms — what it threatens, what it prevents, what weakness it exploits.
+You are a chess coach helping the user win. When suggesting or analyzing a move, always name its type (development, attack, defense, prophylaxis, positional, tactical, simplification, undermining, etc.), explain the strategy behind it, and state the concrete advantage — what it threatens, prevents, or exploits. Weave in advanced ideas naturally: initiative, pawn structure, outposts, weak squares, tempi, color complexes, endgame principles, openings, etc., when relevant.
 
-Only call get_hints when best_move is not already listed in the board context. Never mention engines or scores.
+Only call get_hints when best_move is not already listed. Never mention engines or scores.
 
-When it's the user's turn: tell them the best move and explain why. Compare their last move to the best move when there's a meaningful difference.
+When it's the user's turn: suggest the best move, its type, strategy, and advantage. Compare to their last move when meaningful.
 
-When the player asks about a position: tell them the strongest continuation and the idea behind it. Be specific about squares and pieces.
+When asked about a position: strongest continuation, its type, and the strategic idea. Be specific about squares and pieces.
 
-Weave in strategic and technical concepts naturally when relevant — piece activity, pawn structure, outposts, weak squares, tempi, prophylaxis, initiative, undermining, simplification, color complexes, endgame principles, and so on. Name the idea in context so the user picks it up through repeated exposure.
-
-No formal wrap-ups. Just end naturally.`;
+No formal wrap-ups. End naturally.`;
 
 export const voice_options = [
 	{ v: 'Kore', l: 'Kore', d: 'Firm' },
@@ -382,6 +367,7 @@ export class LearnState {
 		if (c.a && c.a !== this.successful_context.a) d.a = c.a;
 		if (eval_data) d.e = eval_data;
 		if (h) d.h = h;
+		d.t = this.hint_think_time;
 		return d;
 	}
 
@@ -393,6 +379,7 @@ export class LearnState {
 			d.u && `last_user_move: ${d.u}`,
 			d.a && `last_ai_move: ${d.a}`,
 			d.h && `hint: ${d.h}`,
+			d.t !== undefined && `hint_think_time: ${d.t}s`,
 		].filter(Boolean);
 		return rows.length
 			? `${msg.content}\n\n[board_context]\n${rows.join('\n')}\n[/board_context]`
@@ -426,40 +413,46 @@ export class LearnState {
 		}
 	}
 
-	async onMove(e: CustomEvent<{ color: Color }>) {
-		const m = e.detail;
+	async onMove(e: CustomEvent<Record<string, unknown>>) {
+		const m = e.detail as any;
 		this.turn = m.color === 'w' ? 'b' : 'w';
 		this.moveNum++;
-		this.inCheck = (e.detail as any).check ?? false;
+		this.inCheck = m.check ?? false;
 		if (m.color === 'w') this.last_user_move = this.move_text(m);
 		else this.last_ai_move = this.move_text(m);
 		this.redo_stack = [];
 		this.hideHints(true);
 		this.save_game_debounced();
 
+		// svelte-chess dispatches on:move before updating bind:fen, so this.fen is stale.
+		// Compute the correct post-move position for Stockfish hints & voice context.
+		const post_fen = (() => {
+			try { const g = new ChessJS(this.fen); g.move(m.san); return g.fen(); } catch { return this.fen; }
+		})();
+
 		if (this.gemini_live_session && this.recording && !this.quiet && m.color !== this.orientation) {
 			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			this.start_thinking_sound();
 
-			const hint_data = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
+			const hint_data = await getHints(post_fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
 			const h = hint_data[0] ?? null;
-			this.last_hint = { fen: this.fen, hint: h };
-			console.log(`%c[last_hint] cached for ${this.fen.slice(0, 50)}`, 'color:#22cc66;font-weight:600');
+			this.last_hint = { fen: post_fen, hint: h };
+			console.log(`%c[last_hint] cached for ${post_fen.slice(0, 50)}`, 'color:#22cc66;font-weight:600');
 
 			const bm = h?.move ?? '';
 			const sc = h?.score;
 
-			if (bm && this.auto_hint) {
+			const eval_str = bm && sc != null ? `|best_move:${bm}|score:${sc}` : '';
+			try { this.gemini_live_session!.sendRealtimeInput({
+				text: `fen:${post_fen}|user_played:${this.last_user_move}|opponent_played:${this.last_ai_move}${eval_str}`
+			}); } catch {}
+
+			if (bm) {
 				this.hints = hint_data;
-				this.hint_fen = this.fen;
+				this.hint_fen = post_fen;
 				this.hint_index = 0;
 				this.show_hints = true;
 			}
-
-			const eval_str = bm && sc != null ? `|best_move:${bm}|score:${sc}` : '';
-			try { this.gemini_live_session!.sendRealtimeInput({
-				text: `fen:${this.fen}|user_played:${this.last_user_move}|opponent_played:${this.last_ai_move}${eval_str}`
-			}); } catch {}
 		}
 
 	}
@@ -1055,13 +1048,14 @@ export class LearnState {
 
 			init_tool_state({
 				get_fen: () => this.fen,
-				run_hints: async (f) => {
-					if (this.last_hint && this.last_hint.fen === f) {
+				hint: async (f, think_time) => {
+					const mt = (think_time ?? this.hint_think_time) * 1000;
+					if (this.last_hint && this.last_hint.fen === f && think_time === undefined) {
 						console.log(`%c[last_hint] CACHE HIT — returning instantly`, 'color:#22cc66;font-weight:700');
 						return this.last_hint.hint;
 					}
 					console.log(`%c[last_hint] cache miss — running Stockfish`, 'color:#ff8800');
-					return (await getHints(f, 1, undefined, undefined, undefined, this.hint_think_time * 1000))[0] ?? null;
+					return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
 				},
 				get_board_state: () => this.get_board_state(),
 			});
@@ -1206,11 +1200,20 @@ export class LearnState {
 			console.log(`[gemini-live] received ${msg.toolCall.functionCalls.length} tool call(s)`, msg.toolCall.functionCalls.map((f: any) => f.name).join(', '));
 			for (const fc of msg.toolCall.functionCalls) {
 				console.log(`[gemini-live] dispatching tool: "${fc.name}" id=${fc.id ?? 'none'}`);
+				const current_fen = this.fen;
 				dispatch_tool_call(fc).then((r) => {
+					if (r.name === 'hint' && (r.response as any)?.best_move && current_fen === this.fen) {
+						const resp = r.response as any;
+						this.hints = [{ move: resp.best_move, score: resp.score ?? 0, depth: resp.depth ?? 0 }];
+						this.hint_fen = current_fen;
+						this.hint_index = 0;
+						this.show_hints = true;
+					}
 					console.log(`[gemini-live] tool response for "${fc.name}":`, JSON.stringify(r).slice(0, 300));
 					this.gemini_live_session?.sendToolResponse({ functionResponses: [r] } as any);
 				}).catch((err) => {
 					console.error(`[gemini-live] dispatch_tool_call ERROR for "${fc.name}":`, err);
+					this.gemini_live_session?.sendToolResponse({ functionResponses: [{ id: fc.id, name: fc.name, response: { error: String(err) } }] } as any);
 				});
 			}
 		}

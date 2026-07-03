@@ -28,7 +28,7 @@ type MoveResult = {
 
 type ToolState = {
 	get_fen: () => string;
-	run_hints: (fen: string) => Promise<{ move: string; score: number; depth: number } | null>;
+	hint: (fen: string, think_time?: number) => Promise<{ move: string; score: number; depth: number } | null>;
 	get_board_state: () => BoardState;
 	// make_move: (uci: string, confirmed?: boolean) => MoveResult;
 	// undo_move: () => { valid: boolean; error?: string };
@@ -52,9 +52,11 @@ export function get_tool_declarations() {
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
-				name: 'get_hints',
-				description: 'Get the Stockfish evaluation of the current board position. Returns the best move and its centipawn score. Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay.',
-				parameters: { type: 'OBJECT', properties: {} },
+				name: 'hint',
+				description: 'Get the Stockfish evaluation of the current board position. Returns the best move and its centipawn score. Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay. Optionally specify think_time in seconds to control analysis depth (default matches your setting).',
+				parameters: { type: 'OBJECT', properties: {
+					think_time: { type: 'NUMBER', description: 'Optional. How many seconds to let Stockfish think. Higher = deeper analysis. Defaults to your setting.' },
+				} },
 			},
 			{
 				name: 'get_board_state',
@@ -113,15 +115,16 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			return { id: fc.id, name, response: { fen: f, error: f ? undefined : 'No board position has been set yet.' } };
 		}
 
-		case 'get_hints': {
+		case 'hint': {
 			const fen = state?.get_fen?.() ?? '';
-			log(`get_hints: calling run_hints for fen=${fen.slice(0, 40)}`);
-			const best = await state?.run_hints?.(fen) ?? null;
+			const think_time = (fc.args?.think_time as number | undefined) ?? undefined;
+			log(`hint: calling hint for fen=${fen.slice(0, 40)} think_time=${think_time ?? 'default'}`);
+			const best = await state?.hint?.(fen, think_time) ?? null;
 			if (!best) {
-				log('get_hints FAILED — no hints returned');
+				log('hint FAILED — no hints returned');
 				return { id: fc.id, name, response: { error: 'No analysis data available.', available: false } };
 			}
-			log(`get_hints: best_move=${best.move} score=${best.score} depth=${best.depth}`);
+			log(`hint: best_move=${best.move} score=${best.score} depth=${best.depth}`);
 			return { id: fc.id, name, response: { best_move: best.move, score: best.score, depth: best.depth, available: true } };
 		}
 

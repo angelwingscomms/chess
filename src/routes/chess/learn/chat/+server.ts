@@ -22,7 +22,7 @@ const getModel = (m: string) => wrapLanguageModel({
 });
 
 type Msg = { r: 'system' | 'user' | 'assistant'; c: string; d?: Data };
-type Data = { f?: string; p?: string; u?: string; a?: string; h?: string; e?: string };
+type Data = { f?: string; p?: string; u?: string; a?: string; h?: string; e?: string; t?: number };
 
 const enc = new TextEncoder();
 
@@ -43,6 +43,7 @@ function build_input(msg: Msg) {
 		d.a && `last_ai_move: ${d.a}`,
 		d.h && `hint: ${d.h}`,
 		d.e && `evaluation: ${d.e}`,
+		d.t !== undefined && `hint_think_time: ${d.t}s`,
 	].filter(Boolean);
 
 	return rows.length

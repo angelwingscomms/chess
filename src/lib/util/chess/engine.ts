@@ -15,7 +15,7 @@ export function getHints(fen: string, count = 5, stockfishPath?: string, signal?
 	return new Promise((res, rej) => {
 		if (signal?.aborted) { ww.terminate(); rej(signal.reason); return; }
 		const hints: Hint[] = [];
-		const t = setTimeout(() => { ww.terminate(); rej(new Error('timeout')); }, 30000);
+		const t = setTimeout(() => { ww.terminate(); rej(new Error('timeout')); }, mt + 10000);
 		signal?.addEventListener('abort', () => { clearTimeout(t); ww.terminate(); rej(signal.reason); }, { once: true });
 		ww.addEventListener('message', ({ data }) => {
 			const u = data as string;
