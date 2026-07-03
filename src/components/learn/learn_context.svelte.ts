@@ -1217,6 +1217,7 @@ export class LearnState {
 
 	gemini_live_handle(msg: any) {
 		if (msg.toolCall?.functionCalls?.length) {
+			this.interrupt_audio();
 			this.start_thinking_sound();
 			console.log(`[gemini-live] received ${msg.toolCall.functionCalls.length} tool call(s)`, msg.toolCall.functionCalls.map((f: any) => f.name).join(', '));
 			for (const fc of msg.toolCall.functionCalls) {
@@ -1241,7 +1242,6 @@ export class LearnState {
 		if (msg.serverContent?.modelTurn?.parts) {
 			this.stop_thinking_sound();
 			console.log(`[gemini-live] modelTurn with ${msg.serverContent.modelTurn.parts.length} parts`);
-			if (this.gemini_live_audio_playing) this.interrupt_audio();
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
 					try {
