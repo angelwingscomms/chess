@@ -858,13 +858,7 @@ export class LearnState {
 			this.chat_queue = [...this.chat_queue, { text: t }];
 			return;
 		}
-		if (this.recording && this.gemini_live_session) {
-			await this.send_chess_chat(t, '', true);
-		} else {
-			const h = this.last_hint?.fen === this.fen ? this.last_hint.hint : (browser ? (await getHints(this.fen, 1))[0] ?? null : null);
-			const eval_json = h ? JSON.stringify({ best_move: h.move, score: h.score, depth: h.depth }) : undefined;
-			await this.send_chess_chat(t, '', true, eval_json);
-		}
+		await this.send_chess_chat(t, '', true);
 	}
 
 	speak(text: string) {
