@@ -66,7 +66,14 @@
 					<BoardNavigation />
 					<HintLabel />
 				</div>
-				<ChatPanel />
+				{#if $page.data.user}
+					<ChatPanel />
+				{:else}
+					<div class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-hairline px-4 py-8 text-center">
+						<p class="text-sm text-muted">Sign in to chat with your AI coach</p>
+						<a href="/login" class="button-primary text-sm">Sign in</a>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>
