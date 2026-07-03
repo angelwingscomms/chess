@@ -1290,6 +1290,8 @@ export class LearnState {
 				if ((dp > 0 || dc > 0) && !this.gemini_deduct_pending) {
 					this.gemini_deduct_pending = true;
 					fetch('/api/voice/gemini-live/usage', { method: 'POST', body: JSON.stringify({ p: dp, c: dc }), headers: { 'Content-Type': 'application/json' } })
+						.then(r => r.json().catch(() => null))
+						.then(d => { if (d?.bal !== undefined) window.dispatchEvent(new CustomEvent('balance-update', { detail: d.bal })); })
 						.finally(() => { this.gemini_deduct_pending = false; });
 				}
 				const last = this.chat_messages[this.chat_messages.length - 1];
