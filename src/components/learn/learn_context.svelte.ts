@@ -1241,6 +1241,14 @@ export class LearnState {
 		if (msg.serverContent?.interrupted) {
 			this.interrupt_audio();
 		}
+		if (msg.serverContent?.inputTranscription?.text) {
+			this.chat_messages = [...this.chat_messages, { role: 'user', content: msg.serverContent.inputTranscription.text }];
+			this.save_game_debounced();
+		}
+		if (msg.serverContent?.outputTranscription?.text) {
+			this.chat_messages = [...this.chat_messages, { role: 'assistant', content: msg.serverContent.outputTranscription.text }];
+			this.save_game_debounced();
+		}
 	}
 
 	clearChat() {
