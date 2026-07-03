@@ -5,12 +5,13 @@
   import { browser } from '$app/environment';
   import type { LayoutProps } from './$types';
   let { data, children }: LayoutProps = $props();
-  let user = $state<{ id: string; name: string; picture?: string } | null>(data.user);
+  let user = $state<{ id: string; name: string; picture?: string; email?: string } | null>(data.user);
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
   let img_err = $state(false);
   let show_profile = $state(false);
   let token_balance = $state(data.balance);
+  let date_joined = $state(data.date_joined);
   let bal_ver = $state(0);
 	let buy_amount = $state(10_000);
 	let buy_loading = $state(false);
@@ -121,7 +122,19 @@
         <h2 id="profile-title" class="font-display text-2xl font-medium text-ink">Profile</h2>
       </div>
       <div class="grid gap-4 p-6">
-        <div class="rounded-lg bg-surface-card p-4 space-y-2 border border-hairline">
+        <div class="rounded-lg bg-surface-card p-4 space-y-3 border border-hairline">
+          {#if user?.email}
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-muted">Email</span>
+              <span class="font-medium text-ink">{user.email}</span>
+            </div>
+          {/if}
+          {#if date_joined}
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-muted">Joined</span>
+              <span class="font-medium text-ink">{new Date(date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+            </div>
+          {/if}
           <div class="flex items-center justify-between text-sm">
             <span class="text-muted">Balance</span>
             <span class="font-medium text-ink">₦{(token_balance / 100).toFixed(2)}</span>
@@ -134,7 +147,7 @@
             <input type="number" min={MIN_KOBO / 100} bind:value={buy_input} placeholder="100" class="w-full rounded-lg border border-hairline bg-surface-card py-2.5 pl-7 pr-3 text-sm text-ink outline-none transition-colors focus:border-primary" />
           </div>
           <p class="text-[10px] text-muted/60">Min: ₦100</p>
-          <button class="button-primary w-full justify-center {buy_loading ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(parseInt(buy_input) * 100 || MIN_KOBO)} disabled={buy_loading}>
+          <button class="button-primary w-full justify-center {buy_loading || !buy_input || parseInt(buy_input) <= 0 ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(parseInt(buy_input) * 100 || MIN_KOBO)} disabled={buy_loading || !buy_input || parseInt(buy_input) <= 0}>
             {buy_loading ? 'Processing…' : `Deposit ₦${(parseInt(buy_input) * 100 || MIN_KOBO) / 100}`}
           </button>
         </div>
