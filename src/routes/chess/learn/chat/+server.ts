@@ -6,7 +6,7 @@ import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { calc_cost } from '$lib/util/ai/pricing';
-import { deduct } from '$lib/server/token_balance';
+import { deduct, TOKEN_RATE } from '$lib/server/token_balance';
 import { NGN_USD } from '$lib/util/rates';
 import { get_fen } from '$lib/util/chat/tools/get_fen';
 import { evaluate_position } from '$lib/util/chat/tools/stockfish_analysis';
@@ -101,7 +101,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 							if (u?.totalTokens != null) {
 							const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
 							const cost = calc_cost(m, p, c);
-							const cost_kobo = Math.round(cost * NGN_USD * 100);
+							const cost_kobo = Math.round(cost * NGN_USD * 100 * TOKEN_RATE);
 							let bal = 0;
 							if (locals.user?.id && cost_kobo > 0) {
 								try { bal = await deduct({ platform }, locals.user.id, cost_kobo); } catch {}

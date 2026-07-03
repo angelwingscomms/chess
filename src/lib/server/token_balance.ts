@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { QDRANT_KEY, QDRANT_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
-const TOKEN_RATE = 1;
+export const TOKEN_RATE = Number(env.TOKEN_RATE) || 1.08;
 const DAILY_AMOUNT = 5400;
 const DAY_S = 86400;
 const C = 'i';
@@ -61,7 +62,7 @@ export async function maybe_daily_credit(user_id: string): Promise<number> {
 }
 
 export async function credit(_event: unknown, user_id: string, amount_kobo: number): Promise<number> {
-	const t = Math.floor(amount_kobo / TOKEN_RATE);
+	const t = Math.floor(amount_kobo);
 	const { bal, daily } = await read_user(user_id);
 	const n = bal + t;
 	await write_user(user_id, n, daily);

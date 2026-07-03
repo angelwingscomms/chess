@@ -25,7 +25,7 @@ describe('/chess/learn/chat route', () => {
 
 	it('imports calc_cost, deduct, NGN_USD and deducts balance on usage', () => {
 		expect(route).toContain("import { calc_cost } from '$lib/util/ai/pricing'");
-		expect(route).toContain("import { deduct } from '$lib/server/token_balance'");
+		expect(route).toContain("import { deduct, TOKEN_RATE } from '$lib/server/token_balance'");
 		expect(route).toContain("import { NGN_USD } from '$lib/util/rates'");
 		expect(route).toContain('const cost = calc_cost(m, p, c)');
 		expect(route).toContain('cost_kobo');

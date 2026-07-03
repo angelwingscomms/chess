@@ -500,3 +500,116 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 10:33:08 AM [vite] (ssr) page reload src/components/LearnPage.svelte
 10:40:35 AM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
 10:40:35 AM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+10:56:35 AM [vite] (client) hmr update /src/app.css
+10:56:35 AM [vite] (ssr) page reload src/lib/server/token_balance.ts
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+10:57:02 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+10:57:02 AM [vite] (client) page reload .svelte-kit/generated/root.js
+10:57:02 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+10:57:02 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+11:07:35 AM [vite] (client) hmr update /src/app.css
+11:07:35 AM [vite] (ssr) page reload src/lib/server/token_balance.ts
+11:07:35 AM [vite] (client) hmr update /src/app.css
+11:07:35 AM [vite] (ssr) page reload src/lib/server/token_balance.ts
+11:07:47 AM [vite] (client) hmr update /src/app.css
+11:07:47 AM [vite] (ssr) page reload src/routes/api/voice/gemini-live/usage/+server.ts
+11:07:48 AM [vite] (client) hmr update /src/app.css
+11:07:48 AM [vite] (ssr) page reload src/routes/api/voice/gemini-live/usage/+server.ts
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+11:08:08 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:08:08 AM [vite] (client) page reload .svelte-kit/generated/root.js
+11:08:08 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+11:08:08 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+11:08:44 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:08:44 AM [vite] (client) page reload .svelte-kit/generated/root.js
+11:08:44 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+11:08:44 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+11:08:51 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:08:51 AM [vite] (client) page reload .svelte-kit/generated/root.js
+11:08:51 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+11:08:51 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+11:09:01 AM [vite] (client) hmr update /src/app.css
+11:09:01 AM [vite] (ssr) page reload src/lib/server/token_balance.ts
+11:09:25 AM [vite] (client) hmr update /src/app.css
+11:09:25 AM [vite] (ssr) page reload src/lib/server/token_balance.ts
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+11:09:32 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:09:32 AM [vite] (client) page reload .svelte-kit/generated/root.js
+11:09:32 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+11:09:32 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/nodes/4.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/app.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+11:09:45 AM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+11:09:45 AM [vite] (client) page reload .svelte-kit/generated/root.js
+11:09:45 AM [vite] (ssr) page reload .svelte-kit/generated/root.js
+11:09:45 AM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
