@@ -251,3 +251,11 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 2:37:39 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
 2:37:45 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
 2:37:45 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+2:45:51 PM [vite] (client) hmr update /src/app.css
+2:45:51 PM [vite] (ssr) page reload src/hooks.server.ts
+2:45:59 PM [vite] (client) hmr update /src/app.css
+2:45:59 PM [vite] (ssr) page reload src/lib/server/session.ts
+2:46:06 PM [vite] (client) hmr update /src/app.css
+2:46:06 PM [vite] (ssr) page reload src/lib/server/user.ts
+2:46:14 PM [vite] (client) hmr update /src/app.css
+2:46:14 PM [vite] (ssr) page reload src/routes/+layout.server.ts
