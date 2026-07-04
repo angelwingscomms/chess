@@ -1134,7 +1134,7 @@ export class LearnState {
 					this._set_state_fail_count++;
 					if (this._set_state_fail_count >= 9) {
 						this._set_state_fail_count = 0;
-						this.add_toast('Could not set position after multiple attempts. Try describing it differently.');
+						this.add_toast('Failed to set board position');
 					}
 					return { valid: false, error: 'Invalid FEN' };
 				}
