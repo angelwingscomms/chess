@@ -17,7 +17,6 @@
 	let hint_on_start = $derived(s.hint_on_start);
 	let quiet = $derived(s.quiet);
 	let noise_suppression = $derived(s.noise_suppression);
-	let noise_suppression_level = $derived(s.noise_suppression_level);
 	let vibe = $derived(s.vibe);
 	let show_vibe_menu = $derived(s.show_vibe_menu);
 </script>
@@ -197,7 +196,7 @@
 					<label class="flex cursor-pointer items-center justify-between gap-4">
 						<span>
 							<span class="block text-sm font-medium text-ink">Noise suppression</span>
-							<span class="mt-1 block text-xs leading-5 text-muted">Filter background noise with DeepFilterNet 3.</span>
+							<span class="mt-1 block text-xs leading-5 text-muted">Filter background noise with RNNoise WASM.</span>
 						</span>
 						<span class="grid size-5 place-items-center rounded-full border border-primary">
 							<input type="checkbox" bind:checked={s.noise_suppression} class="sr-only" aria-label="Noise suppression" />
@@ -205,16 +204,7 @@
 						</span>
 					</label>
 				</section>
-				{#if noise_suppression}
-					<section class="rounded-lg border border-hairline bg-canvas p-4">
-						<label class="flex items-center justify-between">
-							<span class="text-sm font-medium text-ink">Suppression level</span>
-							<span class="text-xs text-muted">{noise_suppression_level}%</span>
-						</label>
-						<input type="range" min="0" max="100" bind:value={s.noise_suppression_level} class="mt-2 w-full accent-primary" />
-						<p class="mt-1 text-xs leading-5 text-muted">Higher = more aggressive. 50% recommended.</p>
-					</section>
-				{/if}
+
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="vibe-label">Coach style</h3>
 					<button

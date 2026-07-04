@@ -162,8 +162,7 @@ export class LearnState {
 	gemini_last_usage_c = $state(0);
 	gemini_deduct_pending = false;
 
-	df3_core: any = null;
-	df3_worklet_node: AudioWorkletNode | null = null;
+	rnnoise_node: AudioWorkletNode | null = null;
 
 	_audio_log_seq = 0;
 	gemini_live_healthy = false;
@@ -968,15 +967,11 @@ export class LearnState {
 		this.recording = false;
 		log('recording set to false');
 		this.interrupt_audio();
-		if (this.df3_worklet_node) {
-			log('disconnecting df3 worklet');
-			this.df3_worklet_node.disconnect();
-			this.df3_worklet_node = null;
-		}
-		if (this.df3_core) {
-			log('destroying df3 core');
-			this.df3_core.destroy();
-			this.df3_core = null;
+		if (this.rnnoise_node) {
+			log('destroying rnnoise node');
+			(this.rnnoise_node as any).destroy?.();
+			this.rnnoise_node.disconnect();
+			this.rnnoise_node = null;
 		}
 		if (this.gemini_live_processor) {
 			log('disconnecting processor');
@@ -1024,18 +1019,18 @@ export class LearnState {
 
 	send_gemini_realtime_input(input: Record<string, unknown>, caller = '') {
 		if (!this.gemini_live_can_send()) {
-			console.log(`[gemini-live/send_input] BLOCKED caller=${caller} has_text=${Boolean(input.text)} has_audio=${Boolean(input.audio)}`);
+			// console.log(`[gemini-live/send_input] BLOCKED caller=${caller} has_text=${Boolean(input.text)} has_audio=${Boolean(input.audio)}`);
 			return false;
 		}
 		const has_text = Boolean(input.text);
 		const has_audio = Boolean(input.audio);
-		console.log(`[gemini-live/send_input] CALLING caller=${caller} has_text=${has_text} has_audio=${has_audio} session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
+		// console.log(`[gemini-live/send_input] CALLING caller=${caller} has_text=${has_text} has_audio=${has_audio} session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
 		try {
 			this.gemini_live_session.sendRealtimeInput(input);
-			console.log(`[gemini-live/send_input] OK caller=${caller}`);
+			// console.log(`[gemini-live/send_input] OK caller=${caller}`);
 			return true;
 		} catch (e) {
-			console.error(`[gemini-live/send_input] FAILED caller=${caller} error=${e instanceof Error ? e.message : e}`);
+			// console.error(`[gemini-live/send_input] FAILED caller=${caller} error=${e instanceof Error ? e.message : e}`);
 			return false;
 		}
 	}
@@ -1143,25 +1138,26 @@ export class LearnState {
 			this.load_thinking_sound();
 			const micSource = audioCtx.createMediaStreamSource(stream);
 
-			// Optionally insert DeepFilterNet 3 noise suppression
+			// Optionally insert RNNoise noise suppression
 			let processorSource: MediaStreamAudioSourceNode | null = null;
 			if (this.noise_suppression) {
 				try {
-					const { DeepFilterNet3Core } = await import('deepfilternet3-noise-filter');
-					const core = new DeepFilterNet3Core({
-						sampleRate: audioCtx.sampleRate,
-						noiseReductionLevel: this.noise_suppression_level,
+					const { RnnoiseWorkletNode, loadRnnoise } = await import('@sapphi-red/web-noise-suppressor');
+					this.add_toast('Loading noise suppression...');
+					const wasmBinary = await loadRnnoise(
+						{ url: '/rnnoise.wasm', simdUrl: '/rnnoise_simd.wasm' }
+					);
+					await audioCtx.audioWorklet.addModule('/rnnoise-worklet.js');
+					const rnnoiseNode = new RnnoiseWorkletNode(audioCtx, {
+						maxChannels: 1,
+						wasmBinary,
 					});
-					this.add_toast('Loading noise suppression model...');
-					await core.initialize();
-					this.df3_core = core;
-					const denoiseNode = await core.createAudioWorkletNode(audioCtx);
-					this.df3_worklet_node = denoiseNode;
+					this.rnnoise_node = rnnoiseNode;
 					const intermediateDest = audioCtx.createMediaStreamDestination();
-					micSource.connect(denoiseNode).connect(intermediateDest);
+					micSource.connect(rnnoiseNode).connect(intermediateDest);
 					processorSource = audioCtx.createMediaStreamSource(intermediateDest.stream);
 				} catch (e) {
-					console.warn('[gemini-live] DeepFilterNet3 init failed, falling back to raw mic', e);
+					console.warn('[gemini-live] RNNoise init failed, falling back to raw mic', e);
 					this.add_toast('Noise suppression unavailable, using raw mic');
 				}
 			}
