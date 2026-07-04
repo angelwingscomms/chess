@@ -36,6 +36,8 @@ When the user asks about a position: strongest continuation, its type, and the s
 
 End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
 
+const tool_use_rules = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, briefly state the new position.`;
+
 export const voice_options = [
 	{ v: 'Kore', l: 'Kore', d: 'Firm' },
 	{ v: 'Zephyr', l: 'Zephyr', d: 'Bright' },
@@ -1118,6 +1120,18 @@ export class LearnState {
 					return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
 				},
 				get_board_state: () => this.get_board_state(),
+				load_fen: (fen) => {
+					try {
+						this.chessRef?.load(fen);
+						this.hideHints(true);
+						this.last_user_move = '';
+						this.last_ai_move = '';
+						this.redo_stack = [];
+						return { valid: true, fen: this.fen };
+					} catch {
+						return { valid: false, error: 'Invalid FEN' };
+					}
+				},
 			});
 
 			const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1169,7 +1183,7 @@ export class LearnState {
 
 			const ctx = this.current_chat_context();
 			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
-			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.`;
+			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.` + '\n\n' + tool_use_rules;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });

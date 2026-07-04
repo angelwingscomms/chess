@@ -26,15 +26,17 @@ type MoveResult = {
 	error?: string;
 };
 
+type LoadFenResult = {
+	valid: boolean;
+	error?: string;
+	fen?: string;
+};
+
 type ToolState = {
 	get_fen: () => string;
 	hint: (fen: string, think_time?: number) => Promise<{ move: string; score: number; depth: number } | null>;
 	get_board_state: () => BoardState;
-	// make_move: (uci: string, confirmed?: boolean) => MoveResult;
-	// undo_move: () => { valid: boolean; error?: string };
-	// redo_move: () => { valid: boolean; error?: string };
-	// reset_board: () => { valid: boolean; error?: string };
-	// toggle_train_mode: () => { train_mode: boolean };
+	load_fen: (fen: string) => LoadFenResult;
 };
 
 let state: ToolState | null = null;
@@ -63,8 +65,14 @@ export function get_tool_declarations() {
 				description: 'Get the full current board state, including FEN, whose turn it is, check/checkmate status, game over state, move history navigation position, captured pieces, and last moves by both sides. Use this to understand the complete game context.',
 				parameters: { type: 'OBJECT', properties: {} },
 			},
+			{
+				name: 'set_state',
+				description: 'Set the board to any position using a FEN string. Use this when the user asks you to set up a specific position, a puzzle, or a famous game position. Only use this tool when the user explicitly asks you to, or when you suggest showing a position and they agree.',
+				parameters: { type: 'OBJECT', properties: {
+					fen: { type: 'STRING', description: 'The FEN string of the position to load. Example: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" for the starting position.' },
+				}, required: ['fen'] },
+			},
 			// {
-		// 		name: 'move_piece',
 		// 		description: 'Make a chess move on the board using UCI notation (e.g. "e2e4", "g1f3", "d7d8q" for promotion). The move is validated for legality. In train mode you can move pieces for both sides; in normal mode you can only move the user\'s pieces. Call this multiple times in sequence to show a full variation with alternating moves. Use this when the user asks to play a move, or when you want to demonstrate a line on the board. IMPORTANT: In train mode, when moving the user\'s pieces (it\'s their turn), you must first ask for confirmation. If the move is rejected with pending_confirmation, ask the user if they want to play it, then retry with confirmed:true.',
 		// 		parameters: {
 		// 			type: 'OBJECT',
@@ -136,6 +144,20 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			}
 			log(`get_board_state: fen=${b.fen.slice(0, 40)} turn=${b.turn} game_over=${b.game_over}`);
 			return { id: fc.id, name, response: b };
+		}
+
+		case 'set_state': {
+			const fen = (fc.args?.fen as string || '').trim();
+			if (!fen) {
+				return { id: fc.id, name, response: { valid: false, error: 'No FEN provided.' } };
+			}
+			if (!state?.load_fen) {
+				log('set_state FAILED — load_fen callback not available');
+				return { id: fc.id, name, response: { valid: false, error: 'Set state not available.' } };
+			}
+			const r = state.load_fen(fen);
+			log(`set_state: valid=${r.valid} fen=${(r.fen ?? '').slice(0, 40)}`);
+			return { id: fc.id, name, response: r };
 		}
 
 		// case 'move_piece': {
