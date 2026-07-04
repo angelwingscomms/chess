@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const page = readFileSync(resolve(process.cwd(), 'src/routes/+page.svelte'), 'utf8');
 const css = readFileSync(resolve(process.cwd(), 'src/app.css'), 'utf8');
+const learn_context = readFileSync(resolve(process.cwd(), 'src/components/learn/learn_context.svelte.ts'), 'utf8');
 
 describe('/chess/learn hint highlights', () => {
 	it('wires a visible board overlay to the current hint squares', () => {
@@ -110,6 +111,18 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain("Who is winning right now?");
 		expect(page).toContain("What is the plan here?");
 		expect(page).toContain('rounded-full border border-hairline bg-canvas px-3 py-1 text-xs');
+	});
+});
+
+describe('/chess/learn Gemini Live voice', () => {
+	it('stops sending audio as soon as the Live WebSocket starts closing', () => {
+		expect(learn_context).toContain('gemini_live_can_send()');
+		expect(learn_context).toContain('this.gemini_live_closing = true;');
+		expect(learn_context).toContain('this.gemini_live_ready = false;');
+		expect(learn_context).toContain('cleanup_gemini_live(false)');
+		expect(learn_context).toContain('if (!this.gemini_live_can_send() || this.voice_muted) return;');
+		expect(learn_context).toContain('this.send_gemini_realtime_input({');
+		expect(learn_context).not.toContain('enableAffectiveDialog');
 	});
 });
 

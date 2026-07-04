@@ -159,6 +159,9 @@ export class LearnState {
 	gemini_last_usage_p = $state(0);
 	gemini_last_usage_c = $state(0);
 	gemini_deduct_pending = false;
+	gemini_live_closing = false;
+	gemini_live_ready = false;
+	gemini_live_connection_id = 0;
 	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
@@ -435,7 +438,7 @@ export class LearnState {
 			try { const g = new ChessJS(this.fen); g.move(m.san); return g.fen(); } catch { return this.fen; }
 		})();
 
-		if (this.gemini_live_session && this.recording && !this.quiet && m.color !== this.orientation) {
+		if (this.gemini_live_can_send() && !this.quiet && m.color !== this.orientation) {
 			this.start_thinking_sound();
 
 			const hint_data = await getHints(post_fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
@@ -447,9 +450,9 @@ export class LearnState {
 			const sc = h?.score;
 
 			const eval_str = bm && sc != null ? `|best_move:${bm}|score:${sc}` : '';
-			try { this.gemini_live_session!.sendRealtimeInput({
+			this.send_gemini_realtime_input({
 				text: `fen:${post_fen}|user_played:${this.last_user_move}|opponent_played:${this.last_ai_move}${eval_str}`
-			}); } catch {}
+			});
 
 			if (bm) {
 				this.hints = hint_data;
@@ -612,9 +615,9 @@ export class LearnState {
 		const d = this.build_chat_data(h, eval_data);
 		this.chat_messages = [...this.chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) this.chat_input = '';
-		if (this.recording && this.gemini_live_session) {
+		if (this.gemini_live_can_send()) {
 			this.output_turn_active = false;
-			this.gemini_live_session.sendRealtimeInput({ text: user_msg });
+			this.send_gemini_realtime_input({ text: user_msg });
 		} else {
 			await this.execute_chat();
 		}
@@ -980,11 +983,19 @@ export class LearnState {
 
 	}
 
-	cleanup_gemini_live() {
+	cleanup_gemini_live(close_session = true) {
+		this.gemini_live_connection_id++;
+		this.gemini_live_closing = true;
+		this.gemini_live_ready = false;
+		this.recording = false;
 		this.interrupt_audio();
 		if (this.gemini_live_processor) { this.gemini_live_processor.disconnect(); this.gemini_live_processor = null; }
 		if (this.gemini_live_mic_stream) { this.gemini_live_mic_stream.getTracks().forEach(t => t.stop()); this.gemini_live_mic_stream = null; }
-		if (this.gemini_live_session) { this.gemini_live_session.close(); this.gemini_live_session = null; }
+		const session = this.gemini_live_session;
+		this.gemini_live_session = null;
+		if (close_session && session) {
+			try { session.close(); } catch {}
+		}
 		if (this.gemini_live_audio_gain) { this.gemini_live_audio_gain.disconnect(); this.gemini_live_audio_gain = null; }
 		if (this.gemini_live_audio_ctx) { this.gemini_live_audio_ctx.close(); this.gemini_live_audio_ctx = null; }
 		this.gemini_live_audio_queue = [];
@@ -992,7 +1003,34 @@ export class LearnState {
 		this.gemini_live_current_source = null;
 		this.thinking_sound_buf = null;
 		this.last_sent_fen = '';
-		this.recording = false;
+	}
+
+	gemini_live_can_send() {
+		return Boolean(this.gemini_live_session && this.recording && !this.gemini_live_closing && this.gemini_live_ready);
+	}
+
+	send_gemini_realtime_input(input: Record<string, unknown>) {
+		if (!this.gemini_live_can_send()) return false;
+		try {
+			this.gemini_live_session.sendRealtimeInput(input);
+			return true;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			if (msg.includes('CLOSING') || msg.includes('CLOSED')) this.cleanup_gemini_live(false);
+			else console.error('[gemini-live] sendRealtimeInput failed', e);
+			return false;
+		}
+	}
+
+	send_gemini_tool_response(input: Record<string, unknown>) {
+		if (!this.gemini_live_can_send()) return;
+		try {
+			this.gemini_live_session.sendToolResponse(input);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			if (msg.includes('CLOSING') || msg.includes('CLOSED')) this.cleanup_gemini_live(false);
+			else console.error('[gemini-live] sendToolResponse failed', e);
+		}
 	}
 
 	async load_thinking_sound() {
@@ -1101,13 +1139,35 @@ export class LearnState {
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
 			log('connecting to Gemini Live WebSocket...');
+			const connection_id = ++this.gemini_live_connection_id;
+			this.gemini_live_closing = false;
+			this.gemini_live_ready = false;
 			const session = await ai.live.connect({
 				model: 'gemini-3.1-flash-live-preview',
 				callbacks: {
-					onopen: () => { log('WebSocket opened'); this.recording = true; this.add_toast('Voice connected'); },
-					onmessage: (msg: any) => this.gemini_live_handle(msg),
-					onerror: (e: any) => { console.error('[gemini-live] WS error', e); this.add_toast('Voice connection error: ' + (e?.message || e)); },
-					onclose: (e: any) => { log(`WS close code=${e?.code} reason=${e?.reason}`); this.cleanup_gemini_live(); },
+					onopen: () => {
+						if (connection_id !== this.gemini_live_connection_id) return;
+						log('WebSocket opened');
+						this.gemini_live_closing = false;
+						this.gemini_live_ready = false;
+						this.recording = true;
+						this.add_toast('Voice connected');
+					},
+					onmessage: (msg: any) => {
+						if (connection_id === this.gemini_live_connection_id) this.gemini_live_handle(msg);
+					},
+					onerror: (e: any) => {
+						if (connection_id !== this.gemini_live_connection_id) return;
+						console.error('[gemini-live] WS error', e);
+						this.gemini_live_closing = true;
+						this.gemini_live_ready = false;
+						this.add_toast('Voice connection error: ' + (e?.message || e));
+					},
+					onclose: (e: any) => {
+						if (connection_id !== this.gemini_live_connection_id) return;
+						log(`WS close code=${e?.code} reason=${e?.reason}`);
+						this.cleanup_gemini_live(false);
+					},
 				},
 				config: {
 					responseModalities: ['AUDIO'] as any,
@@ -1124,14 +1184,28 @@ export class LearnState {
 					historyConfig: { initialHistoryInClientContent: true } as any,
 				} as any,
 			});
+			if (connection_id !== this.gemini_live_connection_id) {
+				try { session.close(); } catch {}
+				return;
+			}
 			this.gemini_live_session = session;
 
 			const history_msgs = this.chat_messages
 				.filter(m => m.role !== 'system')
 				.slice(-50)
 				.map(m => ({ role: m.role === 'user' ? 'user' as const : 'model' as const, parts: [{ text: m.content }] }));
-			if (history_msgs.length > 0) session.sendClientContent({ turns: history_msgs, turnComplete: true });
-
+			if (history_msgs.length > 0) {
+				try {
+					session.sendClientContent({ turns: history_msgs, turnComplete: true });
+				} catch (e) {
+					console.error('[gemini-live] history seed failed', e);
+					this.cleanup_gemini_live(false);
+					return;
+				}
+				log(`seeding ${history_msgs.length} messages into history`);
+			}
+			if (connection_id !== this.gemini_live_connection_id || this.gemini_live_closing) return;
+			this.gemini_live_ready = true;
 			log('session established');
 		} catch (e) {
 			console.error('[gemini-live] setup error', e);
@@ -1154,8 +1228,7 @@ export class LearnState {
 	}
 
 	gemini_process_audio = (e: AudioProcessingEvent) => {
-		const s = this.gemini_live_session;
-		if (!s || !this.recording || this.voice_muted) return;
+		if (!this.gemini_live_can_send() || this.voice_muted) return;
 		const input = e.inputBuffer.getChannelData(0);
 		const nativeRate = this.gemini_live_audio_ctx?.sampleRate || 48000;
 		const targetRate = 16000;
@@ -1168,15 +1241,13 @@ export class LearnState {
 		const bytes = new Uint8Array(pcm16.buffer);
 		let binary = '';
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-		try {
-			s.sendRealtimeInput({
-				audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
-				...(!this.quiet && this.fen !== this.last_sent_fen ? {
-					text: `fen:${this.fen} game_over:${this.gameOver}`
-				} : {}),
-			});
-			if (!this.quiet && this.fen !== this.last_sent_fen) this.last_sent_fen = this.fen;
-		} catch {}
+		const sent = this.send_gemini_realtime_input({
+			audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
+			...(!this.quiet && this.fen !== this.last_sent_fen ? {
+				text: `fen:${this.fen} game_over:${this.gameOver}`
+			} : {}),
+		});
+		if (sent && !this.quiet && this.fen !== this.last_sent_fen) this.last_sent_fen = this.fen;
 	};
 
 	play_next_audio() {
@@ -1232,10 +1303,10 @@ export class LearnState {
 						this.show_hints = true;
 					}
 					console.log(`[gemini-live] tool response for "${fc.name}":`, JSON.stringify(r).slice(0, 300));
-					this.gemini_live_session?.sendToolResponse({ functionResponses: [r] } as any);
+					this.send_gemini_tool_response({ functionResponses: [r] } as any);
 				}).catch((err) => {
 					console.error(`[gemini-live] dispatch_tool_call ERROR for "${fc.name}":`, err);
-					this.gemini_live_session?.sendToolResponse({ functionResponses: [{ id: fc.id, name: fc.name, response: { error: String(err) } }] } as any);
+					this.send_gemini_tool_response({ functionResponses: [{ id: fc.id, name: fc.name, response: { error: String(err) } }] } as any);
 				});
 			}
 		}
