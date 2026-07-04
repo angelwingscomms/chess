@@ -1261,13 +1261,9 @@ export class LearnState {
 		const bytes = new Uint8Array(pcm16.buffer);
 		let binary = '';
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-		const sent = this.send_gemini_realtime_input({
+		this.send_gemini_realtime_input({
 			audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
-			...(!this.quiet && this.fen !== this.last_sent_fen ? {
-				text: `fen:${this.fen} game_over:${this.gameOver}`
-			} : {}),
 		}, 'gemini_process_audio');
-		if (sent && !this.quiet && this.fen !== this.last_sent_fen) this.last_sent_fen = this.fen;
 	};
 
 	play_next_audio() {
