@@ -105,8 +105,6 @@ export class LearnState {
 	hint_index = $state(0);
 	hint_loading = $state(false);
 	hint_ac = $state<AbortController | null>(null);
-	awaiting_move_suggestion = $state(false);
-
 	chat_messages = $state<ChatMsg[]>([]);
 	chat_loading = $state(false);
 	chat_abort = $state<AbortController | null>(null);
@@ -405,11 +403,6 @@ export class LearnState {
 		setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 4000);
 	}
 
-	is_move_suggestion_request(text: string): boolean {
-		const t = text.toLowerCase();
-		return t.includes('best move') || t.includes('suggest') && (t.includes('opening') || t.includes('move'));
-	}
-
 	sync_chat_moves() {
 		const moves = this.chessRef?.getHistory({ verbose: true }) as any[] | undefined;
 		if (!moves) return;
@@ -591,7 +584,6 @@ export class LearnState {
 
 	async send_chess_chat(user_msg: string, h = '', clear = false, eval_data?: string) {
 		const d = this.build_chat_data(h, eval_data);
-		this.awaiting_move_suggestion = this.is_move_suggestion_request(user_msg);
 		this.chat_messages = [...this.chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) this.chat_input = '';
 		console.log(`[gemini-live/send_chess_chat] checking can_send: rec=${this.recording} session=${Boolean(this.gemini_live_session)}`);
@@ -1345,7 +1337,6 @@ export class LearnState {
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
 					try {
-						if (!this.awaiting_move_suggestion) continue;
 						const binary = atob(part.inlineData.data);
 						const bytes = new Uint8Array(binary.length);
 						for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -1366,14 +1357,12 @@ export class LearnState {
 		}
 		if (msg.serverContent?.inputTranscription?.text) {
 			const text = msg.serverContent.inputTranscription.text;
-			this.awaiting_move_suggestion = this.is_move_suggestion_request(text);
 			this.output_turn_active = false;
 			this.chat_messages = [...this.chat_messages, { role: 'user', content: text }];
 			this.save_game_debounced();
 		}
 		if (msg.serverContent?.outputTranscription?.text) {
 			const text = msg.serverContent.outputTranscription.text;
-			this.awaiting_move_suggestion = false;
 			if (!this.output_turn_active) {
 				this.output_turn_active = true;
 				this.chat_messages = [...this.chat_messages, { role: 'assistant', content: text }];
