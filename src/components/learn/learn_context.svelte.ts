@@ -161,6 +161,7 @@ export class LearnState {
 	gemini_deduct_pending = false;
 
 	_audio_log_seq = 0;
+	gemini_live_healthy = false;
 	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
@@ -990,6 +991,7 @@ export class LearnState {
 	cleanup_gemini_live() {
 		const log = (msg: string) => console.log(`[gemini-live/cleanup] ${msg}`);
 		log(`START recording=${this.recording} session=${Boolean(this.gemini_live_session)} processor=${Boolean(this.gemini_live_processor)} ctx=${Boolean(this.gemini_live_audio_ctx)}`);
+		this.gemini_live_healthy = false;
 		this.recording = false;
 		log('recording set to false');
 		this.interrupt_audio();
@@ -1029,9 +1031,9 @@ export class LearnState {
 	}
 
 	gemini_live_can_send() {
-		const ok = Boolean(this.gemini_live_session && this.recording);
+		const ok = Boolean(this.gemini_live_session && this.recording && this.gemini_live_healthy);
 		if (!ok) {
-			const why = !this.gemini_live_session ? 'no_session' : 'not_recording';
+			const why = !this.gemini_live_session ? 'no_session' : !this.recording ? 'not_recording' : 'unhealthy';
 			console.log(`[gemini-live/can_send] false (${why})`);
 		}
 		return ok;
@@ -1185,10 +1187,11 @@ export class LearnState {
 				model: 'gemini-3.1-flash-live-preview',
 				callbacks: {
 					onopen: () => {
-						log('WebSocket opened — setting recording=true');
-						console.log(`[gemini-live/callback] onopen before: recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+						log('WebSocket opened — setting recording=true, healthy=true');
+						console.log(`[gemini-live/callback] onopen before: recording=${this.recording} session=${Boolean(this.gemini_live_session)} healthy=${this.gemini_live_healthy}`);
+						this.gemini_live_healthy = true;
 						this.recording = true;
-						console.log(`[gemini-live/callback] onopen after: recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+						console.log(`[gemini-live/callback] onopen after: recording=${this.recording} session=${Boolean(this.gemini_live_session)} healthy=${this.gemini_live_healthy}`);
 						this.add_toast('Voice connected');
 					},
 					onmessage: (msg: any) => {
@@ -1196,12 +1199,14 @@ export class LearnState {
 						this.gemini_live_handle(msg);
 					},
 					onerror: (e: any) => {
-						console.error('[gemini-live/callback] onerror', e?.message || e, `recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+						console.error('[gemini-live/callback] onerror', e?.message || e, `recording=${this.recording} session=${Boolean(this.gemini_live_session)} healthy=${this.gemini_live_healthy}`);
+						this.gemini_live_healthy = false;
 						this.cleanup_gemini_live();
 						this.add_toast('Voice connection error: ' + (e?.message || e));
 					},
 					onclose: (e: any) => {
-						log(`onclose code=${e?.code} reason=${e?.reason} recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+						log(`onclose code=${e?.code} reason=${e?.reason} recording=${this.recording} session=${Boolean(this.gemini_live_session)} healthy=${this.gemini_live_healthy}`);
+						this.gemini_live_healthy = false;
 						this.cleanup_gemini_live();
 					},
 				},
