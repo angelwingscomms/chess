@@ -82,7 +82,7 @@
   }
 </script>
 
-<Seo meta={{t:'sonu — Chess training with an AI coach',d:'Train chess against adaptive Stockfish AI with a coach that explains every move. Hints, voice commands, and cloud saves.'}} />
+<Seo meta={{t:'sonu — Chess training with an AI coach',d:'Train chess against adaptive Stockfish AI with a coach that explains every move. Hints, 30 AI voices, and cloud saves.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'sonu','url':'https://chess.apexlinks.org'}} />
 
 <nav class="top-nav">

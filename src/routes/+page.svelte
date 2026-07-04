@@ -17,7 +17,7 @@
 		{
 			icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94A9.316 9.316 0 0112 3.75a9.316 9.316 0 013.744.732A9.75 9.75 0 0118 14.25M12 3.75v18m-6.75-6h13.5"/>`,
 			title: 'Custom settings',
-			desc: 'Adjust think time, hint timing, and coaching style.'
+			desc: 'Adjust think time, hint timing, coaching style, and voice.'
 		},
 		{
 			icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
@@ -38,10 +38,10 @@
 </script>
 
 {#if $page.data.user}
-	<Seo meta={{t:'sonu — Continue your chess training',d:'Welcome back. Pick up where you left off with adaptive Stockfish AI and your personal AI coach.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'sonu — Continue your chess training',d:'Welcome back. Pick up where you left off with adaptive Stockfish AI, your personal AI coach, and 30 AI voices.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints, AI analysis, and 30 AI voices','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
-	<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
+<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 		<div class="absolute inset-0 bg-surface-dark/60"></div>
 		<div class="container min-h-[calc(100dvh-64px)] grid place-items-center relative">
 			<div class="mx-auto w-full max-w-2xl space-y-8 py-16 text-center">
@@ -52,8 +52,8 @@
 		</div>
 	</main>
 {:else}
-	<Seo meta={{t:'sonu — Train chess with an AI coach that explains every move',d:'Play Stockfish at your level with sonu. Get hints when stuck, ask the AI why any move works. Voice commands, cloud saves, no sign-up needed.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with adaptive difficulty, AI coaching, hints, voice interface, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'sonu — Train chess with an AI coach that explains every move',d:'Play Stockfish at your level with sonu. Get hints when stuck, ask the AI why any move works. 30 AI voices, cloud saves, no sign-up needed.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with adaptive difficulty, AI coaching, hints, 30 AI voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell">
 		<!-- Hero -->
@@ -66,7 +66,7 @@
 					</h1>
 					<p class="text-lg leading-relaxed text-on-dark/70 max-w-lg mx-auto mb-8">
 						Play Stockfish at your level. Get hints when you're stuck.
-						Ask the AI why any move works.
+						Pick from 30 AI voices. Ask the AI why any move works.
 					</p>
 					<div class="flex flex-wrap gap-3 justify-center">
 						<a href="/i" class="inline-flex min-w-[180px] items-center justify-center rounded-lg border border-primary/40 bg-primary/15 px-7 py-3 text-sm font-medium backdrop-blur-md transition-all hover:bg-primary/25" style="color:#fff">Start training</a>
@@ -153,14 +153,14 @@
 			<div class="container">
 				<div class="mx-auto max-w-2xl text-center mb-12">
 					<h2 class="display-md mb-4">More ways to train</h2>
-					<p class="text-body text-lg leading-relaxed">Train your way. Voice commands or keyboard. On any device.</p>
+					<p class="text-body text-lg leading-relaxed">Train your way. Choose from 30 AI voices. On any device.</p>
 				</div>
 				<div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
 					<div class="feature-card min-h-0">
 						<svg class="size-8 text-primary mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
 						<h3 class="text-lg font-medium text-ink mb-2">Talk to your coach</h3>
 						<p class="text-body text-sm leading-relaxed">
-							Have voice conversations with your AI coach. Discuss your game, ask what moves to make, and get taught as you play.
+							Have voice conversations with your AI coach, in your choice of 30 different voices. Discuss your game, ask what moves to make, and get taught as you play.
 						</p>
 					</div>
 					<div class="feature-card min-h-0">

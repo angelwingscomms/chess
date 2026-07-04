@@ -17,7 +17,7 @@ Play Stockfish at your level. Get hints when stuck. Ask the AI why any move work
 ## Key Differentiators
 - AI coach in two modes: Socratic (asks guiding questions) and Assistant (gives clear answers)
 - Pay-per-use model — no subscriptions, only pay for AI answers
-- Voice conversations with the AI coach
+- Voice conversations with the AI coach in 30 different voices
 - Stockfish with adaptive think time — scales difficulty to your level
 - Cross-device sync with Google sign-in
 

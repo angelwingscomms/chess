@@ -183,7 +183,7 @@
 					<label class="flex cursor-pointer items-center justify-between gap-4">
 						<span>
 							<span class="block text-sm font-medium text-ink">Quiet voice</span>
-							<span class="mt-1 block text-xs leading-5 text-muted">Only speak when spoken to.</span>
+							<span class="mt-1 block text-xs leading-5 text-muted">Choose from 30 AI voices. Only speak when spoken to.</span>
 						</span>
 						<span class="grid size-5 place-items-center rounded-full border border-primary">
 							<input type="checkbox" bind:checked={s.quiet} class="sr-only" aria-label="Quiet voice" />

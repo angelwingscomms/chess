@@ -815,3 +815,249 @@ Avoid calling `fetch` eagerly during server-side rendering — put your `fetch` 
 [HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
 [SESSION] decode: valid for user 115239427930254448872
 [HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:46:23 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:46:23 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+2:46:24 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:46:24 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+2:46:26 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:46:26 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:46:46 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:46:46 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:46:46 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:46:47 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:47:37 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:47:37 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:47:37 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:47:37 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/usage - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/usage - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/usage - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/usage - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/usage - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:59:17 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:17 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:19 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:19 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:19 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:19 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:19 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:19 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:20 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:20 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:21 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:21 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:21 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:21 PM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
+2:59:21 PM [vite] (ssr) page reload src/routes/+layout.svelte
+2:59:21 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:21 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:21 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:21 PM [vite] (client) hmr update /src/components/LearnPage.svelte, /src/app.css
+2:59:21 PM [vite] (ssr) page reload src/components/LearnPage.svelte
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] balance: 494535
+2:59:24 PM [vite] (client) hmr update /src/components/learn/SettingsModal.svelte, /src/app.css
+2:59:24 PM [vite] (ssr) page reload src/components/learn/SettingsModal.svelte
+2:59:24 PM [vite] (client) hmr update /src/components/learn/BoardNavigation.svelte, /src/app.css
+2:59:24 PM [vite] (ssr) page reload src/components/learn/BoardNavigation.svelte
+[HOOKS] session cookie found on /i - decoding...
+[LAYOUT] get_user result: false date_joined: null
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+2:59:25 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:25 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:59:25 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+[LAYOUT] balance: 494535
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+Avoid calling `fetch` eagerly during server-side rendering — put your `fetch` calls inside `onMount` or a `load` function instead
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:59:31 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:31 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:32 PM [vite] (client) hmr update /src/components/LearnPage.svelte, /src/app.css
+2:59:32 PM [vite] (ssr) page reload src/components/LearnPage.svelte
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:59:41 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:41 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:47 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+2:59:47 PM [vite] (ssr) page reload src/routes/+page.svelte
+2:59:59 PM [vite] (client) hmr update /src/components/LearnPage.svelte, /src/app.css
+2:59:59 PM [vite] (ssr) page reload src/components/LearnPage.svelte
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+3:00:22 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+3:00:22 PM [vite] (client) page reload .svelte-kit/generated/root.js
+3:00:22 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+3:00:22 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 494535
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
