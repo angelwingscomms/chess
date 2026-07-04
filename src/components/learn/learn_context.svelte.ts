@@ -163,7 +163,8 @@ export class LearnState {
 
 	rnnoise_node: AudioWorkletNode | null = null;
 
-	_fen_pending = true;
+	_last_fen_sent = 0;
+	_set_state_fail_count = 0;
 	gemini_live_healthy = false;
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
@@ -434,7 +435,6 @@ export class LearnState {
 		this.redo_stack = [];
 		this.hideHints(true);
 		this.save_game_debounced();
-		this._fen_pending = true;
 	}
 
 	onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -1121,18 +1121,24 @@ export class LearnState {
 					return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
 				},
 				get_board_state: () => this.get_board_state(),
-				load_fen: (fen) => {
-					try {
-						this.chessRef?.load(fen);
-						this.hideHints(true);
-						this.last_user_move = '';
-						this.last_ai_move = '';
-						this.redo_stack = [];
-						return { valid: true, fen: this.fen };
-					} catch {
-						return { valid: false, error: 'Invalid FEN' };
+			load_fen: (fen) => {
+				try {
+					this.chessRef?.load(fen);
+					this.hideHints(true);
+					this.last_user_move = '';
+					this.last_ai_move = '';
+					this.redo_stack = [];
+					this._set_state_fail_count = 0;
+					return { valid: true, fen: this.fen };
+				} catch {
+					this._set_state_fail_count++;
+					if (this._set_state_fail_count >= 9) {
+						this._set_state_fail_count = 0;
+						this.add_toast('Could not set position after multiple attempts. Try describing it differently.');
 					}
-				},
+					return { valid: false, error: 'Invalid FEN' };
+				}
+			},
 			});
 
 			const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1270,11 +1276,12 @@ export class LearnState {
 		const bytes = new Uint8Array(pcm16.buffer);
 		let binary = '';
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+		const now = Date.now();
 		this.send_gemini_realtime_input({
 			audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
-			...(this.quiet || !this._fen_pending ? {} : { text: `fen:${this.fen} game_over:${this.gameOver}` }),
+			...(this.quiet || now - (this._last_fen_sent ?? 0) < 2000 ? {} : { text: `fen:${this.fen} game_over:${this.gameOver}` }),
 		}, 'gemini_process_audio');
-		if (!this.quiet && this._fen_pending) this._fen_pending = false;
+		if (!this.quiet) this._last_fen_sent = now;
 	};
 
 	play_next_audio() {
