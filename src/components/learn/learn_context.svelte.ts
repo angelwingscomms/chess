@@ -165,7 +165,6 @@ export class LearnState {
 	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
-	last_hint: { fen: string; hint: Hint | null } | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
 	toast_id = $state(0);
 	output_turn_active = false;
@@ -431,39 +430,6 @@ export class LearnState {
 		this.redo_stack = [];
 		this.hideHints(true);
 		this.save_game_debounced();
-
-		// svelte-chess dispatches on:move before updating bind:fen, so this.fen is stale.
-		// Compute the correct post-move position for Stockfish hints & voice context.
-		const post_fen = (() => {
-			try { const g = new ChessJS(this.fen); g.move(m.san); return g.fen(); } catch { return this.fen; }
-		})();
-
-		const can_send = this.gemini_live_can_send();
-		console.log(`[gemini-live/onMove] can_send=${can_send} quiet=${this.quiet} color=${m.color} orientation=${this.orientation} gemini_live_session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
-		if (can_send && !this.quiet && m.color !== this.orientation) {
-			this.start_thinking_sound();
-
-			const hint_data = await getHints(post_fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
-			const h = hint_data[0] ?? null;
-			this.last_hint = { fen: post_fen, hint: h };
-			console.log(`%c[last_hint] cached for ${post_fen.slice(0, 50)}`, 'color:#22cc66;font-weight:600');
-
-			const bm = h?.move ?? '';
-			const sc = h?.score;
-
-			const eval_str = bm && sc != null ? `|best_move:${bm}|score:${sc}` : '';
-			this.send_gemini_realtime_input({
-				text: `fen:${post_fen}|user_played:${this.last_user_move}|opponent_played:${this.last_ai_move}${eval_str}`
-			}, 'onMove');
-
-			if (bm) {
-				this.hints = hint_data;
-				this.hint_fen = post_fen;
-				this.hint_index = 0;
-				this.show_hints = true;
-			}
-		}
-
 	}
 
 	onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -1141,11 +1107,6 @@ export class LearnState {
 				get_fen: () => this.fen,
 				hint: async (f, think_time) => {
 					const mt = (think_time ?? this.hint_think_time) * 1000;
-					if (this.last_hint && this.last_hint.fen === f && think_time === undefined) {
-						console.log(`%c[last_hint] CACHE HIT — returning instantly`, 'color:#22cc66;font-weight:700');
-						return this.last_hint.hint;
-					}
-					console.log(`%c[last_hint] cache miss — running Stockfish`, 'color:#ff8800');
 					return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
 				},
 				get_board_state: () => this.get_board_state(),
