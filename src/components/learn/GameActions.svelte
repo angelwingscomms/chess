@@ -7,7 +7,6 @@
 	import GearIcon from '$lib/components/icons/gear-icon.svelte';
 	import InfoIcon from '$lib/components/icons/info-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
-	import { page } from '$app/stores';
 	const s = get_learn_state();
 
 	let ready = $derived(s.ready);
@@ -20,7 +19,6 @@
 	let chat_loading = $derived(s.chat_loading);
 </script>
 
-{#if $page.data.user}
 <button title="New game" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.resetGame()} disabled={!ready}>
 	<RefreshIcon size={15} strokeWidth={1.8} />
 </button>
@@ -52,4 +50,3 @@
 		<GearIcon size={15} strokeWidth={1.8} />
 	</button>
 </span>
-{/if}
