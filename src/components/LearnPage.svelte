@@ -47,7 +47,7 @@
 	<div class="container relative z-[1] py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">
-				<h1 class="display-sm text-on-dark">Train</h1>
+				<h1 class="display-sm text-on-dark">sonu</h1>
 				<p class="text-sm text-on-dark/70">Play, learn, and analyze. 30 AI voices to choose from.</p>
 			</div>
 
