@@ -1178,7 +1178,7 @@ export class LearnState {
 
 			const ctx = this.current_chat_context();
 			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
-			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user by saying: "hi, would you like a move suggestion or want to learn more about a chess concept".`;
+			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.`;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
