@@ -70,7 +70,7 @@
 					<ChatPanel />
 				{:else}
 					<div class="flex flex-col items-center gap-3 px-4 py-12 text-center">
-						<p class="display-xs text-muted">Sign in to train</p>
+						<p class="display-xs text-muted">Sign in to use sonu</p>
 						<p class="text-sm text-muted">Get hints, analyze positions, and chat with an AI coach.</p>
 						<a href="/login" class="button-primary text-sm">Sign in</a>
 					</div>
