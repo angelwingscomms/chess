@@ -15,10 +15,35 @@
 	let pending_user_idx = $derived(s.pending_user_idx);
 	let sel_text = $derived(s.sel_text);
 	let sel_pos = $derived(s.sel_pos);
+
+	let panel: HTMLDivElement;
+	let msgs_style = $state('');
+
+	$effect(() => {
+		if (!panel) return;
+		const update = () => {
+			const rect = panel.getBoundingClientRect();
+			const suggestions = panel.querySelector<HTMLDivElement>('[data-ms]');
+			const input = panel.querySelector<HTMLDivElement>('[data-mi]');
+			const btm = (suggestions?.offsetHeight ?? 0) + (input?.offsetHeight ?? 0) + 12;
+			const avail = window.innerHeight - rect.top - btm;
+			const h = Math.max(60, Math.round(avail));
+			msgs_style = `max-height:${h}px;`;
+		};
+		update();
+		const ro = new ResizeObserver(update);
+		ro.observe(panel);
+		ro.observe(document.documentElement);
+		window.addEventListener('resize', update);
+		return () => {
+			ro.disconnect();
+			window.removeEventListener('resize', update);
+		};
+	});
 </script>
 
-<div class="w-full rounded-xl bg-surface-card/72 overflow-hidden">
-	<div bind:this={s.chat_body} class="relative max-h-80 overflow-y-auto px-4 py-3 space-y-3">
+<div bind:this={panel} class="w-full rounded-xl bg-surface-card/72 overflow-hidden">
+	<div bind:this={s.chat_body} class="relative overflow-y-auto px-4 py-3 space-y-3" style={msgs_style}>
 		{#if chat_messages.length === 0}
 			<p class="text-sm max-sm:text-[9px] text-muted text-center py-6">No messages yet</p>
 		{/if}
@@ -62,13 +87,13 @@
 		{/if}
 	</div>
 	{#if chat_suggestions.length > 0}
-		<div class="flex flex-wrap items-center gap-1.5 px-3 pb-1">
+		<div data-ms class="flex flex-wrap items-center gap-1.5 px-3 pb-1">
 			{#each chat_suggestions as suggestion}
 				<button onclick={() => s.sendChatMessage(suggestion)} class="rounded-full border border-hairline bg-canvas px-3 py-1 text-xs text-muted transition-colors hover:border-primary/40 hover:text-ink">{suggestion}</button>
 			{/each}
 		</div>
 	{/if}
-	<div class="flex items-center gap-2 p-3">
+	<div data-mi class="flex items-center gap-2 p-3">
 		<textarea
 			rows={1}
 			bind:this={s.chat_input_ref}
