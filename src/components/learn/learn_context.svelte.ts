@@ -161,9 +161,8 @@ export class LearnState {
 
 	rnnoise_node: AudioWorkletNode | null = null;
 
-	_audio_log_seq = 0;
+	_last_fen_sent = 0;
 	gemini_live_healthy = false;
-	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
 	toasts = $state<{ id: number; msg: string }[]>([]);
@@ -1001,7 +1000,7 @@ export class LearnState {
 		this.gemini_live_audio_playing = false;
 		this.gemini_live_current_source = null;
 		this.thinking_sound_buf = null;
-		this.last_sent_fen = '';
+
 		log('DONE');
 	}
 
@@ -1243,12 +1242,7 @@ export class LearnState {
 
 	gemini_process_audio = (e: AudioProcessingEvent) => {
 		if (this.voice_muted) return;
-		if (!this.gemini_live_can_send()) {
-			console.log(`[gemini-live/process_audio] SKIP can_send=false recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
-			return;
-		}
-		this._audio_log_seq = (this._audio_log_seq ?? 0) + 1;
-		console.log(`[gemini-live/process_audio] #${this._audio_log_seq} recording=${this.recording} session=${Boolean(this.gemini_live_session)} muted=${this.voice_muted} quiet=${this.quiet} last_sent_fen_changed=${this.fen !== this.last_sent_fen}`);
+		if (!this.gemini_live_can_send()) return;
 		const input = e.inputBuffer.getChannelData(0);
 		const nativeRate = this.gemini_live_audio_ctx?.sampleRate || 48000;
 		const targetRate = 16000;
@@ -1261,9 +1255,12 @@ export class LearnState {
 		const bytes = new Uint8Array(pcm16.buffer);
 		let binary = '';
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+		const now = Date.now();
 		this.send_gemini_realtime_input({
 			audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
+			...(this.quiet || now - (this._last_fen_sent ?? 0) < 2000 ? {} : { text: `fen:${this.fen} game_over:${this.gameOver}` }),
 		}, 'gemini_process_audio');
+		if (!this.quiet) this._last_fen_sent = now;
 	};
 
 	play_next_audio() {
