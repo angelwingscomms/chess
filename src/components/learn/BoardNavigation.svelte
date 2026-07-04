@@ -7,6 +7,7 @@
 	import MicMuteIcon from '$lib/components/icons/mic-mute-icon.svelte';
 	import SpeakerIcon from '$lib/components/icons/speaker-icon.svelte';
 	import SpeakerOffIcon from '$lib/components/icons/speaker-off-icon.svelte';
+	import { page } from '$app/stores';
 	const s = get_learn_state();
 
 	let board_history = $derived(s.board_history);
@@ -16,6 +17,7 @@
 	let audio_muted = $derived(s.audio_muted);
 </script>
 
+{#if $page.data.user}
 <button title="Previous board" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
 	<ArrowLeftIcon size={15} strokeWidth={1.8} />
 </button>
@@ -56,4 +58,5 @@
 		<SpeakerIcon size={15} strokeWidth={1.8} />
 	{/if}
 </button>
+{/if}
 {/if}
