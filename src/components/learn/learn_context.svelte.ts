@@ -129,6 +129,8 @@ export class LearnState {
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
+	noise_suppression = $state(browser && localStorage.getItem('noise_suppression') !== 'false');
+	noise_suppression_level = $state(browser && parseFloat(localStorage.getItem('noise_suppression_level') || '50') || 50);
 
 	show_voice_menu = $state(false);
 	start_hint_done = $state(false);
@@ -160,6 +162,9 @@ export class LearnState {
 	gemini_last_usage_c = $state(0);
 	gemini_deduct_pending = false;
 
+	df3_core: any = null;
+	df3_worklet_node: AudioWorkletNode | null = null;
+
 	_audio_log_seq = 0;
 	gemini_live_healthy = false;
 	last_sent_fen = '';
@@ -183,6 +188,8 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
 		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
 		$effect(() => { if (browser) localStorage.setItem('vibe', this.vibe); });
+		$effect(() => { if (browser) localStorage.setItem('noise_suppression', String(this.noise_suppression)); });
+		$effect(() => { if (browser) localStorage.setItem('noise_suppression_level', String(this.noise_suppression_level)); });
 
 		$effect(() => {
 			const el = this.chat_body;
@@ -961,6 +968,16 @@ export class LearnState {
 		this.recording = false;
 		log('recording set to false');
 		this.interrupt_audio();
+		if (this.df3_worklet_node) {
+			log('disconnecting df3 worklet');
+			this.df3_worklet_node.disconnect();
+			this.df3_worklet_node = null;
+		}
+		if (this.df3_core) {
+			log('destroying df3 core');
+			this.df3_core.destroy();
+			this.df3_core = null;
+		}
 		if (this.gemini_live_processor) {
 			log('disconnecting processor');
 			this.gemini_live_processor.disconnect();
@@ -1125,9 +1142,33 @@ export class LearnState {
 			this.gemini_live_audio_gain = outputGain;
 			this.load_thinking_sound();
 			const micSource = audioCtx.createMediaStreamSource(stream);
+
+			// Optionally insert DeepFilterNet 3 noise suppression
+			let processorSource: MediaStreamAudioSourceNode | null = null;
+			if (this.noise_suppression) {
+				try {
+					const { DeepFilterNet3Core } = await import('deepfilternet3-noise-filter');
+					const core = new DeepFilterNet3Core({
+						sampleRate: audioCtx.sampleRate,
+						noiseReductionLevel: this.noise_suppression_level,
+					});
+					this.add_toast('Loading noise suppression model...');
+					await core.initialize();
+					this.df3_core = core;
+					const denoiseNode = await core.createAudioWorkletNode(audioCtx);
+					this.df3_worklet_node = denoiseNode;
+					const intermediateDest = audioCtx.createMediaStreamDestination();
+					micSource.connect(denoiseNode).connect(intermediateDest);
+					processorSource = audioCtx.createMediaStreamSource(intermediateDest.stream);
+				} catch (e) {
+					console.warn('[gemini-live] DeepFilterNet3 init failed, falling back to raw mic', e);
+					this.add_toast('Noise suppression unavailable, using raw mic');
+				}
+			}
+
 			const processor = audioCtx.createScriptProcessor(2048, 1, 1);
 			processor.onaudioprocess = this.gemini_process_audio;
-			micSource.connect(processor);
+			(processorSource ?? micSource).connect(processor);
 			const micGain = audioCtx.createGain();
 			micGain.gain.value = 0;
 			processor.connect(micGain);
