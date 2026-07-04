@@ -181,3 +181,5 @@ https://svelte.dev/e/a11y_no_static_element_interactions
 6:40:21 PM [vite] (client) page reload .svelte-kit/generated/root.js
 6:40:21 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
 6:40:21 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+7:23:48 PM [vite] .env changed, restarting server...
+7:23:49 PM [vite] server restarted.
