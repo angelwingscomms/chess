@@ -192,25 +192,36 @@ describe('/chess/learn settings modal', () => {
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});
 
-	it('lets users bring a Groq key and sends keyed chat directly to AI SDK', () => {
+	it('lets users bring API keys and sends keyed chat directly to AI SDK', () => {
 		expect(page).toContain("let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');");
+		expect(page).toContain("let gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');");
 		expect(page).toContain("localStorage.setItem('groq_api_key', groq_api_key)");
+		expect(page).toContain("localStorage.setItem('gemini_api_key', gemini_api_key)");
 		expect(page).toContain('async function send_direct_generation(');
+		expect(page).toContain('async function send_direct_gemini(');
 		expect(page).toContain("createGroq({ apiKey: groq_api_key.trim() })");
+		expect(page).toContain("createGoogleGenerativeAI({ apiKey: gemini_api_key.trim() })");
 		expect(page).toContain('streamText');
+		expect(page).toContain("if (is_gemini && gemini_api_key.trim())");
 		expect(page).toContain("if (!model.startsWith('deepseek/') && !model.startsWith('bynara/') && groq_api_key.trim() && model.includes('/'))");
 		expect(page).toContain('Groq API key');
+		expect(page).toContain('Gemini API key');
 		expect(page).toContain('type="password"');
-		expect(page).toContain('Get your Groq API key @');
+		expect(page).toContain('Get your free Groq API key @');
 		expect(page).toContain('href="https://console.groq.com/keys"');
+		expect(page).toContain('Get your free Gemini API key @');
+		expect(page).toContain('href="https://aistudio.google.com/apikey"');
 		expect(page).toContain('target="_blank"');
+		expect(page).toContain('Use AI features for free by using your own API keys');
 	});
 
 	it('reads direct text from AI SDK textStream', () => {
 		expect(page).toContain('textStream');
 		expect(page).toContain('for await (const chunk of result.textStream)');
 		expect(page).toContain('send_direct_generation(');
+		expect(page).toContain('send_direct_gemini(');
 		expect(page).toContain('groq_api_key.trim()');
+		expect(page).toContain('gemini_api_key.trim()');
 	});
 
 	it('tracks and displays API cost in token modal', () => {

@@ -10,6 +10,7 @@
 	let model_options = $derived(s.model_options);
 	let show_model_menu = $derived(s.show_model_menu);
 	let groq_api_key = $derived(s.groq_api_key);
+	let gemini_api_key = $derived(s.gemini_api_key);
 	let voice_name = $derived(s.voice_name);
 	let show_voice_menu = $derived(s.show_voice_menu);
 	let autoexplain = $derived(s.autoexplain);
@@ -94,6 +95,9 @@
 						</div>
 					{/if}
 				</section>
+				<div class="grid gap-3 rounded-lg bg-primary/5 p-4">
+					<p class="text-xs leading-5 text-muted">Use AI features for free by using your own API keys. Requests go directly from your browser &mdash; nothing passes through our server.</p>
+				</div>
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
 					<label class="text-sm font-medium text-ink" for="groq-api-key">Groq API key</label>
 					<input
@@ -104,8 +108,22 @@
 						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
 					/>
 					<p class="text-xs leading-5 text-muted">
-						Get your Groq API key @
-						<a class="text-primary underline-offset-2 hover:underline" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">https://console.groq.com/keys</a>
+						Get your free Groq API key @
+						<a class="text-primary underline-offset-2 hover:underline" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">console.groq.com/keys</a>
+					</p>
+				</section>
+				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
+					<label class="text-sm font-medium text-ink" for="gemini-api-key">Gemini API key</label>
+					<input
+						id="gemini-api-key"
+						type="password"
+						bind:value={s.gemini_api_key}
+						placeholder="AIza..."
+						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+					/>
+					<p class="text-xs leading-5 text-muted">
+						Get your free Gemini API key @
+						<a class="text-primary underline-offset-2 hover:underline" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com/apikey</a>
 					</p>
 				</section>
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">

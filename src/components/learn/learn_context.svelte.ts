@@ -126,6 +126,7 @@ export class LearnState {
 	hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
 	computer_think_time = $state(1.5);
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
+	gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
 	noise_suppression = $state(browser && localStorage.getItem('noise_suppression') !== 'false');
@@ -183,6 +184,7 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(this.hint_on_start)); });
 		$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(this.hint_think_time)); });
 		$effect(() => { if (browser) localStorage.setItem('groq_api_key', this.groq_api_key); });
+		$effect(() => { if (browser) localStorage.setItem('gemini_api_key', this.gemini_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
 		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
 		$effect(() => { if (browser) localStorage.setItem('vibe', this.vibe); });
@@ -202,7 +204,7 @@ export class LearnState {
 		});
 
 		$effect(() => {
-			if (browser) { this.groq_api_key; this.fetch_models(); }
+			if (browser) { this.groq_api_key; this.gemini_api_key; this.fetch_models(); }
 		});
 
 		$effect(() => {
@@ -611,18 +613,25 @@ export class LearnState {
 		const ac = new AbortController();
 		this.chat_abort = ac;
 
+		const is_gemini = this.model.startsWith('gemini-') || this.model.startsWith('gemma-');
+
 		try {
-			if (!this.model.startsWith('deepseek/') && !this.model.startsWith('bynara/') && this.groq_api_key.trim() && this.model.includes('/')) {
+			if (is_gemini && this.gemini_api_key.trim()) {
+				await this.send_direct_gemini(ac, [{ role: 'system', content: this.current_sys } as ChatMsg, ...this.chat_messages], this.model);
+				this.interaction_id = '';
+			} else if (!this.model.startsWith('deepseek/') && !this.model.startsWith('bynara/') && this.groq_api_key.trim() && this.model.includes('/')) {
 				await this.send_direct_generation(ac, [{ role: 'system', content: this.current_sys } as ChatMsg, ...this.chat_messages], this.model);
 				this.interaction_id = '';
 			} else {
+				const body: Record<string, unknown> = {
+					x: [{ r: 'system', c: this.current_sys }, ...this.chat_messages.map((msg) => ({ r: msg.role, c: msg.content, d: msg.d }))],
+					i: this.interaction_id,
+					m: this.model,
+				};
+				if (is_gemini && this.gemini_api_key.trim()) body.gmk = this.gemini_api_key.trim();
 				const res = await fetch('/chess/learn/chat', {
 					method: 'POST',
-					body: JSON.stringify({
-						x: [{ r: 'system', c: this.current_sys }, ...this.chat_messages.map((msg) => ({ r: msg.role, c: msg.content, d: msg.d }))],
-						i: this.interaction_id,
-						m: this.model,
-					}),
+					body: JSON.stringify(body),
 					signal: ac.signal,
 				});
 				if (!res.ok) {
@@ -724,6 +733,59 @@ export class LearnState {
 		const result = streamText({
 			model: wrapLanguageModel({
 				model: groq(m),
+				middleware: extractReasoningMiddleware({ tagName: 'think' }),
+			}),
+			system: request_messages[0]?.role === 'system' ? request_messages[0].content : '',
+			messages: (request_messages[0]?.role === 'system' ? request_messages.slice(1) : request_messages).map((msg) => ({
+				role: msg.role as 'user' | 'assistant',
+				content: msg.role === 'user' ? this.build_direct_input(msg) : msg.content,
+			})),
+		});
+
+		let wrote = false;
+		for await (const chunk of result.textStream) {
+			if (ac.signal.aborted) break;
+			if (chunk) {
+				wrote = true;
+				const last = this.chat_messages[this.chat_messages.length - 1];
+				if (last?.role === 'assistant') {
+					this.chat_messages[this.chat_messages.length - 1] = { ...last, content: last.content + chunk };
+					this.chat_messages = this.chat_messages;
+				} else {
+					this.chat_messages = [...this.chat_messages, { role: 'assistant', content: chunk }];
+				}
+			}
+		}
+
+		if (!wrote) throw Error('Request failed');
+		if (!ac.signal.aborted) {
+			try {
+				const u = await result.usage;
+				if (u) {
+					const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
+					const cost = calc_cost(m, p, c);
+					this.total_p += p;
+					this.total_c += c;
+					this.total_cost += cost;
+					const last = this.chat_messages.length - 1;
+					if (last >= 0 && this.chat_messages[last].role === 'assistant') {
+						this.chat_messages[last] = { ...this.chat_messages[last], u: { p, c, cost } };
+					}
+				}
+			} catch {}
+		}
+		fetch('/api/balance').then(r => r.json()).then(d => { if (typeof d.balance === 'number') window.dispatchEvent(new CustomEvent('balance-update', { detail: d.balance })); }).catch(() => {});
+		this.save_game_debounced();
+	}
+
+	async send_direct_gemini(ac: AbortController, request_messages: ChatMsg[], m: string) {
+		const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+		const { streamText, wrapLanguageModel, extractReasoningMiddleware } = await import('ai');
+		const google = createGoogleGenerativeAI({ apiKey: this.gemini_api_key.trim() });
+
+		const result = streamText({
+			model: wrapLanguageModel({
+				model: google(m),
 				middleware: extractReasoningMiddleware({ tagName: 'think' }),
 			}),
 			system: request_messages[0]?.role === 'system' ? request_messages[0].content : '',
@@ -898,7 +960,7 @@ export class LearnState {
 			const payload = {
 				f: this.fen, h: this.history.join(' '), m: this.moveNum, o: this.orientation,
 				u: this.last_user_move, a: this.last_ai_move, r: this.redo_stack.join('|'),
-				v: this.gameOver, x: this.resultMsg, g: this.groq_api_key, l: this.level,
+				v: this.gameOver, x: this.resultMsg, g: this.groq_api_key, k: this.gemini_api_key, l: this.level,
 				t: this.computer_think_time,
 				c: JSON.stringify(serialize_chat(this.chat_messages)),
 				d: Date.now()
@@ -928,6 +990,8 @@ export class LearnState {
 		this.computer_think_time = (d.t as number) ?? 1.5;
 		const gk = d.g as string;
 		if (gk) this.groq_api_key = gk;
+		const gemk = d.k as string;
+		if (gemk) this.gemini_api_key = gemk;
 		const cc = d.c as string;
 		if (cc) {
 			try {

@@ -57,24 +57,16 @@
 			</div>
 
 			<div class="mx-auto w-full max-w-[640px] space-y-2 rounded-xl bg-surface-card p-3 lg:mx-0">
-				{#if $page.data.user}
-					<CapturedPieces />
-					<BoardStatus />
-					<div class="flex items-center gap-1.5">
-						<GameActions />
-					</div>
-					<div class="flex items-center gap-1.5">
-						<BoardNavigation />
-						<HintLabel />
-					</div>
-					<ChatPanel />
-				{:else}
-					<div class="flex flex-col items-center gap-3 px-4 py-12 text-center">
-						<p class="display-xs text-muted">Sign in to use sonu</p>
-						<p class="text-sm text-muted">Get hints, analyze positions, and chat with an AI coach.</p>
-						<a href="/login" class="button-primary text-sm">Sign in</a>
-					</div>
-				{/if}
+				<CapturedPieces />
+				<BoardStatus />
+				<div class="flex items-center gap-1.5">
+					<GameActions />
+				</div>
+				<div class="flex items-center gap-1.5">
+					<BoardNavigation />
+					<HintLabel />
+				</div>
+				<ChatPanel />
 			</div>
 		</div>
 	</div>

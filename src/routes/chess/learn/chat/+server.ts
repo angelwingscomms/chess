@@ -16,8 +16,8 @@ const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 const openrouter = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: OPENROUTER_KEY });
 const bynara = createOpenAI({ baseURL: 'https://router.bynara.id/v1', apiKey: BYNARA_KEY });
 
-const getModel = (m: string) => wrapLanguageModel({
-	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? google(m) : m.startsWith('bynara/') ? bynara(m.slice(7)) : m.startsWith('deepseek/') || m.startsWith('nex-agi/') ? openrouter(m) : groq(m),
+const getModel = (m: string, gemini_api_key?: string) => wrapLanguageModel({
+	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? createGoogleGenerativeAI({ apiKey: gemini_api_key || GEMINI })(m) : m.startsWith('bynara/') ? bynara(m.slice(7)) : m.startsWith('deepseek/') || m.startsWith('nex-agi/') ? openrouter(m) : groq(m),
 	middleware: extractReasoningMiddleware({ tagName: 'think' }),
 });
 
@@ -68,6 +68,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	}
 
 	const m = text(body?.m) || 'openai/gpt-oss-120b';
+	const gmk = text(body?.gmk);
 	console.log(`[chat] request: messages=${messages.length} model=${m}`);
 
 	const sys_i = messages.findIndex((msg) => msg.r === 'system');
@@ -79,7 +80,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 			let wrote = false;
 			try {
 				const result = streamText({
-					model: getModel(m),
+					model: getModel(m, gmk),
 					system: sys,
 					messages: messages.map((msg) => ({
 						role: msg.r as 'user' | 'assistant',
