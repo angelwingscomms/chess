@@ -168,7 +168,7 @@ export class LearnState {
 	gemini_live_healthy = false;
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
-	toasts = $state<{ id: number; msg: string }[]>([]);
+	toasts = $state<{ id: number; msg: string; t: string }[]>([]);
 	toast_id = $state(0);
 	output_turn_active = false;
 	model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
@@ -399,9 +399,9 @@ export class LearnState {
 	}
 
 
-	add_toast(msg: string) {
+	add_toast(msg: string, t: 'e' | 'i' = 'i') {
 		const id = ++this.toast_id;
-		this.toasts = [...this.toasts, { id, msg }];
+		this.toasts = [...this.toasts, { id, msg, t }];
 		setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 4000);
 	}
 
@@ -1134,7 +1134,7 @@ export class LearnState {
 					this._set_state_fail_count++;
 					if (this._set_state_fail_count >= 9) {
 						this._set_state_fail_count = 0;
-						this.add_toast('Failed to set board position');
+						this.add_toast('Failed to set board position', 'e');
 					}
 					return { valid: false, error: 'Invalid FEN' };
 				}
@@ -1160,7 +1160,7 @@ export class LearnState {
 			if (this.noise_suppression) {
 				try {
 					const { RnnoiseWorkletNode, loadRnnoise } = await import('@sapphi-red/web-noise-suppressor');
-					this.add_toast('Loading noise suppression...');
+	
 					const wasmBinary = await loadRnnoise(
 						{ url: '/rnnoise.wasm', simdUrl: '/rnnoise_simd.wasm' }
 					);
@@ -1217,7 +1217,7 @@ export class LearnState {
 						console.error('[gemini-live/callback] onerror', e?.message || e, `recording=${this.recording} session=${Boolean(this.gemini_live_session)} healthy=${this.gemini_live_healthy}`);
 						this.gemini_live_healthy = false;
 						this.cleanup_gemini_live();
-						this.add_toast('Voice connection error: ' + (e?.message || e));
+						this.add_toast('Voice connection error: ' + (e?.message || e), 'e');
 					},
 					onclose: (e: any) => {
 						log(`onclose code=${e?.code} reason=${e?.reason} recording=${this.recording} session=${Boolean(this.gemini_live_session)} healthy=${this.gemini_live_healthy}`);
@@ -1250,12 +1250,12 @@ export class LearnState {
 					console.warn(`[gemini-live] audio devices: ${audio_inputs.length} found`, audio_inputs.map(d => ({ label: d.label, id: d.deviceId.slice(0, 16), group: d.groupId.slice(0, 16) })));
 					this.add_toast(audio_inputs.length === 0
 						? 'No microphone detected. Plug one in, then refresh the page.'
-						: `Mic found (${audio_inputs.length} device(s)) but couldn\'t access it. It may be in use by another app.`);
+						: `Mic found (${audio_inputs.length} device(s)) but couldn\'t access it. It may be in use by another app.`, 'e');
 				} catch {
-					this.add_toast('No microphone found. Connect a mic and refresh.');
+					this.add_toast('No microphone found. Connect a mic and refresh.', 'e');
 				}
 			} else {
-				this.add_toast('Voice setup error: ' + (e instanceof Error ? e.message : String(e)));
+				this.add_toast('Voice setup error: ' + (e instanceof Error ? e.message : String(e)), 'e');
 			}
 			this.cleanup_gemini_live();
 		}
