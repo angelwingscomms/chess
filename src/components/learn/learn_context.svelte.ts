@@ -1179,6 +1179,8 @@ export class LearnState {
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
 			log('connecting to Gemini Live WebSocket...');
 			console.log(`[gemini-live/toggle] before ai.live.connect: session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
+			console.log(`[gemini-live/toggle] config includes: responseModalities=['AUDIO'], speechConfig.voiceName=${this.voice_name}, tools, sysInstruction, model=gemini-3.1-flash-live-preview`);
+			console.log(`[gemini-live/toggle] NOTE: inputAudioTranscription and historyConfig REMOVED — they were sending empty obj or conflicting with audio stream`);
 			const session = await ai.live.connect({
 				model: 'gemini-3.1-flash-live-preview',
 				callbacks: {
@@ -1214,28 +1216,11 @@ export class LearnState {
 					} as any,
 					systemInstruction: { parts: [{ text: sys }] } as any,
 					tools: get_tool_declarations() as any,
-					inputAudioTranscription: { enabled: true } as any,
-					historyConfig: { initialHistoryInClientContent: true } as any,
 				} as any,
 			});
 			this.gemini_live_session = session;
 			log(`session assigned to this.gemini_live_session, recording=${this.recording}`);
-
-			const history_msgs = this.chat_messages
-				.filter(m => m.role !== 'system')
-				.slice(-50)
-				.map(m => ({ role: m.role === 'user' ? 'user' as const : 'model' as const, parts: [{ text: m.content }] }));
-			if (history_msgs.length > 0) {
-				try {
-					session.sendClientContent({ turns: history_msgs, turnComplete: true });
-				} catch (e) {
-					console.error('[gemini-live] history seed failed', e);
-					this.cleanup_gemini_live();
-					return;
-				}
-				log(`seeding ${history_msgs.length} messages into history`);
-			}
-			log('session established');
+			log(`history seeding SKIPPED — sendClientContent+turnComplete conflicts with ongoing audio stream`);
 		} catch (e) {
 			console.error('[gemini-live] setup error', e);
 			if (e instanceof DOMException && e.name === 'NotFoundError') {
