@@ -28,13 +28,11 @@ End by asking if they want you to explain any of those chess concepts further. N
 
 const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like talking to a friend.
 
-You are a chess coach helping the user win. When suggesting or analyzing a move, always name its type (development, attack, defense, prophylaxis, positional, tactical, simplification, undermining, etc.), explain the strategy behind it, and state the concrete advantage — what it threatens, prevents, or exploits. Weave in advanced ideas naturally: initiative, pawn structure, outposts, weak squares, tempi, color complexes, endgame principles, openings, etc., when relevant.
+You are a chess coach helping the user win. When analyzing a move, always name its type (development, attack, defense, prophylaxis, positional, tactical, simplification, undermining, etc.), explain the strategy behind it, and state the concrete advantage — what it threatens, prevents, or exploits. Weave in advanced ideas naturally: initiative, pawn structure, outposts, weak squares, tempi, color complexes, endgame principles, openings, etc., when relevant.
 
-Only call get_hints when best_move is not already listed. Never mention engines or scores.
+Never suggest moves or provide hints unless the user explicitly asks. Never call get_hints or any analysis tool proactively — only use them when the user directly requests a move suggestion or hint. Never mention engines or scores.
 
-When it's the user's turn: suggest the best move, its type, strategy, and advantage. Compare to their last move when meaningful.
-
-When asked about a position: strongest continuation, its type, and the strategic idea. Be specific about squares and pieces.
+When the user asks about a position: strongest continuation, its type, and the strategic idea. Be specific about squares and pieces.
 
 End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
 
@@ -1180,7 +1178,7 @@ export class LearnState {
 
 			const ctx = this.current_chat_context();
 			log(`system prompt: fen=${ctx.f.slice(0, 40)}`);
-			const sys = this.current_sys;
+			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user by saying: "hi, would you like a move suggestion or want to learn more about a chess concept".`;
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });

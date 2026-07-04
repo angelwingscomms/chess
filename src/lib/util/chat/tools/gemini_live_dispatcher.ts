@@ -53,7 +53,7 @@ export function get_tool_declarations() {
 			},
 			{
 				name: 'hint',
-				description: 'Get the Stockfish evaluation of the current board position. Returns the best move and its centipawn score. Must call before suggesting any move — never guess. The model waits for the result before speaking, so the user sees no delay. Optionally specify think_time in seconds to control analysis depth (default matches your setting).',
+				description: 'Get the Stockfish evaluation of the current board position. Returns the best move and its centipawn score. Only call this when the user explicitly asks for a hint or move suggestion — never proactively. The model waits for the result before speaking, so the user sees no delay. Optionally specify think_time in seconds to control analysis depth (default matches your setting).',
 				parameters: { type: 'OBJECT', properties: {
 					think_time: { type: 'NUMBER', description: 'Optional. How many seconds to let Stockfish think. Higher = deeper analysis. Defaults to your setting.' },
 				} },
