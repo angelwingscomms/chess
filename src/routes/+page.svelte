@@ -38,22 +38,22 @@
 </script>
 
 {#if $page.data.user}
-	<Seo meta={{t:'Beee Chess - Train against an AI coach',d:'Play chess against Stockfish with adaptive difficulty, real-time hints, and an AI coach that explains every move.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Beee Chess','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'sonu — Continue your chess training',d:'Welcome back. Pick up where you left off with adaptive Stockfish AI and your personal AI coach.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 		<div class="absolute inset-0 bg-surface-dark/60"></div>
 		<div class="container min-h-[calc(100dvh-64px)] grid place-items-center relative">
 			<div class="mx-auto w-full max-w-2xl space-y-8 py-16 text-center">
-				<h1 class="display-lg text-balance text-on-dark">Beee Chess</h1>
+				<h1 class="display-lg text-balance text-on-dark">sonu</h1>
 				<p class="text-lg leading-relaxed text-on-dark/70">Welcome back, {$page.data.user.name}</p>
 				<a href="/i" class="button-primary inline-flex min-w-[200px] items-center justify-center px-8 py-3 text-base">Play</a>
 			</div>
 		</div>
 	</main>
 {:else}
-	<Seo meta={{t:'Beee Chess - Train with an AI coach that explains every move',d:'Play Stockfish at your level. Get hints when stuck. Ask the AI why any move works. Voice commands, cloud saves, and more. No sign-up needed.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Beee Chess','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with adaptive difficulty, AI coaching, hints, voice interface, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'sonu — Train chess with an AI coach that explains every move',d:'Play Stockfish at your level with sonu. Get hints when stuck, ask the AI why any move works. Voice commands, cloud saves, no sign-up needed.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with adaptive difficulty, AI coaching, hints, voice interface, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell">
 		<!-- Hero -->

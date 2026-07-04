@@ -115,13 +115,12 @@ describe('/chess/learn chat', () => {
 });
 
 describe('/chess/learn Gemini Live voice', () => {
-	it('stops sending audio as soon as the Live WebSocket starts closing', () => {
+	it('stops sending audio when session is nulled or recording stops', () => {
 		expect(learn_context).toContain('gemini_live_can_send()');
-		expect(learn_context).toContain('this.gemini_live_closing = true;');
-		expect(learn_context).toContain('this.gemini_live_ready = false;');
-		expect(learn_context).toContain('cleanup_gemini_live(false)');
-		expect(learn_context).toContain('if (!this.gemini_live_can_send() || this.voice_muted) return;');
-		expect(learn_context).toContain('this.send_gemini_realtime_input({');
+		expect(learn_context).toContain('this.recording = false');
+		expect(learn_context).toContain('this.gemini_live_session = null');
+		expect(learn_context).toContain('if (this.voice_muted) return;');
+		expect(learn_context).toContain('send_gemini_realtime_input(');
 		expect(learn_context).not.toContain('enableAffectiveDialog');
 	});
 });

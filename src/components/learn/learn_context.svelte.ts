@@ -24,7 +24,7 @@ Core: never give answers. Make the user figure it out. Use the move type and str
 
 Weave in concepts: move types (development, attack, defense, prophylaxis, positional, tactical), initiative, pawn structure, outposts, weak squares, tempi, color complexes, simplification, undermining, openings. Every question teaches by naming the idea.
 
-No formal wrap-ups. End naturally.`;
+End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
 
 const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like talking to a friend.
 
@@ -36,7 +36,7 @@ When it's the user's turn: suggest the best move, its type, strategy, and advant
 
 When asked about a position: strongest continuation, its type, and the strategic idea. Be specific about squares and pieces.
 
-No formal wrap-ups. End naturally.`;
+End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
 
 export const voice_options = [
 	{ v: 'Kore', l: 'Kore', d: 'Firm' },
@@ -159,9 +159,8 @@ export class LearnState {
 	gemini_last_usage_p = $state(0);
 	gemini_last_usage_c = $state(0);
 	gemini_deduct_pending = false;
-	gemini_live_closing = false;
-	gemini_live_ready = false;
-	gemini_live_connection_id = 0;
+
+	_audio_log_seq = 0;
 	last_sent_fen = '';
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
@@ -438,7 +437,9 @@ export class LearnState {
 			try { const g = new ChessJS(this.fen); g.move(m.san); return g.fen(); } catch { return this.fen; }
 		})();
 
-		if (this.gemini_live_can_send() && !this.quiet && m.color !== this.orientation) {
+		const can_send = this.gemini_live_can_send();
+		console.log(`[gemini-live/onMove] can_send=${can_send} quiet=${this.quiet} color=${m.color} orientation=${this.orientation} gemini_live_session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
+		if (can_send && !this.quiet && m.color !== this.orientation) {
 			this.start_thinking_sound();
 
 			const hint_data = await getHints(post_fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);
@@ -452,7 +453,7 @@ export class LearnState {
 			const eval_str = bm && sc != null ? `|best_move:${bm}|score:${sc}` : '';
 			this.send_gemini_realtime_input({
 				text: `fen:${post_fen}|user_played:${this.last_user_move}|opponent_played:${this.last_ai_move}${eval_str}`
-			});
+			}, 'onMove');
 
 			if (bm) {
 				this.hints = hint_data;
@@ -615,10 +616,13 @@ export class LearnState {
 		const d = this.build_chat_data(h, eval_data);
 		this.chat_messages = [...this.chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) this.chat_input = '';
+		console.log(`[gemini-live/send_chess_chat] checking can_send: rec=${this.recording} session=${Boolean(this.gemini_live_session)}`);
 		if (this.gemini_live_can_send()) {
+			console.log('[gemini-live/send_chess_chat] routing to realtime');
 			this.output_turn_active = false;
-			this.send_gemini_realtime_input({ text: user_msg });
+			this.send_gemini_realtime_input({ text: user_msg }, 'send_chess_chat');
 		} else {
+			console.log('[gemini-live/send_chess_chat] routing to execute_chat');
 			await this.execute_chat();
 		}
 		if (this.voice_tts) {
@@ -983,53 +987,85 @@ export class LearnState {
 
 	}
 
-	cleanup_gemini_live(close_session = true) {
-		this.gemini_live_connection_id++;
-		this.gemini_live_closing = true;
-		this.gemini_live_ready = false;
+	cleanup_gemini_live() {
+		const log = (msg: string) => console.log(`[gemini-live/cleanup] ${msg}`);
+		log(`START recording=${this.recording} session=${Boolean(this.gemini_live_session)} processor=${Boolean(this.gemini_live_processor)} ctx=${Boolean(this.gemini_live_audio_ctx)}`);
 		this.recording = false;
+		log('recording set to false');
 		this.interrupt_audio();
-		if (this.gemini_live_processor) { this.gemini_live_processor.disconnect(); this.gemini_live_processor = null; }
-		if (this.gemini_live_mic_stream) { this.gemini_live_mic_stream.getTracks().forEach(t => t.stop()); this.gemini_live_mic_stream = null; }
+		if (this.gemini_live_processor) {
+			log('disconnecting processor');
+			this.gemini_live_processor.disconnect();
+			this.gemini_live_processor = null;
+		}
+		if (this.gemini_live_mic_stream) {
+			log('stopping mic tracks');
+			this.gemini_live_mic_stream.getTracks().forEach(t => t.stop());
+			this.gemini_live_mic_stream = null;
+		}
 		const session = this.gemini_live_session;
 		this.gemini_live_session = null;
-		if (close_session && session) {
-			try { session.close(); } catch {}
+		log('session nulled');
+		if (session) {
+			log('calling session.close()');
+			try { session.close(); log('session.close() succeeded'); } catch (e) { log(`session.close() threw: ${e}`); }
 		}
-		if (this.gemini_live_audio_gain) { this.gemini_live_audio_gain.disconnect(); this.gemini_live_audio_gain = null; }
-		if (this.gemini_live_audio_ctx) { this.gemini_live_audio_ctx.close(); this.gemini_live_audio_ctx = null; }
+		if (this.gemini_live_audio_gain) {
+			log('disconnecting audio gain');
+			this.gemini_live_audio_gain.disconnect();
+			this.gemini_live_audio_gain = null;
+		}
+		if (this.gemini_live_audio_ctx) {
+			log('closing audio context');
+			this.gemini_live_audio_ctx.close();
+			this.gemini_live_audio_ctx = null;
+		}
 		this.gemini_live_audio_queue = [];
 		this.gemini_live_audio_playing = false;
 		this.gemini_live_current_source = null;
 		this.thinking_sound_buf = null;
 		this.last_sent_fen = '';
+		log('DONE');
 	}
 
 	gemini_live_can_send() {
-		return Boolean(this.gemini_live_session && this.recording && !this.gemini_live_closing && this.gemini_live_ready);
+		const ok = Boolean(this.gemini_live_session && this.recording);
+		if (!ok) {
+			const why = !this.gemini_live_session ? 'no_session' : 'not_recording';
+			console.log(`[gemini-live/can_send] false (${why})`);
+		}
+		return ok;
 	}
 
-	send_gemini_realtime_input(input: Record<string, unknown>) {
-		if (!this.gemini_live_can_send()) return false;
+	send_gemini_realtime_input(input: Record<string, unknown>, caller = '') {
+		if (!this.gemini_live_can_send()) {
+			console.log(`[gemini-live/send_input] BLOCKED caller=${caller} has_text=${Boolean(input.text)} has_audio=${Boolean(input.audio)}`);
+			return false;
+		}
+		const has_text = Boolean(input.text);
+		const has_audio = Boolean(input.audio);
+		console.log(`[gemini-live/send_input] CALLING caller=${caller} has_text=${has_text} has_audio=${has_audio} session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
 		try {
 			this.gemini_live_session.sendRealtimeInput(input);
+			console.log(`[gemini-live/send_input] OK caller=${caller}`);
 			return true;
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			if (msg.includes('CLOSING') || msg.includes('CLOSED')) this.cleanup_gemini_live(false);
-			else console.error('[gemini-live] sendRealtimeInput failed', e);
+			console.error(`[gemini-live/send_input] FAILED caller=${caller} error=${e instanceof Error ? e.message : e}`);
 			return false;
 		}
 	}
 
 	send_gemini_tool_response(input: Record<string, unknown>) {
-		if (!this.gemini_live_can_send()) return;
+		if (!this.gemini_live_can_send()) {
+			console.log('[gemini-live/send_tool] BLOCKED');
+			return;
+		}
+		console.log('[gemini-live/send_tool] CALLING', JSON.stringify(input).slice(0, 200));
 		try {
 			this.gemini_live_session.sendToolResponse(input);
+			console.log('[gemini-live/send_tool] OK');
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			if (msg.includes('CLOSING') || msg.includes('CLOSED')) this.cleanup_gemini_live(false);
-			else console.error('[gemini-live] sendToolResponse failed', e);
+			console.error('[gemini-live/send_tool] FAILED', e);
 		}
 	}
 
@@ -1084,8 +1120,11 @@ export class LearnState {
 
 	async toggleGeminiLive() {
 		const log = (msg: string) => console.log(`[gemini-live] ${msg}`);
+		console.log(`[gemini-live/toggle] ENTER session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
 		if (this.gemini_live_session) {
+			log('toggle: session exists, cleaning up');
 			this.cleanup_gemini_live();
+			console.log(`[gemini-live/toggle] cleanup done, session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
 			return;
 		}
 		try {
@@ -1139,34 +1178,29 @@ export class LearnState {
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
 			log('connecting to Gemini Live WebSocket...');
-			const connection_id = ++this.gemini_live_connection_id;
-			this.gemini_live_closing = false;
-			this.gemini_live_ready = false;
+			console.log(`[gemini-live/toggle] before ai.live.connect: session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
 			const session = await ai.live.connect({
 				model: 'gemini-3.1-flash-live-preview',
 				callbacks: {
 					onopen: () => {
-						if (connection_id !== this.gemini_live_connection_id) return;
-						log('WebSocket opened');
-						this.gemini_live_closing = false;
-						this.gemini_live_ready = false;
+						log('WebSocket opened — setting recording=true');
+						console.log(`[gemini-live/callback] onopen before: recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
 						this.recording = true;
+						console.log(`[gemini-live/callback] onopen after: recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
 						this.add_toast('Voice connected');
 					},
 					onmessage: (msg: any) => {
-						if (connection_id === this.gemini_live_connection_id) this.gemini_live_handle(msg);
+						console.log(`[gemini-live/callback] onmessage type=${Object.keys(msg).join(',')}`);
+						this.gemini_live_handle(msg);
 					},
 					onerror: (e: any) => {
-						if (connection_id !== this.gemini_live_connection_id) return;
-						console.error('[gemini-live] WS error', e);
-						this.gemini_live_closing = true;
-						this.gemini_live_ready = false;
+						console.error('[gemini-live/callback] onerror', e?.message || e, `recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+						this.cleanup_gemini_live();
 						this.add_toast('Voice connection error: ' + (e?.message || e));
 					},
 					onclose: (e: any) => {
-						if (connection_id !== this.gemini_live_connection_id) return;
-						log(`WS close code=${e?.code} reason=${e?.reason}`);
-						this.cleanup_gemini_live(false);
+						log(`onclose code=${e?.code} reason=${e?.reason} recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+						this.cleanup_gemini_live();
 					},
 				},
 				config: {
@@ -1184,11 +1218,8 @@ export class LearnState {
 					historyConfig: { initialHistoryInClientContent: true } as any,
 				} as any,
 			});
-			if (connection_id !== this.gemini_live_connection_id) {
-				try { session.close(); } catch {}
-				return;
-			}
 			this.gemini_live_session = session;
+			log(`session assigned to this.gemini_live_session, recording=${this.recording}`);
 
 			const history_msgs = this.chat_messages
 				.filter(m => m.role !== 'system')
@@ -1199,13 +1230,11 @@ export class LearnState {
 					session.sendClientContent({ turns: history_msgs, turnComplete: true });
 				} catch (e) {
 					console.error('[gemini-live] history seed failed', e);
-					this.cleanup_gemini_live(false);
+					this.cleanup_gemini_live();
 					return;
 				}
 				log(`seeding ${history_msgs.length} messages into history`);
 			}
-			if (connection_id !== this.gemini_live_connection_id || this.gemini_live_closing) return;
-			this.gemini_live_ready = true;
 			log('session established');
 		} catch (e) {
 			console.error('[gemini-live] setup error', e);
@@ -1228,7 +1257,13 @@ export class LearnState {
 	}
 
 	gemini_process_audio = (e: AudioProcessingEvent) => {
-		if (!this.gemini_live_can_send() || this.voice_muted) return;
+		if (this.voice_muted) return;
+		if (!this.gemini_live_can_send()) {
+			console.log(`[gemini-live/process_audio] SKIP can_send=false recording=${this.recording} session=${Boolean(this.gemini_live_session)}`);
+			return;
+		}
+		this._audio_log_seq = (this._audio_log_seq ?? 0) + 1;
+		console.log(`[gemini-live/process_audio] #${this._audio_log_seq} recording=${this.recording} session=${Boolean(this.gemini_live_session)} muted=${this.voice_muted} quiet=${this.quiet} last_sent_fen_changed=${this.fen !== this.last_sent_fen}`);
 		const input = e.inputBuffer.getChannelData(0);
 		const nativeRate = this.gemini_live_audio_ctx?.sampleRate || 48000;
 		const targetRate = 16000;
@@ -1246,7 +1281,7 @@ export class LearnState {
 			...(!this.quiet && this.fen !== this.last_sent_fen ? {
 				text: `fen:${this.fen} game_over:${this.gameOver}`
 			} : {}),
-		});
+		}, 'gemini_process_audio');
 		if (sent && !this.quiet && this.fen !== this.last_sent_fen) this.last_sent_fen = this.fen;
 	};
 
@@ -1287,6 +1322,7 @@ export class LearnState {
 	}
 
 	gemini_live_handle(msg: any) {
+		console.log(`[gemini-live/handle] entry msg_keys=${Object.keys(msg).join(',')} toolCall=${Boolean(msg.toolCall)} serverContent=${Boolean(msg.serverContent)} usage=${Boolean(msg.usageMetadata)}`);
 		if (msg.toolCall?.functionCalls?.length) {
 			this.interrupt_audio();
 			this.start_thinking_sound();

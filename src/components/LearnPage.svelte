@@ -37,8 +37,8 @@
 	});
 </script>
 
-<Seo meta={{t:'Chess — Train with AI',d:'Train your chess skills against adaptive Stockfish AI. Get hints, analyze positions, and chat with AI coaches to improve your game.'}} />
-<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'Chess AI','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+<Seo meta={{t:'Train — sonu',d:'Train your chess skills against adaptive Stockfish AI with sonu. Get hints, analyze positions, and chat with an AI coach to improve your game.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints and AI analysis','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 <main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 	<div class="absolute inset-0 bg-surface-dark/85"></div>
 	{#if dev && s.toasts.length}
@@ -47,7 +47,7 @@
 	<div class="container relative z-[1] py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">
-				<h1 class="display-sm text-on-dark">Chess — Train</h1>
+				<h1 class="display-sm text-on-dark">Train</h1>
 				<p class="text-sm text-on-dark/70">Play, learn, and analyze with every move.</p>
 			</div>
 
@@ -66,14 +66,14 @@
 					<BoardNavigation />
 					<HintLabel />
 				</div>
-				{#if $page.data.user}
+				<!-- {#if $page.data.user} -->
 					<ChatPanel />
-				{:else}
+				<!-- {:else}
 					<div class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-hairline px-4 py-8 text-center">
 						<p class="text-sm text-muted">Sign in to chat with your AI coach</p>
 						<a href="/login" class="button-primary text-sm">Sign in</a>
 					</div>
-				{/if}
+				{/if} -->
 			</div>
 		</div>
 	</div>

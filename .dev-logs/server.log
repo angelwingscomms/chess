@@ -1,128 +1,507 @@
 $ vite --host --port 2160
 
-  VITE v8.0.16  ready in 2609 ms
+  VITE v8.0.16  ready in 3355 ms
 
   ➜  Local:   http://localhost:2160/
   ➜  Network: http://192.168.43.40:2160/
-  ➜  Network: http://192.168.240.1:2160/
-  ➜  Network: http://169.254.172.171:2160/
   ➜  press h + enter to show help
 Using secrets defined in .env
-12:13:01 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+[HOOKS] session cookie found on / - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496576
+[LAYOUT] get_user result: false date_joined: null
+1:30:13 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-12:13:01 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:30:13 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-12:13:01 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:30:13 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:02 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+[HOOKS] session cookie found on / - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496576
+[LAYOUT] get_user result: false date_joined: null
+1:30:14 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-12:13:03 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:30:14 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-12:13:03 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+1:30:14 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:19 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:19 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-12:13:03 PM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+1:30:20 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions
-[chat] request: messages=2 model=openai/gpt-oss-120b
-[chat] request: messages=3 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=5 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=7 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=9 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-[chat] request: messages=11 model=openai/gpt-oss-120b
-[chat] stream closed: wrote=true aborted=false
-12:28:59 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/TokenModal.svelte
-12:28:59 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
-12:29:08 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/TokenModal.svelte
-12:29:08 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
-12:29:44 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-12:29:44 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-12:29:44 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
-12:29:44 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
-12:29:44 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-12:29:44 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-12:29:44 PM [vite] (client) page reload .svelte-kit/generated/root.js
-12:29:44 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
-12:29:44 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-12:38:58 PM [vite] (client) hmr update /src/components/learn/ChatPanel.svelte, /src/app.css
-12:38:58 PM [vite] (ssr) page reload src/components/learn/ChatPanel.svelte
-12:43:40 PM [vite] (client) hmr update /src/components/learn/ChatPanel.svelte, /src/app.css
-12:43:40 PM [vite] (ssr) page reload src/components/learn/ChatPanel.svelte
-12:52:45 PM [vite] (client) hmr update /src/app.css
-12:52:45 PM [vite] (ssr) page reload src/app.css
-12:55:25 PM [vite] (client) hmr update /src/app.css
-12:55:25 PM [vite] (ssr) page reload src/app.css
-12:55:29 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
-12:55:29 PM [vite] (ssr) page reload src/routes/+page.svelte
-12:55:30 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/TokenModal.svelte
-12:55:30 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
-12:55:31 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/TokenModal.svelte
-12:55:31 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+1:30:20 PM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
+1:30:20 PM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
+1:30:20 PM [vite] Internal server error: Invalid declaration: `Chessground`
+  Plugin: @tailwindcss/vite:generate:serve
+  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
+      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
+      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
+      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
+      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
+      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
+      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
+      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
+1:30:20 PM [vite] Internal server error: Invalid declaration: `Chessground`
+  Plugin: @tailwindcss/vite:generate:serve
+  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
+      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
+      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
+      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
+      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
+      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
+      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
+      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496576
+[LAYOUT] get_user result: false date_joined: null
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+1:30:24 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/save - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/usage - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+1:35:31 PM [vite] (client) hmr update /src/lib/components/seo/Seo.svelte, /src/app.css
+1:35:31 PM [vite] (ssr) page reload src/lib/components/seo/Seo.svelte
+1:35:32 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+1:35:32 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+1:35:32 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+1:35:32 PM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
+1:35:32 PM [vite] (ssr) page reload src/routes/+layout.svelte
+1:35:33 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+1:35:33 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+1:35:33 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+1:35:33 PM [vite] (client) hmr update /src/routes/+layout.svelte, /src/app.css
+1:35:33 PM [vite] (ssr) page reload src/routes/+layout.svelte
+1:35:46 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+1:35:46 PM [vite] (ssr) page reload src/routes/+page.svelte
+1:35:48 PM [vite] (client) hmr update /src/routes/+page.svelte, /src/app.css
+1:35:48 PM [vite] (ssr) page reload src/routes/+page.svelte
+1:35:56 PM [vite] (client) hmr update /src/components/LearnPage.svelte, /src/app.css
+1:35:56 PM [vite] (ssr) page reload src/components/LearnPage.svelte
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+1:36:39 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+1:36:39 PM [vite] (client) page reload .svelte-kit/generated/root.js
+1:36:39 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+1:36:39 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on / - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+2:02:42 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:02:42 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:02:42 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:02:43 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:02:43 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+2:02:43 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+[HOOKS] session cookie found on / - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:05:45 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:05:45 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:05:49 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:05:49 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:05:55 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:05:55 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:06:13 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:06:13 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:06:24 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:06:24 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:06:34 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:06:34 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:07:34 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:07:34 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:07:34 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:07:34 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:07:45 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:07:45 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:07:45 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:07:45 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /api/voice/gemini-live/key - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:09:38 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:09:38 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:09:42 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:09:42 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:09:48 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:09:48 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:07 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:07 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:11 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:11 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:16 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:16 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:21 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:21 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:26 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:26 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:33 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:33 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:39 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:39 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:48 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:48 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:10:53 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:10:53 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:11:02 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:02 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:11:12 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:12 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:11:17 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:17 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:11:22 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:22 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:11:27 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:27 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:11:42 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:42 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
 [models] fetch error: [TypeError: fetch failed] {
   [cause]: AggregateError [ETIMEDOUT]: 
       at internalConnectMultiple (node:net:1142:49)
@@ -134,128 +513,84 @@ https://svelte.dev/e/a11y_no_static_element_interactions
     [errors]: [ [Error], [Error], [Error], [Error] ]
   }
 }
-1:20:45 PM [vite] .env changed, restarting server...
-1:20:46 PM [vite] server restarted.
-Using secrets defined in .env
-1:22:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally
-1:22:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally
-1:22:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally
-1:22:09 PM [vite-plugin-svelte] src/routes/+layout.svelte:8:91 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally
-1:22:09 PM [vite-plugin-svelte] src/routes/+layout.svelte:13:29 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally
-1:22:09 PM [vite-plugin-svelte] src/routes/+layout.svelte:14:27 This reference only captures the initial value of `data`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:10 PM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
-1:22:10 PM [vite-plugin-svelte:load] failed to load virtual css module /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
-1:22:10 PM [vite] Internal server error: Invalid declaration: `Chessground`
-  Plugin: @tailwindcss/vite:generate:serve
-  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/Chessground.svelte?svelte&type=style&lang.css
-      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
-      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
-      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
-      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
-      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
-      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
-      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
-1:22:10 PM [vite] Internal server error: Invalid declaration: `Chessground`
-  Plugin: @tailwindcss/vite:generate:serve
-  File: /home/ed/i/chess/node_modules/.pnpm/svelte-chessground@2.0.3_svelte@5.56.3/node_modules/svelte-chessground/dist/ChessgroundUnstyled.svelte?svelte&type=style&lang.css
-      at Se (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:1:3381)
-      at Ef (file:///home/ed/i/chess/node_modules/.pnpm/tailwindcss@4.3.1/node_modules/tailwindcss/dist/lib.mjs:38:1384)
-      at lu (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+node@4.3.1/node_modules/@tailwindcss/node/dist/index.mjs:10:3464)
-      at _.generate (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:5693)
-      at TransformPluginContext.handler (file:///home/ed/i/chess/node_modules/.pnpm/@tailwindcss+vite@4.3.1_vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0_/node_modules/@tailwindcss/vite/dist/index.mjs:1:3111)
-      at EnvironmentPluginContainer.transform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:30387:51)
-      at loadAndTransform (file:///home/ed/i/chess/node_modules/.pnpm/vite@8.0.16_@types+node@25.9.1_esbuild@0.27.3_jiti@2.7.0/node_modules/vite/dist/node/chunks/node.js:24646:48)
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/refresh-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/undo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/redo-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/bulb-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/gear-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/info-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/x-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/arrow-left-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/arrow-right-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/flip-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/mic-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/mic-mute-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/speaker-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/speaker-off-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/arrow-up-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-1:22:14 PM [vite-plugin-svelte] src/lib/components/icons/plus-icon.svelte:6:0 `<svg>` with a mouseenter or mouseleave handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions
-2:22:59 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
-2:22:59 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
-2:23:22 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
-2:23:22 PM [vite] (client) page reload .svelte-kit/generated/root.js
-2:23:22 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
-2:23:22 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
-2:37:39 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
-2:37:39 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
-2:37:45 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
-2:37:45 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
-2:45:51 PM [vite] (client) hmr update /src/app.css
-2:45:51 PM [vite] (ssr) page reload src/hooks.server.ts
-2:45:59 PM [vite] (client) hmr update /src/app.css
-2:45:59 PM [vite] (ssr) page reload src/lib/server/session.ts
-2:46:06 PM [vite] (client) hmr update /src/app.css
-2:46:06 PM [vite] (ssr) page reload src/lib/server/user.ts
-2:46:14 PM [vite] (client) hmr update /src/app.css
-2:46:14 PM [vite] (ssr) page reload src/routes/+layout.server.ts
+2:11:55 PM [vite] (client) hmr update /src/app.css, /src/components/LearnPage.svelte, /src/components/learn/CapturedPieces.svelte, /src/components/learn/BoardStatus.svelte, /src/components/learn/HintLabel.svelte, /src/components/learn/ChessBoard.svelte, /src/components/learn/GameActions.svelte, /src/components/learn/BoardNavigation.svelte, /src/components/learn/ChatPanel.svelte, /src/components/learn/SettingsModal.svelte, /src/components/learn/TokenModal.svelte
+2:11:55 PM [vite] (ssr) page reload src/components/learn/learn_context.svelte.ts
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[models] fetch error: [TypeError: fetch failed] {
+  [cause]: AggregateError [ETIMEDOUT]: 
+      at internalConnectMultiple (node:net:1142:49)
+      at internalConnectMultiple (node:net:1218:5)
+      at Timeout.internalConnectMultipleTimeout (node:net:1750:5)
+      at listOnTimeout (node:internal/timers:607:11)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEDOUT',
+    [errors]: [ [Error], [Error], [Error], [Error] ]
+  }
+}
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:12:29 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:12:29 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:12:29 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:12:29 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/0.js
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/1.js
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/2.js
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/client/nodes/3.js
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/client/app.js
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/client/matchers.js
+2:12:59 PM [vite] (ssr) page reload .svelte-kit/generated/server/internal.js
+2:12:59 PM [vite] (client) page reload .svelte-kit/generated/root.js
+2:12:59 PM [vite] (ssr) page reload .svelte-kit/generated/root.js
+2:12:59 PM [vite] (ssr) page reload .svelte-kit/generated/root.svelte
+[HOOKS] session cookie found on /i - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[LAYOUT] session cookie present: true
+[SESSION] decode: valid for user 115239427930254448872
+[LAYOUT] fetching balance for 115239427930254448872
+[LAYOUT] balance: 496097
+[LAYOUT] get_user result: false date_joined: null
+[HOOKS] session cookie found on /api/load - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872
+[HOOKS] session cookie found on /chess/learn/models - decoding...
+[SESSION] decode: valid for user 115239427930254448872
+[HOOKS] session valid, user: 115239427930254448872

@@ -23,7 +23,7 @@
   <meta property="og:description" content={d} />
   <meta property="og:url" content={canon} />
   <meta property="og:type" content={og_type} />
-  <meta property="og:site_name" content="Chess AI" />
+  <meta property="og:site_name" content="sonu" />
   <meta property="og:image" content={og_img} />
   {#if og_img_a}
     <meta property="og:image:alt" content={og_img_a} />

@@ -6,7 +6,7 @@
 
 </script>
 
-<Seo meta={{t:'Sign in — Chess AI',d:'Sign in to your Chess AI account to track progress and unlock features.'}} />
+<Seo meta={{t:'Sign in — sonu',d:'Sign in to your sonu account to continue chess training, track progress, and sync games across devices.'}} />
 <main class="page-shell">
   <div class="container py-4">
     <div class="mx-auto max-w-sm space-y-4 text-center">
