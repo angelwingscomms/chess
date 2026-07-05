@@ -34,6 +34,11 @@
     "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
+  "pnpm": {
+    "patchedDependencies": {
+      "svelte-chess@0.11.1": "patches/svelte-chess@0.11.1.patch"
+    }
+  },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^7.0.1",
     "@sveltejs/adapter-cloudflare": "^7.2.9",
