@@ -15,7 +15,7 @@ const config = {
 	vitePlugin: {
 		dynamicCompileOptions({ filename }) {
 			if (legacy_svelte_dep(filename)) {
-				return { runes: false };
+				return { runes: false, compatibility: { componentApi: 4 } };
 			}
 		}
 	},
