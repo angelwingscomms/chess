@@ -46,8 +46,10 @@ export function init_tool_state(s: ToolState) {
 }
 
 export function get_tool_declarations() {
-	return [{
-		functionDeclarations: [
+	return [
+		{ googleSearch: {} },
+		{
+			functionDeclarations: [
 			{
 				name: 'get_fen',
 				description: 'Read the current chess board position as a FEN string. Use when you need to reference the current position.',
@@ -104,7 +106,8 @@ export function get_tool_declarations() {
 		// 		parameters: { type: 'OBJECT', properties: {} },
 		// 	},
 		],
-	}];
+	},
+];
 }
 
 export async function dispatch_tool_call(fc: { id?: string; name?: string; args?: Record<string, unknown> }) {

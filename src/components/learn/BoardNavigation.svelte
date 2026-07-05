@@ -7,11 +7,13 @@
 	import MicMuteIcon from '$lib/components/icons/mic-mute-icon.svelte';
 	import SpeakerIcon from '$lib/components/icons/speaker-icon.svelte';
 	import SpeakerOffIcon from '$lib/components/icons/speaker-off-icon.svelte';
+	import VideoIcon from '$lib/components/icons/video-icon.svelte';
 	const s = get_learn_state();
 
 	let board_history = $derived(s.board_history);
 	let board_history_idx = $derived(s.board_history_idx);
 	let recording = $derived(s.recording);
+	let screen_recording = $derived(s.screen_recording);
 	let voice_muted = $derived(s.voice_muted);
 	let audio_muted = $derived(s.audio_muted);
 </script>
@@ -55,5 +57,11 @@
 	{:else}
 		<SpeakerIcon size={15} strokeWidth={1.8} />
 	{/if}
+</button>
+<button title={screen_recording ? 'Stop screen recording' : 'Record screen with audio'}
+	onclick={() => s.toggle_screen_recording()}
+	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (screen_recording ? 'bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'bg-canvas text-ink hover:text-primary')}
+>
+	<VideoIcon size={15} strokeWidth={1.8} />
 </button>
 {/if}

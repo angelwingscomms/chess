@@ -36,7 +36,8 @@ When the user asks about a position: strongest continuation, its type, and the s
 
 End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
 
-const tool_use_rules = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, briefly state the new position.`;
+const tool_use_rules = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, briefly state the new position.
+You can search the web in real time for current chess information — openings, grandmaster games, tournament results, strategy, and best responses to any position. When a user asks what the best move is or what to play in a given position, search the web to find up-to-date analysis, recent master games, or theoretical recommendations before answering.`;
 
 export const voice_options = [
 	{ v: 'Kore', l: 'Kore', d: 'Firm' },
@@ -81,8 +82,8 @@ export function get_learn_state(): LearnState {
 	return getContext(KEY)!;
 }
 
-export function create_learn_state() {
-	return new LearnState();
+export function create_learn_state(logged_in = false) {
+	return new LearnState(logged_in);
 }
 
 export class LearnState {
@@ -158,6 +159,10 @@ export class LearnState {
 	gemini_live_audio_queue: AudioBuffer[] = [];
 	gemini_live_audio_playing = false;
 	gemini_live_current_source: AudioBufferSourceNode | null = null;
+	screen_recording = $state(false);
+	gemini_live_recording_dest: MediaStreamAudioDestinationNode | null = null;
+	screen_media_recorder: MediaRecorder | null = null;
+	screen_recording_chunks: Blob[] = [];
 	gemini_last_usage_p = $state(0);
 	gemini_last_usage_c = $state(0);
 	gemini_deduct_pending = false;
@@ -167,6 +172,7 @@ export class LearnState {
 	_last_fen_sent = 0;
 	_set_state_fail_count = 0;
 	gemini_live_healthy = false;
+	gemini_live_closing = false;
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
 	thinking_sound_buf: AudioBuffer | null = null;
 	toasts = $state<{ id: number; msg: string; t: string }[]>([]);
@@ -178,7 +184,10 @@ export class LearnState {
 
 	readonly LS_KEY = 'chess_save';
 
-	constructor() {
+	logged_in = $state(false);
+
+	constructor(logged_in = false) {
+		this.logged_in = logged_in;
 		$effect(() => { if (browser) localStorage.setItem('autoexplain', String(this.autoexplain)); });
 		$effect(() => { if (browser) localStorage.setItem('auto_hint', String(this.auto_hint)); });
 		$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(this.hint_on_start)); });
@@ -895,6 +904,10 @@ export class LearnState {
 			this.chat_queue = [...this.chat_queue, { text: t }];
 			return;
 		}
+		if (!this.logged_in && !this.groq_api_key.trim()) {
+			this.add_toast('Please login or set a Groq API key to use text chat', 'e');
+			return;
+		}
 		await this.send_chess_chat(t, '', true);
 	}
 
@@ -1021,6 +1034,16 @@ export class LearnState {
 	}
 
 	cleanup_gemini_live() {
+		if (this.gemini_live_closing) return;
+		this.gemini_live_closing = true;
+		if (this.screen_media_recorder) {
+			try { if (this.screen_media_recorder.state !== 'inactive') this.screen_media_recorder.stop(); } catch {}
+			this.screen_media_recorder = null;
+		}
+		if (this.gemini_live_recording_dest) {
+			this.gemini_live_recording_dest.disconnect();
+			this.gemini_live_recording_dest = null;
+		}
 		this.gemini_live_healthy = false;
 		this.recording = false;
 		this.interrupt_audio();
@@ -1061,25 +1084,19 @@ export class LearnState {
 	}
 
 	send_gemini_realtime_input(input: Record<string, unknown>, caller = '') {
-		if (!this.gemini_live_can_send()) {
-			// console.log(`[gemini-live/send_input] BLOCKED caller=${caller} has_text=${Boolean(input.text)} has_audio=${Boolean(input.audio)}`);
+		if (!this.gemini_live_can_send() || this.gemini_live_closing) {
 			return false;
 		}
-		const has_text = Boolean(input.text);
-		const has_audio = Boolean(input.audio);
-		// console.log(`[gemini-live/send_input] CALLING caller=${caller} has_text=${has_text} has_audio=${has_audio} session=${Boolean(this.gemini_live_session)} recording=${this.recording}`);
 		try {
 			this.gemini_live_session.sendRealtimeInput(input);
-			// console.log(`[gemini-live/send_input] OK caller=${caller}`);
 			return true;
-		} catch (e) {
-			// console.error(`[gemini-live/send_input] FAILED caller=${caller} error=${e instanceof Error ? e.message : e}`);
+		} catch {
 			return false;
 		}
 	}
 
 	send_gemini_tool_response(input: Record<string, unknown>) {
-		if (!this.gemini_live_can_send()) return;
+		if (!this.gemini_live_can_send() || this.gemini_live_closing) return;
 		try {
 			this.gemini_live_session.sendToolResponse(input);
 		} catch {}
@@ -1139,6 +1156,11 @@ export class LearnState {
 			this.cleanup_gemini_live();
 			return;
 		}
+		if (!this.logged_in && !this.gemini_api_key.trim()) {
+			this.add_toast('Please login or set a Gemini API key to use live chat', 'e');
+			return;
+		}
+		this.gemini_live_closing = false;
 		try {
 			this.add_toast('Connecting voice...');
 			const res = await fetch('/api/voice/gemini-live/key');
@@ -1215,6 +1237,12 @@ export class LearnState {
 			micGain.connect(audioCtx.destination);
 			this.gemini_live_processor = processor;
 
+			// Recording audio bus — mixes AI output + mic for screen recording
+			const recording_dest = audioCtx.createMediaStreamDestination();
+			this.gemini_live_recording_dest = recording_dest;
+			outputGain.connect(recording_dest);
+			(processorSource ?? micSource).connect(recording_dest);
+
 			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.` + '\n\n' + tool_use_rules;
 
 			const { GoogleGenAI } = await import('@google/genai');
@@ -1271,6 +1299,53 @@ export class LearnState {
 			this.cleanup_gemini_live();
 		}
 	}
+
+	toggle_screen_recording = async () => {
+		if (!this.gemini_live_audio_ctx || !this.gemini_live_recording_dest) return;
+		if (this.screen_media_recorder) {
+			this.screen_media_recorder.stop();
+			return;
+		}
+		try {
+			const screen_stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+			const tracks: MediaStreamTrack[] = [...screen_stream.getVideoTracks()];
+			const audio_tracks = this.gemini_live_recording_dest.stream.getAudioTracks();
+			if (audio_tracks.length) tracks.push(audio_tracks[0]);
+			const combined = new MediaStream(tracks);
+			const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+				? 'video/webm;codecs=vp9,opus'
+				: MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
+					? 'video/webm;codecs=vp8,opus'
+					: 'video/webm';
+			const recorder = new MediaRecorder(combined, { mimeType: mime });
+			this.screen_recording_chunks = [];
+			recorder.ondataavailable = (e: BlobEvent) => { if (e.data.size > 0) this.screen_recording_chunks.push(e.data); };
+			recorder.onstop = () => {
+				this.screen_media_recorder = null;
+				this.screen_recording = false;
+				screen_stream.getTracks().forEach(t => t.stop());
+				if (this.screen_recording_chunks.length) {
+					const blob = new Blob(this.screen_recording_chunks, { type: mime });
+					const url = URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = `sonu-recording-${Date.now()}.webm`;
+					a.click();
+					URL.revokeObjectURL(url);
+				}
+				this.screen_recording_chunks = [];
+			};
+			screen_stream.getVideoTracks()[0].onended = () => {
+				if (recorder.state !== 'inactive') recorder.stop();
+			};
+			recorder.start(1000);
+			this.screen_media_recorder = recorder;
+			this.screen_recording = true;
+		} catch (e) {
+			if (e instanceof DOMException && e.name === 'NotAllowedError') return;
+			this.add_toast('Screen recording error: ' + (e instanceof Error ? e.message : String(e)), 'e');
+		}
+	};
 
 	gemini_process_audio = (e: AudioProcessingEvent) => {
 		if (this.voice_muted) return;

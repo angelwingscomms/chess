@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import { pushState } from '$app/navigation';
 	import Seo from '$lib/components/seo/Seo.svelte';
@@ -16,7 +15,7 @@
 	import SettingsModal from '$components/learn/SettingsModal.svelte';
 	import TokenModal from '$components/learn/TokenModal.svelte';
 
-	const s = create_learn_state();
+	const s = create_learn_state(!!$page.data.user);
 	set_learn_state(s);
 
 	$effect(() => {
@@ -41,7 +40,7 @@
 <JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints, AI analysis, and 30 AI voices','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 <main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 	<div class="absolute inset-0 bg-surface-dark/85"></div>
-	{#if dev && s.toasts.length}
+	{#if s.toasts.length}
 		<ToastContainer toasts={s.toasts} />
 	{/if}
 	<div class="container relative z-[1] py-4">
