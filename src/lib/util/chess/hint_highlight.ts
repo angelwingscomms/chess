@@ -1,5 +1,5 @@
 type Orientation = 'w' | 'b';
-type Hint_square_kind = 'f' | 't';
+type Hint_square_kind = 'f' | 't' | 'p';
 
 interface Hint_square {
 	s: string
@@ -7,6 +7,7 @@ interface Hint_square {
 	r: string
 	c: string
 	l: string
+	p?: string
 }
 
 const rows = [
@@ -35,19 +36,23 @@ function is_square(s: string) {
 	return /^[a-h][1-8]$/.test(s);
 }
 
-function hint_square(s: string, k: Hint_square_kind, orientation: Orientation): Hint_square {
+function hint_square(s: string, k: Hint_square_kind, orientation: Orientation, promo?: string): Hint_square {
 	const file_i = s.charCodeAt(0) - 97;
 	const rank = Number(s[1]);
 	const row_i = orientation === 'w' ? 8 - rank : rank - 1;
 	const col_i = orientation === 'w' ? file_i : 7 - file_i;
-	return { s, k, r: rows[row_i], c: cols[col_i], l: k === 'f' ? 'from' : 'to' };
+	const labels: Record<Hint_square_kind, string> = { f: 'from', t: 'to', p: 'promotion' };
+	return { s, k, r: rows[row_i], c: cols[col_i], l: labels[k], p: promo };
 }
 
 export function hint_squares(move: string, orientation: Orientation = 'w'): Hint_square[] {
 	const from = move.slice(0, 2);
 	const to = move.slice(2, 4);
 	if (!is_square(from) || !is_square(to)) return [];
-	return [hint_square(from, 'f', orientation), hint_square(to, 't', orientation)];
+	const promo = move[4];
+	const squares = [hint_square(from, 'f', orientation), hint_square(to, 't', orientation)];
+	if (promo && 'qrbn'.includes(promo)) squares.push(hint_square(to, 'p', orientation, promo));
+	return squares;
 }
 
 export function can_reuse_hints<T>(hints: T[], hint_fen: string, fen: string) {

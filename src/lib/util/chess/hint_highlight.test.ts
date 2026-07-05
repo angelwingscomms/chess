@@ -16,10 +16,19 @@ describe('hint_squares', () => {
 		]);
 	});
 
-	it('keeps promotion moves focused on from and to squares', () => {
+	it('includes promotion piece hint for promotion moves', () => {
 		expect(hint_squares('e7e8q')).toEqual([
 			{ s: 'e7', k: 'f', r: 'row-start-2', c: 'col-start-5', l: 'from' },
 			{ s: 'e8', k: 't', r: 'row-start-1', c: 'col-start-5', l: 'to' },
+			{ s: 'e8', k: 'p', r: 'row-start-1', c: 'col-start-5', l: 'promotion', p: 'q' },
+		]);
+	});
+
+	it('includes underpromotion piece hint', () => {
+		expect(hint_squares('e7e8n')).toEqual([
+			{ s: 'e7', k: 'f', r: 'row-start-2', c: 'col-start-5', l: 'from' },
+			{ s: 'e8', k: 't', r: 'row-start-1', c: 'col-start-5', l: 'to' },
+			{ s: 'e8', k: 'p', r: 'row-start-1', c: 'col-start-5', l: 'promotion', p: 'n' },
 		]);
 	});
 

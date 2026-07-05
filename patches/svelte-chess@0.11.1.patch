@@ -1,0 +1,69 @@
+diff --git a/dist/Chess.svelte b/dist/Chess.svelte
+index 4b6be76790c7df967f742507c4ffaaee8a1c06f6..8c1d6e6f3e9d81cd466fe6f2fe6934d6bbb7308e 100644
+--- a/dist/Chess.svelte
++++ b/dist/Chess.svelte
+@@ -3,7 +3,7 @@
+ <script>import { Chessground } from "svelte-chessground";
+ import PromotionDialog from "./PromotionDialog.svelte";
+ import { Api } from "./api.js";
+-import { onMount, createEventDispatcher } from "svelte";
++import { onMount, createEventDispatcher, mount, unmount } from "svelte";
+ const dispatch = createEventDispatcher();
+ let chessground;
+ let container;
+@@ -15,6 +15,7 @@ export let isGameOver = false;
+ export let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+ export let orientation = "w";
+ export let engine = void 0;
++export let recommended_promotion = '';
+ let className = void 0;
+ export { className as class };
+ let api = void 0;
+@@ -69,13 +70,14 @@ function stateChangeCallback(api2) {
+ }
+ function promotionCallback(square) {
+   return new Promise((resolve) => {
+-    const element = new PromotionDialog({
++	const element = mount(PromotionDialog, {
+       target: container,
+       props: {
+         square,
+         orientation,
++        recommended: recommended_promotion,
+         callback: (piece) => {
+-          element.$destroy();
++          unmount(element);
+           resolve(piece);
+         }
+       }
+diff --git a/dist/PromotionDialog.svelte b/dist/PromotionDialog.svelte
+index e9c0bc3afa8bbeba62638a6e093a1d23661e9efc..f5486cc805bb87d50b47ea2be95f86d918ebfd79 100644
+--- a/dist/PromotionDialog.svelte
++++ b/dist/PromotionDialog.svelte
+@@ -1,6 +1,7 @@
+ <script>export let square;
+ export let orientation = "w";
+ export let callback;
++export let recommended = '';
+ let className = void 0;
+ export { className as class };
+ const marginLeft = 100 / 8 * (orientation === "w" ? squareToFileNumber(square) : 7 - squareToFileNumber(square));
+@@ -22,7 +23,7 @@ function keyboardCallback(event, promotion) {
+ 	{#each pieces as piece, i}
+ 		{@const putPiecesFromTop = white && orientation === 'w' || black && orientation === 'b'}
+ 		{@const marginTop = putPiecesFromTop ? i * 12.5 : 100 - 12.5*(i+1)}
+-		<div class="square" style="margin-left:{marginLeft}%;margin-top:{marginTop}%;">
++		<div class="square" style="margin-left:{marginLeft}%;margin-top:{marginTop}%;" class:recommended={piece === recommended}>
+ 			<div
+ 				class="piece {piece}" class:white class:black
+ 				on:click={()=>callback(piece)}
+@@ -66,6 +67,9 @@ function keyboardCallback(event, promotion) {
+ 	div.square:hover div.piece {
+ 		transform:scale(1);
+ 	}
++	div.square.recommended {
++		box-shadow:inset 0 0 25px 3px grey, 0 0 0 3px #f59e0b;
++	}
+ 
+ 	/* Chessground default pieces */
+ 	.b.white {

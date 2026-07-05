@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  svelte-chess@0.11.1: 5427acac704947db2d7aa49c0c323333204bad6ee8f116355feec65de1c3d877
+
 importers:
 
   .:
@@ -64,7 +67,7 @@ importers:
         version: 5.56.3
       svelte-chess:
         specifier: ^0.11.1
-        version: 0.11.1(svelte@5.56.3)
+        version: 0.11.1(patch_hash=5427acac704947db2d7aa49c0c323333204bad6ee8f116355feec65de1c3d877)(svelte@5.56.3)
       web-push:
         specifier: ^3.6.7
         version: 3.6.7
@@ -3282,7 +3285,7 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
-  svelte-chess@0.11.1(svelte@5.56.3):
+  svelte-chess@0.11.1(patch_hash=5427acac704947db2d7aa49c0c323333204bad6ee8f116355feec65de1c3d877)(svelte@5.56.3):
     dependencies:
       chess.js: 1.4.0
       svelte: 5.56.3

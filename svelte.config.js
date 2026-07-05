@@ -10,7 +10,8 @@ const legacy_svelte_dep = (filename = '') => {
 const config = {
 	preprocess: vitePreprocess(),
 	compilerOptions: {
-		runes: true
+		runes: true,
+		compatibility: { componentApi: 4 }
 	},
 	vitePlugin: {
 		dynamicCompileOptions({ filename }) {
