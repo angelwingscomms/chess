@@ -20,9 +20,9 @@
 			desc: 'Two AI coaching styles—Socratic questions or direct explanations.'
 		},
 		{
-			icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
-			title: 'Pay only for what you use',
-			desc: 'No subscriptions. Only pay for AI answers you actually use.'
+			icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>`,
+			title: 'Free with your own AI key',
+			desc: 'Use a Groq or Gemini API key for zero-cost coaching. Or pay per answer — no subscription either way.'
 		},
 		{
 			icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>`,
@@ -65,7 +65,7 @@
 						Improve faster with an AI coach that explains every move
 					</h1>
 					<p class="text-lg leading-relaxed text-on-dark/70 max-w-lg mx-auto mb-8">
-						Get personalized hints. Understand why moves work. Train your way with 30 voices.
+						Personalized hints that explain every move. Free AI coaching with your own API key.
 					</p>
 					<div class="flex flex-wrap gap-3 justify-center">
 						<a href="/i" class="inline-flex min-w-[180px] items-center justify-center rounded-lg border border-primary/40 bg-primary/15 px-7 py-3 text-sm font-medium backdrop-blur-md transition-all hover:bg-primary/25" style="color:#fff">Start training</a>
@@ -125,7 +125,8 @@
 					</div>
 					<div class="border-t border-on-dark/8 px-5 py-3 flex items-center gap-2 text-xs text-on-dark/60">
 						<span class="inline-flex items-center gap-1.5"><svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0"/></svg>Cost tracked</span>
-						<span class="inline-flex items-center gap-1.5 ml-3"><svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>Hint enabled</span>
+						<span class="inline-flex items-center gap-1.5"><svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>Hint enabled</span>
+						<span class="inline-flex items-center gap-1.5"><svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>BYOK</span>
 					</div>
 				</div>
 			</div>
