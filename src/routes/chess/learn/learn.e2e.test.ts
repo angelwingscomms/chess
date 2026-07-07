@@ -197,6 +197,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain("let gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');");
 		expect(page).toContain("localStorage.setItem('groq_api_key', groq_api_key)");
 		expect(page).toContain("localStorage.setItem('gemini_api_key', gemini_api_key)");
+		expect(page).toContain("localStorage.getItem('gemini_search_tool')");
 		expect(page).toContain('async function send_direct_generation(');
 		expect(page).toContain('async function send_direct_gemini(');
 		expect(page).toContain("createGroq({ apiKey: groq_api_key.trim() })");
@@ -213,6 +214,8 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('href="https://aistudio.google.com/apikey"');
 		expect(page).toContain('target="_blank"');
 		expect(page).toContain('Use AI features for free by using your own API keys');
+		expect(page).toContain('Enable search tool');
+		expect(page).toContain('Search is a paid feature of the Gemini Live API.');
 	});
 
 	it('reads direct text from AI SDK textStream', () => {

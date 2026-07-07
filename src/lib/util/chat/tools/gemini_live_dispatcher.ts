@@ -45,9 +45,8 @@ export function init_tool_state(s: ToolState) {
 	state = s;
 }
 
-export function get_tool_declarations() {
-	return [
-		{ googleSearch: {} },
+export function get_tool_declarations(include_search = true) {
+	const tools: any[] = [
 		{
 			functionDeclarations: [
 			{
@@ -108,6 +107,8 @@ export function get_tool_declarations() {
 		],
 	},
 ];
+	if (include_search) tools.unshift({ googleSearch: {} });
+	return tools;
 }
 
 export async function dispatch_tool_call(fc: { id?: string; name?: string; args?: Record<string, unknown> }) {

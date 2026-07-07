@@ -36,8 +36,11 @@ When the user asks about a position: strongest continuation, its type, and the s
 
 End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
 
-const tool_use_rules = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, briefly state the new position.
-You can search the web in real time for current chess information — openings, grandmaster games, tournament results, strategy, and best responses to any position. When a user asks what the best move is or what to play in a given position, search the web to find up-to-date analysis, recent master games, or theoretical recommendations before answering.`;
+function tool_use_rules(search_enabled: boolean) {
+	let r = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, briefly state the new position.`;
+	if (search_enabled) r += `\nYou can search the web in real time for current chess information — openings, grandmaster games, tournament results, strategy, and best responses to any position. When a user asks what the best move is or what to play in a given position, search the web to find up-to-date analysis, recent master games, or theoretical recommendations before answering.`;
+	return r;
+}
 
 export const voice_options = [
 	{ v: 'Kore', l: 'Kore', d: 'Firm' },
@@ -128,6 +131,7 @@ export class LearnState {
 	computer_think_time = $state(1.5);
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');
+	gemini_search_tool = $state(browser && localStorage.getItem('gemini_search_tool') === 'true');
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
 	noise_suppression = $state(browser && localStorage.getItem('noise_suppression') !== 'false');
@@ -194,6 +198,7 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(this.hint_think_time)); });
 		$effect(() => { if (browser) localStorage.setItem('groq_api_key', this.groq_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('gemini_api_key', this.gemini_api_key); });
+		$effect(() => { if (browser) localStorage.setItem('gemini_search_tool', String(this.gemini_search_tool)); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
 		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
 		$effect(() => { if (browser) localStorage.setItem('vibe', this.vibe); });
@@ -1243,7 +1248,7 @@ export class LearnState {
 			outputGain.connect(recording_dest);
 			(processorSource ?? micSource).connect(recording_dest);
 
-			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.` + '\n\n' + tool_use_rules;
+			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.` + '\n\n' + tool_use_rules(this.gemini_search_tool);
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
@@ -1278,7 +1283,7 @@ export class LearnState {
 						},
 					} as any,
 					systemInstruction: { parts: [{ text: sys }] } as any,
-					tools: get_tool_declarations() as any,
+					tools: get_tool_declarations(this.gemini_search_tool) as any,
 				} as any,
 			});
 			this.gemini_live_session = session;

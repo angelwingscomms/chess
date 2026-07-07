@@ -11,6 +11,7 @@
 	let show_model_menu = $derived(s.show_model_menu);
 	let groq_api_key = $derived(s.groq_api_key);
 	let gemini_api_key = $derived(s.gemini_api_key);
+	let gemini_search_tool = $derived(s.gemini_search_tool);
 	let voice_name = $derived(s.voice_name);
 	let show_voice_menu = $derived(s.show_voice_menu);
 	let autoexplain = $derived(s.autoexplain);
@@ -126,6 +127,23 @@
 						<a class="text-primary underline-offset-2 hover:underline" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com/apikey</a>
 					</p>
 				</section>
+				{#if gemini_api_key}
+				<section class="rounded-lg border border-hairline bg-canvas p-4">
+					<label class="flex cursor-pointer items-center justify-between gap-4">
+						<span>
+							<span class="block text-sm font-medium text-ink">Enable search tool</span>
+							<span class="mt-1 block text-xs leading-5 text-muted">Let Gemini search the web for current chess info.</span>
+						</span>
+						<span class="grid size-5 place-items-center rounded-full border border-primary">
+							<input type="checkbox" bind:checked={s.gemini_search_tool} class="sr-only" aria-label="Enable search tool" />
+							<span class={gemini_search_tool ? 'size-3 rounded-full bg-primary' : 'size-3 rounded-full bg-transparent'}></span>
+						</span>
+					</label>
+					<p class="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-600 dark:text-amber-400">
+						Search is a paid feature of the Gemini Live API. Each query is billed separately. Make sure you have billing enabled on your Google Cloud project to avoid service interruptions.
+					</p>
+				</section>
+				{/if}
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="voice-label">Gemini Live voice</h3>
 					<button
