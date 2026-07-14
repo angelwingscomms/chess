@@ -25,7 +25,7 @@ const body = await request.json().catch(() => null);
 			amount_kobo,
 			ref,
 			callback_url,
-			{ user_id: user.id }
+			{ user_id: user.id, a: 'e4' }
 		);
 
 		return json({
