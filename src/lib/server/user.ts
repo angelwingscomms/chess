@@ -1,76 +1,86 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { QDRANT_KEY, QDRANT_URL } from '$env/static/private';
-import Sqids from 'sqids';
 import type { User } from '$lib/types/user';
 
 const C = 'i';
 const local = new Map<string, User>();
 let q: QdrantClient | null = null;
-const sqids = new Sqids({ minLength: 6 });
 
 function client(): QdrantClient {
 	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY, checkCompatibility: false });
 	return q;
 }
 
-function pid(id: string): string {
-	return 'u_' + id;
-}
-
-export async function save_user(
-	_event: unknown,
-	id: string,
-	name: string,
-	picture?: string,
-	email?: string,
-	// affiliate_code?: string
-): Promise<void> {
-	const u: User = {
-		s: 'u',
-		n: name,
-		p: picture,
-		m: email,
-		d: Date.now()
-	};
+async function find_by(field: 'e' | 'm', value: string): Promise<{ i: string; pl: Record<string, unknown> } | null> {
 	try {
-		console.log('[USER] save_user - checking existing record for', pid(id));
-		const r = await client().retrieve(C, { ids: [pid(id)] });
-		const cur = r[0]?.payload as Record<string, unknown> | undefined;
-		if (cur?.s === 'u') {
-			console.log('[USER] existing user found, preserving metadata');
-			u.d = (cur.d as number) || u.d;
-			if (cur.c) u.c = cur.c as string;
-			if (cur.r) u.r = cur.r as string[];
-		} else {
-			u.c = sqids.encode([Math.floor(Date.now() / 1000), Math.floor(Math.random() * 9000) + 1000]);
-			console.log('[USER] new user, referral code:', u.c);
-		}
-		console.log('[USER] upserting to qdrant...');
-		await client().upsert(C, { points: [{ id: pid(id), payload: u as unknown as Record<string, unknown> }] });
-		console.log('[USER] qdrant upsert success');
-	} catch (e) {
-		console.log('[USER] qdrant error, falling back to local map:', String(e));
-		local.set(pid(id), u);
-	}
-}
-
-export async function get_user(_event: unknown, id: string): Promise<User | null> {
-	try {
-		const r = await client().retrieve(C, { ids: [pid(id)] });
-		const u = r[0]?.payload as Record<string, unknown> | undefined;
-		if (u?.s === 'u') {
-			return {
-				s: 'u',
-				n: u.n as string,
-				p: u.p as string | undefined,
-				m: u.m as string | undefined,
-				c: u.c as string | undefined,
-				r: u.r as string[] | undefined,
-				d: u.d as number
-			};
-		}
-		return null;
+		const r = await client().scroll(C, {
+			filter: { must: [{ key: 's', match: { value: 'u' } }, { key: field, match: { value } }] },
+			limit: 1,
+			with_payload: true,
+			with_vector: false
+		});
+		const p = r.points?.[0];
+		if (!p) return null;
+		const pl = p.payload as Record<string, unknown>;
+		if (pl.s !== 'u') return null;
+		return { i: p.id as string, pl };
 	} catch {
-		return local.get(pid(id)) || null;
+		return null;
 	}
+}
+
+export async function find_or_create_user(name: string, picture: string | undefined, email: string): Promise<string> {
+	const by_e = await find_by('e', email);
+	if (by_e) return by_e.i;
+	const by_m = await find_by('m', email);
+	if (by_m) {
+		try {
+			await client().setPayload(C, { points: [by_m.i], payload: { e: email }, wait: true });
+		} catch {}
+		return by_m.i;
+	}
+	const id = crypto.randomUUID();
+	const u: Record<string, unknown> = { s: 'u', e: email, n: name, m: email, d: Date.now() };
+	if (picture) u.pic = picture;
+	const ZV: number[] = new Array(4096).fill(0);
+	try {
+		await client().upsert(C, { points: [{ id, vector: ZV, payload: u }] });
+	} catch {
+		local.set(id, u as unknown as User);
+	}
+	return id;
+}
+
+export async function get_user(id: string): Promise<User | null> {
+	try {
+		const r = await client().retrieve(C, { ids: [id] });
+		const pl = r[0]?.payload as Record<string, unknown> | undefined;
+		if (pl?.s !== 'u') return null;
+		const raw_c = pl.c;
+		return {
+			s: 'u',
+			n: (pl.n as string) || '',
+			p: (pl.pic as string) || (pl.p as string),
+			m: (pl.m as string) || (pl.e as string),
+			c: typeof raw_c === 'string' ? (raw_c as string) : undefined,
+			r: pl.r as string[] | undefined,
+			d: (pl.d as number) || 0
+		};
+	} catch {
+		return local.get(id) || null;
+	}
+}
+
+export async function find_login_user(email: string): Promise<{ i: string; n?: string; pic?: string; hash?: string } | null> {
+	const by_e = await find_by('e', email);
+	const hit = by_e || (await find_by('m', email));
+	if (!hit) return null;
+	const raw_p = hit.pl.p;
+	const hash = typeof raw_p === 'string' && raw_p.startsWith('$2') ? (raw_p as string) : undefined;
+	return {
+		i: hit.i,
+		n: (hit.pl.n as string) || undefined,
+		pic: (hit.pl.pic as string) || (hit.pl.p as string) || undefined,
+		hash
+	};
 }

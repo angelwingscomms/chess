@@ -17,7 +17,7 @@ export const load: LayoutServerLoad = async ({ cookies, platform }) => {
 	console.log('[LAYOUT] fetching balance for', s.user.id);
 	const balance = await get_balance({ platform }, s.user.id);
 	console.log('[LAYOUT] balance:', balance);
-	const u = await get_user({ platform }, s.user.id);
+	const u = await get_user(s.user.id);
 	console.log('[LAYOUT] get_user result:', !!u, 'date_joined:', u?.d ?? null);
 	return { user: s.user, balance, date_joined: u?.d ?? null };
 };
