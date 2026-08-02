@@ -1,6 +1,6 @@
 import { google_client } from '$lib/server/oauth';
 import { encode_session, SESSION_COOKIE } from '$lib/server/session';
-import { save_user } from '$lib/server/user';
+import { find_or_create_user } from '$lib/server/user';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function GET(event: RequestEvent): Promise<Response> {
@@ -44,16 +44,17 @@ export async function GET(event: RequestEvent): Promise<Response> {
   }
   const guser = await ures.json();
   console.log('[LOGIN_CALLBACK] google user:', JSON.stringify({ sub: guser.sub, name: guser.name, email: guser.email, picture: !!guser.picture }));
-  console.log('[LOGIN_CALLBACK] saving user to qdrant...');
+  console.log('[LOGIN_CALLBACK] resolving canonical user by email...');
+  let uid: string;
   try {
-    await save_user(event, guser.sub, guser.name, guser.picture, guser.email);
-    console.log('[LOGIN_CALLBACK] save_user completed');
+    uid = await find_or_create_user(guser.name, guser.picture, guser.email);
+    console.log('[LOGIN_CALLBACK] canonical user id:', uid);
   } catch (e) {
-    console.log('[LOGIN_CALLBACK] save_user error:', String(e));
+    console.log('[LOGIN_CALLBACK] find_or_create_user error:', String(e));
     return new Response(null, { status: 500 });
   }
   console.log('[LOGIN_CALLBACK] encoding session...');
-  const session = await encode_session({ id: guser.sub, name: guser.name, picture: guser.picture, email: guser.email });
+  const session = await encode_session({ id: uid, name: guser.name, picture: guser.picture, email: guser.email });
   console.log('[LOGIN_CALLBACK] session encoded:', session.substring(0, 30) + '...');
   event.cookies.set('session', session, SESSION_COOKIE);
   console.log('[LOGIN_CALLBACK] session cookie set, deleting oauth cookies...');
