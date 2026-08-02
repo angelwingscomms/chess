@@ -1,4 +1,27 @@
 import { SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
+
+const cookie_domain = env.COOKIE_DOMAIN || undefined;
+
+type CookieOpts = {
+	path: string;
+	httpOnly: boolean;
+	maxAge?: number;
+	sameSite: 'lax';
+	domain?: string;
+};
+
+export const SESSION_COOKIE: CookieOpts = {
+	path: '/',
+	httpOnly: true,
+	maxAge: 604800,
+	sameSite: 'lax',
+	...(cookie_domain && { domain: cookie_domain })
+};
+export const SESSION_COOKIE_DELETE: { path: string; domain?: string } = {
+	path: '/',
+	...(cookie_domain && { domain: cookie_domain })
+};
 
 function b64(s: string): string {
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');

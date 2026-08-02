@@ -1,4 +1,4 @@
-import { decode_session } from '$lib/server/session';
+import { decode_session, SESSION_COOKIE_DELETE } from '$lib/server/session';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -13,7 +13,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       event.locals.user = s.user;
     } else {
       console.log('[HOOKS] session invalid/expired, deleting cookie');
-      event.cookies.delete('session', { path: '/' });
+      event.cookies.delete('session', SESSION_COOKIE_DELETE);
     }
   } else {
     if (path === '/i' || path === '/api/') console.log('[HOOKS] no session cookie on', path);

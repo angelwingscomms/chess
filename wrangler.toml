@@ -13,6 +13,7 @@ enabled = true
 [vars]
 BYNARA_KEY = "sk-nry-cMvUj1z3NoCVcb7aCSCYZTnnw7rodKaumunu50PjhMA"
 RESEMBLE_API_KEY = ""
+COOKIE_DOMAIN = ".beeeproject.com"
 head_sampling_rate = 1
 
 [observability.logs]
