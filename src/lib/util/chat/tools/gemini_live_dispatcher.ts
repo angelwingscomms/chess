@@ -1,4 +1,4 @@
-
+import { PUZZLE_TOOL_DESCRIPTION } from '$lib/types/puzzle';
 
 type BoardState = {
 	fen: string;
@@ -65,6 +65,17 @@ export function get_tool_declarations(include_search = true) {
 				name: 'get_board_state',
 				description: 'Get the full current board state, including FEN, whose turn it is, check/checkmate status, game over state, move history navigation position, captured pieces, and last moves by both sides. Use this to understand the complete game context.',
 				parameters: { type: 'OBJECT', properties: {} },
+			},
+			{
+				name: 'find_puzzles',
+				description: PUZZLE_TOOL_DESCRIPTION,
+				parameters: { type: 'OBJECT', properties: {
+					t: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Tags that must all be present, e.g. ["fork", "endgame"]' },
+					any: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Tags where at least one must be present, e.g. ["pin", "skewer"]' },
+					r_min: { type: 'NUMBER', description: 'Minimum puzzle rating' },
+					r_max: { type: 'NUMBER', description: 'Maximum puzzle rating' },
+					n: { type: 'NUMBER', description: 'How many puzzles to return, 1-30. Default 5.' },
+				} },
 			},
 			{
 				name: 'set_state',
@@ -148,6 +159,22 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			}
 			log(`get_board_state: fen=${b.fen.slice(0, 40)} turn=${b.turn} game_over=${b.game_over}`);
 			return { id: fc.id, name, response: b };
+		}
+
+		case 'find_puzzles': {
+			try {
+				const res = await fetch('/api/puzzles', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(fc.args ?? {}),
+				});
+				const body = await res.json();
+				log(`find_puzzles: returned ${body?.puzzles?.length ?? 0}`);
+				return { id: fc.id, name, response: body };
+			} catch (e) {
+				log(`find_puzzles FAILED — ${e}`);
+				return { id: fc.id, name, response: { puzzles: [], error: 'Puzzle search failed.' } };
+			}
 		}
 
 		case 'set_state': {

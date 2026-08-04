@@ -8,6 +8,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Stockfish runs in a Web Worker (`static/stockfish.js`) — client-side engine, no server
 - AI chat uses SSE streaming (`/chess/learn/chat`): events are `text`, `interaction`, `usage`, `error`
 - Qdrant single collection `'i'` for token balances; multi-tenancy via payload field `s`
+- Qdrant collection `'puz'` holds all 6,014,381 lichess puzzles — **vectorless** (`vectors: {}`, points upserted with `vector: {}`), payload-only. Search is tag + rating filtering, no embeddings: a puzzle's meaning is its theme set, and only 73 themes / 69,782 theme-combos exist, so per-puzzle vectors would cost ~98 GB to buy nothing. Payload indexes on `t` (keyword), `r`/`v` (integer) — the instance runs strict mode, so filtering an unindexed field fails. Re-ingest with `node scripts/ingest_puzzles.mjs [csv]` (idempotent: point id = base62-decoded PuzzleId)
 - Piece images: `static/pieces/gioco/` — solid CSS background-image references in `app.css:569-589`
 - `svelte-chess` uses legacy (non-runes) mode — `dynamicCompileOptions` in `svelte.config.js:15-20`
 
@@ -22,8 +23,6 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 # Code Conventions
 
-- snake_case for all vars/functions
-- DB payload keys, type defs, request JSON, page load return values: single letters only
 - Tailwind utilities only — no inline styles or `<style>` blocks
 - No raw CSS values — use CSS variables from `app.css` (e.g. `var(--primary)` for primary color)
 - `$lib` → `src/lib/`, `$components` → `src/components/`
@@ -32,7 +31,6 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 - Unit tests co-located with modules as `*.test.ts`
 - E2E tests in `src/routes/chess/learn/` — these are **static** (string-matching source files, no browser)
-- Write failing tests before implementing, run after
 
 # SEO
 
@@ -48,6 +46,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - User can set a Groq API key in localStorage — bypasses server, calls `@ai-sdk/groq` directly from browser
 - Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
 - Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
+- `find_puzzles` tool searches the `puz` collection. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the Gemini Live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
 
 # Git Workflow
 
