@@ -4,11 +4,25 @@ import { Chess } from 'chess.js';
 import type { Puzzle, PuzzleQuery } from '$lib/types/puzzle';
 
 const C = 'puz';
+// point id = base62-decoded lichess PuzzleId; the corpus spans 8 .. 916132592 sparsely, so a
+// random offset in that range is a free random sample — scroll returns the next ids after it.
+const MAX_POINT_ID = 916132592;
 let q: QdrantClient | null = null;
 
 function client(): QdrantClient {
 	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY, checkCompatibility: false });
 	return q;
+}
+
+async function page(filter: object, limit: number, offset: number) {
+	const r = await client().scroll(C, {
+		filter,
+		limit,
+		offset,
+		with_payload: true,
+		with_vector: false
+	});
+	return r.points ?? [];
 }
 
 export async function search_puzzles(query: PuzzleQuery): Promise<Puzzle[]> {
@@ -21,14 +35,19 @@ export async function search_puzzles(query: PuzzleQuery): Promise<Puzzle[]> {
 	must.push({ key: 'v', range: { gte: query.v_min ?? 80 } });
 
 	const limit = Math.min(Math.max(query.n ?? 5, 1), 30);
-	const r = await client().scroll(C, {
-		filter: { must },
-		limit,
-		offset: query.after,
-		with_payload: true,
-		with_vector: false
-	});
-	return (r.points ?? []).map((p) => {
+	const filter = { must };
+	const random_start = query.after ?? Math.floor(Math.random() * MAX_POINT_ID);
+	let points = await page(filter, limit, random_start);
+	// a random start near the top of the id space can run out of matches — wrap to the
+	// beginning so a narrow filter still fills the page.
+	if (points.length < limit && query.after == null) {
+		const seen = new Set(points.map((p) => p.id));
+		for (const p of await page(filter, limit, 0)) {
+			if (points.length >= limit) break;
+			if (!seen.has(p.id)) points.push(p);
+		}
+	}
+	return points.map((p) => {
 		const pl = p.payload as Record<string, unknown>;
 		const moves = (pl.m as string).split(' ');
 		return {
