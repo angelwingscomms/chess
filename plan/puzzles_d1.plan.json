@@ -1,7 +1,7 @@
 {
 	"fix_svelte_config_assertion": {
 		"s": "Fix the stale assertion in `src/routes/chess/learn/config.test.ts`.\n\nCURRENT (line 13): `\t\texpect(config).toContain('return { runes: false };');`\nACTUAL CODE (`svelte.config.js` line 19): `\t\t\t\treturn { runes: false, compatibility: { componentApi: 4 } };`\n\nROOT CAUSE: `compatibility: { componentApi: 4 }` was added to the `dynamicCompileOptions` legacy-dep branch so `svelte-chess` / `svelte-chessground` compile in the Svelte-4 component API (mirroring the top-level `compilerOptions` at `svelte.config.js:12-15`). The assertion was never updated. This is a stale test, NOT a code bug — do not touch `svelte.config.js`.\n\nFIX: replace line 13 verbatim with:\n\t\texpect(config).toContain('return { runes: false, compatibility: { componentApi: 4 } };');\n\nPHASES:\n1. `pnpm test src/routes/chess/learn/config.test.ts` — watch it fail with `expected … to contain 'return { runes: false };'`.\n2. Apply the edit.\n3. Re-run that file — 1 test passes.\n4. `pnpm test` — total failures drop from 23 to 22, and 68 previously-passing tests stay green.\n\nCOMMIT: `test: assert the componentApi compatibility flag in the legacy svelte compile branch`",
-		"d": 0,
+		"d": 1,
 		"t": "bash -c 'cd ~/i/e4 && pnpm test src/routes/chess/learn/config.test.ts'"
 	},
 	"fix_white_piece_fill_assertion": {
