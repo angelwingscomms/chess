@@ -1252,7 +1252,10 @@ export class LearnState {
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
-			const session = await ai.live.connect({
+			const connect_timeout = new Promise<never>((_, reject) => {
+				setTimeout(() => reject(new Error('Timed out connecting to voice service')), 10000);
+			});
+			const session = await Promise.race([ai.live.connect({
 				model: 'gemini-3.1-flash-live-preview',
 				callbacks: {
 					onopen: () => {
@@ -1285,7 +1288,7 @@ export class LearnState {
 					systemInstruction: { parts: [{ text: sys }] } as any,
 					tools: get_tool_declarations(this.gemini_search_tool) as any,
 				} as any,
-			});
+			}), connect_timeout]);
 			this.gemini_live_session = session;
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'NotFoundError') {

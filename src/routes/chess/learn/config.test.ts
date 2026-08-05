@@ -10,6 +10,6 @@ describe('svelte config for chess deps', () => {
 		expect(config).toContain('filename.replaceAll(\'\\\\\', \'/\')');
 		expect(config).toContain('svelte-chess');
 		expect(config).toContain('svelte-chessground');
-		expect(config).toContain('return { runes: false };');
+		expect(config).toContain('return { runes: false, compatibility: { componentApi: 4 } };');
 	});
 });
