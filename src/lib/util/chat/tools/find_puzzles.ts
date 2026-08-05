@@ -11,16 +11,18 @@ export const puzzle_input = z.object({
 	n: z.number().optional().describe('How many puzzles to return, 1-30. Default 5.'),
 });
 
-export const find_puzzles = tool({
-	description: PUZZLE_TOOL_DESCRIPTION,
-	inputSchema: puzzle_input,
-	execute: async (q) => {
-		try {
-			const puzzles = await search_puzzles(q);
-			if (!puzzles.length) return { puzzles: [], error: 'No puzzles matched. Try fewer tags in "t".' };
-			return { puzzles };
-		} catch (e) {
-			return { puzzles: [], error: e instanceof Error ? e.message : String(e) };
-		}
-	},
-});
+export function make_find_puzzles(db: D1Database) {
+	return tool({
+		description: PUZZLE_TOOL_DESCRIPTION,
+		inputSchema: puzzle_input,
+		execute: async (q) => {
+			try {
+				const puzzles = await search_puzzles(db, q);
+				if (!puzzles.length) return { puzzles: [], error: 'No puzzles matched. Try fewer tags in "t".' };
+				return { puzzles };
+			} catch (e) {
+				return { puzzles: [], error: e instanceof Error ? e.message : String(e) };
+			}
+		},
+	});
+}
