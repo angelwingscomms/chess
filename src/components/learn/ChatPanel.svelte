@@ -67,17 +67,17 @@
 			<div class="flex justify-end">
 				<div class="max-w-[85%] bg-primary/30 text-white rounded-[16px_4px_16px_16px] px-3.5 py-2.5 text-sm max-sm:text-[9px] leading-relaxed flex items-center gap-2">
 					<span>{q_msg.text}</span>
-					<button title="Send this message now" onclick={() => s.promoteFromQueue(i)} class="shrink-0 grid place-items-center">
+					<button title="Send this message now" aria-label="Send this message now" onclick={() => s.promoteFromQueue(i)} class="shrink-0 grid place-items-center">
 						<ArrowUpIcon size={12} strokeWidth={2} />
 					</button>
-					<button title="Remove queued message" onclick={() => s.removeFromQueue(i)} class="shrink-0 grid place-items-center">
+					<button title="Remove queued message" aria-label="Remove queued message" onclick={() => s.removeFromQueue(i)} class="shrink-0 grid place-items-center">
 						<XIcon size={12} strokeWidth={2} />
 					</button>
 				</div>
 			</div>
 		{/each}
 		{#if sel_text && sel_pos}
-			<button title="Append selected text to message"
+			<button title="Append selected text to message" aria-label="Append selected text to message"
 				onclick={() => s.append_selection()}
 				style="left:{sel_pos.x}px;top:{sel_pos.y}px"
 				class="absolute z-50 -translate-x-1/2 -translate-y-full grid size-6 place-items-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-110 active:scale-95"
@@ -103,7 +103,7 @@
 			placeholder="Ask about the position..."
 			class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm max-sm:text-[9px] outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"
 		></textarea>
-		<button title="Send"
+		<button title="Send" aria-label="Send"
 			onclick={() => s.sendChatMessage(s.chat_input)}
 			disabled={!chat_loading && !chat_input.trim()}
 			class="button-primary !border-0 !px-3 !min-h-[40px] !rounded-lg shrink-0"

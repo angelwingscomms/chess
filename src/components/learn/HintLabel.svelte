@@ -12,7 +12,7 @@
 
 {#if show_hints && !hint_loading && hints.length > 0}
 	<span class="ml-2 rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white">{s.uciToSan(fen, hints[hint_index].move)}</span>
-	<button title="Explain hint" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => s.explainHint()}>
+	<button title="Explain hint" aria-label="Explain hint" class="grid size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted {chat_loading ? 'motion-safe:animate-hint-loading' : ''}" onclick={() => s.explainHint()}>
 		<span class="text-[11px]">?</span>
 	</button>
 {/if}
