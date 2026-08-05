@@ -11,7 +11,7 @@ if [ "$ts" -gt "$TS_BASE" ]; then
 	exit 1
 fi
 
-sv=$(pnpm check 2>&1 | grep -oE '[0-9]+ ERRORS' | tail -1 | grep -oE '^[0-9]+')
+sv=$(pnpm check 2>&1 | grep -oiE '[0-9]+ errors' | tail -1 | grep -oE '^[0-9]+')
 if [ -z "$sv" ]; then
 	echo "check_baseline: could not parse svelte-check output"
 	exit 1

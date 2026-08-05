@@ -1,9 +1,14 @@
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const page = readFileSync(resolve(process.cwd(), 'src/routes/+page.svelte'), 'utf8');
+const learn_dir = resolve(process.cwd(), 'src/components/learn');
+const page = [
+	resolve(process.cwd(), 'src/components/LearnPage.svelte'),
+	...readdirSync(learn_dir).map((f) => resolve(learn_dir, f))
+]
+	.map((f) => readFileSync(f, 'utf8'))
+	.join('\n');
 const css = readFileSync(resolve(process.cwd(), 'src/app.css'), 'utf8');
 const learn_context = readFileSync(resolve(process.cwd(), 'src/components/learn/learn_context.svelte.ts'), 'utf8');
 
@@ -12,13 +17,12 @@ describe('/chess/learn hint highlights', () => {
 		expect(page).toContain('hint_squares(');
 		expect(page).toContain('data-testid={square.k === \'f\' ? \'hint-square-from\' : \'hint-square-to\'}');
 		expect(page).toContain('aria-label={`Hint ${square.l} square ${square.s}`}');
-		expect(page).toContain('const hint_from_class = \'bg-amber/70\'');
-		expect(page).toContain('const hint_to_class = \'bg-teal/70\'');
+		expect(page).toContain('square.k === \'f\' ? \'bg-amber/70\' : \'bg-teal/70\'');
 		expect(page).toContain('motion-safe:animate-hint-pulse size-[2.7rem] rounded-full place-self-center');
-		expect(page).toContain('can_reuse_hints(hints, hint_fen, fen)');
-		expect(page).toContain('onclick={() => hideHints()}');
+		expect(page).toContain('can_reuse_hints(this.hints, this.hint_fen, this.fen)');
+		expect(page).toContain('onclick={() => s.hideHints()}');
 		expect(page).toContain('hideHints(true)');
-		expect(page).toContain('hint_fen = fen;');
+		expect(page).toContain('this.hint_fen = this.fen;');
 	});
 });
 
@@ -33,7 +37,7 @@ describe('/chess/learn chat', () => {
 	});
 
 	it('keeps desktop vertical chrome tight around the board', () => {
-		expect(page).toContain('container py-4');
+		expect(page).toContain('container relative z-[1] py-4');
 		expect(page).toContain('flex w-full max-w-[1328px] flex-col gap-4');
 		expect(page).toContain('grid w-full grid-cols-1 gap-4');
 		expect(page).not.toContain('container py-12');
@@ -62,7 +66,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('build_chat_data(');
 		expect(page).toContain('apply_chat_event(');
 		expect(page).toContain('bind:history');
-		expect(page).toContain('d: build_chat_data(');
+		expect(page).toContain('d: this.build_chat_data(');
 		expect(page).toContain('msg.content');
 		expect(page).not.toContain('{msg.d');
 	});
@@ -74,9 +78,9 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('bg-primary/30 text-white');
 		expect(page).toContain('aria-label="Remove queued message"');
 		expect(page).toContain('aria-label="Send this message now"');
-		expect(page).toContain('class="flex-1 min-h-[40px] bg-canvas text-ink px-3.5 py-2.5 text-sm outline-none border-none rounded-lg focus:outline-none focus:border-none focus:ring-0"');
-		expect(page).toContain("sendChatMessage(chat_input)");
-		expect(page).toContain("chat_queue = [...chat_queue, { text: t }]");
+		expect(page).toContain('class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm max-sm:text-[9px] outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"');
+		expect(page).toContain("s.sendChatMessage(s.chat_input)");
+		expect(page).toContain("this.chat_queue = [...this.chat_queue, { text: t }]");
 	});
 
 	it('saves game progress and chat to user profile on move and message', () => {
@@ -92,14 +96,13 @@ describe('/chess/learn chat', () => {
 	});
 
 	it('undo pushes FEN to redo_stack and redo restores it', () => {
-		expect(page).toContain('redo_stack.push(fen)');
+		expect(page).toContain('this.redo_stack.push(this.fen)');
 		expect(page).toContain('redo_stack.pop()');
 		expect(page).toContain("chessRef.load(f)");
 		expect(page).toContain('redo_stack = []');
 		expect(page).toContain('redo_stack.length');
 		expect(page).toContain('aria-label="Undo move"');
 		expect(page).toContain('aria-label="Redo move"');
-		expect(page).toContain('<Redo2');
 	});
 
 	it('shows board-state-aware chat suggestions above the input', () => {
@@ -144,13 +147,9 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain("import XIcon from '$lib/components/icons/x-icon.svelte';");
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="New game"');
-		expect(page).toContain('<RotateCcw');
 		expect(page).toContain('aria-label="Undo move"');
-		expect(page).toContain('<Undo2');
 		expect(page).toContain('aria-label="Show hint"');
-		expect(page).toContain('<Lightbulb');
 		expect(page).toContain('aria-label="Settings"');
-		expect(page).toContain('<Settings');
 		expect(page).toContain('data-testid="settings-difficulty"');
 		expect(page).not.toContain('<span class="text-muted">Move:</span>');
 		expect(page).not.toContain('<button class="button-secondary text-xs ml-auto"');
@@ -164,13 +163,13 @@ describe('/chess/learn settings modal', () => {
 	});
 
 	it('can request hints automatically after load and after the computer moves', () => {
-		expect(page).toContain("let auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');");
-		expect(page).toContain("let hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');");
-		expect(page).toContain("localStorage.setItem('auto_hint', String(auto_hint))");
-		expect(page).toContain("localStorage.setItem('hint_on_start', String(hint_on_start))");
-		expect(page).toContain('function request_hint()');
-		expect(page).toContain('if (hint_on_start && !start_hint_done)');
-		expect(page).toContain("const hints = await getHints(this.fen, 1, undefined, undefined, undefined, this.hint_think_time * 1000);");
+		expect(page).toContain("auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');");
+		expect(page).toContain("hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');");
+		expect(page).toContain("localStorage.setItem('auto_hint', String(this.auto_hint))");
+		expect(page).toContain("localStorage.setItem('hint_on_start', String(this.hint_on_start))");
+		expect(page).toContain('request_hint() {');
+		expect(page).toContain('if (this.hint_on_start && !this.start_hint_done)');
+		expect(page).toContain("this.hints = await getHints(this.fen, 1, undefined, sig, undefined, this.hint_think_time * 1000);");
 		expect(page).toContain('Auto hint');
 		expect(page).toContain('Hint on start');
 	});
@@ -186,25 +185,24 @@ describe('/chess/learn settings modal', () => {
 	it('keeps chat chrome compact and icon-only', () => {
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="Clear chat"');
-		expect(page).toContain('<X size={13}');
 		expect(page).toContain('rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white');
 		expect(page).not.toContain('<span class="text-sm font-medium text-ink">Chat</span>');
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});
 
 	it('lets users bring API keys and sends keyed chat directly to AI SDK', () => {
-		expect(page).toContain("let groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');");
-		expect(page).toContain("let gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');");
-		expect(page).toContain("localStorage.setItem('groq_api_key', groq_api_key)");
-		expect(page).toContain("localStorage.setItem('gemini_api_key', gemini_api_key)");
+		expect(page).toContain("groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');");
+		expect(page).toContain("gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');");
+		expect(page).toContain("localStorage.setItem('groq_api_key', this.groq_api_key)");
+		expect(page).toContain("localStorage.setItem('gemini_api_key', this.gemini_api_key)");
 		expect(page).toContain("localStorage.getItem('gemini_search_tool')");
-		expect(page).toContain('async function send_direct_generation(');
-		expect(page).toContain('async function send_direct_gemini(');
-		expect(page).toContain("createGroq({ apiKey: groq_api_key.trim() })");
-		expect(page).toContain("createGoogleGenerativeAI({ apiKey: gemini_api_key.trim() })");
+		expect(page).toContain('async send_direct_generation(');
+		expect(page).toContain('async send_direct_gemini(');
+		expect(page).toContain("createGroq({ apiKey: this.groq_api_key.trim() })");
+		expect(page).toContain("createGoogleGenerativeAI({ apiKey: this.gemini_api_key.trim() })");
 		expect(page).toContain('streamText');
-		expect(page).toContain("if (is_gemini && gemini_api_key.trim())");
-		expect(page).toContain("if (!model.startsWith('deepseek/') && !model.startsWith('bynara/') && groq_api_key.trim() && model.includes('/'))");
+		expect(page).toContain("if (is_gemini && this.gemini_api_key.trim())");
+		expect(page).toContain("if (!this.model.startsWith('deepseek/') && !this.model.startsWith('bynara/') && this.groq_api_key.trim() && this.model.includes('/'))");
 		expect(page).toContain('Groq API key');
 		expect(page).toContain('Gemini API key');
 		expect(page).toContain('type="password"');
@@ -229,14 +227,13 @@ describe('/chess/learn settings modal', () => {
 
 	it('tracks and displays API cost in token modal', () => {
 		expect(page).toContain("import { calc_cost } from '$lib/util/ai/pricing'");
-		expect(page).toContain('let total_cost = $state(0)');
+		expect(page).toContain('total_cost = $state(0)');
 		expect(page).toContain('total_cost += msg.cost');
 		expect(page).toContain('const cost = calc_cost(m, p, c)');
 		expect(page).toContain('total_cost += cost');
 		expect(page).toContain('total_cost = 0');
-		expect(page).toContain('Cost (USD)');
 		expect(page).toContain('Cost (NGN)');
-		expect(page).toContain('total_cost * 1440).toFixed(2)}');
+		expect(page).toContain('(total_cost * NGN_USD).toFixed(2)}');
 		expect(page).toContain('Input');
 		expect(page).toContain('Output');
 	});
@@ -244,12 +241,12 @@ describe('/chess/learn settings modal', () => {
 	it('stores per-message usage and shows NGN cost inline', () => {
 		expect(page).toContain('type ChatUsage = { p: number; c: number; cost: number };');
 		expect(page).toContain("u?: ChatUsage");
-		expect(page).toContain('chat_messages[last] = { ...chat_messages[last], u:');
+		expect(page).toContain('this.chat_messages[last] = { ...this.chat_messages[last], u:');
 		expect(page).toContain('msg.u.cost * NGN_USD).toFixed(2)}');
 	});
 
 	it('shows model combobox regardless of api key', () => {
-		expect(page).toContain('let show_model_menu = $state(false);');
+		expect(page).toContain('show_model_menu = $state(false);');
 		expect(page).toContain('let model_options =');
 		expect(page).toContain('role="combobox"');
 		expect(page).toContain('aria-haspopup="listbox"');
