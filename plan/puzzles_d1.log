@@ -1,3 +1,4 @@
 2026-08-05T01:34:25.469Z	fix_svelte_config_assertion	6d5d5eb
 2026-08-05T01:34:57.186Z	fix_white_piece_fill_assertion	12d5133
 2026-08-05T01:36:15.012Z	restore_icon_button_aria_labels	23bb2c9
+2026-08-05T07:17:50.863Z	repoint_learn_e2e_to_components	a9e4e2e

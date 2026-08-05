@@ -27,4 +27,9 @@ enabled = true
 persist = true
 head_sampling_rate = 1
 
+[[d1_databases]]
+binding = "PUZ"
+database_name = "puz"
+database_id = "9a77b1f0-fce1-4f82-a09f-763676740f8e"
+
 
