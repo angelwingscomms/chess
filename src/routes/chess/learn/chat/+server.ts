@@ -11,6 +11,23 @@ import { NGN_USD } from '$lib/util/rates';
 import { get_fen } from '$lib/util/chat/tools/get_fen';
 import { evaluate_position } from '$lib/util/chat/tools/stockfish_analysis';
 import { make_find_puzzles } from '$lib/util/chat/tools/find_puzzles';
+import { tool } from 'ai';
+import { z } from 'zod';
+import { Chess } from 'chess.js';
+
+const set_state = tool({
+	description: 'Set the board to any position using a FEN string. Use this when the user asks you to set up a specific position, puzzle, or famous game position. Only use this tool when the user explicitly asks you to, or when you suggest showing a position and they agree.',
+	inputSchema: z.object({ fen: z.string().describe('The FEN string of the position to load.') }),
+	execute: async ({ fen }) => {
+		const f = fen.trim();
+		try {
+			const c = new Chess(f);
+			return { valid: true, fen: c.fen() };
+		} catch {
+			return { valid: false, error: 'Invalid FEN' };
+		}
+	}
+});
 
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
@@ -87,7 +104,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 						role: msg.r as 'user' | 'assistant',
 						content: msg.r === 'user' ? build_input(msg) : msg.c,
 					})),
-					tools: { get_fen, evaluate_position, find_puzzles: make_find_puzzles(platform!.env.PUZ) },
+					tools: { get_fen, evaluate_position, find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state },
 					stopWhen: stepCountIs(10),
 				});
 				for await (const part of result.fullStream) {
@@ -95,6 +112,13 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 					if (part.type === 'text-delta' && part.text) {
 						wrote = true;
 						controller.enqueue(event('text', { t: part.text }));
+					}
+					if ((part as any).type === 'tool-result') {
+						const p: any = part;
+						const out = p.output ?? p.result;
+						if (p.toolName === 'set_state' && out?.valid && out?.fen) {
+							controller.enqueue(event('board', { f: out.fen }));
+						}
 					}
 				}
 				if (!request.signal.aborted && wrote) {
