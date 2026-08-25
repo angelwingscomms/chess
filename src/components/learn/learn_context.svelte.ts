@@ -909,10 +909,11 @@ export class LearnState {
 			this.chat_queue = [...this.chat_queue, { text: t }];
 			return;
 		}
-		if (!this.logged_in && !this.groq_api_key.trim()) {
-			this.add_toast('Please login or set a Groq API key to use text chat', 'e');
-			return;
-		}
+		// free for everyone — restore paywall later
+		// if (!this.logged_in && !this.groq_api_key.trim()) {
+		// 	this.add_toast('Please login or set a Groq API key to use text chat', 'e');
+		// 	return;
+		// }
 		await this.send_chess_chat(t, '', true);
 	}
 
@@ -1161,10 +1162,11 @@ export class LearnState {
 			this.cleanup_gemini_live();
 			return;
 		}
-		if (!this.logged_in && !this.gemini_api_key.trim()) {
-			this.add_toast('Please login or set a Gemini API key to use live chat', 'e');
-			return;
-		}
+		// free for everyone — restore paywall later
+		// if (!this.logged_in && !this.gemini_api_key.trim()) {
+		// 	this.add_toast('Please login or set a Gemini API key to use live chat', 'e');
+		// 	return;
+		// }
 		this.gemini_live_closing = false;
 		try {
 			this.add_toast('Connecting voice...');
