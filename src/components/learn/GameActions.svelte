@@ -22,10 +22,10 @@
 <button title="New game" aria-label="New game" data-tour="new" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.resetGame()} disabled={!ready}>
 	<RefreshIcon size={15} strokeWidth={1.8} />
 </button>
-<button title="Undo move" aria-label="Undo move" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.undoMove()} disabled={!ready || moveNum === 0 || gameOver}>
+<button title="Undo move" aria-label="Undo move" data-tour="undo" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.undoMove()} disabled={!ready || moveNum === 0 || gameOver}>
 	<UndoIcon size={15} strokeWidth={1.8} />
 </button>
-<button title="Redo move" aria-label="Redo move" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.redoMove()} disabled={!ready || !redo_stack.length}>
+<button title="Redo move" aria-label="Redo move" data-tour="redo" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.redoMove()} disabled={!ready || !redo_stack.length}>
 	<RedoIcon size={15} strokeWidth={1.8} />
 </button>
 {#if show_hints}

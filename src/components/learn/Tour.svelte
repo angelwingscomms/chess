@@ -53,7 +53,58 @@
 					element: '[data-tour="new"]',
 					popover: {
 						title: 'Start over anytime',
-						description: 'The refresh button starts a new game. That\'s everything — enjoy!',
+						description: 'The refresh button starts a new game.',
+						side: 'bottom',
+						align: 'start',
+					},
+				},
+				{
+					popover: {
+						title: "Nice — that's the basics!",
+						description: "You're ready to play. Want 5 more quick tips on undo, flip & history? Hit Next for a 20-sec extra, or close (×) to jump in.",
+					},
+				},
+				{
+					element: '[data-tour="undo"]',
+					popover: {
+						title: 'Undo',
+						description: 'Take back your last move. Great for trying a different idea without restarting.',
+						side: 'bottom',
+						align: 'start',
+					},
+				},
+				{
+					element: '[data-tour="redo"]',
+					popover: {
+						title: 'Redo',
+						description: 'Bring back the move you just undid.',
+						side: 'bottom',
+						align: 'start',
+					},
+				},
+				{
+					element: '[data-tour="flip-board"]',
+					popover: {
+						title: 'Flip board',
+						description: 'Rotate your view of the board without changing the game.',
+						side: 'bottom',
+						align: 'start',
+					},
+				},
+				{
+					element: '[data-tour="switch-sides"]',
+					popover: {
+						title: 'Switch sides',
+						description: 'Swap colors — you play the other side and the engine takes yours.',
+						side: 'bottom',
+						align: 'start',
+					},
+				},
+				{
+					element: '[data-tour="history"]',
+					popover: {
+						title: 'Move history',
+						description: 'Step back and forward through earlier positions — arrows light up once you have moves to revisit.',
 						side: 'bottom',
 						align: 'start',
 					},

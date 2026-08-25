@@ -18,16 +18,18 @@
 	let audio_muted = $derived(s.audio_muted);
 </script>
 
-<button title="Previous board" aria-label="Previous board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
+<span class="flex items-center gap-1.5" data-tour="history">
+<button title="Previous board" aria-label="Previous board" data-tour="prev-board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
 	<ArrowLeftIcon size={15} strokeWidth={1.8} />
 </button>
-<button title="Next board" aria-label="Next board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
+<button title="Next board" aria-label="Next board" data-tour="next-board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
 	<ArrowRightIcon size={15} strokeWidth={1.8} />
 </button>
-<button title="Flip board" aria-label="Flip board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.chessRef?.toggleOrientation()}>
+</span>
+<button title="Flip board" aria-label="Flip board" data-tour="flip-board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.chessRef?.toggleOrientation()}>
 	<span style="display:inline-flex;transform:scaleX(-1)"><FlipIcon size={15} strokeWidth={1.8} /></span>
 </button>
-<button title="Switch sides" aria-label="Switch sides" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.flipColor()}>
+<button title="Switch sides" aria-label="Switch sides" data-tour="switch-sides" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.flipColor()}>
 	<FlipIcon size={15} strokeWidth={1.8} />
 </button>
 <button title={recording ? 'Stop recording' : 'Voice input — 30 voices'}
