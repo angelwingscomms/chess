@@ -61,6 +61,9 @@ importers:
       chessops:
         specifier: ^0.15.0
         version: 0.15.0
+      driver.js:
+        specifier: ^1.8.0
+        version: 1.8.0
       marked:
         specifier: ^18.0.5
         version: 18.0.5
@@ -1292,6 +1295,9 @@ packages:
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
+
+  driver.js@1.8.0:
+    resolution: {integrity: sha512-+8/IO7h1v14IzWh2GP60N7T3PFZweXwdn5e5POuxRSBoCYUojsBxzqawPeXh3YZIibRy7EehYNEyxe7slwwtdg==}
 
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
@@ -2789,6 +2795,8 @@ snapshots:
   devalue@5.8.1: {}
 
   dotenv@17.4.2: {}
+
+  driver.js@1.8.0: {}
 
   ecdsa-sig-formatter@1.0.11:
     dependencies:

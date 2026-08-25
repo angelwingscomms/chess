@@ -19,7 +19,7 @@
 	let chat_loading = $derived(s.chat_loading);
 </script>
 
-<button title="New game" aria-label="New game" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.resetGame()} disabled={!ready}>
+<button title="New game" aria-label="New game" data-tour="new" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.resetGame()} disabled={!ready}>
 	<RefreshIcon size={15} strokeWidth={1.8} />
 </button>
 <button title="Undo move" aria-label="Undo move" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.undoMove()} disabled={!ready || moveNum === 0 || gameOver}>
@@ -33,11 +33,12 @@
 		<BulbIcon size={15} strokeWidth={1.8} />
 	</button>
 {:else}
-	<button title="Show hint" aria-label="Show hint" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.showHint()} disabled={!ready || gameOver || hint_loading}>
+	<button title="Show hint" aria-label="Show hint" data-tour="hint" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.showHint()} disabled={!ready || gameOver || hint_loading}>
 		<BulbIcon size={15} strokeWidth={1.8} />
 	</button>
 {/if}
 <span class="ml-auto flex items-center gap-1.5">
+	<button title="Tutorial" aria-label="Tutorial" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-muted text-xs font-semibold transition-colors hover:text-primary" onclick={() => s.show_tour = true}>?</button>
 	<button title="Token usage" aria-label="Token usage" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-muted transition-colors hover:text-primary" onclick={() => s.show_token_modal = true}>
 		<InfoIcon size={13} strokeWidth={1.8} />
 	</button>

@@ -14,6 +14,7 @@
 	import ChatPanel from '$components/learn/ChatPanel.svelte';
 	import SettingsModal from '$components/learn/SettingsModal.svelte';
 	import TokenModal from '$components/learn/TokenModal.svelte';
+import Tour from '$components/learn/Tour.svelte';
 
 	const s = create_learn_state(!!$page.data.user);
 	set_learn_state(s);
@@ -51,7 +52,7 @@
 			</div>
 
 			<div class="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,640px)_minmax(0,640px)] lg:items-start lg:justify-center">
-			<div class="relative mx-auto w-full max-w-[640px] lg:mx-0">
+			<div class="relative mx-auto w-full max-w-[640px] lg:mx-0" data-tour="board">
 				<ChessBoard />
 			</div>
 
@@ -74,3 +75,4 @@
 
 <SettingsModal />
 <TokenModal />
+<Tour />

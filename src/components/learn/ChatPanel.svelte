@@ -95,6 +95,7 @@
 	{/if}
 	<div data-mi class="flex items-center gap-2 p-3">
 		<textarea
+			data-tour="chat"
 			rows={1}
 			bind:this={s.chat_input_ref}
 			bind:value={s.chat_input}

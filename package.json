@@ -30,6 +30,7 @@
     "bcryptjs": "^3.0.3",
     "chess.js": "^1.4.0",
     "chessops": "^0.15.0",
+    "driver.js": "^1.8.0",
     "marked": "^18.0.5",
     "sqids": "^0.3.0",
     "svelte": "^5.56.3",

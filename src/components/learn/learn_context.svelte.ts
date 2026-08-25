@@ -143,6 +143,7 @@ export class LearnState {
 	show_model_menu = $state(false);
 	show_vibe_menu = $state(false);
 	show_token_modal = $state(false);
+	show_tour = $state(false);
 
 	total_p = $state(0);
 	total_c = $state(0);
@@ -435,6 +436,7 @@ export class LearnState {
 
 	onReady() {
 		this.ready = true;
+		if (browser && !localStorage.getItem('e4_tour_done')) this.show_tour = true;
 		if (this.hint_on_start && !this.start_hint_done) {
 			this.start_hint_done = true;
 			this.request_hint();
