@@ -285,6 +285,13 @@
 						</div>
 					{/if}
 				</section>
+				<section class="flex items-center justify-between gap-3 rounded-lg bg-surface-card p-4">
+					<div>
+						<h3 class="text-sm font-medium text-ink">Need a refresher?</h3>
+						<p class="text-xs leading-5 text-muted">Replay the 11-step walkthrough.</p>
+					</div>
+					<button class="button-secondary shrink-0" onclick={() => { s.show_settings = false; setTimeout(() => s.show_tour = true, 150); }}>View tutorial</button>
+				</section>
 			</div>
 			<div class="shrink-0 grid grid-cols-2 gap-3 border-t border-hairline bg-surface-soft px-6 py-4">
 				<button class="button-secondary" onclick={() => s.show_settings = false}>Cancel</button>
