@@ -1339,7 +1339,7 @@ export class LearnState {
 					const url = URL.createObjectURL(blob);
 					const a = document.createElement('a');
 					a.href = url;
-					a.download = `sonu-recording-${Date.now()}.webm`;
+					a.download = `e4-recording-${Date.now()}.webm`;
 					a.click();
 					URL.revokeObjectURL(url);
 				}

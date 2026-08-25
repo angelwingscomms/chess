@@ -82,13 +82,13 @@
   }
 </script>
 
-<Seo meta={{t:'sonu — Chess training with an AI coach',d:'Train chess against adaptive Stockfish AI with a coach that explains every move. Hints, 30 AI voices, and cloud saves.'}} />
-<JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'sonu','url':'https://chess.apexlinks.org'}} />
+<Seo meta={{t:'e4 — Chess training with an AI coach',d:'Train chess against adaptive Stockfish AI with a coach that explains every move. Hints, 30 AI voices, and cloud saves.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'e4','url':'https://chess.apexlinks.org'}} />
 
 <nav class="top-nav">
   <div class="container nav-inner">
     <a href="/">
-      <img src="/logo.svg" alt="sonu" class="nav-logo" />
+      <img src="/logo.svg" alt="e4" class="nav-logo" />
     </a>
     <div class="nav-end">
       {#if user}

@@ -36,8 +36,8 @@
 	});
 </script>
 
-<Seo meta={{t:'Train — sonu',d:'Train your chess skills against adaptive Stockfish AI with sonu. Get hints, analyze positions, chat with an AI coach, and choose from 30 voices.'}} />
-<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints, AI analysis, and 30 AI voices','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+<Seo meta={{t:'Train — e4',d:'Train your chess skills against adaptive Stockfish AI with e4. Get hints, analyze positions, chat with an AI coach, and choose from 30 voices.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints, AI analysis, and 30 AI voices','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 <main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 	<div class="absolute inset-0 bg-surface-dark/85"></div>
 	{#if s.toasts.length}
@@ -46,7 +46,7 @@
 	<div class="container relative z-[1] py-4">
 		<div class="mx-auto flex w-full max-w-[1328px] flex-col gap-4">
 			<div class="mx-auto w-full max-w-[640px] space-y-2 text-center">
-				<h1 class="display-sm text-on-dark">sonu</h1>
+				<h1 class="display-sm text-on-dark">e4</h1>
 				<p class="text-sm text-on-dark/70">Play, learn, and analyze. 30 AI voices to choose from.</p>
 			</div>
 

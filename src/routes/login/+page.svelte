@@ -41,7 +41,7 @@
   }
 </script>
 
-<Seo meta={{t:'Sign in — sonu',d:'Sign in to your sonu account to continue chess training, track progress, and sync games across devices.'}} />
+<Seo meta={{t:'Sign in — e4',d:'Sign in to your e4 account to continue chess training, track progress, and sync games across devices.'}} />
 <main class="page-shell">
   <div class="container py-4">
     <div class="mx-auto max-w-sm space-y-4 text-center">

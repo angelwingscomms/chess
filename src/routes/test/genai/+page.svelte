@@ -31,7 +31,7 @@
 	}
 </script>
 
-<Seo meta={{t:'AI SDK Test — sonu',d:'',n:true}} />
+<Seo meta={{t:'AI SDK Test — e4',d:'',n:true}} />
 <div class="max-w-xl mx-auto mt-8 p-4">
 	<h1 class="text-2xl font-bold mb-4">ai-sdk + @ai-sdk/groq browser test</h1>
 	<p class="text-sm text-gray-600 mb-4">Tests whether the AI SDK works client-side using the user's own API key.</p>

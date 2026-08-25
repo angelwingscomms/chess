@@ -38,8 +38,8 @@
 </script>
 
 {#if $page.data.user}
-	<Seo meta={{t:'sonu — Continue your chess journey',d:'Welcome back. Pick up where you left off with your personalized AI coach and 30 voices.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, 30 voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'e4 — Continue your chess journey',d:'Welcome back. Pick up where you left off with your personalized AI coach and 30 voices.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, 30 voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 		<div class="absolute inset-0 bg-surface-dark/60"></div>
@@ -52,8 +52,8 @@
 		</div>
 	</main>
 {:else}
-	<Seo meta={{t:'sonu — Train chess with an AI coach that explains every move',d:'Get hints when stuck. Ask the AI why any move works. 30 voices, cloud saves, no sign-up needed.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'sonu','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, 30 voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'e4 — Train chess with an AI coach that explains every move',d:'Get hints when stuck. Ask the AI why any move works. 30 voices, cloud saves, no sign-up needed.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, 30 voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell">
 		<!-- Hero -->
