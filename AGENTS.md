@@ -46,7 +46,8 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - User can set a Groq API key in localStorage — bypasses server, calls `@ai-sdk/groq` directly from browser
 - Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
 - Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
-- `find_puzzles` tool searches the `puz` collection. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the Gemini Live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
+- `find_puzzles` tool searches the `puz` collection. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
+- Voice: Gemini Live is the default (`gemini-3.1-flash-live-preview` via `@google/genai`). OpenAI GPT-Live (`gpt-live-1`) is a paid alternative. OpenRouter does **not** host `gpt-live-1`. The Worker posts SDP to `https://api.openai.com/v1/live/sessions` with `delegation.type: client`; the browser holds WebRTC. Never send `OPENAI_KEY` to the browser. Optional env: `OPENAI_KEY`.
 
 # Git Workflow
 
@@ -59,6 +60,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Public vars via `$env/static/public` (currently only `PUBLIC_DOMAIN`)
 - `.env*` gitignored; sample vars in `wrangler.toml`
 - Required: `SECRET`, `GROQ`, `GEMINI`, `OPENROUTER_KEY`, `GOOGLE_ID`, `GOOGLE_SECRET`, `QDRANT_URL`, `QDRANT_KEY`, `PAYSTACK_SECRET_KEY*`
+- Optional: `OPENAI_KEY` for paid GPT-Live when the user has no pasted OpenAI key
 
 # Design System
 

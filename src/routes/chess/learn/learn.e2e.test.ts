@@ -126,6 +126,17 @@ describe('/chess/learn Gemini Live voice', () => {
 		expect(learn_context).toContain('send_gemini_realtime_input(');
 		expect(learn_context).not.toContain('enableAffectiveDialog');
 	});
+
+	it('keeps gemini as the default live provider and adds paid openai live', () => {
+		expect(learn_context).toContain("voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini')");
+		expect(learn_context).toContain("this.voice_provider === 'openai'");
+		expect(learn_context).toContain('RTCPeerConnection');
+		expect(learn_context).toContain('oai-events');
+		expect(learn_context).toContain('session.delegation.created');
+		expect(learn_context).toContain('session.commentary.append');
+		expect(learn_context).toContain('/api/voice/openai-live/session');
+		expect(learn_context).not.toContain('openrouter.ai/api/v1/live');
+	});
 });
 
 describe('/chess/learn settings modal', () => {

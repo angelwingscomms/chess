@@ -1,6 +1,6 @@
 <script lang="ts">
 	import StepperInput from '$components/stepper-input.svelte';
-	import { get_learn_state, voice_options } from './learn_context.svelte';
+	import { get_learn_state, openai_voice_options, voice_options } from './learn_context.svelte';
 	const s = get_learn_state();
 
 	let show_settings = $derived(s.show_settings);
@@ -12,7 +12,9 @@
 	let groq_api_key = $derived(s.groq_api_key);
 	let gemini_api_key = $derived(s.gemini_api_key);
 	let gemini_search_tool = $derived(s.gemini_search_tool);
+	let voice_provider = $derived(s.voice_provider);
 	let voice_name = $derived(s.voice_name);
+	let live_voices = $derived(voice_provider === 'openai' ? openai_voice_options : voice_options);
 	let show_voice_menu = $derived(s.show_voice_menu);
 	let autoexplain = $derived(s.autoexplain);
 	let auto_hint = $derived(s.auto_hint);
@@ -114,6 +116,21 @@
 					</p>
 				</section>
 				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
+					<label class="text-sm font-medium text-ink" for="openai-api-key">OpenAI API key</label>
+					<input
+						id="openai-api-key"
+						type="password"
+						bind:value={s.openai_api_key}
+						placeholder="sk-..."
+						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
+					/>
+					<p class="text-xs leading-5 text-muted">
+						Paid voice uses your key, or the server key after you log in.
+						Get a key @
+						<a class="text-primary underline-offset-2 hover:underline" href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">platform.openai.com/api-keys</a>
+					</p>
+				</section>
+				<section class="grid gap-2 rounded-lg bg-surface-card p-4">
 					<label class="text-sm font-medium text-ink" for="gemini-api-key">Gemini API key</label>
 					<input
 						id="gemini-api-key"
@@ -145,7 +162,28 @@
 				</section>
 				{/if}
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
-					<h3 class="text-sm font-medium text-ink" id="voice-label">Gemini Live voice</h3>
+					<h3 class="text-sm font-medium text-ink" id="voice-provider-label">Voice provider</h3>
+					<div class="grid grid-cols-2 gap-2">
+						<button
+							type="button"
+							class={voice_provider === 'gemini' ? 'rounded-lg border border-primary bg-surface-soft px-3 py-2 text-left text-sm text-ink' : 'rounded-lg border border-hairline bg-canvas px-3 py-2 text-left text-sm text-muted'}
+							onclick={() => { s.voice_provider = 'gemini'; if (!voice_options.find(o => o.v === s.voice_name)) s.voice_name = 'Kore'; }}
+						>
+							<span class="block font-medium">Gemini</span>
+							<span class="text-xs text-muted">default</span>
+						</button>
+						<button
+							type="button"
+							class={voice_provider === 'openai' ? 'rounded-lg border border-primary bg-surface-soft px-3 py-2 text-left text-sm text-ink' : 'rounded-lg border border-hairline bg-canvas px-3 py-2 text-left text-sm text-muted'}
+							onclick={() => { s.voice_provider = 'openai'; if (!openai_voice_options.find(o => o.v === s.voice_name)) s.voice_name = 'marin'; }}
+						>
+							<span class="block font-medium">OpenAI live</span>
+							<span class="text-xs text-muted">paid</span>
+						</button>
+					</div>
+				</section>
+				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
+					<h3 class="text-sm font-medium text-ink" id="voice-label">{voice_provider === 'openai' ? 'OpenAI live voice' : 'Gemini live voice'}</h3>
 					<button
 						type="button"
 						class="flex min-h-[40px] w-full items-center justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-left text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
@@ -158,14 +196,14 @@
 						onkeydown={(e) => { if (e.key === 'Escape') s.show_voice_menu = false; }}
 					>
 						<span>
-							<span class="block font-medium">{voice_options.find((o) => o.v === voice_name)?.l ?? voice_name}</span>
-							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{(voice_options.find((o) => o.v === voice_name)?.d) ?? ''}</span>
+							<span class="block font-medium">{live_voices.find((o) => o.v === voice_name)?.l ?? voice_name}</span>
+							<span class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">{(live_voices.find((o) => o.v === voice_name)?.d) ?? ''}</span>
 						</span>
 						<span class="text-primary">⌄</span>
 					</button>
 					{#if show_voice_menu}
 						<div id="voice-listbox" class="absolute left-4 right-4 top-[calc(100%-10px)] z-10 max-h-60 overflow-y-auto rounded-lg border border-hairline bg-canvas shadow-[0_16px_48px_rgba(20,20,19,0.16)]" role="listbox" aria-labelledby="voice-label">
-							{#each voice_options as option (option.v)}
+							{#each live_voices as option (option.v)}
 								<button
 									type="button"
 									class={option.v === voice_name ? 'grid w-full gap-0.5 bg-surface-soft px-3.5 py-2.5 text-left text-sm text-ink' : 'grid w-full gap-0.5 px-3.5 py-2.5 text-left text-sm text-muted hover:bg-surface-soft hover:text-ink'}
@@ -220,7 +258,7 @@
 					<label class="flex cursor-pointer items-center justify-between gap-4">
 						<span>
 							<span class="block text-sm font-medium text-ink">Quiet voice</span>
-							<span class="mt-1 block text-xs leading-5 text-muted">Choose from 30 AI voices. Only speak when spoken to.</span>
+							<span class="mt-1 block text-xs leading-5 text-muted">Only speak when spoken to.</span>
 						</span>
 						<span class="grid size-5 place-items-center rounded-full border border-primary">
 							<input type="checkbox" bind:checked={s.quiet} class="sr-only" aria-label="Quiet voice" />

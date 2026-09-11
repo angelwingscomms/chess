@@ -1,0 +1,18 @@
+import { describe, expect, it } from 'vitest';
+import { calc_openai_live_cost, is_openai_voice, openai_voice_options } from './openai_live';
+
+describe('openai live helpers', () => {
+	it('prices ninety seconds at five cents a minute', () => {
+		expect(calc_openai_live_cost(90)).toBeCloseTo(0.075, 6);
+	});
+
+	it('treats negative seconds as zero', () => {
+		expect(calc_openai_live_cost(-8)).toBe(0);
+	});
+
+	it('knows marin and rejects gemini voice names', () => {
+		expect(is_openai_voice('marin')).toBe(true);
+		expect(is_openai_voice('Kore')).toBe(false);
+		expect(openai_voice_options[0].v).toBe('marin');
+	});
+});

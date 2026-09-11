@@ -38,8 +38,8 @@
 </script>
 
 {#if $page.data.user}
-	<Seo meta={{t:'e4 — Continue your chess journey',d:'Welcome back. Pick up where you left off with your personalized AI coach and 30 voices.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, 30 voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'e4 — Continue your chess journey',d:'Welcome back. Pick up where you left off with your personalized AI coach and live voice.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, live voice, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 		<div class="absolute inset-0 bg-surface-dark/60"></div>
@@ -52,8 +52,8 @@
 		</div>
 	</main>
 {:else}
-	<Seo meta={{t:'e4 — Train chess with an AI coach that explains every move',d:'Get hints when stuck. Ask the AI why any move works. 30 voices, cloud saves, no sign-up needed.'}} />
-	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, 30 voices, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+	<Seo meta={{t:'e4 — Train chess with an AI coach that explains every move',d:'Get hints when stuck. Ask the AI why any move works. Live voice, cloud saves, no sign-up needed.'}} />
+	<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Chess training with adaptive AI coach, hints, live voice, and cloud saves','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 
 	<main class="page-shell">
 		<!-- Hero -->
@@ -150,14 +150,14 @@
 			<div class="container">
 				<div class="mx-auto max-w-2xl text-center mb-12">
 					<h2 class="display-md mb-4">Train your way</h2>
-					<p class="text-body text-lg leading-relaxed">Choose from 30 voices. Continue on any device.</p>
+					<p class="text-body text-lg leading-relaxed">Talk to the coach. Continue on any device.</p>
 				</div>
 				<div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
 					<div class="feature-card min-h-0">
 						<svg class="size-8 text-primary mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 016 0v8.25a3 3 0 01-3 3z"/></svg>
 						<h3 class="text-lg font-medium text-ink mb-2">Voice conversations</h3>
 						<p class="text-body text-sm leading-relaxed">
-							Talk to your coach in 30 different voices. Ask questions and get explanations as you play.
+							Talk to your coach. Gemini is the default. OpenAI live is a paid option.
 						</p>
 					</div>
 					<div class="feature-card min-h-0">

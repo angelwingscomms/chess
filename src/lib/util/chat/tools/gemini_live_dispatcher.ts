@@ -15,17 +15,6 @@ type BoardState = {
 	history_length: number;
 };
 
-type MoveResult = {
-	valid: boolean;
-	uci: string;
-	san?: string;
-	fen?: string;
-	turn?: 'w' | 'b';
-	in_check?: boolean;
-	game_over?: boolean;
-	error?: string;
-};
-
 type LoadFenResult = {
 	valid: boolean;
 	error?: string;
@@ -84,37 +73,6 @@ export function get_tool_declarations(include_search = true) {
 					fen: { type: 'STRING', description: 'The FEN string of the position to load. Example: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" for the starting position.' },
 				}, required: ['fen'] },
 			},
-			// {
-		// 		description: 'Make a chess move on the board using UCI notation (e.g. "e2e4", "g1f3", "d7d8q" for promotion). The move is validated for legality. In train mode you can move pieces for both sides; in normal mode you can only move the user\'s pieces. Call this multiple times in sequence to show a full variation with alternating moves. Use this when the user asks to play a move, or when you want to demonstrate a line on the board. IMPORTANT: In train mode, when moving the user\'s pieces (it\'s their turn), you must first ask for confirmation. If the move is rejected with pending_confirmation, ask the user if they want to play it, then retry with confirmed:true.',
-		// 		parameters: {
-		// 			type: 'OBJECT',
-		// 			properties: {
-		// 				uci: { type: 'STRING', description: 'The UCI move string: 4 characters for from/to squares, optional 5th for promotion piece (q/r/b/n). Examples: "e2e4" (pawn), "g1f3" (knight), "e7e8q" (promotion to queen).' },
-		// 				confirmed: { type: 'BOOLEAN', description: 'In train mode, set to true only after asking the user and receiving explicit verbal confirmation to play this move. Not needed when moving the opponent\'s pieces.' },
-		// 			},
-		// 			required: ['uci'],
-		// 		},
-		// 	},
-		// 	{
-		// 		name: 'undo_move',
-		// 		description: 'Undo the last move (or last pair of moves). Use this when the user asks to take back a move.',
-		// 		parameters: { type: 'OBJECT', properties: {} },
-		// 	},
-		// 	{
-		// 		name: 'redo_move',
-		// 		description: 'Redo a previously undone move. Only works if an undo was performed. Use this when the user asks to redo a move they took back.',
-		// 		parameters: { type: 'OBJECT', properties: {} },
-		// 	},
-		// 	{
-		// 		name: 'reset_board',
-		// 		description: 'Reset the chess board to the starting position. Clears all move history and starts a new game. Use this when the user asks to start a new game or reset the board.',
-		// 		parameters: { type: 'OBJECT', properties: {} },
-		// 	},
-		// 	{
-		// 		name: 'toggle_train_mode',
-		// 		description: 'Toggle train mode on/off. In train mode you can move pieces for both sides and act as the opponent. In normal mode the engine plays the opponent and you can only move the user\'s pieces. Use this when you need to demonstrate a variation that requires moving the opponent\'s pieces in normal mode, or when the user asks to switch modes. Always announce the mode change to the user.',
-		// 		parameters: { type: 'OBJECT', properties: {} },
-		// 	},
 		],
 	},
 ];
@@ -191,64 +149,29 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 			return { id: fc.id, name, response: r };
 		}
 
-		// case 'move_piece': {
-		// 	const uci = (args.uci as string || '').trim().toLowerCase();
-		// 	if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) {
-		// 		log(`move_piece invalid UCI format: "${args.uci}"`);
-		// 		return { id: fc.id, name, response: { valid: false, uci, error: 'Invalid UCI format. Expected format like "e2e4", "g1f3", or "d7d8q" for promotion.' } };
-		// 	}
-		// 	if (!state?.make_move) {
-		// 		log('move_piece FAILED — make_move callback not available');
-		// 		return { id: fc.id, name, response: { valid: false, uci, error: 'Move execution not available.' } };
-		// 	}
-		// 	const confirmed = args.confirmed === true;
-		// 	const r = state.make_move(uci, confirmed);
-		// 	log(`move_piece: uci=${uci} valid=${r.valid} san=${r.san ?? '?'} fen=${(r.fen ?? '').slice(0, 40)}`);
-		// 	return { id: fc.id, name, response: r };
-		// }
-
-		// case 'undo_move': {
-		// 	if (!state?.undo_move) {
-		// 		log('undo_move FAILED — callback not available');
-		// 		return { id: fc.id, name, response: { valid: false, error: 'Undo not available.' } };
-		// 	}
-		// 	const ur = state.undo_move();
-		// 	log(`undo_move: valid=${ur.valid}`);
-		// 	return { id: fc.id, name, response: ur };
-		// }
-
-		// case 'redo_move': {
-		// 	if (!state?.redo_move) {
-		// 		log('redo_move FAILED — callback not available');
-		// 		return { id: fc.id, name, response: { valid: false, error: 'Redo not available.' } };
-		// 	}
-		// 	const rr = state.redo_move();
-		// 	log(`redo_move: valid=${rr.valid}`);
-		// 	return { id: fc.id, name, response: rr };
-		// }
-
-		// case 'reset_board': {
-		// 	if (!state?.reset_board) {
-		// 		log('reset_board FAILED — callback not available');
-		// 		return { id: fc.id, name, response: { valid: false, error: 'Reset not available.' } };
-		// 	}
-		// 	state.reset_board();
-		// 	log('reset_board: done');
-		// 	return { id: fc.id, name, response: { valid: true } };
-		// }
-
-		// case 'toggle_train_mode': {
-		// 	if (!state?.toggle_train_mode) {
-		// 		log('toggle_train_mode FAILED — callback not available');
-		// 		return { id: fc.id, name, response: { train_mode: false, error: 'Toggle not available.' } };
-		// 	}
-		// 	const tr = state.toggle_train_mode();
-		// 	log(`toggle_train_mode: train_mode=${tr.train_mode}`);
-		// 	return { id: fc.id, name, response: tr };
-		// }
-
 		default:
 			log(`UNKNOWN function: "${name}"`);
 			return { id: fc.id, name, response: { error: `Unknown function: ${name}` } };
 	}
+}
+
+export function summarize_tool_result(name: string, response: Record<string, unknown>) {
+	if (response.error) return String(response.error);
+	if (name === 'get_fen') return `current fen: ${response.fen ?? ''}`;
+	if (name === 'hint') {
+		if (!response.available) return 'no hint available';
+		return `best move ${response.best_move}, score ${response.score}, depth ${response.depth}`;
+	}
+	if (name === 'get_board_state') {
+		return `fen ${response.fen}. turn ${response.turn}. check ${response.in_check}. game over ${response.game_over}. last user ${response.last_user_move || 'none'}. last engine ${response.last_ai_move || 'none'}.`;
+	}
+	if (name === 'find_puzzles') {
+		const puzzles = Array.isArray(response.puzzles) ? response.puzzles as any[] : [];
+		if (!puzzles.length) return 'no puzzles matched';
+		return puzzles.slice(0, 5).map((p, i) => `${i + 1}. rating ${p.r} fen ${p.f}`).join(' ');
+	}
+	if (name === 'set_state') {
+		return response.valid ? `board set to ${response.fen}` : `could not set board: ${response.error || 'invalid'}`;
+	}
+	try { return JSON.stringify(response).slice(0, 400); } catch { return 'done'; }
 }

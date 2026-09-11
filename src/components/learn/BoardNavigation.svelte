@@ -32,7 +32,7 @@
 <button title="Switch sides" aria-label="Switch sides" data-tour="switch-sides" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.flipColor()}>
 	<FlipIcon size={15} strokeWidth={1.8} />
 </button>
-<button title={recording ? 'Stop recording' : 'Voice input — 30 voices'}
+<button title={recording ? 'Stop recording' : 'Voice input'}
 	onclick={() => s.toggleGeminiLive()}
 	disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
 	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (recording ? 'bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'bg-canvas text-ink hover:text-primary disabled:text-muted')}
@@ -41,7 +41,7 @@
 </button>
 {#if recording}
 <button title={voice_muted ? 'Unmute mic' : 'Mute mic'}
-	onclick={() => s.voice_muted = !s.voice_muted}
+	onclick={() => s.set_voice_muted(!s.voice_muted)}
 	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (voice_muted ? 'bg-red-500/10 text-red-400' : 'bg-canvas text-ink hover:text-primary')}
 >
 	{#if voice_muted}

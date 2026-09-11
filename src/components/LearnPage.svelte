@@ -37,8 +37,8 @@ import Tour from '$components/learn/Tour.svelte';
 	});
 </script>
 
-<Seo meta={{t:'Train — e4',d:'Train your chess skills against adaptive Stockfish AI with e4. Get hints, analyze positions, chat with an AI coach, and choose from 30 voices.'}} />
-<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints, AI analysis, and 30 AI voices','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
+<Seo meta={{t:'Train — e4',d:'Train your chess skills against adaptive Stockfish AI with e4. Get hints, analyze positions, and talk with an AI coach.'}} />
+<JsonLd data={{'@context':'https://schema.org','@type':'SoftwareApplication','name':'e4','applicationCategory':'GameApplication','operatingSystem':'Web','description':'Play chess against Stockfish AI with interactive hints, AI analysis, and live voice','offers':{'@type':'Offer','price':'0','priceCurrency':'USD'}}} />
 <main class="page-shell" style="background: url(/cosmic-chess-bg.webp) center/cover fixed; position: relative;">
 	<div class="absolute inset-0 bg-surface-dark/85"></div>
 	{#if s.toasts.length}

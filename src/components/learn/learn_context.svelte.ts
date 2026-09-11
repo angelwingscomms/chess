@@ -5,7 +5,8 @@ import { LearnEngine, getHints } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
-import { init_tool_state, get_tool_declarations, dispatch_tool_call } from '$lib/util/chat/tools/gemini_live_dispatcher';
+import { init_tool_state, get_tool_declarations, dispatch_tool_call, summarize_tool_result } from '$lib/util/chat/tools/gemini_live_dispatcher';
+import { calc_openai_live_cost, is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
 import { getContext, setContext } from 'svelte';
 
@@ -42,6 +43,7 @@ function tool_use_rules(search_enabled: boolean) {
 	return r;
 }
 
+export { openai_voice_options };
 export const voice_options = [
 	{ v: 'Kore', l: 'Kore', d: 'Firm' },
 	{ v: 'Zephyr', l: 'Zephyr', d: 'Bright' },
@@ -131,8 +133,10 @@ export class LearnState {
 	computer_think_time = $state(1.5);
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');
+	openai_api_key = $state(browser && localStorage.getItem('openai_api_key') || '');
 	gemini_search_tool = $state(browser && localStorage.getItem('gemini_search_tool') === 'true');
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
+	voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini');
 	voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
 	noise_suppression = $state(browser && localStorage.getItem('noise_suppression') !== 'false');
 	noise_suppression_level = $state(browser && parseFloat(localStorage.getItem('noise_suppression_level') || '50') || 50);
@@ -156,7 +160,15 @@ export class LearnState {
 	voice_tts = $state(false);
 	voice_muted = $state(false);
 	audio_muted = $state(false);
+	voice_provider_active: 'gemini' | 'openai' | null = null;
 	gemini_live_session: any = null;
+	openai_live_pc: RTCPeerConnection | null = null;
+	openai_live_dc: RTCDataChannel | null = null;
+	openai_live_audio: HTMLAudioElement | null = null;
+	openai_live_id = '';
+	openai_live_seconds = 0;
+	openai_live_billed = 0;
+	openai_live_evt = 0;
 	gemini_live_audio_ctx: AudioContext | null = null;
 	gemini_live_audio_gain: GainNode | null = null;
 	gemini_live_mic_stream: MediaStream | null = null;
@@ -199,8 +211,10 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(this.hint_think_time)); });
 		$effect(() => { if (browser) localStorage.setItem('groq_api_key', this.groq_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('gemini_api_key', this.gemini_api_key); });
+		$effect(() => { if (browser) localStorage.setItem('openai_api_key', this.openai_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('gemini_search_tool', String(this.gemini_search_tool)); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
+		$effect(() => { if (browser) localStorage.setItem('voice_provider', this.voice_provider); });
 		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
 		$effect(() => { if (browser) localStorage.setItem('vibe', this.vibe); });
 		$effect(() => { if (browser) localStorage.setItem('noise_suppression', String(this.noise_suppression)); });
@@ -288,6 +302,35 @@ export class LearnState {
 	get engine() {
 		const mt = Math.round(this.computer_think_time * 1000);
 		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: 'b' });
+	}
+
+	init_live_tools() {
+		init_tool_state({
+			get_fen: () => this.fen,
+			hint: async (f, think_time) => {
+				const mt = (think_time ?? this.hint_think_time) * 1000;
+				return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
+			},
+			get_board_state: () => this.get_board_state(),
+			load_fen: (fen) => {
+				try {
+					this.chessRef?.load(fen);
+					this.hideHints(true);
+					this.last_user_move = '';
+					this.last_ai_move = '';
+					this.redo_stack = [];
+					this._set_state_fail_count = 0;
+					return { valid: true, fen: this.fen };
+				} catch {
+					this._set_state_fail_count++;
+					if (this._set_state_fail_count >= 9) {
+						this._set_state_fail_count = 0;
+						this.add_toast('Failed to set board position', 'e');
+					}
+					return { valid: false, error: 'Invalid FEN' };
+				}
+			},
+		});
 	}
 
 	get_board_state() {
@@ -606,7 +649,15 @@ export class LearnState {
 		const d = this.build_chat_data(h, eval_data);
 		this.chat_messages = [...this.chat_messages, { role: 'user', content: user_msg, d }];
 		if (clear) this.chat_input = '';
-		if (this.gemini_live_can_send()) {
+		if (this.voice_provider_active === 'openai' && this.openai_live_can_send()) {
+			this.output_turn_active = false;
+			this.send_openai_live_event({
+				type: 'session.thinking.append',
+				event_id: this.next_openai_evt(),
+				delegation_id: null,
+				content: `typed message from the user: ${user_msg}`,
+			});
+		} else if (this.gemini_live_can_send()) {
 			this.output_turn_active = false;
 			this.send_gemini_realtime_input({ text: user_msg }, 'send_chess_chat');
 		} else {
@@ -1044,6 +1095,7 @@ export class LearnState {
 	cleanup_gemini_live() {
 		if (this.gemini_live_closing) return;
 		this.gemini_live_closing = true;
+		this.cleanup_openai_live();
 		if (this.screen_media_recorder) {
 			try { if (this.screen_media_recorder.state !== 'inactive') this.screen_media_recorder.stop(); } catch {}
 			this.screen_media_recorder = null;
@@ -1088,7 +1140,263 @@ export class LearnState {
 	}
 
 	gemini_live_can_send() {
-		return Boolean(this.gemini_live_session && this.recording && this.gemini_live_healthy);
+		return Boolean(this.voice_provider_active !== 'openai' && this.gemini_live_session && this.recording && this.gemini_live_healthy);
+	}
+
+	openai_live_can_send() {
+		return Boolean(this.voice_provider_active === 'openai' && this.openai_live_dc && this.openai_live_dc.readyState === 'open' && this.recording && this.gemini_live_healthy);
+	}
+
+	next_openai_evt() {
+		return `e${++this.openai_live_evt}`;
+	}
+
+	send_openai_live_event(event: Record<string, unknown>) {
+		if (!this.openai_live_can_send() || this.gemini_live_closing) return false;
+		try {
+			this.openai_live_dc!.send(JSON.stringify(event));
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	cleanup_openai_live() {
+		const billed = Math.max(0, this.openai_live_seconds - this.openai_live_billed);
+		if (billed > 0) this.report_openai_usage(billed);
+		this.openai_live_seconds = 0;
+		this.openai_live_billed = 0;
+		this.openai_live_id = '';
+		try { this.openai_live_dc?.close(); } catch {}
+		this.openai_live_dc = null;
+		if (this.openai_live_pc) {
+			try { this.openai_live_pc.close(); } catch {}
+			this.openai_live_pc = null;
+		}
+		if (this.openai_live_audio) {
+			this.openai_live_audio.srcObject = null;
+			this.openai_live_audio.remove();
+			this.openai_live_audio = null;
+		}
+		if (this.voice_provider_active === 'openai') this.voice_provider_active = null;
+	}
+
+	report_openai_usage(seconds: number) {
+		if (this.openai_api_key.trim()) return;
+		const cost = calc_openai_live_cost(seconds);
+		this.total_cost += cost;
+		const last = this.chat_messages[this.chat_messages.length - 1];
+		if (last?.role === 'assistant') {
+			const updated = [...this.chat_messages];
+			updated[updated.length - 1] = { ...last, u: { p: 0, c: 0, cost } };
+			this.chat_messages = updated;
+		}
+		fetch('/api/voice/openai-live/usage', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ s: seconds }),
+		}).then(r => r.json().catch(() => null)).then(d => {
+			if (d?.bal !== undefined) window.dispatchEvent(new CustomEvent('balance-update', { detail: d.bal }));
+		}).catch(() => {});
+	}
+
+	apply_openai_tool_result(name: string, response: Record<string, unknown>) {
+		if (name === 'hint' && (response as any)?.best_move && (response as any).available) {
+			const resp = response as any;
+			this.hints = [{ move: resp.best_move, score: resp.score ?? 0, depth: resp.depth ?? 0 }];
+			this.hint_fen = this.fen;
+			this.hint_index = 0;
+			this.show_hints = true;
+		}
+	}
+
+	async handle_openai_delegation(id: string) {
+		this.start_thinking_sound();
+		const recent = this.chat_messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('
+');
+		const board = this.get_board_state();
+		const name = /puzzle/i.test(recent) ? 'find_puzzles' : /hint|best move|suggest/i.test(recent) ? 'hint' : /set up|load this|starting position|fen/i.test(recent) ? 'set_state' : 'get_board_state';
+		const args: Record<string, unknown> = {};
+		if (name === 'set_state') args.fen = board.fen;
+		try {
+			const r = await dispatch_tool_call({ id, name, args });
+			this.apply_openai_tool_result(r.name, r.response as Record<string, unknown>);
+			this.send_openai_live_event({
+				type: 'session.commentary.append',
+				event_id: this.next_openai_evt(),
+				delegation_id: id,
+				content: summarize_tool_result(r.name, r.response as Record<string, unknown>),
+			});
+		} catch {
+			this.send_openai_live_event({
+				type: 'session.commentary.append',
+				event_id: this.next_openai_evt(),
+				delegation_id: id,
+				content: 'tool failed',
+			});
+		} finally {
+			this.stop_thinking_sound();
+		}
+	}
+
+	handle_openai_event(event: any) {
+		const t = event?.type;
+		if (t === 'session.started') {
+			this.gemini_live_healthy = true;
+			this.recording = true;
+			this.add_toast('voice connected');
+			const greet = this.quiet
+				? 'Stay quiet until the user speaks. Then answer in 1-3 short sentences.'
+				: 'Greet the user in one short sentence and ask if they want a move idea or a chess concept.';
+			this.send_openai_live_event({
+				type: 'session.instructions.append',
+				event_id: this.next_openai_evt(),
+				delegation_id: null,
+				content: greet,
+			});
+			return;
+		}
+		if (t === 'session.closed') {
+			if (!this.gemini_live_closing) {
+				const seconds = Number(event?.usage?.seconds ?? 0);
+				if (seconds > this.openai_live_billed) {
+					this.report_openai_usage(seconds - this.openai_live_billed);
+					this.openai_live_billed = seconds;
+				}
+			}
+			this.cleanup_gemini_live();
+			return;
+		}
+		if (t === 'session.usage.updated') {
+			const seconds = Number(event?.usage?.seconds ?? 0);
+			this.openai_live_seconds = seconds;
+			const delta = seconds - this.openai_live_billed;
+			if (delta >= 15) {
+				this.report_openai_usage(delta);
+				this.openai_live_billed = seconds;
+			}
+			return;
+		}
+		if (t === 'session.input_transcript.delta' && typeof event.delta === 'string') {
+			this.output_turn_active = false;
+			const last = this.chat_messages[this.chat_messages.length - 1];
+			if (last?.role === 'user') {
+				const updated = [...this.chat_messages];
+				updated[updated.length - 1] = { ...last, content: last.content + event.delta };
+				this.chat_messages = updated;
+			} else {
+				this.chat_messages = [...this.chat_messages, { role: 'user', content: event.delta }];
+			}
+			this.save_game_debounced();
+			return;
+		}
+		if (t === 'session.output_transcript.delta' && typeof event.delta === 'string') {
+			if (!this.output_turn_active) {
+				this.output_turn_active = true;
+				this.chat_messages = [...this.chat_messages, { role: 'assistant', content: event.delta }];
+			} else {
+				const last = this.chat_messages[this.chat_messages.length - 1];
+				const updated = [...this.chat_messages];
+				updated[updated.length - 1] = { ...last, content: last.content + event.delta };
+				this.chat_messages = updated;
+			}
+			this.save_game_debounced();
+			return;
+		}
+		if (t === 'session.delegation.created') {
+			const id = event?.delegation?.id;
+			if (typeof id === 'string') void this.handle_openai_delegation(id);
+			return;
+		}
+		if (t === 'error') {
+			this.add_toast(event?.error?.message || 'voice error', 'e');
+		}
+	}
+
+	async wait_ice(pc: RTCPeerConnection) {
+		if (pc.iceGatheringState === 'complete') return;
+		await new Promise<void>((resolve, reject) => {
+			const t = setTimeout(() => {
+				pc.removeEventListener('icegatheringstatechange', on);
+				reject(new Error('timed out gathering ice'));
+			}, 10000);
+			const on = () => {
+				if (pc.iceGatheringState !== 'complete') return;
+				clearTimeout(t);
+				pc.removeEventListener('icegatheringstatechange', on);
+				resolve();
+			};
+			pc.addEventListener('icegatheringstatechange', on);
+		});
+	}
+
+	async start_openai_live() {
+		const voice = is_openai_voice(this.voice_name) ? this.voice_name : 'marin';
+		this.voice_name = voice;
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		this.gemini_live_mic_stream = stream;
+		const audioCtx = new AudioContext();
+		this.gemini_live_audio_ctx = audioCtx;
+		const outputGain = audioCtx.createGain();
+		outputGain.gain.value = this.audio_muted ? 0 : 1;
+		outputGain.connect(audioCtx.destination);
+		this.gemini_live_audio_gain = outputGain;
+		this.load_thinking_sound();
+		const micSource = audioCtx.createMediaStreamSource(stream);
+		let send_stream = stream;
+		if (this.noise_suppression) {
+			try {
+				const { RnnoiseWorkletNode, loadRnnoise } = await import('@sapphi-red/web-noise-suppressor');
+				const wasmBinary = await loadRnnoise({ url: '/rnnoise.wasm', simdUrl: '/rnnoise_simd.wasm' });
+				await audioCtx.audioWorklet.addModule('/rnnoise-worklet.js');
+				const rnnoiseNode = new RnnoiseWorkletNode(audioCtx, { maxChannels: 1, wasmBinary });
+				this.rnnoise_node = rnnoiseNode;
+				const dest = audioCtx.createMediaStreamDestination();
+				micSource.connect(rnnoiseNode).connect(dest);
+				send_stream = dest.stream;
+			} catch {
+				this.add_toast('noise suppression unavailable, using raw mic');
+			}
+		}
+		const recording_dest = audioCtx.createMediaStreamDestination();
+		this.gemini_live_recording_dest = recording_dest;
+		outputGain.connect(recording_dest);
+		micSource.connect(recording_dest);
+
+		const pc = new RTCPeerConnection();
+		this.openai_live_pc = pc;
+		const audio_el = new Audio();
+		audio_el.autoplay = true;
+		this.openai_live_audio = audio_el;
+		pc.addEventListener('track', (e) => {
+			const remote = new MediaStream([e.track]);
+			audio_el.srcObject = remote;
+			try {
+				const remote_src = audioCtx.createMediaStreamSource(remote);
+				remote_src.connect(outputGain);
+			} catch {}
+			audio_el.play().catch(() => {});
+		});
+		for (const track of send_stream.getAudioTracks()) pc.addTrack(track, send_stream);
+		const dc = pc.createDataChannel('oai-events');
+		this.openai_live_dc = dc;
+		dc.addEventListener('message', (e) => {
+			try { this.handle_openai_event(JSON.parse(String(e.data))); } catch {}
+		});
+		const offer = await pc.createOffer();
+		await pc.setLocalDescription(offer);
+		await this.wait_ice(pc);
+		const sdp = pc.localDescription?.sdp;
+		if (!sdp) throw Error('missing sdp');
+		const res = await fetch('/api/voice/openai-live/session', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ s: sdp, v: voice, b: this.vibe, k: this.openai_api_key.trim() }),
+		});
+		const body = await res.json().catch(() => ({}));
+		if (!res.ok) throw Error(body.error || 'live session create failed');
+		this.openai_live_id = body.i || '';
+		await pc.setRemoteDescription({ type: 'answer', sdp: body.s });
 	}
 
 	send_gemini_realtime_input(input: Record<string, unknown>, caller = '') {
@@ -1160,8 +1468,13 @@ export class LearnState {
 	}
 
 	async toggleGeminiLive() {
-		if (this.gemini_live_session) {
-			this.cleanup_gemini_live();
+		if (this.gemini_live_session || this.openai_live_pc) {
+			if (this.openai_live_can_send()) {
+				this.send_openai_live_event({ type: 'session.close', event_id: this.next_openai_evt() });
+				setTimeout(() => this.cleanup_gemini_live(), 1500);
+			} else {
+				this.cleanup_gemini_live();
+			}
 			return;
 		}
 		// free for everyone — restore paywall later
@@ -1172,36 +1485,21 @@ export class LearnState {
 		this.gemini_live_closing = false;
 		try {
 			this.add_toast('Connecting voice...');
-			const res = await fetch('/api/voice/gemini-live/key');
-			const { k: key } = await res.json();
+			this.init_live_tools();
+			if (this.voice_provider === 'openai') {
+				this.voice_provider_active = 'openai';
+				await this.start_openai_live();
+				return;
+			}
+			this.voice_provider_active = 'gemini';
+			const own = this.gemini_api_key.trim();
+			let key = own;
+			if (!key) {
+				const res = await fetch('/api/voice/gemini-live/key');
+				const body = await res.json();
+				key = body.k;
+			}
 			if (!key) throw Error('No API key available');
-
-			init_tool_state({
-				get_fen: () => this.fen,
-				hint: async (f, think_time) => {
-					const mt = (think_time ?? this.hint_think_time) * 1000;
-					return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
-				},
-				get_board_state: () => this.get_board_state(),
-			load_fen: (fen) => {
-				try {
-					this.chessRef?.load(fen);
-					this.hideHints(true);
-					this.last_user_move = '';
-					this.last_ai_move = '';
-					this.redo_stack = [];
-					this._set_state_fail_count = 0;
-					return { valid: true, fen: this.fen };
-				} catch {
-					this._set_state_fail_count++;
-					if (this._set_state_fail_count >= 9) {
-						this._set_state_fail_count = 0;
-						this.add_toast('Failed to set board position', 'e');
-					}
-					return { valid: false, error: 'Invalid FEN' };
-				}
-			},
-			});
 
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			this.gemini_live_mic_stream = stream;
@@ -1358,6 +1656,17 @@ export class LearnState {
 			this.add_toast('Screen recording error: ' + (e instanceof Error ? e.message : String(e)), 'e');
 		}
 	};
+
+	set_voice_muted(v: boolean) {
+		this.voice_muted = v;
+		this.gemini_live_mic_stream?.getAudioTracks().forEach((t) => { t.enabled = !v; });
+		if (this.openai_live_can_send()) {
+			this.send_openai_live_event({
+				type: v ? 'session.input_audio.mute' : 'session.input_audio.unmute',
+				event_id: this.next_openai_evt(),
+			});
+		}
+	}
 
 	gemini_process_audio = (e: AudioProcessingEvent) => {
 		if (this.voice_muted) return;
