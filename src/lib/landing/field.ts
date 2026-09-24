@@ -7,6 +7,7 @@ uniform float u_time;
 uniform float u_breath;
 uniform vec4 u_board;
 uniform float u_melt;
+uniform float u_live;
 uniform vec3 u_c0;
 uniform vec3 u_c1;
 uniform vec3 u_c2;
@@ -97,7 +98,10 @@ void main() {
 	float lite = 1.0 - mod(cell.x + cell.y, 2.0);
 	float tn = fbm((cell + 0.5) / 8.0 * 2.4 + w * 0.7 + vec2(sl * 3.0, -sl * 2.0));
 	float wave = 0.5 + 0.5 * sin(t * 0.8 - length(cell - vec2(4.0, 4.0)) * 0.9);
-	vec3 tc = pal((tn - 0.15) / 0.6 + drift) * mix(0.58, 1.12, lite) * (0.8 + 0.28 * u_breath) * (0.94 + 0.06 * wave);
+	float tv = (tn - 0.47) * 0.12;
+	vec3 classic = lite > 0.5 ? pal(0.8 + drift * 0.3) * (1.05 + tv) : pal(0.18 + drift * 0.3) * (0.85 + tv);
+	vec3 living = pal((tn - 0.15) / 0.6 + drift) * mix(0.58, 1.12, lite);
+	vec3 tc = mix(classic, living, u_live) * (0.8 + 0.28 * u_breath) * (0.94 + 0.06 * wave);
 	tc += smoothstep(-0.16, 0.0, sd) * 0.07 * (1.0 - u_melt);
 	vec2 mk = g * 8.0 - vec2(u_mark.x + 0.5, 8.5 - u_mark.y);
 	tc += u_glow * exp(-dot(mk, mk) * 1.6) * u_mark.z * 0.42;
@@ -123,6 +127,7 @@ export type Frame = {
 	s: number; // board side, css px
 	k: number; // tilt, 0 flat to 1 lying back
 	m: number; // melt, 0 crisp squares to 1 liquid
+	l: number; // living colours, 0 classic two-tone squares to 1 flowing per-square colour
 	p: Float32Array; // palette c0 c1 c2 c3 bg, rgb 0-1
 	c: number[]; // cursor x, y, light strength
 	q: number[]; // lit square file 0-7, rank 1-8, strength
@@ -158,7 +163,7 @@ export function make_field(canvas: HTMLCanvasElement) {
 	gl.vertexAttribPointer(attr, 2, gl.FLOAT, false, 0, 0);
 
 	const u = (n: string) => gl.getUniformLocation(prog, 'u_' + n);
-	const at = { res: u('res'), time: u('time'), breath: u('breath'), board: u('board'), melt: u('melt'), c0: u('c0'), c1: u('c1'), c2: u('c2'), c3: u('c3'), bg: u('bg'), cursor: u('cursor'), mark: u('mark'), rip: u('rip[0]') };
+	const at = { res: u('res'), time: u('time'), breath: u('breath'), board: u('board'), melt: u('melt'), live: u('live'), c0: u('c0'), c1: u('c1'), c2: u('c2'), c3: u('c3'), bg: u('bg'), cursor: u('cursor'), mark: u('mark'), rip: u('rip[0]') };
 	gl.uniform3fv(u('glow'), rgb('#e9a47c'));
 
 	const rips: { x: number; y: number; t: number; a: number }[] = [];
@@ -206,6 +211,7 @@ export function make_field(canvas: HTMLCanvasElement) {
 		gl!.uniform1f(at.breath, fr.b);
 		gl!.uniform4f(at.board, fr.x, fr.y, Math.max(fr.s, 1), fr.k);
 		gl!.uniform1f(at.melt, fr.m);
+		gl!.uniform1f(at.live, fr.l);
 		gl!.uniform3fv(at.c0, fr.p.subarray(0, 3));
 		gl!.uniform3fv(at.c1, fr.p.subarray(3, 6));
 		gl!.uniform3fv(at.c2, fr.p.subarray(6, 9));

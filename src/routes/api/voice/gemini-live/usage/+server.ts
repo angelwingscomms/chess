@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 		return json({ error: 'Invalid token counts' }, { status: 400 });
 	}
 
-	const cost = calc_cost('gemini-3.8-live-extended-thinking', input_t, output_t);
+	const cost = calc_cost('gemini-3.8-live', input_t, output_t);
 	const cost_kobo = Math.round(cost * 1440 * 100 * TOKEN_RATE);
 	let bal = 0;
 	if (cost_kobo > 0) {

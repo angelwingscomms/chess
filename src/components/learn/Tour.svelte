@@ -12,104 +12,45 @@
 		const tour = driver({
 			showProgress: true,
 			progressText: '{{current}} of {{total}}',
-			nextBtnText: 'Next',
-			prevBtnText: 'Back',
-			doneBtnText: 'Done',
+			nextBtnText: 'next',
+			prevBtnText: 'back',
+			doneBtnText: 'done',
 			onDestroyed: done,
 			steps: [
 				{
 					popover: {
-						title: 'Welcome to e4',
-						description: 'Play chess against Stockfish with an AI coach that explains every position. This quick tour shows you around — 30 seconds.',
-					},
+						title: 'welcome to e4',
+						description: 'play stockfish on a calm board, with a coach that explains any move. a quick look around — 30 seconds.'
+					}
 				},
 				{
 					element: '[data-tour="board"]',
-					popover: {
-						title: 'Make your move',
-						description: 'Drag or tap a piece to move it. The engine replies instantly and adapts to your level.',
-						side: 'top',
-						align: 'center',
-					},
+					popover: { title: 'make your move', description: 'drag or tap a piece. the engine answers, at the level you choose.', side: 'right', align: 'center' }
 				},
 				{
 					element: '[data-tour="hint"]',
-					popover: {
-						title: 'Stuck? Get a hint',
-						description: 'Tap the bulb and the coach highlights a good move for you.',
-						side: 'bottom',
-						align: 'start',
-					},
+					popover: { title: 'stuck?', description: 'the bulb shows a good move. tap “why” and the coach explains it.', side: 'top', align: 'center' }
+				},
+				{
+					element: '[data-tour="puzzle"]',
+					popover: { title: 'puzzles', description: 'a puzzle at your level, checked move by move. or ask the coach for any theme — “forks, around 1200”.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="chat"]',
-					popover: {
-						title: 'Ask the AI coach',
-						description: 'Type any question — why a move works, what to do next, ideas and plans. The coach sees the live board.',
-						side: 'top',
-						align: 'center',
-					},
+					popover: { title: 'ask the coach', description: 'type any question. the coach sees the live board.', side: 'top', align: 'center' }
 				},
 				{
-					element: '[data-tour="new"]',
-					popover: {
-						title: 'Start over anytime',
-						description: 'The refresh button starts a new game.',
-						side: 'bottom',
-						align: 'start',
-					},
+					element: '[data-tour="voice"]',
+					popover: { title: 'talk out loud', description: 'tap the mic and just ask. it answers in a calm voice.', side: 'top', align: 'end' }
 				},
 				{
-					popover: {
-						title: "Nice — that's the basics!",
-						description: "You're ready to play. Want 5 more quick tips on undo, flip & history? Hit Next for a 20-sec extra, or close (×) to jump in.",
-					},
+					element: '[data-tour="more"]',
+					popover: { title: 'new game, flip, sides', description: 'start over, flip the board, or play as black.', side: 'bottom', align: 'end' }
 				},
 				{
-					element: '[data-tour="undo"]',
-					popover: {
-						title: 'Undo',
-						description: 'Take back your last move. Great for trying a different idea without restarting.',
-						side: 'bottom',
-						align: 'start',
-					},
-				},
-				{
-					element: '[data-tour="redo"]',
-					popover: {
-						title: 'Redo',
-						description: 'Bring back the move you just undid.',
-						side: 'bottom',
-						align: 'start',
-					},
-				},
-				{
-					element: '[data-tour="flip-board"]',
-					popover: {
-						title: 'Flip board',
-						description: 'Rotate your view of the board without changing the game.',
-						side: 'bottom',
-						align: 'start',
-					},
-				},
-				{
-					element: '[data-tour="switch-sides"]',
-					popover: {
-						title: 'Switch sides',
-						description: 'Swap colors — you play the other side and the engine takes yours.',
-						side: 'bottom',
-						align: 'start',
-					},
-				},
-				{
-					element: '[data-tour="history"]',
-					popover: {
-						title: 'Move history',
-						description: 'Step back and forward through earlier positions — arrows light up once you have moves to revisit.',
-						side: 'bottom',
-						align: 'start',
-					},
-				},
+					element: '[data-tour="settings"]',
+					popover: { title: 'make it yours', description: 'living colours, hover notes and ripples start off, so the board stays clear. turn them on in settings for the full dreamy feel. sound lives in the top bar.', side: 'bottom', align: 'end' }
+				}
 			],
 		});
 		setTimeout(() => tour.drive(), wait);

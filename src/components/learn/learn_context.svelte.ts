@@ -5,6 +5,7 @@ import { LearnEngine, getHints } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
+import { arm_puzzle, offer_puzzles, start_puzzle } from './puzzle.svelte';
 import { init_tool_state, get_tool_declarations, dispatch_tool_call, summarize_tool_result } from '$lib/util/chat/tools/gemini_live_dispatcher';
 import { calc_openai_live_cost, is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
@@ -753,6 +754,8 @@ export class LearnState {
 		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
 		if (name === 'board' && typeof msg.f === 'string') {
+			if (msg.p) offer_puzzles([msg.p]);
+			const puzzle = arm_puzzle(msg.f);
 			this.fen = msg.f;
 			if (this.chessRef) this.chessRef.load(msg.f);
 			this.history = [];
@@ -765,6 +768,7 @@ export class LearnState {
 			this.redo_stack = [];
 			this.board_history = [...this.board_history.slice(0, this.board_history_idx + 1), msg.f];
 			this.board_history_idx = this.board_history.length - 1;
+			if (puzzle) start_puzzle(puzzle);
 			return true;
 		}
 		return false;
@@ -1556,7 +1560,7 @@ export class LearnState {
 				setTimeout(() => reject(new Error('Timed out connecting to voice service')), 10000);
 			});
 			const session = await Promise.race([ai.live.connect({
-				model: 'gemini-3.8-live-extended-thinking',
+				model: 'gemini-3.8-live',
 				callbacks: {
 					onopen: () => {
 						this.gemini_live_healthy = true;
@@ -1578,7 +1582,8 @@ export class LearnState {
 				},
 				config: {
 					responseModalities: ['AUDIO'] as any,
-					thinkingConfig: { thinkingLevel: 'HIGH' } as any,
+					inputAudioTranscription: {} as any,
+					outputAudioTranscription: {} as any,
 					speechConfig: {
 						voiceConfig: {
 							prebuiltVoiceConfig: {
@@ -1799,7 +1804,7 @@ export class LearnState {
 				const dc = c - this.gemini_last_usage_c;
 				this.gemini_last_usage_p = p;
 				this.gemini_last_usage_c = c;
-				const cost = calc_cost('gemini-3.8-live-extended-thinking', dp, dc);
+				const cost = calc_cost('gemini-3.8-live', dp, dc);
 				this.total_p += dp;
 				this.total_c += dc;
 				this.total_cost += cost;

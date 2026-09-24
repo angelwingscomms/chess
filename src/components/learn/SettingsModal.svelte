@@ -1,6 +1,13 @@
 <script lang="ts">
 	import StepperInput from '$components/stepper-input.svelte';
 	import { get_learn_state, openai_voice_options, voice_options } from './learn_context.svelte';
+	import { set_feel, ui } from '$lib/landing/calm.svelte';
+
+	const feel = [
+		{ k: 'living', t: 'living colours', d: 'squares drift through colour. off keeps a clear two-tone board.' },
+		{ k: 'notes', t: 'hover notes', d: 'soft piano notes as you move over squares.' },
+		{ k: 'ripples', t: 'ripples', d: 'water ripples on moves and taps.' }
+	] as const;
 	const s = get_learn_state();
 
 	let show_settings = $derived(s.show_settings);
@@ -40,6 +47,19 @@
 				<h2 id="settings-title" class="font-display text-2xl font-medium text-ink">Settings</h2>
 			</div>
 			<div class="grid min-h-0 gap-3 overflow-y-auto p-6">
+				<section class="rounded-lg bg-surface-card px-4 py-2" data-tour-feel>
+					<p class="pt-2 pb-1 font-calm-mono text-xs tracking-[0.14em] text-mist">feel</p>
+					{#each feel as f}
+						<label class="flex cursor-pointer items-center justify-between gap-4 py-2.5">
+							<span>
+								<span class="block text-sm text-ink">{f.t}</span>
+								<span class="mt-0.5 block text-xs leading-5 text-muted">{f.d}</span>
+							</span>
+							<input type="checkbox" checked={ui[f.k]} onchange={(e) => set_feel(f.k, e.currentTarget.checked)} class="peer sr-only" aria-label={f.t} />
+							<span class="relative h-6 w-10 shrink-0 rounded-full border border-haze/20 bg-haze/5 transition duration-500 ease-expo peer-checked:border-glow peer-checked:bg-glow/25 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-glow after:absolute after:top-1/2 after:left-1 after:size-4 after:-translate-y-1/2 after:rounded-full after:bg-haze/60 after:transition after:duration-500 after:ease-expo peer-checked:after:translate-x-4 peer-checked:after:bg-glow"></span>
+						</label>
+					{/each}
+				</section>
 				<section class="grid gap-3 rounded-lg bg-surface-card p-4" data-testid="settings-difficulty">
 					<div class="flex items-center justify-between gap-3">
 						<h3 class="text-sm font-medium text-ink">Computer think time (seconds)</h3>

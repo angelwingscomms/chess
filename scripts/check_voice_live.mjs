@@ -26,7 +26,7 @@ if (mode === 'gemini-primary') {
 	const ctx = read('src/components/learn/learn_context.svelte.ts');
 	const settings = read('src/components/learn/SettingsModal.svelte');
 	if (!ctx.includes("@google/genai")) fail('missing @google/genai');
-	if (!ctx.includes('gemini-3.8-live-extended-thinking')) fail('missing gemini live model');
+	if (!ctx.includes('gemini-3.8-live')) fail('missing gemini live model');
 	if (!ctx.includes("voice_provider = $state") && !ctx.includes("voice_provider=$state")) fail('missing voice_provider');
 	if (!ctx.includes("'gemini'") && !ctx.includes('"gemini"')) fail('missing gemini provider value');
 	if (!/voice_provider[^\n]*gemini/.test(ctx) && !ctx.includes("|| 'gemini'") && !ctx.includes('|| "gemini"')) fail('gemini is not the default provider');

@@ -25,7 +25,24 @@ export const palettes = [
 	['#2a1c28', '#5b3944', '#ad6a5c', '#f2bb8e', '#130d12']
 ].map((p) => new Float32Array(p.flatMap(rgb)));
 
-export const ui = $state({ sound: false });
+export const ui = $state({ sound: false, ripples: false, notes: false, living: false });
+
+type Feel = 'ripples' | 'notes' | 'living';
+
+export function set_feel(k: Feel, v: boolean) {
+	ui[k] = v;
+	try {
+		localStorage.setItem(`e4_${k}`, v ? '1' : '0');
+	} catch {}
+}
+
+export function load_feel() {
+	for (const k of ['ripples', 'notes', 'living'] as Feel[]) {
+		try {
+			ui[k] = localStorage.getItem(`e4_${k}`) === '1';
+		} catch {}
+	}
+}
 
 export const calm = {
 	sound: make_sound(),
@@ -34,6 +51,7 @@ export const calm = {
 	from: null as View | null,
 	t0: 0,
 	phase: 0,
+	app: false,
 	handoff: false,
 	quiet: false,
 	lit: { c: 0, r: 0, t: 0 },
@@ -96,11 +114,11 @@ export function play_move(m: { to: string; san?: string; captured?: string }) {
 		calm.quiet = false;
 		return;
 	}
-	const [x, y] = square_xy(v, col, row_top);
-	calm.ripple(x, y, m.captured ? 1.2 : 0.7);
-	calm.sound.thock();
-	calm.sound.chime(col + 7 - row_top, 0.6);
-	if (m.captured) calm.sound.drop();
+	if (!calm.app || ui.ripples) {
+		const [x, y] = square_xy(v, col, row_top);
+		calm.ripple(x, y, m.captured ? 1.2 : 0.7);
+	}
+	calm.sound.thock(m.captured ? 1.4 : 1);
 	if (m.san?.includes('#')) calm.sound.chord();
 	else if (m.san?.includes('+')) calm.sound.bowl(2);
 }

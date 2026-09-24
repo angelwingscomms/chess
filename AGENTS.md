@@ -47,7 +47,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
 - Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
 - `find_puzzles` tool searches the `puz` collection. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
-- Voice: Gemini Live is the default (`gemini-3.8-live-extended-thinking` via `@google/genai`). It refuses to connect without `thinkingConfig.thinkingLevel` (1007). `responseTokenCount` leaves out thinking tokens, so usage adds `thoughtsTokenCount`. The `googleSearch` tool closes the session with 1011 quota exceeded on the server key. OpenAI GPT-Live (`gpt-live-1`) is a paid alternative. OpenRouter does **not** host `gpt-live-1`. The Worker posts SDP to `https://api.openai.com/v1/live/sessions` with `delegation.type: client`; the browser holds WebRTC. Never send `OPENAI_KEY` to the browser. Optional env: `OPENAI_KEY`.
+- Voice: Gemini Live is the default (`gemini-3.8-live` via `@google/genai`, input + output transcription on). Do not use `gemini-3.8-live-extended-thinking`: it answers "a system error occurred" to every tool call that has parameters (tested 2026-09-24, v1alpha and v1beta). `responseTokenCount` leaves out thinking tokens, so usage adds `thoughtsTokenCount`. The `googleSearch` tool closes the session with 1011 quota exceeded on the free-tier server key.
 
 # Git Workflow
 
@@ -70,6 +70,8 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - `app.css` has an unlayered `a { color: inherit }`, which beats Tailwind `text-*` on links. Put the text colour on an inner span.
 - Calm layer: `src/components/landing/Calm.svelte` is mounted by `+layout.svelte` on `/` and `/i` and survives navigation between them. It owns the one WebGL canvas (`src/lib/landing/field.ts`), Web Audio (`sound.ts`) and pointer sounds. Each page registers a per-frame board scene with `use_scene()` from `src/lib/landing/calm.svelte.ts`; switching pages glides the board between scenes. `html.calm-html` in `app.css` remaps the old light tokens to the dark calm theme, so learn components restyle without markup changes.
 - `svelte-chess` `moveNumber` (bound to `s.moveNum`) is 1 at the start position, not 0.
+- Feel settings (`ui` in `calm.svelte.ts`, localStorage `e4_living`, `e4_notes`, `e4_ripples`) all default off. Notes and ripples only gate the app (`calm.app`); living colours also drive the landing board.
+- Puzzle mode lives in `src/components/learn/puzzle.svelte.ts`. `find_puzzles` results are offered to it (voice dispatcher, and the chat `board` SSE event carries `p`), and a loaded FEN that matches one starts puzzle mode. It sets the engine colour to `none` before the load, because `svelte-chess` `load()` makes the engine move at once when it is the engine's turn. The local dev server has no puzzle rows in D1, so the puzzle API only works deployed.
 
 # Build in Public / Auto-Tweet
 

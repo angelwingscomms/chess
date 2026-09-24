@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Chess } from 'svelte-chess';
 	import { calm, play_move } from '$lib/landing/calm.svelte';
+	import { puzzle_move } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	const s = get_learn_state();
 
@@ -31,6 +32,10 @@
 		on:move={(e) => {
 			s.onMove(e);
 			play_move(e.detail);
+			const r = puzzle_move(e.detail);
+			if (r === 'y') calm.sound.chime(9, 0.35);
+			else if (r === 'n') calm.sound.bowl(0);
+			else if (r === 'w') calm.sound.chord();
 		}}
 		on:gameOver={(e) => {
 			s.onGameOver(e);

@@ -6,11 +6,9 @@
 	import { calm, palettes, take_handoff, use_scene } from '$lib/landing/calm.svelte';
 	import { create_learn_state, set_learn_state } from '$components/learn/learn_context.svelte';
 	import ToastContainer from '$components/learn/ToastContainer.svelte';
-	import CapturedPieces from '$components/learn/CapturedPieces.svelte';
-	import BoardStatus from '$components/learn/BoardStatus.svelte';
-	import GameActions from '$components/learn/GameActions.svelte';
-	import BoardNavigation from '$components/learn/BoardNavigation.svelte';
-	import HintLabel from '$components/learn/HintLabel.svelte';
+	import BoardBar from '$components/learn/BoardBar.svelte';
+	import CoachBar from '$components/learn/CoachBar.svelte';
+	import { bind_puzzles } from '$components/learn/puzzle.svelte';
 	import ChessBoard from '$components/learn/ChessBoard.svelte';
 	import ChatPanel from '$components/learn/ChatPanel.svelte';
 	import SettingsModal from '$components/learn/SettingsModal.svelte';
@@ -19,6 +17,7 @@
 
 	const s = create_learn_state(!!$page.data.user);
 	set_learn_state(s);
+	bind_puzzles(s);
 
 	const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w';
 	const cycle = [0, 2, 4, 5];
@@ -67,8 +66,9 @@
 	onMount(() => {
 		const t0 = performance.now();
 		const pal = new Float32Array(15);
+		calm.app = true;
 		if (arrived) setTimeout(() => (shown = true), 5000);
-		return use_scene((now) => {
+		const stop = use_scene((now) => {
 			const r = board_box!.getBoundingClientRect();
 			const u = (now - t0) / 45000 + (arrived ? 3 : 0);
 			const i = Math.floor(u) % cycle.length;
@@ -87,6 +87,10 @@
 				f: s.orientation === 'b' ? 1 : 0
 			};
 		});
+		return () => {
+			stop();
+			calm.app = false;
+		};
 	});
 </script>
 
@@ -102,20 +106,13 @@
 		<div bind:this={board_box} data-tour="board" class="relative aspect-square w-[min(100%,calc(100svh-26rem))] shrink-0 transition-opacity duration-700 ease-calm lg:w-[min(100%,calc(100svh-10rem))] {shown ? '' : 'opacity-0'}">
 			<ChessBoard />
 		</div>
-		<div class="flex w-[min(100%,calc(100svh-26rem))] items-center justify-between gap-3 animate-surface [animation-delay:0.6s] lg:w-[min(100%,calc(100svh-10rem))]">
-			<BoardStatus />
-			<CapturedPieces />
+		<div class="w-[min(100%,calc(100svh-26rem))] animate-surface [animation-delay:0.6s] lg:w-[min(100%,calc(100svh-10rem))]">
+			<BoardBar />
 		</div>
 	</div>
 
 	<aside data-quiet class="flex min-h-0 flex-1 flex-col gap-3 rounded-3xl border border-haze/10 bg-night/40 p-3 backdrop-blur-xl animate-surface [animation-delay:0.9s] lg:h-full lg:p-4">
-		<div class="flex items-center gap-1.5">
-			<GameActions />
-		</div>
-		<div class="flex items-center gap-1.5">
-			<BoardNavigation />
-			<HintLabel />
-		</div>
+		<CoachBar />
 		<ChatPanel />
 	</aside>
 </main>

@@ -18,7 +18,7 @@ const PRICING: Record<string, PricingEntry> = {
 	'openai/gpt-oss-120b': { i: 0.15, o: 0.60 },
 	'qwen/qwen3-32b': { i: 0.29, o: 0.59 },
 	'llama-3.3-70b-versatile': { i: 0.59, o: 0.79 },
-	'gemini-3.8-live-extended-thinking': {
+	'gemini-3.8-live': {
 		i: 0.75,
 		o: 4.50,
 		audio_i: 3.00,

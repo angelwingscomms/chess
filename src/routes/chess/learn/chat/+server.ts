@@ -96,6 +96,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const stream = new ReadableStream({
 		async start(controller) {
 			let wrote = false;
+			let found: any[] = [];
 			try {
 				const result = streamText({
 					model: getModel(m, gmk),
@@ -116,8 +117,11 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 					if ((part as any).type === 'tool-result') {
 						const p: any = part;
 						const out = p.output ?? p.result;
+						if (p.toolName === 'find_puzzles') found = [...(out?.puzzles ?? []), ...found];
 						if (p.toolName === 'set_state' && out?.valid && out?.fen) {
-							controller.enqueue(event('board', { f: out.fen }));
+							const key = String(out.fen).split(' ').slice(0, 4).join(' ');
+							const puzzle = found.find((z) => String(z.f).split(' ').slice(0, 4).join(' ') === key);
+							controller.enqueue(event('board', puzzle ? { f: out.fen, p: puzzle } : { f: out.fen }));
 						}
 					}
 				}

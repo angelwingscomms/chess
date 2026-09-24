@@ -4,6 +4,9 @@
 	import ArrowUpIcon from '$lib/components/icons/arrow-up-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import PlusIcon from '$lib/components/icons/plus-icon.svelte';
+	import MicIcon from '$lib/components/icons/mic-icon.svelte';
+	import VoiceStrip from './VoiceStrip.svelte';
+	import { pz } from './puzzle.svelte';
 	import { calm } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	const s = get_learn_state();
@@ -16,6 +19,7 @@
 	let pending_user_idx = $derived(s.pending_user_idx);
 	let sel_text = $derived(s.sel_text);
 	let sel_pos = $derived(s.sel_pos);
+	let recording = $derived(s.recording);
 
 	let said = 0;
 	let ticked = 0;
@@ -72,14 +76,19 @@
 			</button>
 		{/if}
 	</div>
-	{#if chat_suggestions.length > 0}
+	{#if chat_suggestions.length > 0 && !pz.on}
 		<div data-ms class="flex flex-wrap gap-2 pt-2">
 			{#each chat_suggestions as suggestion}
 				<button onclick={() => s.sendChatMessage(suggestion)} class="rounded-full border border-glow/40 px-3.5 py-1.5 text-sm text-haze/90 transition duration-500 ease-expo hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion.toLowerCase()}</button>
 			{/each}
 		</div>
 	{/if}
-	<div data-mi class="mt-3 flex items-end gap-2 rounded-2xl border border-haze/15 bg-haze/5 p-1.5 transition duration-500 ease-expo focus-within:border-glow/50">
+	{#if recording}
+		<div class="mt-3">
+			<VoiceStrip />
+		</div>
+	{/if}
+	<div data-mi class="mt-3 flex items-end gap-1 rounded-2xl border border-haze/15 bg-haze/5 p-1.5 transition duration-500 ease-expo focus-within:border-glow/50">
 		<textarea
 			data-tour="chat"
 			rows={1}
@@ -90,6 +99,16 @@
 			placeholder="ask about the position…"
 			class="max-h-32 min-h-[40px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2.5 text-[15px] text-haze outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"
 		></textarea>
+		<button
+			title={recording ? 'Stop talking' : 'Talk to the coach'}
+			aria-label="Voice input"
+			data-tour="voice"
+			onclick={() => s.toggleGeminiLive()}
+			disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
+			class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full transition duration-500 ease-expo disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow {recording ? 'bg-glow/20 text-glow motion-safe:animate-pulse' : 'text-haze/70 hover:bg-haze/10 hover:text-haze'}"
+		>
+			<MicIcon size={17} strokeWidth={1.8} />
+		</button>
 		<button
 			title="Send"
 			aria-label="Send"

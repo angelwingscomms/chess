@@ -1,4 +1,5 @@
 import { PUZZLE_TOOL_DESCRIPTION } from '$lib/types/puzzle';
+import { arm_puzzle, offer_puzzles, start_puzzle } from '$components/learn/puzzle.svelte';
 
 type BoardState = {
 	fen: string;
@@ -127,6 +128,7 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 					body: JSON.stringify(fc.args ?? {}),
 				});
 				const body = await res.json();
+				offer_puzzles(body?.puzzles);
 				log(`find_puzzles: returned ${body?.puzzles?.length ?? 0}`);
 				return { id: fc.id, name, response: body };
 			} catch (e) {
@@ -144,7 +146,9 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 				log('set_state FAILED — load_fen callback not available');
 				return { id: fc.id, name, response: { valid: false, error: 'Set state not available.' } };
 			}
+			const puzzle = arm_puzzle(fen);
 			const r = state.load_fen(fen);
+			if (puzzle && r.valid) start_puzzle(puzzle);
 			log(`set_state: valid=${r.valid} fen=${(r.fen ?? '').slice(0, 40)}`);
 			return { id: fc.id, name, response: r };
 		}

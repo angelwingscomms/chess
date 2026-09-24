@@ -1270,6 +1270,7 @@ img {
   --color-haze: #ece7f1;
   --color-mist: #a9b6b8;
   --color-glow: #e9a47c;
+  --color-deep: #14121f;
 
   --font-calm: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-calm-mono: 'Geist Mono', ui-monospace, monospace;
@@ -1563,4 +1564,14 @@ html.calm-html .driver-popover-arrow {
   color: #e9a47c;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+html.calm-html [role='listbox'] {
+  background-color: rgb(20 18 31 / 0.97);
+  backdrop-filter: blur(20px);
+}
+
+html.calm-html [role='dialog'] {
+  background-color: rgb(17 15 26 / 0.94);
+  backdrop-filter: blur(24px);
 }

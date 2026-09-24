@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { make_field } from '$lib/landing/field';
-	import { calm, mix_view, square_xy, ui } from '$lib/landing/calm.svelte';
+	import { calm, load_feel, mix_view, square_xy, ui } from '$lib/landing/calm.svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 	let pawn = $state<HTMLImageElement>();
@@ -19,6 +19,7 @@
 		calm.view = null;
 		calm.from = null;
 		ui.sound = calm.sound.pref() === '1';
+		load_feel();
 
 		let raf = 0;
 		let prev = performance.now();
@@ -33,6 +34,7 @@
 		let lit = 0;
 		let cell = -1;
 		let pw = 0;
+		let lv = ui.living ? 1 : 0;
 		let armed = false;
 		let hover: Element | null = null;
 		let down = { x: 0, y: 0, t: 0 };
@@ -66,11 +68,12 @@
 		};
 		const touch = (x: number, y: number, v: number) => {
 			const c = hit(x, y);
+			const rip = !calm.app || ui.ripples;
 			if (c >= 0) {
-				calm.sound.chime((c % 8) + 7 - Math.floor(c / 8), v);
+				if (!calm.app || ui.notes) calm.sound.chime((c % 8) + 7 - Math.floor(c / 8), v);
 				const [mx, my] = square_xy(calm.view!, c % 8, Math.floor(c / 8));
-				calm.ripple(mx, my, v);
-			} else if (v >= 1) {
+				if (rip) calm.ripple(mx, my, v);
+			} else if (v >= 1 && rip) {
 				calm.sound.drop();
 				calm.ripple(x, y, 0.8);
 			}
@@ -104,7 +107,8 @@
 				cx += (px - cx) * (1 - Math.exp(-6 * dt));
 				cy += (py - cy) * (1 - Math.exp(-6 * dt));
 				cs += ((now - lit < 1600 ? 1 : lit ? 0.3 : 0) - cs) * (1 - Math.exp(-3 * dt));
-				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, p: v.p, c: [cx, cy, cs], q: v.q });
+				lv += ((ui.living ? 1 : 0) - lv) * (motion ? 1 - Math.exp(-4 * dt) : 1);
+				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, l: lv, p: v.p, c: [cx, cy, cs], q: v.q });
 			}
 			if (motion || calm.from) raf = requestAnimationFrame(frame);
 		}
