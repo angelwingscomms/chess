@@ -1,5 +1,5 @@
 import { google_client } from '$lib/server/oauth';
-import { encode_session, SESSION_COOKIE } from '$lib/server/session';
+import { encode_session, session_cookie } from '$lib/server/session';
 import { find_or_create_user } from '$lib/server/user';
 import type { RequestEvent } from '@sveltejs/kit';
 
@@ -56,7 +56,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
   console.log('[LOGIN_CALLBACK] encoding session...');
   const session = await encode_session({ id: uid, name: guser.name, picture: guser.picture, email: guser.email });
   console.log('[LOGIN_CALLBACK] session encoded:', session.substring(0, 30) + '...');
-  event.cookies.set('session', session, SESSION_COOKIE);
+  event.cookies.set('session', session, session_cookie(event.url.hostname));
   console.log('[LOGIN_CALLBACK] session cookie set, deleting oauth cookies...');
   event.cookies.delete('oauth_state', { path: '/' });
   event.cookies.delete('oauth_verifier', { path: '/' });

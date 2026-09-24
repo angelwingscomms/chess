@@ -9,7 +9,7 @@
   import type { LayoutProps } from './$types';
   let { data, children }: LayoutProps = $props();
   const calm_route = $derived(page.url.pathname === '/' || page.url.pathname === '/i');
-  let user = $state<{ id: string; name: string; picture?: string; email?: string } | null>(data.user);
+  let user = $derived(data.user);
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
   let img_err = $state(false);
@@ -81,8 +81,8 @@
   }
   async function logout() {
     await fetch('/logout', { method: 'POST' });
-    user = null;
     open = false;
+    location.href = '/';
   }
 </script>
 

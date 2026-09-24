@@ -1,8 +1,6 @@
 import { SECRET } from '$env/static/private';
 import { env } from '$env/dynamic/private';
 
-const cookie_domain = env.COOKIE_DOMAIN || undefined;
-
 type CookieOpts = {
 	path: string;
 	httpOnly: boolean;
@@ -11,17 +9,26 @@ type CookieOpts = {
 	domain?: string;
 };
 
-export const SESSION_COOKIE: CookieOpts = {
-	path: '/',
-	httpOnly: true,
-	maxAge: 604800,
-	sameSite: 'lax',
-	...(cookie_domain && { domain: cookie_domain })
-};
-export const SESSION_COOKIE_DELETE: { path: string; domain?: string } = {
-	path: '/',
-	...(cookie_domain && { domain: cookie_domain })
-};
+export function session_cookie(host = ''): CookieOpts {
+	const h = host.split(':')[0].toLowerCase();
+	const share = env.COOKIE_DOMAIN || '';
+	const use_share = Boolean(share) && (h === share.replace(/^\./, '') || h.endsWith(share));
+	return {
+		path: '/',
+		httpOnly: true,
+		maxAge: 604800,
+		sameSite: 'lax',
+		...(use_share && { domain: share })
+	};
+}
+
+export function session_cookie_delete(host = '') {
+	const { path, domain } = session_cookie(host);
+	return domain ? { path, domain } : { path };
+}
+
+export const SESSION_COOKIE = session_cookie();
+export const SESSION_COOKIE_DELETE = session_cookie_delete();
 
 function b64(s: string): string {
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');

@@ -28,7 +28,7 @@ const req = (email: string, password: string) => ({ json: async () => ({ email, 
 
 async function call(email: string, password: string, cookies = { set: vi.fn() }) {
 	const { POST } = await import('./+server');
-	const res = await POST({ request: req(email, password), cookies } as any);
+	const res = await POST({ request: req(email, password), cookies, url: new URL('https://e4.apexlinks.org/api/auth/login') } as any);
 	return { res, cookies };
 }
 
@@ -42,13 +42,13 @@ describe('POST /api/auth/login', () => {
 
 	it('sets the session cookie with SESSION_COOKIE on success', async () => {
 		store.set('u1', { s: 'u', e: 'a@b.com', p: bcrypt.hashSync('pass', 10), n: 'N', i: 'u1' });
-		const { SESSION_COOKIE } = await import('$lib/server/session');
+		const { session_cookie } = await import('$lib/server/session');
 		const { res, cookies } = await call('a@b.com', 'pass');
 		expect(res.status).toBe(200);
 		const body = await res.json();
 		expect(body.success).toBe(true);
 		expect(body.user.id).toBe('u1');
-		expect(cookies.set).toHaveBeenCalledWith('session', expect.any(String), SESSION_COOKIE);
+		expect(cookies.set).toHaveBeenCalledWith('session', expect.any(String), session_cookie('e4.apexlinks.org'));
 	});
 });
 

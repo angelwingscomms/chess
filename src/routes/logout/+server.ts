@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { SESSION_COOKIE_DELETE } from '$lib/server/session';
+import { session_cookie_delete } from '$lib/server/session';
 
 export function POST(event: RequestEvent): Response {
-  event.cookies.delete('session', SESSION_COOKIE_DELETE);
+  event.cookies.delete('session', session_cookie_delete(event.url.hostname));
   return redirect(302, '/');
 }
