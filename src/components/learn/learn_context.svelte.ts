@@ -1207,6 +1207,7 @@ export class LearnState {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ s: seconds, i: this.openai_live_id, d: done }),
+			keepalive: done,
 		}).then(r => r.json().catch(() => null)).then(d => {
 			if (d?.left !== undefined) this.openai_live_left = d.left;
 			if (d?.stop && !this.gemini_live_closing) this.end_openai_trial();
