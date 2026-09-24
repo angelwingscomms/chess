@@ -67,6 +67,8 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Full spec in `DESIGN.md`; Tailwind theme + CSS variables in `app.css`
 - Fonts: Cormorant Garamond (display), Inter (body), JetBrains Mono (code) — via Google Fonts import in `app.css:1`
 - Palette defined as `@theme` in `app.css:6-27` and `:root` vars at `app.css:67-98`
+- `app.css` has an unlayered `a { color: inherit }`, which beats Tailwind `text-*` on links. Put the text colour on an inner span.
+- Landing (`src/routes/+page.svelte`): WebGL board + liquid field in `src/lib/landing/field.ts`, Web Audio in `src/lib/landing/sound.ts`, parts in `src/components/landing/`. Tokens are the second `@theme` block at the end of `app.css`.
 
 # Build in Public / Auto-Tweet
 

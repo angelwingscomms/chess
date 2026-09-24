@@ -1263,3 +1263,66 @@ img {
     padding: 40px 28px;
   }
 }
+
+@theme {
+  --color-night: #0c0b13;
+  --color-dusk: #2a2440;
+  --color-haze: #ece7f1;
+  --color-mist: #a9b6b8;
+  --color-glow: #e9a47c;
+
+  --font-calm: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-calm-mono: 'Geist Mono', ui-monospace, monospace;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-calm: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --animate-rise: rise 1.6s var(--ease-expo) both;
+  --animate-surface: surface 1.8s var(--ease-expo) both;
+  --animate-drift: drift 80s linear infinite;
+  --animate-drift-back: drift 96s linear infinite reverse;
+  --animate-listen: listen 4s var(--ease-calm) infinite;
+  --animate-cue: cue 3.2s var(--ease-calm) infinite;
+  --animate-bar: bar 1.4s var(--ease-calm) infinite;
+
+  @keyframes rise {
+    from { transform: translateY(110%); }
+  }
+  @keyframes surface {
+    from { opacity: 0; transform: translateY(16px); }
+  }
+  @keyframes drift {
+    to { transform: translateX(-50%); }
+  }
+  @keyframes listen {
+    0%, 100% { opacity: 0.35; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes cue {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    50.01% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+  @keyframes bar {
+    0%, 100% { transform: scaleY(0.25); }
+    50% { transform: scaleY(1); }
+  }
+}
+
+.calm-html,
+.calm-html body {
+  background: var(--color-night);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calm *,
+  .calm *::before,
+  .calm *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
