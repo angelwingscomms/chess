@@ -44,4 +44,14 @@ describe('openai live daily trial', () => {
 		expect(next.left).toBe(120);
 		expect(next.prev).toBe('');
 	});
+
+	it('ignores a close from another session', async () => {
+		const m = await import('./openai_live_trial');
+		await m.open_openai_live_trial('u3', 'live_e');
+		const stale = await m.close_openai_live_trial('u3', 'live_old', 180);
+		expect(stale.i).toBe('live_e');
+		expect(stale.left).toBeGreaterThan(0);
+		const still = await m.peek_openai_live_trial('u3');
+		expect(still.rec.i).toBe('live_e');
+	});
 });

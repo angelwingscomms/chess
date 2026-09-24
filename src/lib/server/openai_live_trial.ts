@@ -83,12 +83,14 @@ export async function close_openai_live_trial(user_id: string, session_id: strin
 	const now = Math.floor(Date.now() / 1000);
 	const day = utc_day();
 	const rec = await read(user_id);
-	const extra = !rec.i || rec.i === session_id ? Math.max(0, seconds) : 0;
-	const n = used_ol(rec, now, day, extra);
-	const same = !rec.i || rec.i === session_id;
-	await write(user_id, { n, d: day, i: same ? '' : rec.i, t: same ? 0 : rec.t });
+	if (rec.i && rec.i !== session_id) {
+		const left = left_ol(rec, now, day);
+		return { left, stop: left <= 0, i: rec.i };
+	}
+	const n = used_ol(rec, now, day, Math.max(0, seconds));
+	await write(user_id, { n, d: day, i: '', t: 0 });
 	const left = OPENAI_LIVE_TRIAL_S - n;
-	return { left, stop: left <= 0, i: same ? session_id : rec.i };
+	return { left, stop: left <= 0, i: session_id };
 }
 
 export function is_live_id(id: string) {
