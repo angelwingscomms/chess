@@ -53,7 +53,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const text = await res.text();
 	if (!res.ok) {
 		console.error('[openai-live] create failed', res.status, text.slice(0, 400));
-		return json({ error: 'live session create failed' }, { status: 502 });
+		let detail = 'live session create failed';
+		try {
+			const err = JSON.parse(text)?.error;
+			const msg = typeof err === 'string' ? err : err?.message;
+			if (typeof msg === 'string' && msg.trim()) detail = msg.trim();
+		} catch {}
+		return json({ error: detail }, { status: 502 });
 	}
 
 	let out: any;

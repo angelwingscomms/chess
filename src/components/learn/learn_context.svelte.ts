@@ -1349,20 +1349,8 @@ export class LearnState {
 		this.gemini_live_audio_gain = outputGain;
 		this.load_thinking_sound();
 		const micSource = audioCtx.createMediaStreamSource(stream);
-		let send_stream = stream;
 		if (this.noise_suppression) {
-			try {
-				const { RnnoiseWorkletNode, loadRnnoise } = await import('@sapphi-red/web-noise-suppressor');
-				const wasmBinary = await loadRnnoise({ url: '/rnnoise.wasm', simdUrl: '/rnnoise_simd.wasm' });
-				await audioCtx.audioWorklet.addModule('/rnnoise-worklet.js');
-				const rnnoiseNode = new RnnoiseWorkletNode(audioCtx, { maxChannels: 1, wasmBinary });
-				this.rnnoise_node = rnnoiseNode;
-				const dest = audioCtx.createMediaStreamDestination();
-				micSource.connect(rnnoiseNode).connect(dest);
-				send_stream = dest.stream;
-			} catch {
-				this.add_toast('noise suppression unavailable, using raw mic');
-			}
+			this.add_toast('openai live uses the raw mic');
 		}
 		const recording_dest = audioCtx.createMediaStreamDestination();
 		this.gemini_live_recording_dest = recording_dest;
@@ -1383,7 +1371,7 @@ export class LearnState {
 			} catch {}
 			audio_el.play().catch(() => {});
 		});
-		for (const track of send_stream.getAudioTracks()) pc.addTrack(track, send_stream);
+		for (const track of stream.getAudioTracks()) pc.addTrack(track, stream);
 		const dc = pc.createDataChannel('oai-events');
 		this.openai_live_dc = dc;
 		dc.addEventListener('message', (e) => {
