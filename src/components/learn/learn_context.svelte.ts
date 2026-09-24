@@ -1212,8 +1212,7 @@ export class LearnState {
 
 	async handle_openai_delegation(id: string) {
 		this.start_thinking_sound();
-		const recent = this.chat_messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('
-');
+		const recent = this.chat_messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
 		const board = this.get_board_state();
 		const name = /puzzle/i.test(recent) ? 'find_puzzles' : /hint|best move|suggest/i.test(recent) ? 'hint' : /set up|load this|starting position|fen/i.test(recent) ? 'set_state' : 'get_board_state';
 		const args: Record<string, unknown> = {};
@@ -1558,7 +1557,7 @@ export class LearnState {
 				setTimeout(() => reject(new Error('Timed out connecting to voice service')), 10000);
 			});
 			const session = await Promise.race([ai.live.connect({
-				model: 'gemini-3.1-flash-live-preview',
+				model: 'gemini-3.8-live-extended-thinking',
 				callbacks: {
 					onopen: () => {
 						this.gemini_live_healthy = true;
@@ -1580,6 +1579,7 @@ export class LearnState {
 				},
 				config: {
 					responseModalities: ['AUDIO'] as any,
+					thinkingConfig: { thinkingLevel: 'HIGH' } as any,
 					speechConfig: {
 						voiceConfig: {
 							prebuiltVoiceConfig: {
@@ -1794,13 +1794,13 @@ export class LearnState {
 		}
 		if (msg.usageMetadata) {
 			const p = msg.usageMetadata.promptTokenCount ?? 0;
-			const c = msg.usageMetadata.responseTokenCount ?? 0;
+			const c = (msg.usageMetadata.responseTokenCount ?? 0) + (msg.usageMetadata.thoughtsTokenCount ?? 0);
 			if (p > 0 || c > 0) {
 				const dp = p - this.gemini_last_usage_p;
 				const dc = c - this.gemini_last_usage_c;
 				this.gemini_last_usage_p = p;
 				this.gemini_last_usage_c = c;
-				const cost = calc_cost('gemini-3.1-flash-live-preview', dp, dc);
+				const cost = calc_cost('gemini-3.8-live-extended-thinking', dp, dc);
 				this.total_p += dp;
 				this.total_c += dc;
 				this.total_cost += cost;

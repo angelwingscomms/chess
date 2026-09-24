@@ -51,14 +51,14 @@ describe('calc_cost', () => {
 		expect(cost).toBeLessThan(0.001);
 	});
 
-	it('calculates gemini-3.1-flash-live-preview text-only cost', () => {
-		const cost = calc_cost('gemini-3.1-flash-live-preview', 1_000_000, 500_000);
+	it('calculates gemini-3.8-live-extended-thinking text-only cost', () => {
+		const cost = calc_cost('gemini-3.8-live-extended-thinking', 1_000_000, 500_000);
 		expect(cost).toBeCloseTo(3.00, 6);
 	});
 
-	it('calculates gemini-3.1-flash-live-preview with audio modality details', () => {
+	it('calculates gemini-3.8-live-extended-thinking with audio modality details', () => {
 		const cost = calc_cost(
-			'gemini-3.1-flash-live-preview',
+			'gemini-3.8-live-extended-thinking',
 			1_000_000,
 			500_000,
 			[{ modality: 'AUDIO', tokenCount: 800_000 }, { modality: 'TEXT', tokenCount: 200_000 }],
@@ -67,9 +67,9 @@ describe('calc_cost', () => {
 		expect(cost).toBeCloseTo(7.05, 6);
 	});
 
-	it('calculates gemini-3.1-flash-live-preview with image input', () => {
+	it('calculates gemini-3.8-live-extended-thinking with image input', () => {
 		const cost = calc_cost(
-			'gemini-3.1-flash-live-preview',
+			'gemini-3.8-live-extended-thinking',
 			500_000,
 			100_000,
 			[{ modality: 'IMAGE', tokenCount: 200_000 }, { modality: 'TEXT', tokenCount: 300_000 }],

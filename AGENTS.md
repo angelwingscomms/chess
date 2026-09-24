@@ -47,7 +47,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
 - Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
 - `find_puzzles` tool searches the `puz` collection. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
-- Voice: Gemini Live is the default (`gemini-3.1-flash-live-preview` via `@google/genai`). OpenAI GPT-Live (`gpt-live-1`) is a paid alternative. OpenRouter does **not** host `gpt-live-1`. The Worker posts SDP to `https://api.openai.com/v1/live/sessions` with `delegation.type: client`; the browser holds WebRTC. Never send `OPENAI_KEY` to the browser. Optional env: `OPENAI_KEY`.
+- Voice: Gemini Live is the default (`gemini-3.8-live-extended-thinking` via `@google/genai`). It refuses to connect without `thinkingConfig.thinkingLevel` (1007). `responseTokenCount` leaves out thinking tokens, so usage adds `thoughtsTokenCount`. The `googleSearch` tool closes the session with 1011 quota exceeded on the server key. OpenAI GPT-Live (`gpt-live-1`) is a paid alternative. OpenRouter does **not** host `gpt-live-1`. The Worker posts SDP to `https://api.openai.com/v1/live/sessions` with `delegation.type: client`; the browser holds WebRTC. Never send `OPENAI_KEY` to the browser. Optional env: `OPENAI_KEY`.
 
 # Git Workflow
 
