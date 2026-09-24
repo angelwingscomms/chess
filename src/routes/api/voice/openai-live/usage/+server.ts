@@ -17,9 +17,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const rec = done
 		? await close_openai_live_trial(locals.user.id, id, seconds)
 		: await note_openai_live_trial(locals.user.id, id, seconds);
-	if (rec.stop || rec.left <= 0) {
+	if (done || rec.stop || rec.left <= 0) {
 		await hangup_openai_live(id, env.OPENAI_KEY || '');
-		return json({ left: 0, stop: true });
 	}
+	if (rec.stop || rec.left <= 0) return json({ left: 0, stop: true });
 	return json({ left: rec.left, stop: false });
 };
