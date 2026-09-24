@@ -3,6 +3,7 @@
 	import 'driver.js/dist/driver.css';
 	import { get_learn_state } from './learn_context.svelte';
 	const s = get_learn_state();
+	let { wait = 0 }: { wait?: number } = $props();
 
 	$effect(() => {
 		if (!s.show_tour || !s.ready) return;
@@ -111,6 +112,6 @@
 				},
 			],
 		});
-		tour.drive();
+		setTimeout(() => tour.drive(), wait);
 	});
 </script>

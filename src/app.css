@@ -1326,3 +1326,241 @@ img {
     transition-delay: 0s !important;
   }
 }
+
+html.calm-html {
+  --color-canvas: rgb(236 231 241 / 0.07);
+  --color-ink: #ece7f1;
+  --color-body: #d9d4df;
+  --color-primary: #e9a47c;
+  --color-primary-active: #d98f67;
+  --color-hairline: rgb(236 231 241 / 0.12);
+  --color-surface-soft: rgb(236 231 241 / 0.04);
+  --color-surface-card: rgb(12 11 19 / 0.45);
+  --color-surface-dark: #0c0b13;
+  --color-surface-dark-elevated: #1a1826;
+  --color-surface-dark-soft: #13121c;
+  --color-on-dark: #ece7f1;
+  --color-muted: #a9a4b3;
+  --color-teal: #8cb5a5;
+  --color-amber: #e9a47c;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --primary: #e9a47c;
+  --primary-active: #d98f67;
+  --primary-disabled: rgb(236 231 241 / 0.12);
+  --ink: #ece7f1;
+  --body: #d9d4df;
+  --body-strong: #ece7f1;
+  --muted: #a9a4b3;
+  --muted-soft: #8a8595;
+  --hairline: rgb(236 231 241 / 0.12);
+  --hairline-soft: rgb(236 231 241 / 0.08);
+  --canvas: rgb(236 231 241 / 0.07);
+  --surface-soft: rgb(236 231 241 / 0.04);
+  --surface-card: rgb(12 11 19 / 0.45);
+  --surface-cream-strong: rgb(236 231 241 / 0.1);
+  --surface-dark: #0c0b13;
+  --surface-dark-elevated: #1a1826;
+  --surface-dark-soft: #13121c;
+  --on-primary: #0c0b13;
+  --on-dark: #ece7f1;
+  --on-dark-soft: #a9a4b3;
+  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-code: 'Geist Mono', ui-monospace, monospace;
+  --shadow-soft: 0 1px 3px rgb(0 0 0 / 0.4);
+  color-scheme: dark;
+}
+
+html.calm-html ::selection {
+  background: rgb(233 164 124 / 0.3);
+  color: #ece7f1;
+}
+
+html.calm-html .button-primary,
+html.calm-html .button-secondary,
+html.calm-html .button-secondary-dark,
+html.calm-html .button-cream {
+  border-radius: 999px;
+  font-weight: 400;
+  transition: background-color 500ms var(--ease-expo), border-color 500ms var(--ease-expo), color 500ms var(--ease-expo);
+}
+
+html.calm-html .button-secondary-dark {
+  border-color: rgb(236 231 241 / 0.12);
+  background: rgb(236 231 241 / 0.06);
+}
+
+html.calm-html .button-secondary-dark:hover {
+  border-color: rgb(233 164 124 / 0.6);
+  background: rgb(233 164 124 / 0.1);
+}
+
+.top-nav.calm-nav {
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+}
+
+.top-nav.calm-nav::before {
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  background: linear-gradient(rgb(12 11 19 / 0.6), rgb(12 11 19 / 0));
+  backdrop-filter: blur(14px);
+  mask-image: linear-gradient(#000 45%, transparent);
+  content: '';
+  pointer-events: none;
+}
+
+.top-nav.calm-nav .nav-end {
+  gap: 12px;
+  font-family: var(--font-calm);
+}
+
+html.calm-html .user-btn {
+  border-color: rgb(236 231 241 / 0.2);
+  background: rgb(236 231 241 / 0.06);
+}
+
+html.calm-html .user-menu {
+  border-color: rgb(236 231 241 / 0.12);
+  border-radius: 22px;
+  background: rgb(12 11 19 / 0.7);
+  backdrop-filter: blur(20px);
+}
+
+html.calm-html .cg-wrap.cg-default-style.board-themed cg-board {
+  background: transparent !important;
+  opacity: 1 !important;
+}
+
+html.calm-html .cg-wrap piece {
+  filter: drop-shadow(0 0 1px rgb(236 231 241 / 0.35)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.35));
+}
+
+html.calm-html .cg-wrap square.last-move {
+  background: radial-gradient(circle, rgb(233 164 124 / 0.34), rgb(233 164 124 / 0.12) 55%, transparent 71%);
+}
+
+html.calm-html .cg-wrap square.selected {
+  background: radial-gradient(circle, rgb(233 164 124 / 0.55), rgb(233 164 124 / 0.2) 55%, transparent 71%);
+}
+
+html.calm-html .cg-wrap square.move-dest {
+  background: radial-gradient(circle, rgb(236 231 241 / 0.55) 14%, rgb(236 231 241 / 0.12) 17%, transparent 22%);
+}
+
+html.calm-html .cg-wrap square.move-dest:hover {
+  background: radial-gradient(circle, rgb(233 164 124 / 0.4), transparent 71%);
+}
+
+html.calm-html .cg-wrap square.oc.move-dest {
+  background: radial-gradient(circle, transparent 58%, rgb(236 231 241 / 0.4) 61%, transparent 66%);
+}
+
+html.calm-html .cg-wrap square.premove-dest,
+html.calm-html .cg-wrap square.current-premove {
+  background: radial-gradient(circle, rgb(140 181 165 / 0.45), transparent 60%);
+}
+
+html.calm-html .cg-wrap square.check {
+  background: radial-gradient(circle, rgb(231 120 120 / 0.75), rgb(231 120 120 / 0.2) 50%, transparent 71%);
+}
+
+html.calm-html .cg-wrap coords {
+  font-family: var(--font-calm-mono);
+  font-size: 10px;
+  opacity: 1;
+}
+
+html.calm-html .cg-wrap coords coord {
+  color: rgb(236 231 241 / 0.4) !important;
+}
+
+html.calm-html .cg-wrap .dialog {
+  border-radius: 18px;
+  background: rgb(12 11 19 / 0.55);
+  backdrop-filter: blur(12px);
+}
+
+html.calm-html .cg-wrap .dialog .square {
+  border-radius: 999px;
+  background: rgb(236 231 241 / 0.12);
+}
+
+html.calm-html .driver-popover {
+  border: 1px solid rgb(236 231 241 / 0.12);
+  border-radius: 22px;
+  background: rgb(12 11 19 / 0.82);
+  color: #ece7f1;
+  font-family: var(--font-calm);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.7);
+}
+
+html.calm-html .driver-popover-title {
+  font-family: var(--font-calm);
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+html.calm-html .driver-popover-description,
+html.calm-html .driver-popover-progress-text {
+  color: rgb(236 231 241 / 0.7);
+}
+
+html.calm-html .driver-popover-footer button {
+  border: 1px solid rgb(236 231 241 / 0.2);
+  border-radius: 999px;
+  background: rgb(236 231 241 / 0.06);
+  color: #ece7f1;
+  font-family: var(--font-calm);
+  text-shadow: none;
+}
+
+html.calm-html .driver-popover-footer button:hover {
+  border-color: rgb(233 164 124 / 0.6);
+  background: rgb(233 164 124 / 0.12);
+}
+
+html.calm-html .driver-popover-close-btn {
+  color: rgb(236 231 241 / 0.6);
+}
+
+html.calm-html .driver-popover-arrow {
+  display: none;
+}
+
+.calm-md > * + * {
+  margin-top: 0.7em;
+}
+
+.calm-md ul,
+.calm-md ol {
+  padding-left: 1.2em;
+  list-style: disc;
+}
+
+.calm-md ol {
+  list-style: decimal;
+}
+
+.calm-md strong {
+  font-weight: 500;
+  color: #ece7f1;
+}
+
+.calm-md code {
+  font-family: var(--font-calm-mono);
+  font-size: 0.92em;
+  color: #e9a47c;
+}
+
+.calm-md a {
+  color: #e9a47c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

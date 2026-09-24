@@ -4,21 +4,12 @@
 	import { page } from '$app/state';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
-	import { make_field, rgb } from '$lib/landing/field';
-	import { make_sound } from '$lib/landing/sound';
+	import { calm, palettes, use_scene } from '$lib/landing/calm.svelte';
 	import WhyDemo from '$components/landing/WhyDemo.svelte';
 	import PuzzleRiver from '$components/landing/PuzzleRiver.svelte';
 	import Wave from '$components/landing/Wave.svelte';
 
 	const breaths = ['breathe in', 'hold', 'breathe out', 'hold'];
-	const palettes = [
-		['#1c1832', '#3b3060', '#74507a', '#d08c6c', '#0c0b13'],
-		['#0e1126', '#1d2348', '#322e60', '#5d4d80', '#07070e'],
-		['#0b1e25', '#11404a', '#2b6c6a', '#8cb5a5', '#051014'],
-		['#0a1820', '#173141', '#2a5062', '#6d95a4', '#050c11'],
-		['#15182b', '#2c2d56', '#554f82', '#ab91bb', '#0a0a15'],
-		['#2a1c28', '#5b3944', '#ad6a5c', '#f2bb8e', '#130d12']
-	].map((p) => p.flatMap(rgb));
 	const shards = [
 		[-70, -46, -22],
 		[34, -70, 16],
@@ -26,17 +17,14 @@
 		[20, 74, 28],
 		[96, 52, 40]
 	];
-	const sound = make_sound();
+	const sound = calm.sound;
 
-	let canvas = $state<HTMLCanvasElement>();
 	let hero_slot = $state<HTMLDivElement>();
 	let end_slot = $state<HTMLDivElement>();
-	let pawn = $state<HTMLImageElement>();
 	let num = $state<HTMLSpanElement>();
 	let sections = $state<HTMLElement[]>([]);
 	let breath_i = $state(0);
 	let still = $state(false);
-	let sound_on = $state(false);
 	let leaving = $state(false);
 	let play: (e: MouseEvent) => void = () => {};
 
@@ -80,105 +68,38 @@
 		};
 	}
 
-	function toggle_sound() {
-		sound.set(!sound.on);
-		sound_on = sound.on;
-	}
-
 	onMount(() => {
 		const motion = matchMedia('(prefers-reduced-motion: no-preference)').matches;
-		const html = document.documentElement;
-		const field = canvas ? make_field(canvas) : null;
 		const shard_els = num ? ([...num.children] as HTMLElement[]) : [];
 		const pal = new Float32Array(15);
 		still = !motion;
-		sound_on = sound.pref() === '1';
-		html.classList.add('calm-html');
-		if (field) canvas!.dataset.on = '';
 
-		let raf = 0;
-		let prev = performance.now();
-		let clock = 0;
 		let sy = scrollY;
-		let psy = scrollY;
-		let vel = 0;
 		let vw = innerWidth;
 		let vh = innerHeight;
 		let tops: number[] = [];
-		let px = vw / 2;
-		let py = vh / 2;
-		let cx = px;
-		let cy = py;
-		let cs = 0;
-		let lit = 0;
-		let cell = -1;
-		let phase = -1;
 		let sect = 0;
-		let armed = false;
+		let phase = -1;
 		let move_t0 = 0;
 		let landed = false;
-		let down = { x: 0, y: 0, t: 0 };
-		const board = { x: 0, y: 0, s: 1, k: 0, m: 0, rank: 2 };
 
-		const wake = () => {
-			if (!raf) raf = requestAnimationFrame(frame);
-		};
 		const measure = () => {
 			vw = innerWidth;
 			vh = innerHeight;
 			tops = sections.map((s) => s.getBoundingClientRect().top + scrollY);
-			field?.resize();
-			wake();
 		};
-		const arm = () => {
-			if (armed) return;
-			armed = true;
-			if (sound.pref() !== '0') {
-				sound.set(true);
-				sound_on = true;
-			}
-		};
-		const hit = (x: number, y: number) => {
-			if (board.k > 0.04 || board.m > 0.04) return -1;
-			const sq = board.s / 8;
-			const fx = Math.floor((x - board.x + board.s / 2) / sq);
-			const fy = Math.floor((y - board.y + board.s / 2) / sq);
-			return fx >= 0 && fx < 8 && fy >= 0 && fy < 8 ? fy * 8 + fx : -1;
-		};
-		const cell_mid = (c: number) => {
-			const sq = board.s / 8;
-			return [board.x - board.s / 2 + ((c % 8) + 0.5) * sq, board.y - board.s / 2 + (Math.floor(c / 8) + 0.5) * sq];
-		};
-		const touch = (x: number, y: number, v: number) => {
-			const c = hit(x, y);
-			if (c >= 0) {
-				sound.chime((c % 8) + 7 - Math.floor(c / 8), v);
-				const [mx, my] = cell_mid(c);
-				if (motion) field?.ripple(mx, my, v);
-			} else if (v >= 1) {
-				sound.drop();
-				if (motion) field?.ripple(x, y, 0.8);
-			}
-		};
+		const ro = new ResizeObserver(measure);
+		ro.observe(document.body);
+		measure();
 
-		function frame(now: number) {
-			raf = 0;
-			const dt = Math.min((now - prev) / 1000, 0.1);
-			prev = now;
+		const stop = use_scene((now, dt) => {
 			const target = scrollY;
 			sy = motion ? sy + (target - sy) * (1 - Math.exp(-4 * dt)) : target;
-			vel += ((target - psy) / Math.max(dt, 0.001) - vel) * (1 - Math.exp(-3 * dt));
-			psy = target;
-			clock += motion ? dt * (1 + Math.min(Math.abs(vel) / 1400, 2)) : 0;
 			const lag = target - sy;
-
-			const cyc = ((now / 1000) % 16) / 4;
-			const ph = Math.floor(cyc);
-			const lung = !motion ? 0.6 : ph === 0 ? ease(cyc - ph) : ph === 1 ? 1 : ph === 2 ? 1 - ease(cyc - ph) : 0;
-			if (motion && ph !== phase) {
-				phase = ph;
-				breath_i = ph;
-				if (ph % 2 === 0 && sy < vh * 0.5) sound.air(ph === 0);
+			if (motion && calm.phase !== phase) {
+				phase = calm.phase;
+				breath_i = phase;
+				if (phase % 2 === 0 && sy < vh * 0.5) sound.air(phase === 0);
 			}
 
 			const hr = hero_slot!.getBoundingClientRect();
@@ -186,37 +107,32 @@
 			const a = motion ? smooth(clamp(sy / (vh * 0.8))) : sy > vh * 0.4 ? 1 : 0;
 			const b = motion ? smooth(clamp((vh - er.top - lag) / (vh * 0.7))) : er.top < vh * 0.5 ? 1 : 0;
 			const sunk = [vw / 2, vh * 0.6, Math.max(vw, vh) * 1.3];
-			if (b > 0) {
-				board.x = mix(sunk[0], er.left + er.width / 2, b);
-				board.y = mix(sunk[1], er.top + lag + er.height / 2, b);
-				board.s = mix(sunk[2], er.width, b);
-				board.k = 1 - b;
-				board.m = 1 - b;
-			} else {
-				board.x = mix(hr.left + hr.width / 2, sunk[0], a);
-				board.y = mix(hr.top + lag + hr.height / 2, sunk[1], a);
-				board.s = mix(hr.width, sunk[2], a);
-				board.k = a;
-				board.m = Math.min(1, a * 1.25);
-			}
+			const x = b > 0 ? mix(sunk[0], er.left + er.width / 2, b) : mix(hr.left + hr.width / 2, sunk[0], a);
+			const y = b > 0 ? mix(sunk[1], er.top + lag + er.height / 2, b) : mix(hr.top + lag + hr.height / 2, sunk[1], a);
+			const s = b > 0 ? mix(sunk[2], er.width, b) : mix(hr.width, sunk[2], a);
+			const k = b > 0 ? 1 - b : a;
+			const m = b > 0 ? 1 - b : Math.min(1, a * 1.25);
 
+			let rank = 2;
 			if (move_t0) {
 				const p = motion ? clamp((now - move_t0) / 900) : 1;
-				board.rank = 2 + 2 * ease(p);
+				rank = 2 + 2 * ease(p);
 				if (p >= 1 && !landed) {
 					landed = true;
 					sound.thock();
 					sound.chord();
-					const [mx, my] = cell_mid(36);
-					field?.ripple(mx, my, 1.6);
+					calm.ripple(x - s / 2 + 4.5 * (s / 8), y - s / 2 + 4.5 * (s / 8), 1.6);
 					leaving = true;
-					setTimeout(() => goto('/i'), motion ? 1000 : 200);
+					setTimeout(
+						() => {
+							calm.handoff = true;
+							goto('/i');
+						},
+						motion ? 450 : 100
+					);
 				}
 			}
 			const glow = b > 0 ? b * b : clamp(1 - a * 2.5);
-			const sq = board.s / 8;
-			pawn!.style.transform = `translate3d(${board.x - board.s / 2 + 4.5 * sq}px, ${board.y - board.s / 2 + (8.5 - board.rank) * sq}px, 0) translate(-50%, -50%) scale(${(sq * 0.8) / 64})`;
-			pawn!.style.opacity = String(glow * clamp(1 - board.k * 12));
 
 			const mid = sy + vh / 2;
 			let i = 0;
@@ -239,91 +155,30 @@
 				});
 			}
 
-			cx += (px - cx) * (1 - Math.exp(-6 * dt));
-			cy += (py - cy) * (1 - Math.exp(-6 * dt));
-			cs += ((now - lit < 1600 ? 1 : lit ? 0.3 : 0) - cs) * (1 - Math.exp(-3 * dt));
-
-			field?.draw({ t: clock, b: lung, x: board.x, y: board.y, s: board.s, k: board.k, m: board.m, p: pal, c: [cx, cy, cs], q: [4, board.rank, glow] });
-			if (motion) raf = requestAnimationFrame(frame);
-		}
+			return { x, y, s, k, m, p: pal, q: [4, rank, glow], w: glow, r: rank, f: 0 };
+		});
 
 		play = (e: MouseEvent) => {
 			if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 			e.preventDefault();
 			if (move_t0) return;
-			arm();
+			calm.arm();
 			sound.thock();
 			move_t0 = performance.now();
-			wake();
 		};
-
-		const on_move = (e: PointerEvent) => {
-			px = e.clientX;
-			py = e.clientY;
-			if (e.pointerType !== 'mouse') return wake();
-			lit = performance.now();
-			const c = hit(px, py);
-			if (c !== cell) {
-				cell = c;
-				if (c >= 0) touch(px, py, 0.4);
-			}
-			wake();
-		};
-		const on_down = (e: PointerEvent) => {
-			if ((e.target as Element).closest('[data-sound]')) return;
-			arm();
-			down = { x: e.clientX, y: e.clientY, t: performance.now() };
-			if (e.pointerType === 'mouse' && !(e.target as Element).closest('a,button')) touch(e.clientX, e.clientY, 1);
-			wake();
-		};
-		const on_up = (e: PointerEvent) => {
-			if (e.pointerType === 'mouse' || (e.target as Element).closest('a,button')) return;
-			if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10 || performance.now() - down.t > 400) return;
-			px = cx = e.clientX;
-			py = cy = e.clientY;
-			lit = performance.now();
-			touch(e.clientX, e.clientY, 1);
-			wake();
-		};
-
-		const ro = new ResizeObserver(measure);
-		ro.observe(document.body);
-		addEventListener('scroll', wake, { passive: true });
-		addEventListener('pointermove', on_move, { passive: true });
-		addEventListener('pointerdown', on_down, { passive: true });
-		addEventListener('pointerup', on_up, { passive: true });
-		addEventListener('keydown', arm, { once: true });
-		measure();
 
 		return () => {
-			cancelAnimationFrame(raf);
+			stop();
 			ro.disconnect();
-			removeEventListener('scroll', wake);
-			removeEventListener('pointermove', on_move);
-			removeEventListener('pointerdown', on_down);
-			removeEventListener('pointerup', on_up);
-			removeEventListener('keydown', arm);
-			html.classList.remove('calm-html');
-			sound.pause();
 		};
 	});
 </script>
 
-<svelte:head>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@200..500&family=Geist+Mono:wght@400&display=swap" />
-	<meta name="theme-color" content="#0c0b13" />
-</svelte:head>
-
 <Seo meta={{ t: 'e4 — a calm chess coach that explains every move', d: 'breathe, then move. e4 explains any chess move in plain words, waits until you ask, and talks out loud. free, no sign-up.' }} />
 <JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'a calm chess coach that explains every move in plain words, with voice and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }} />
 
-<div aria-hidden="true" class="fixed inset-0 bg-night bg-radial-[at_70%_35%] from-dusk to-night to-70%"></div>
-<canvas bind:this={canvas} aria-hidden="true" class="pointer-events-none fixed inset-x-0 top-0 h-lvh w-full opacity-0 transition-opacity duration-2000 ease-calm data-[on]:opacity-100"></canvas>
-<img bind:this={pawn} src="/pieces/gioco/wP.svg" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 left-0 z-[5] size-16 opacity-0 drop-shadow-[0_0_24px_rgba(233,164,124,0.55)]" />
 
-<main class="calm relative z-10 font-calm font-light text-haze selection:bg-glow/30 selection:text-haze">
+<main class="calm relative z-10 font-calm font-light text-haze transition-opacity duration-700 ease-calm {leaving ? 'opacity-0' : ''}">
 	<section bind:this={sections[0]} class="relative grid min-h-svh items-center gap-10 px-[7vw] pt-24 pb-28 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
 		<div>
 			<p class="font-calm-mono text-xs tracking-[0.16em] text-mist animate-surface">{first ? `welcome back, ${first}.` : 'e4 · a calm chess coach'}</p>
@@ -333,7 +188,7 @@
 			</h1>
 			<p class="mt-6 max-w-md text-lg leading-relaxed text-haze/70 animate-surface [animation-delay:0.9s] lg:mt-10">a chess coach that explains every move — quietly, in plain words.</p>
 			<div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 animate-surface [animation-delay:1.2s] lg:mt-12">
-				<a href="/i" onclick={(e) => play(e)} onpointerenter={() => sound.tick()} class="group inline-flex items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-7 py-3.5 text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
+				<a href="/i" onclick={(e) => play(e)} class="group inline-flex items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-7 py-3.5 text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
 					play e4
 					<span aria-hidden="true" class="transition-transform duration-500 ease-expo group-hover:translate-x-1">→</span>
 				</a>
@@ -438,7 +293,7 @@
 		</div>
 		<div bind:this={end_slot} class="mt-[8svh] aspect-square w-[min(80vw,48svh)]"></div>
 		<div use:magnet class="mt-8 p-6">
-			<a href="/i" onclick={(e) => play(e)} onpointerenter={() => sound.tick()} class="group relative inline-flex overflow-hidden rounded-full bg-glow px-12 py-5 text-xl font-normal text-night shadow-[0_0_80px_-10px_rgba(233,164,124,0.6)] transition duration-700 ease-expo hover:shadow-[0_0_120px_-10px_rgba(233,164,124,0.9)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
+			<a href="/i" onclick={(e) => play(e)} class="group relative inline-flex overflow-hidden rounded-full bg-glow px-12 py-5 text-xl font-normal text-night shadow-[0_0_80px_-10px_rgba(233,164,124,0.6)] transition duration-700 ease-expo hover:shadow-[0_0_120px_-10px_rgba(233,164,124,0.9)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
 				<span class="block text-night transition-transform duration-500 ease-expo group-hover:-translate-y-[160%]">play e4</span>
 				<span aria-hidden="true" class="absolute inset-0 grid translate-y-[160%] place-items-center font-calm-mono text-lg text-night transition-transform duration-500 ease-expo group-hover:translate-y-0">1. e4</span>
 			</a>
@@ -451,18 +306,3 @@
 	</section>
 </main>
 
-<button
-	type="button"
-	data-sound
-	onclick={toggle_sound}
-	aria-pressed={sound_on}
-	title={sound_on ? 'sound on' : 'sound off'}
-	class="fixed right-5 bottom-5 z-40 flex h-11 w-11 cursor-pointer items-center justify-center gap-[3px] rounded-full border border-haze/15 bg-night/40 backdrop-blur-md transition duration-500 ease-expo hover:border-haze/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow"
->
-	<span class="sr-only">sound</span>
-	{#each ['[animation-delay:0s]', '[animation-delay:0.2s]', '[animation-delay:0.4s]', '[animation-delay:0.1s]'] as d}
-		<span class="block h-4 w-[2px] rounded-full bg-haze/80 transition-transform duration-500 ease-expo {sound_on ? `animate-bar ${d}` : 'scale-y-[0.2]'}"></span>
-	{/each}
-</button>
-
-<div aria-hidden="true" class="pointer-events-none fixed inset-0 z-50 bg-night opacity-0 transition-opacity duration-1000 ease-calm data-[on]:opacity-100" data-on={leaving ? '' : undefined}></div>

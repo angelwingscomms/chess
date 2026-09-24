@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Chess } from 'svelte-chess';
+	import { calm, play_move } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	const s = get_learn_state();
 
@@ -27,8 +28,14 @@
 		bind:isGameOver={s.gameOver}
 		{recommended_promotion}
 		on:ready={() => s.onReady()}
-		on:move={(e) => s.onMove(e)}
-		on:gameOver={(e) => s.onGameOver(e)}
+		on:move={(e) => {
+			s.onMove(e);
+			play_move(e.detail);
+		}}
+		on:gameOver={(e) => {
+			s.onGameOver(e);
+			calm.sound.bowl(0);
+		}}
 	/>
 {/key}
 {#if show_hints && !hint_loading && hint_highlights.length}
@@ -42,7 +49,7 @@
 				/>
 			{:else}
 				<div
-					class={'pointer-events-none motion-safe:animate-hint-pulse size-[2.7rem] rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? 'bg-amber/70' : 'bg-teal/70')}
+					class={'pointer-events-none size-[62%] rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? 'border-2 border-glow/80 shadow-[0_0_24px_rgba(233,164,124,0.5)]' : 'bg-glow/60 motion-safe:animate-listen shadow-[0_0_30px_rgba(233,164,124,0.7)]')}
 					data-testid={square.k === 'f' ? 'hint-square-from' : 'hint-square-to'}
 					role="img"
 					aria-label={`Hint ${square.l} square ${square.s}`}

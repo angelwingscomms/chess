@@ -98,7 +98,7 @@
 			</div>
 		{/if}
 		{#if done[0] && step === 1}
-			<button type="button" onclick={ask} onpointerenter={() => sound.tick()} class="mt-1 w-fit cursor-pointer self-end rounded-full border border-glow/40 px-4 py-2 text-haze/90 transition duration-500 ease-expo animate-surface hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
+			<button type="button" onclick={ask} class="mt-1 w-fit cursor-pointer self-end rounded-full border border-glow/40 px-4 py-2 text-haze/90 transition duration-500 ease-expo animate-surface hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
 				what should i have played?
 			</button>
 		{/if}

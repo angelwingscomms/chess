@@ -68,7 +68,8 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Fonts: Cormorant Garamond (display), Inter (body), JetBrains Mono (code) — via Google Fonts import in `app.css:1`
 - Palette defined as `@theme` in `app.css:6-27` and `:root` vars at `app.css:67-98`
 - `app.css` has an unlayered `a { color: inherit }`, which beats Tailwind `text-*` on links. Put the text colour on an inner span.
-- Landing (`src/routes/+page.svelte`): WebGL board + liquid field in `src/lib/landing/field.ts`, Web Audio in `src/lib/landing/sound.ts`, parts in `src/components/landing/`. Tokens are the second `@theme` block at the end of `app.css`.
+- Calm layer: `src/components/landing/Calm.svelte` is mounted by `+layout.svelte` on `/` and `/i` and survives navigation between them. It owns the one WebGL canvas (`src/lib/landing/field.ts`), Web Audio (`sound.ts`) and pointer sounds. Each page registers a per-frame board scene with `use_scene()` from `src/lib/landing/calm.svelte.ts`; switching pages glides the board between scenes. `html.calm-html` in `app.css` remaps the old light tokens to the dark calm theme, so learn components restyle without markup changes.
+- `svelte-chess` `moveNumber` (bound to `s.moveNum`) is 1 at the start position, not 0.
 
 # Build in Public / Auto-Tweet
 

@@ -19,30 +19,30 @@
 </script>
 
 <span class="flex items-center gap-1.5" data-tour="history">
-<button title="Previous board" aria-label="Previous board" data-tour="prev-board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
+<button title="Previous board" aria-label="Previous board" data-tour="prev-board" class="grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10" onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
 	<ArrowLeftIcon size={15} strokeWidth={1.8} />
 </button>
-<button title="Next board" aria-label="Next board" data-tour="next-board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary disabled:text-muted" onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
+<button title="Next board" aria-label="Next board" data-tour="next-board" class="grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10" onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
 	<ArrowRightIcon size={15} strokeWidth={1.8} />
 </button>
 </span>
-<button title="Flip board" aria-label="Flip board" data-tour="flip-board" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.chessRef?.toggleOrientation()}>
+<button title="Flip board" aria-label="Flip board" data-tour="flip-board" class="grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10" onclick={() => s.chessRef?.toggleOrientation()}>
 	<span style="display:inline-flex;transform:scaleX(-1)"><FlipIcon size={15} strokeWidth={1.8} /></span>
 </button>
-<button title="Switch sides" aria-label="Switch sides" data-tour="switch-sides" class="grid size-7 lg:size-8 place-items-center rounded-full bg-canvas text-ink transition-colors hover:text-primary" onclick={() => s.flipColor()}>
+<button title="Switch sides" aria-label="Switch sides" data-tour="switch-sides" class="grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10" onclick={() => s.flipColor()}>
 	<FlipIcon size={15} strokeWidth={1.8} />
 </button>
 <button title={recording ? 'Stop recording' : 'Voice input'}
 	onclick={() => s.toggleGeminiLive()}
 	disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
-	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (recording ? 'bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'bg-canvas text-ink hover:text-primary disabled:text-muted')}
+	class={recording ? 'grid size-9 place-items-center rounded-full border border-glow bg-glow/15 text-glow transition duration-500 ease-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10 motion-safe:animate-pulse' : 'grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10'}
 >
 	<MicIcon size={15} strokeWidth={1.8} />
 </button>
 {#if recording}
 <button title={voice_muted ? 'Unmute mic' : 'Mute mic'}
 	onclick={() => s.set_voice_muted(!s.voice_muted)}
-	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (voice_muted ? 'bg-red-500/10 text-red-400' : 'bg-canvas text-ink hover:text-primary')}
+	class={voice_muted ? 'grid size-9 place-items-center rounded-full border border-glow bg-glow/15 text-glow transition duration-500 ease-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10' : 'grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10'}
 >
 	{#if voice_muted}
 		<MicMuteIcon size={15} strokeWidth={1.8} />
@@ -52,7 +52,7 @@
 </button>
 <button title={audio_muted ? 'Unmute speaker' : 'Mute speaker'}
 	onclick={() => s.toggle_audio()}
-	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (audio_muted ? 'bg-red-500/10 text-red-400' : 'bg-canvas text-ink hover:text-primary')}
+	class={audio_muted ? 'grid size-9 place-items-center rounded-full border border-glow bg-glow/15 text-glow transition duration-500 ease-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10' : 'grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10'}
 >
 	{#if audio_muted}
 		<SpeakerOffIcon size={15} strokeWidth={1.8} />
@@ -62,7 +62,7 @@
 </button>
 <button title={screen_recording ? 'Stop screen recording' : 'Record screen with audio'}
 	onclick={() => s.toggle_screen_recording()}
-	class={'grid size-7 lg:size-8 place-items-center rounded-full transition-colors ' + (screen_recording ? 'bg-red-500/10 text-red-400 motion-safe:animate-pulse' : 'bg-canvas text-ink hover:text-primary')}
+	class={screen_recording ? 'grid size-9 place-items-center rounded-full border border-glow bg-glow/15 text-glow transition duration-500 ease-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10 motion-safe:animate-pulse' : 'grid size-9 place-items-center rounded-full border border-haze/15 bg-haze/5 text-haze/85 transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 hover:text-haze disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:size-10'}
 >
 	<VideoIcon size={15} strokeWidth={1.8} />
 </button>

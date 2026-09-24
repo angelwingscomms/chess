@@ -24,7 +24,7 @@
 </script>
 
 {#if show_settings}
-	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (s.show_settings = false)} onclick={() => s.show_settings = false}>
+	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-night/70 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (s.show_settings = false)} onclick={() => s.show_settings = false}>
 		<div
 			data-testid="learn-settings-modal"
 			class="flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]"

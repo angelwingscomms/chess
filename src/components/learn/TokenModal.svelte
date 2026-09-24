@@ -10,7 +10,7 @@
 </script>
 
 {#if show_token_modal}
-	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (s.show_token_modal = false)} onclick={() => s.show_token_modal = false}>
+	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-night/70 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (s.show_token_modal = false)} onclick={() => s.show_token_modal = false}>
 		<div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="bal-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (s.show_token_modal = false)} onclick={(e) => e.stopPropagation()}>
 			<div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
 				<p class="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">Usage</p>

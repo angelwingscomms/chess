@@ -17,8 +17,9 @@ describe('/chess/learn hint highlights', () => {
 		expect(page).toContain('hint_squares(');
 		expect(page).toContain('data-testid={square.k === \'f\' ? \'hint-square-from\' : \'hint-square-to\'}');
 		expect(page).toContain('aria-label={`Hint ${square.l} square ${square.s}`}');
-		expect(page).toContain('square.k === \'f\' ? \'bg-amber/70\' : \'bg-teal/70\'');
-		expect(page).toContain('motion-safe:animate-hint-pulse size-[2.7rem] rounded-full place-self-center');
+		expect(page).toContain("square.k === 'f' ? 'border-2 border-glow/80");
+		expect(page).toContain('bg-glow/60 motion-safe:animate-listen');
+		expect(page).toContain('size-[62%] rounded-full place-self-center');
 		expect(page).toContain('can_reuse_hints(this.hints, this.hint_fen, this.fen)');
 		expect(page).toContain('onclick={() => s.hideHints()}');
 		expect(page).toContain('hideHints(true)');
@@ -30,18 +31,15 @@ describe('/chess/learn hint highlights', () => {
 
 describe('/chess/learn chat', () => {
 	it('uses side by side desktop layout without widening the board or controls', () => {
-		expect(page).toContain('max-w-[1328px]');
-		expect(page).toContain('lg:grid-cols-[minmax(0,640px)_minmax(0,640px)]');
-		expect(page).toContain('lg:items-start');
-		expect(page).toContain('max-w-[640px]');
+		expect(page).toContain('lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)]');
+		expect(page).toContain('lg:w-[min(100%,calc(100svh-10rem))]');
+		expect(page).toContain('<aside data-quiet');
 	});
 
 	it('keeps desktop vertical chrome tight around the board', () => {
-		expect(page).toContain('container relative z-[1] py-4');
-		expect(page).toContain('flex w-full max-w-[1328px] flex-col gap-4');
-		expect(page).toContain('grid w-full grid-cols-1 gap-4');
+		expect(page).toContain('flex h-svh flex-col gap-4 overflow-hidden');
+		expect(page).toContain('lg:pt-20 lg:pb-8');
 		expect(page).not.toContain('container py-12');
-		expect(page).not.toContain('flex w-full max-w-[1328px] flex-col gap-6');
 	});
 
 	it('replaces analysis panel with chat interface', () => {
@@ -58,7 +56,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('clearChat');
 		expect(page).toContain('/chess/learn/chat');
 		expect(page).toContain('Chat');
-		expect(page).toContain('Ask about the position');
+		expect(page).toContain('ask about the position');
 	});
 
 	it('keeps board context hidden while sending request state', () => {
@@ -75,10 +73,10 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('chat_queue');
 		expect(page).toContain('removeFromQueue(');
 		expect(page).toContain('promoteFromQueue(');
-		expect(page).toContain('bg-primary/30 text-white');
+		expect(page).toContain('border-dashed border-haze/20');
 		expect(page).toContain('aria-label="Remove queued message"');
 		expect(page).toContain('aria-label="Send this message now"');
-		expect(page).toContain('class="flex-1 min-h-[40px] max-h-32 bg-canvas text-ink px-3.5 py-2.5 text-sm max-sm:text-[9px] outline-none border-none rounded-lg resize-none overflow-y-auto focus:outline-none focus:border-none focus:ring-0"');
+		expect(page).toContain('class="max-h-32 min-h-[40px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2.5 text-[15px] text-haze outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"');
 		expect(page).toContain("s.sendChatMessage(s.chat_input)");
 		expect(page).toContain("this.chat_queue = [...this.chat_queue, { text: t }]");
 	});
@@ -113,7 +111,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain("What is the best move for me?");
 		expect(page).toContain("Who is winning right now?");
 		expect(page).toContain("What is the plan here?");
-		expect(page).toContain('rounded-full border border-hairline bg-canvas px-3 py-1 text-xs');
+		expect(page).toContain('rounded-full border border-glow/40 px-3.5 py-1.5 text-sm');
 	});
 });
 
@@ -186,9 +184,8 @@ describe('/chess/learn settings modal', () => {
 	});
 
 	it('shows hint loading through the hint button instead of analyzing text', () => {
-		expect(page).toContain('motion-safe:animate-hint-loading');
-		expect(css).toContain('--animate-hint-loading: hint-loading 3.2s ease-in-out infinite;');
-		expect(css).toContain('background-color: #ffffff;');
+		expect(page).toContain("hint_loading ? 'motion-safe:animate-listen' : ''");
+		expect(css).toContain('--animate-listen: listen 4s var(--ease-calm) infinite;');
 		expect(css).not.toContain('border-color: var(--color-primary);');
 		expect(page).not.toContain('Analyzing');
 	});
@@ -196,7 +193,7 @@ describe('/chess/learn settings modal', () => {
 	it('keeps chat chrome compact and icon-only', () => {
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="Clear chat"');
-		expect(page).toContain('rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-white');
+		expect(page).toContain('rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 font-calm-mono text-xs');
 		expect(page).not.toContain('<span class="text-sm font-medium text-ink">Chat</span>');
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});

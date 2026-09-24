@@ -3,8 +3,12 @@
   import Seo from '$lib/components/seo/Seo.svelte';
   import JsonLd from '$lib/components/seo/JsonLd.svelte';
   import { browser } from '$app/environment';
+  import { page } from '$app/state';
+  import Calm from '$components/landing/Calm.svelte';
+  import { calm, ui } from '$lib/landing/calm.svelte';
   import type { LayoutProps } from './$types';
   let { data, children }: LayoutProps = $props();
+  const calm_route = $derived(page.url.pathname === '/' || page.url.pathname === '/i');
   let user = $state<{ id: string; name: string; picture?: string; email?: string } | null>(data.user);
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
@@ -85,12 +89,23 @@
 <Seo meta={{t:'e4 — Chess training with an AI coach',d:'Train chess against adaptive Stockfish AI with a coach that explains every move. Hints, 30 AI voices, and cloud saves.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'e4','url':'https://chess.apexlinks.org'}} />
 
-<nav class="top-nav">
+{#if calm_route}
+  <Calm />
+{/if}
+<nav class="top-nav" class:calm-nav={calm_route}>
   <div class="container nav-inner">
     <a href="/">
       <img src="/logo.svg" alt="e4" class="nav-logo" />
     </a>
     <div class="nav-end">
+      {#if calm_route}
+        <button type="button" data-sound onclick={() => { calm.sound.set(!calm.sound.on); ui.sound = calm.sound.on; }} aria-pressed={ui.sound} title={ui.sound ? 'sound on' : 'sound off'} class="flex h-9 w-9 cursor-pointer items-center justify-center gap-[3px] rounded-full border border-haze/15 bg-haze/5 backdrop-blur-md transition duration-500 ease-expo hover:border-haze/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
+          <span class="sr-only">sound</span>
+          {#each ['[animation-delay:0s]', '[animation-delay:0.2s]', '[animation-delay:0.4s]', '[animation-delay:0.1s]'] as d}
+            <span class="block h-3.5 w-[2px] rounded-full bg-haze/80 transition-transform duration-500 ease-expo {ui.sound ? `animate-bar ${d}` : 'scale-y-[0.2]'}"></span>
+          {/each}
+        </button>
+      {/if}
       {#if user}
         <div class="user-menu-wrap" bind:this={wrap}>
           <button onclick={toggle} class="user-btn" aria-label="User menu">
@@ -103,20 +118,24 @@
           {#if open}
             <div class="user-menu" role="menu">
 
-              <button onclick={() => { show_profile = true; open = false; }} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">Profile</button>
-              <button onclick={logout} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">Logout</button>
+              <button onclick={() => { show_profile = true; open = false; }} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">{calm_route ? 'profile' : 'Profile'}</button>
+              <button onclick={logout} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">{calm_route ? 'log out' : 'Logout'}</button>
             </div>
           {/if}
         </div>
       {:else}
-        <a href="/login" class="button-primary !min-h-8 !px-3 !py-1 text-xs">Login</a>
+        {#if calm_route}
+          <a href="/login" class="rounded-full border border-haze/20 bg-haze/5 px-5 py-2 text-sm text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">log in</a>
+        {:else}
+          <a href="/login" class="button-primary !min-h-8 !px-3 !py-1 text-xs">Login</a>
+        {/if}
       {/if}
     </div>
   </div>
 </nav>
 
 {#if show_profile}
-  <div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (show_profile = false)} onclick={() => show_profile = false}>
+  <div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-night/70 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (show_profile = false)} onclick={() => show_profile = false}>
     <div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="profile-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_profile = false)} onclick={(e) => e.stopPropagation()}>
       <div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
         <h2 id="profile-title" class="font-display text-2xl font-medium text-ink">Profile</h2>

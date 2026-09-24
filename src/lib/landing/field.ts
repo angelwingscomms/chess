@@ -97,7 +97,7 @@ void main() {
 	float lite = 1.0 - mod(cell.x + cell.y, 2.0);
 	float tn = fbm((cell + 0.5) / 8.0 * 2.4 + w * 0.7 + vec2(sl * 3.0, -sl * 2.0));
 	float wave = 0.5 + 0.5 * sin(t * 0.8 - length(cell - vec2(4.0, 4.0)) * 0.9);
-	vec3 tc = pal((tn - 0.15) / 0.6 + drift) * mix(0.5, 1.12, lite) * (0.8 + 0.28 * u_breath) * (0.94 + 0.06 * wave);
+	vec3 tc = pal((tn - 0.15) / 0.6 + drift) * mix(0.58, 1.12, lite) * (0.8 + 0.28 * u_breath) * (0.94 + 0.06 * wave);
 	tc += smoothstep(-0.16, 0.0, sd) * 0.07 * (1.0 - u_melt);
 	vec2 mk = g * 8.0 - vec2(u_mark.x + 0.5, 8.5 - u_mark.y);
 	tc += u_glow * exp(-dot(mk, mk) * 1.6) * u_mark.z * 0.42;
