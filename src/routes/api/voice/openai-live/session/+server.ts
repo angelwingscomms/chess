@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
+import { hangup_openai_live, open_openai_live_trial, peek_openai_live_trial } from '$lib/server/openai_live_trial';
 import { is_openai_voice } from '$lib/util/voice/openai_live';
 
 const LIVE = 'https://api.openai.com/v1/live/sessions';
@@ -17,7 +18,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const key = user_key || env.OPENAI_KEY || '';
 	if (!key) return json({ error: 'openai live needs an openai key' }, { status: 503 });
 	if (!user_key && !locals.user?.id) {
-		return json({ error: 'login or paste an openai key to use paid voice' }, { status: 401 });
+		return json({ error: 'login or paste an openai key to use this voice' }, { status: 401 });
+	}
+
+	if (!user_key && locals.user?.id) {
+		const peek = await peek_openai_live_trial(locals.user.id);
+		if (peek.left <= 0) {
+			if (peek.rec.i) await hangup_openai_live(peek.rec.i, key);
+			return json({ error: "today's 3 minutes are used. paste your own openai key to keep talking." }, { status: 429 });
+		}
 	}
 
 	const sys = vibe === 'assistant'
@@ -56,5 +65,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	if (typeof answer !== 'string' || !answer || typeof id !== 'string') {
 		return json({ error: 'live session missing sdp' }, { status: 502 });
 	}
-	return json({ i: id, s: answer }, { status: 201 });
+
+	let left: number | null = null;
+	if (!user_key && locals.user?.id) {
+		const opened = await open_openai_live_trial(locals.user.id, id);
+		if (opened.prev && opened.prev !== id) await hangup_openai_live(opened.prev, key);
+		if (!opened.ok) {
+			await hangup_openai_live(id, key);
+			return json({ error: "today's 3 minutes are used. paste your own openai key to keep talking." }, { status: 429 });
+		}
+		left = opened.left;
+	}
+	return json({ i: id, s: answer, l: left }, { status: 201 });
 };

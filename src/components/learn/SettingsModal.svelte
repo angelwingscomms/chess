@@ -143,7 +143,7 @@
 						class="min-h-[40px] w-full rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 ease-in-out focus:border-primary focus:shadow-[0_0_0_3px_rgba(204,120,92,0.15)]"
 					/>
 					<p class="text-xs leading-5 text-muted">
-						Paid voice uses your key, or the server key after you log in.
+						logged-in users get 3 minutes a day on the server key. after that, paste your own.
 						Get a key @
 						<a class="text-primary underline-offset-2 hover:underline" href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">platform.openai.com/api-keys</a>
 					</p>
@@ -179,7 +179,7 @@
 							onclick={() => { s.voice_provider = 'openai'; if (!openai_voice_options.find(o => o.v === s.voice_name)) s.voice_name = 'marin'; }}
 						>
 							<span class="block font-medium">OpenAI live</span>
-							<span class="text-xs text-muted">paid</span>
+							<span class="text-xs text-muted">3 min / day</span>
 						</button>
 					</div>
 				</section>

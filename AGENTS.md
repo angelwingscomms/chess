@@ -60,7 +60,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Public vars via `$env/static/public` (currently only `PUBLIC_DOMAIN`)
 - `.env*` gitignored; sample vars in `wrangler.toml`
 - Required: `SECRET`, `GROQ`, `GEMINI`, `OPENROUTER_KEY`, `GOOGLE_ID`, `GOOGLE_SECRET`, `QDRANT_URL`, `QDRANT_KEY`, `PAYSTACK_SECRET_KEY*`
-- Optional: `OPENAI_KEY` for paid GPT-Live when the user has no pasted OpenAI key
+- `OPENAI_KEY` for GPT-Live. Logged-in users get 180 seconds a day on this key. A pasted user key skips the cap.
 
 # Design System
 

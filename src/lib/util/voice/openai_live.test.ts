@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calc_openai_live_cost, is_openai_voice, openai_voice_options } from './openai_live';
+import { calc_openai_live_cost, is_openai_voice, left_ol, openai_voice_options, OPENAI_LIVE_TRIAL_S, settle_ol, used_ol, utc_day } from './openai_live';
 
 describe('openai live helpers', () => {
 	it('prices ninety seconds at five cents a minute', () => {
@@ -14,5 +14,16 @@ describe('openai live helpers', () => {
 		expect(is_openai_voice('marin')).toBe(true);
 		expect(is_openai_voice('Kore')).toBe(false);
 		expect(openai_voice_options[0].v).toBe('marin');
+	});
+
+	it('gives three free minutes each utc day', () => {
+		expect(OPENAI_LIVE_TRIAL_S).toBe(180);
+		const day = utc_day(1_704_067_200_000);
+		const rec = { n: 60, d: day, i: 'live_1', t: 1_000 };
+		expect(used_ol(rec, 1_090, day)).toBe(150);
+		expect(left_ol(rec, 1_090, day)).toBe(30);
+		expect(used_ol(rec, 1_090, day, 200)).toBe(180);
+		expect(used_ol(rec, 1_090, day + 1)).toBe(0);
+		expect(settle_ol(rec, 1_090, day)).toEqual({ n: 150, d: day, i: '', t: 0 });
 	});
 });

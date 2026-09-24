@@ -40,13 +40,17 @@ if (mode === 'gemini-primary') {
 if (mode === 'openai-session') {
 	const session = read('src/routes/api/voice/openai-live/session/+server.ts');
 	const ctx = read('src/components/learn/learn_context.svelte.ts');
+	const helpers = read('src/lib/util/voice/openai_live.ts');
 	if (session.includes('openrouter.ai')) fail('session route talks to openrouter');
 	if (!session.includes('https://api.openai.com/v1/live/sessions')) fail('missing openai live sessions url');
 	if (!session.includes('gpt-live-1')) fail('missing gpt-live-1');
 	if (!session.includes("type: 'webrtc'") && !session.includes('type: "webrtc"')) fail('missing webrtc transport');
+	if (!helpers.includes('OPENAI_LIVE_TRIAL_S = 180')) fail('missing 180s daily trial');
+	if (!session.includes('peek_openai_live_trial')) fail('session missing daily trial gate');
 	if (!ctx.includes('/api/voice/openai-live/session')) fail('client missing session post');
 	if (!ctx.includes('RTCPeerConnection')) fail('client missing webrtc');
 	if (!ctx.includes('oai-events')) fail('client missing oai-events channel');
+	if (!ctx.includes('end_openai_trial')) fail('client missing trial cutoff');
 	console.log('openai-session passed');
 	process.exit(0);
 }

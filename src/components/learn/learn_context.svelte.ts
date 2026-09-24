@@ -7,7 +7,7 @@ import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
 import { arm_puzzle, offer_puzzles, start_puzzle } from './puzzle.svelte';
 import { init_tool_state, get_tool_declarations, dispatch_tool_call, summarize_tool_result } from '$lib/util/chat/tools/gemini_live_dispatcher';
-import { calc_openai_live_cost, is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
+import { is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
 import { getContext, setContext } from 'svelte';
 
@@ -169,6 +169,8 @@ export class LearnState {
 	openai_live_id = '';
 	openai_live_seconds = 0;
 	openai_live_billed = 0;
+	openai_live_left: number | null = null;
+	openai_live_cut: ReturnType<typeof setTimeout> | null = null;
 	openai_live_evt = 0;
 	gemini_live_audio_ctx: AudioContext | null = null;
 	gemini_live_audio_gain: GainNode | null = null;
@@ -1164,11 +1166,26 @@ export class LearnState {
 		}
 	}
 
+	end_openai_trial() {
+		if (this.gemini_live_closing) return;
+		this.add_toast("today's 3 minutes are used. paste your own openai key to keep talking.", 'e');
+		if (this.openai_live_can_send()) {
+			this.send_openai_live_event({ type: 'session.close', event_id: this.next_openai_evt() });
+			setTimeout(() => this.cleanup_gemini_live(), 1500);
+		} else {
+			this.cleanup_gemini_live();
+		}
+	}
+
 	cleanup_openai_live() {
-		const billed = Math.max(0, this.openai_live_seconds - this.openai_live_billed);
-		if (billed > 0) this.report_openai_usage(billed);
+		if (this.openai_live_cut) {
+			clearTimeout(this.openai_live_cut);
+			this.openai_live_cut = null;
+		}
+		if (this.openai_live_id) this.report_openai_usage(this.openai_live_seconds, true);
 		this.openai_live_seconds = 0;
 		this.openai_live_billed = 0;
+		this.openai_live_left = null;
 		this.openai_live_id = '';
 		try { this.openai_live_dc?.close(); } catch {}
 		this.openai_live_dc = null;
@@ -1184,22 +1201,15 @@ export class LearnState {
 		if (this.voice_provider_active === 'openai') this.voice_provider_active = null;
 	}
 
-	report_openai_usage(seconds: number) {
-		if (this.openai_api_key.trim()) return;
-		const cost = calc_openai_live_cost(seconds);
-		this.total_cost += cost;
-		const last = this.chat_messages[this.chat_messages.length - 1];
-		if (last?.role === 'assistant') {
-			const updated = [...this.chat_messages];
-			updated[updated.length - 1] = { ...last, u: { p: 0, c: 0, cost } };
-			this.chat_messages = updated;
-		}
+	report_openai_usage(seconds: number, done = false) {
+		if (this.openai_api_key.trim() || !this.openai_live_id) return;
 		fetch('/api/voice/openai-live/usage', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ s: seconds }),
+			body: JSON.stringify({ s: seconds, i: this.openai_live_id, d: done }),
 		}).then(r => r.json().catch(() => null)).then(d => {
-			if (d?.bal !== undefined) window.dispatchEvent(new CustomEvent('balance-update', { detail: d.bal }));
+			if (d?.left !== undefined) this.openai_live_left = d.left;
+			if (d?.stop && !this.gemini_live_closing) this.end_openai_trial();
 		}).catch(() => {});
 	}
 
@@ -1259,13 +1269,6 @@ export class LearnState {
 			return;
 		}
 		if (t === 'session.closed') {
-			if (!this.gemini_live_closing) {
-				const seconds = Number(event?.usage?.seconds ?? 0);
-				if (seconds > this.openai_live_billed) {
-					this.report_openai_usage(seconds - this.openai_live_billed);
-					this.openai_live_billed = seconds;
-				}
-			}
 			this.cleanup_gemini_live();
 			return;
 		}
@@ -1274,7 +1277,7 @@ export class LearnState {
 			this.openai_live_seconds = seconds;
 			const delta = seconds - this.openai_live_billed;
 			if (delta >= 15) {
-				this.report_openai_usage(delta);
+				this.report_openai_usage(seconds);
 				this.openai_live_billed = seconds;
 			}
 			return;
@@ -1398,6 +1401,12 @@ export class LearnState {
 		const body = await res.json().catch(() => ({}));
 		if (!res.ok) throw Error(body.error || 'live session create failed');
 		this.openai_live_id = body.i || '';
+		this.openai_live_left = typeof body.l === 'number' ? body.l : null;
+		if (this.openai_live_cut) clearTimeout(this.openai_live_cut);
+		this.openai_live_cut = this.openai_live_left !== null
+			? setTimeout(() => { if (!this.gemini_live_closing) this.end_openai_trial(); }, this.openai_live_left * 1000)
+			: null;
+		if (this.openai_live_left !== null) this.add_toast(`${Math.max(1, Math.ceil(this.openai_live_left / 60))} minutes of openai live left today`);
 		await pc.setRemoteDescription({ type: 'answer', sdp: body.s });
 	}
 
