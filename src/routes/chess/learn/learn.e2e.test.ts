@@ -32,7 +32,7 @@ describe('/chess/learn hint highlights', () => {
 describe('/chess/learn chat', () => {
 	it('uses side by side desktop layout without widening the board or controls', () => {
 		expect(page).toContain('lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)]');
-		expect(page).toContain('lg:w-[min(100%,calc(100svh-10rem))]');
+		expect(page).toContain('lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))]');
 		expect(page).toContain('<aside data-quiet');
 	});
 

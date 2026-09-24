@@ -102,11 +102,11 @@
 	{#if s.toasts.length}
 		<ToastContainer toasts={s.toasts} />
 	{/if}
-	<div class="flex min-h-0 flex-col items-center justify-center gap-3 lg:gap-4">
-		<div bind:this={board_box} data-tour="board" class="relative aspect-square w-[min(100%,calc(100svh-26rem))] shrink-0 transition-opacity duration-700 ease-calm lg:w-[min(100%,calc(100svh-10rem))] {shown ? '' : 'opacity-0'}">
+	<div class="flex min-h-0 flex-col items-center justify-center gap-7 lg:gap-8">
+		<div bind:this={board_box} data-tour="board" class="relative ml-5 aspect-square w-[min(calc(100%-1.25rem),calc(100svh-27.5rem))] shrink-0 transition-opacity duration-700 ease-calm lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))] {shown ? '' : 'opacity-0'}">
 			<ChessBoard />
 		</div>
-		<div class="w-[min(100%,calc(100svh-26rem))] animate-surface [animation-delay:0.6s] lg:w-[min(100%,calc(100svh-10rem))]">
+		<div class="ml-5 w-[min(calc(100%-1.25rem),calc(100svh-27.5rem))] animate-surface [animation-delay:0.6s] lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))]">
 			<BoardBar />
 		</div>
 	</div>

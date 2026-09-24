@@ -10,7 +10,9 @@ export const pz = $state({
 	p: null as Puzzle | null,
 	line: [] as string[],
 	i: 0,
-	st: 's', // s solving, y right move, n wrong move, w solved
+	st: 's', // s solving, y right move, n wrong move (challenge), x missed the puzzle move (play), w solved
+	mode: 'p', // p play it out against the engine, c challenge with every move checked
+	off: false,
 	shown: false,
 	busy: false,
 	recent: [] as Puzzle[]
@@ -21,6 +23,7 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 
 const pos = (fen: string) => fen.split(' ').slice(0, 4).join(' ');
 const side = () => (pz.p?.f.split(' ')[1] ?? 'w') as 'w' | 'b';
+const engine_for = (p: Puzzle) => (pz.mode === 'c' ? 'none' : p.f.split(' ')[1] === 'w' ? 'b' : 'w');
 
 export const theme_words = (t: string) => t.replace(/([a-z])([A-Z0-9])/g, '$1 $2').toLowerCase();
 export const main_theme = (p: Puzzle | null) => TACTICS.find((t) => p?.t.includes(t)) ?? '';
@@ -39,6 +42,9 @@ export function bind_puzzles(state: LearnState) {
 	s = state;
 	pz.on = false;
 	pz.p = null;
+	try {
+		pz.mode = localStorage.getItem('e4_challenge') === '1' ? 'c' : 'p';
+	} catch {}
 }
 
 export function offer_puzzles(list: Puzzle[] | undefined) {
@@ -47,7 +53,7 @@ export function offer_puzzles(list: Puzzle[] | undefined) {
 
 export function arm_puzzle(fen: string) {
 	const p = pz.recent.find((r) => pos(r.f) === pos(fen)) ?? null;
-	if (p) s?.engine?.setColor?.('none');
+	if (p) s?.engine?.setColor?.(engine_for(p));
 	else if (pz.on) end_puzzle();
 	return p;
 }
@@ -60,8 +66,9 @@ export function start_puzzle(p: Puzzle) {
 	pz.line = p.m.split(' ').filter(Boolean);
 	pz.i = 0;
 	pz.st = 's';
+	pz.off = false;
 	pz.shown = false;
-	s.engine?.setColor?.('none');
+	s.engine?.setColor?.(engine_for(p));
 	if (s.orientation !== side()) s.chessRef?.toggleOrientation();
 }
 
@@ -70,9 +77,26 @@ function play(uci: string) {
 }
 
 export function puzzle_move(m: { from: string; to: string; promotion?: string; color: string; san?: string }) {
-	if (!pz.on || pz.st === 'w' || pz.shown || m.color !== side()) return '';
-	const uci = m.from + m.to + (m.promotion ?? '');
-	if (uci !== pz.line[pz.i] && !m.san?.endsWith('#')) {
+	if (!pz.on || pz.st === 'w' || pz.shown) return '';
+	const mine = m.color === side();
+	const hit = m.from + m.to + (m.promotion ?? '') === pz.line[pz.i] || (mine && !!m.san?.endsWith('#'));
+	if (pz.mode === 'p') {
+		if (pz.off || pz.st === 'x') return '';
+		if (!hit) {
+			if (!mine) {
+				pz.off = true;
+				return '';
+			}
+			pz.st = 'x';
+			return 'x';
+		}
+		pz.i++;
+		if (!mine) return '';
+		pz.st = pz.i >= pz.line.length || m.san?.endsWith('#') ? 'w' : 'y';
+		return pz.st;
+	}
+	if (!mine) return '';
+	if (!hit) {
 		pz.st = 'n';
 		timer = setTimeout(() => {
 			s?.chessRef?.undo();
@@ -94,8 +118,28 @@ export function puzzle_move(m: { from: string; to: string; promotion?: string; c
 	return 'y';
 }
 
+export function toggle_challenge() {
+	pz.mode = pz.mode === 'c' ? 'p' : 'c';
+	try {
+		localStorage.setItem('e4_challenge', pz.mode === 'c' ? '1' : '0');
+	} catch {}
+	if (!s || !pz.on || !pz.p) return;
+	clearTimeout(timer);
+	if (pz.mode === 'c') {
+		const p = pz.p;
+		s.engine?.setColor?.('none');
+		s.reset_board_state(p.f);
+		start_puzzle(p);
+		return;
+	}
+	const engine = engine_for(pz.p);
+	s.engine?.setColor?.(engine);
+	if (pz.st === 'n') pz.st = 'x';
+	if (s.turn === engine && !s.gameOver) s.chessRef?.playEngineMove?.();
+}
+
 export function puzzle_hint() {
-	if (!s || !pz.on || pz.st === 'w') return;
+	if (!s || !pz.on || pz.st === 'w' || pz.st === 'x' || pz.off) return;
 	s.hints = [{ move: pz.line[pz.i], score: 0, depth: 0 } as Hint];
 	s.hint_index = 0;
 	s.hint_fen = s.fen;
@@ -103,9 +147,13 @@ export function puzzle_hint() {
 }
 
 export function puzzle_solution() {
-	if (!pz.on || pz.st === 'w') return;
+	if (!s || !pz.on || !pz.p) return;
+	clearTimeout(timer);
 	pz.shown = true;
-	s?.hideHints(true);
+	s.hideHints(true);
+	s.engine?.setColor?.('none');
+	s.reset_board_state(pz.p.f);
+	pz.i = 0;
 	const step = () => {
 		if (pz.i >= pz.line.length) {
 			pz.st = 'w';
@@ -115,8 +163,7 @@ export function puzzle_solution() {
 		pz.i++;
 		timer = setTimeout(step, 750);
 	};
-	clearTimeout(timer);
-	step();
+	timer = setTimeout(step, 500);
 }
 
 export async function next_puzzle(theme = main_theme(pz.p), rating = pz.p?.r) {

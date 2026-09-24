@@ -1,3 +1,4 @@
+/*
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -84,3 +85,4 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 	return json({ i: id, s: answer, l: left }, { status: 201 });
 };
+*/

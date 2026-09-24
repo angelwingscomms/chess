@@ -1469,14 +1469,45 @@ html.calm-html .cg-wrap square.check {
   background: radial-gradient(circle, rgb(231 120 120 / 0.75), rgb(231 120 120 / 0.2) 50%, transparent 71%);
 }
 
-html.calm-html .cg-wrap coords {
+html.calm-html .cg-wrap.cg-default-style.board-themed coords {
   font-family: var(--font-calm-mono);
-  font-size: 10px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
   opacity: 1;
 }
 
 html.calm-html .cg-wrap coords coord {
-  color: rgb(236 231 241 / 0.4) !important;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  color: rgb(236 231 241 / 0.55) !important;
+  transform: none !important;
+}
+
+html.calm-html .cg-wrap.cg-default-style.board-themed coords.ranks {
+  top: 0;
+  left: -18px;
+  width: 12px;
+  height: 100%;
+  flex-flow: column-reverse;
+}
+
+html.calm-html .cg-wrap.cg-default-style.board-themed coords.ranks.black {
+  flex-flow: column;
+}
+
+html.calm-html .cg-wrap.cg-default-style.board-themed coords.files {
+  bottom: -22px;
+  left: 0;
+  width: 100%;
+  height: 14px;
+  flex-flow: row;
+}
+
+html.calm-html .cg-wrap.cg-default-style.board-themed coords.files.black {
+  flex-flow: row-reverse;
 }
 
 html.calm-html .cg-wrap .dialog {
@@ -1574,4 +1605,56 @@ html.calm-html [role='listbox'] {
 html.calm-html [role='dialog'] {
   background-color: rgb(17 15 26 / 0.94);
   backdrop-filter: blur(24px);
+}
+
+html.calm-html [data-tip] {
+  position: relative;
+}
+
+html.calm-html [data-tip]::after {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 40;
+  padding: 7px 11px;
+  border: 1px solid rgb(236 231 241 / 0.12);
+  border-radius: 999px;
+  background: rgb(20 18 31 / 0.96);
+  box-shadow: 0 16px 40px -16px rgb(0 0 0 / 0.7);
+  color: #ece7f1;
+  content: attr(data-tip);
+  font: 400 11px/1 var(--font-calm-mono);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% 4px;
+  transition: opacity 250ms var(--ease-expo), translate 250ms var(--ease-expo);
+}
+
+html.calm-html [data-tip-end]::after {
+  right: 0;
+  left: auto;
+  translate: 0 4px;
+}
+
+html.calm-html [data-tip]:focus-visible::after {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+html.calm-html [data-tip-end]:focus-visible::after {
+  translate: 0 0;
+}
+
+@media (hover: hover) {
+  html.calm-html [data-tip]:hover::after {
+    opacity: 1;
+    translate: -50% 0;
+    transition-delay: 150ms;
+  }
+
+  html.calm-html [data-tip-end]:hover::after {
+    translate: 0 0;
+  }
 }

@@ -60,7 +60,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Public vars via `$env/static/public` (currently only `PUBLIC_DOMAIN`)
 - `.env*` gitignored; sample vars in `wrangler.toml`
 - Required: `SECRET`, `GROQ`, `GEMINI`, `OPENROUTER_KEY`, `GOOGLE_ID`, `GOOGLE_SECRET`, `QDRANT_URL`, `QDRANT_KEY`, `PAYSTACK_SECRET_KEY*`
-- `OPENAI_KEY` for GPT-Live. Logged-in users get 180 seconds a day on this key. A pasted user key skips the cap.
+- `OPENAI_KEY` for GPT-Live, which is commented out for now (settings picker, voice routing, and both `api/voice/openai-live` routes). Voice is always Gemini. The OpenAI API key field stays for later use.
 - Session cookie is host-only on `e4.apexlinks.org` and `chess.apexlinks.org`. `COOKIE_DOMAIN=.beeeproject.com` only applies on beee hosts.
 
 # Design System
@@ -72,7 +72,9 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Calm layer: `src/components/landing/Calm.svelte` is mounted by `+layout.svelte` on `/` and `/i` and survives navigation between them. It owns the one WebGL canvas (`src/lib/landing/field.ts`), Web Audio (`sound.ts`) and pointer sounds. Each page registers a per-frame board scene with `use_scene()` from `src/lib/landing/calm.svelte.ts`; switching pages glides the board between scenes. `html.calm-html` in `app.css` remaps the old light tokens to the dark calm theme, so learn components restyle without markup changes.
 - `svelte-chess` `moveNumber` (bound to `s.moveNum`) is 1 at the start position, not 0.
 - Feel settings (`ui` in `calm.svelte.ts`, localStorage `e4_living`, `e4_notes`, `e4_ripples`) all default off. Notes and ripples only gate the app (`calm.app`); living colours also drive the landing board.
-- Puzzle mode lives in `src/components/learn/puzzle.svelte.ts`. `find_puzzles` results are offered to it (voice dispatcher, and the chat `board` SSE event carries `p`), and a loaded FEN that matches one starts puzzle mode. It sets the engine colour to `none` before the load, because `svelte-chess` `load()` makes the engine move at once when it is the engine's turn. The local dev server has no puzzle rows in D1, so the puzzle API only works deployed.
+- Puzzle mode lives in `src/components/learn/puzzle.svelte.ts`. `find_puzzles` results are offered to it (voice dispatcher, and the chat `board` SSE event carries `p`), and a loaded FEN that matches one starts puzzle mode. Two modes: play it out against the engine (default) and challenge (every move checked, wrong moves undone); the choice is kept in localStorage `e4_challenge`. The engine colour is set before the load, because `svelte-chess` `load()` makes the engine move at once when it is the engine's turn. The local dev server has no puzzle rows in D1, so the puzzle API only works deployed.
+- `s.engine` must stay one object: the getter caches it per think time and carries its colour over. A fresh `LearnEngine` per read made every `setColor` land on a throwaway copy, so puzzles played themselves.
+- Board coordinates sit outside the board (styled in `app.css`); chessground's own coord rules have four classes, so overrides need five.
 
 # Build in Public / Auto-Tweet
 

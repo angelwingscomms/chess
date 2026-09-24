@@ -137,8 +137,9 @@ export class LearnState {
 	openai_api_key = $state(browser && localStorage.getItem('openai_api_key') || '');
 	gemini_search_tool = $state(false);
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
-	voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini');
-	voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
+	voice_provider = $state<'gemini' | 'openai'>('gemini');
+	// voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini');
+	voice_name = $state(voice_options.find((o) => o.v === (browser && localStorage.getItem('voice_name')))?.v ?? 'Kore');
 	noise_suppression = $state(browser && localStorage.getItem('noise_suppression') !== 'false');
 	noise_suppression_level = $state(browser && parseFloat(localStorage.getItem('noise_suppression_level') || '50') || 50);
 
@@ -301,9 +302,16 @@ export class LearnState {
 		return this.hints[this.hint_index] ? hint_squares(this.hints[this.hint_index].move, this.orientation) : [];
 	}
 
+	#eng: LearnEngine | null = null;
+	#eng_mt = 0;
+
 	get engine() {
 		const mt = Math.round(this.computer_think_time * 1000);
-		return new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: 'b' });
+		if (!this.#eng || this.#eng_mt !== mt) {
+			this.#eng = new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: this.#eng?.getColor() ?? 'b' });
+			this.#eng_mt = mt;
+		}
+		return this.#eng;
 	}
 
 	init_live_tools() {
@@ -1486,11 +1494,11 @@ export class LearnState {
 		try {
 			this.add_toast('Connecting voice...');
 			this.init_live_tools();
-			if (this.voice_provider === 'openai') {
-				this.voice_provider_active = 'openai';
-				await this.start_openai_live();
-				return;
-			}
+			// if (this.voice_provider === 'openai') {
+			// 	this.voice_provider_active = 'openai';
+			// 	await this.start_openai_live();
+			// 	return;
+			// }
 			this.voice_provider_active = 'gemini';
 			const own = this.gemini_api_key.trim();
 			let key = own;

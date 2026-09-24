@@ -162,6 +162,7 @@
 						<a class="text-primary underline-offset-2 hover:underline" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com/apikey</a>
 					</p>
 				</section>
+				<!--
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="voice-provider-label">Voice provider</h3>
 					<div class="grid grid-cols-2 gap-2">
@@ -183,6 +184,7 @@
 						</button>
 					</div>
 				</section>
+				-->
 				<section class="relative grid gap-2 rounded-lg bg-surface-card p-4">
 					<h3 class="text-sm font-medium text-ink" id="voice-label">{voice_provider === 'openai' ? 'OpenAI live voice' : 'Gemini live voice'}</h3>
 					<button
