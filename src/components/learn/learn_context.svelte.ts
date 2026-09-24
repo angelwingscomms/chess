@@ -134,7 +134,7 @@ export class LearnState {
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');
 	openai_api_key = $state(browser && localStorage.getItem('openai_api_key') || '');
-	gemini_search_tool = $state(browser && localStorage.getItem('gemini_search_tool') === 'true');
+	gemini_search_tool = $state(false);
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini');
 	voice_name = $state(browser && localStorage.getItem('voice_name') || 'Kore');
@@ -212,7 +212,6 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('groq_api_key', this.groq_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('gemini_api_key', this.gemini_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('openai_api_key', this.openai_api_key); });
-		$effect(() => { if (browser) localStorage.setItem('gemini_search_tool', String(this.gemini_search_tool)); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
 		$effect(() => { if (browser) localStorage.setItem('voice_provider', this.voice_provider); });
 		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
