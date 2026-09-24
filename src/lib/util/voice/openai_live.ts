@@ -54,3 +54,10 @@ export function left_ol(rec: Ol, now: number, day: number, extra = 0) {
 export function settle_ol(rec: Ol, now: number, day: number): Ol {
 	return { n: used_ol(rec, now, day), d: day, i: '', t: 0 };
 }
+
+export function live_sdp(raw: unknown) {
+	if (typeof raw !== 'string') return '';
+	const s = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/^\n+/, '');
+	if (!s.includes('v=0')) return '';
+	return s.endsWith('\n') ? s : s + '\n';
+}

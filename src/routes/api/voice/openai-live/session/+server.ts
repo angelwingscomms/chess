@@ -2,13 +2,13 @@ import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { hangup_openai_live, open_openai_live_trial, peek_openai_live_trial } from '$lib/server/openai_live_trial';
-import { is_openai_voice } from '$lib/util/voice/openai_live';
+import { is_openai_voice, live_sdp } from '$lib/util/voice/openai_live';
 
 const LIVE = 'https://api.openai.com/v1/live/sessions';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const body = await request.json().catch(() => null);
-	const sdp = typeof body?.s === 'string' ? body.s.trim() : '';
+	const sdp = live_sdp(body?.s);
 	const voice = typeof body?.v === 'string' ? body.v.trim() : 'marin';
 	const vibe = body?.b === 'assistant' ? 'assistant' : 'socratic';
 	const user_key = typeof body?.k === 'string' ? body.k.trim() : '';
