@@ -51,6 +51,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 # Git Workflow
 
+- Pushing to `main` deploys: Cloudflare builds and ships every push (seen 2026-09-25), so there is no separate `wrangler deploy` step, and a push is a release.
 - Every single change, no matter how trivial: `git add .` + detailed commit + `git push`
 - Do not skip commits — commit and push after every file edit, creation, or deletion
 
