@@ -25,7 +25,7 @@
 				},
 				{
 					element: '[data-tour="board"]',
-					popover: { title: 'make your move', description: 'drag or tap a piece. the engine answers, at the level you choose.', side: 'right', align: 'center' }
+					popover: { title: 'make your move', description: 'drag or tap a piece. the engine answers, at the level you choose. drag the space around the board to turn it.', side: 'right', align: 'center' }
 				},
 				{
 					element: '[data-tour="hint"]',
@@ -34,6 +34,10 @@
 				{
 					element: '[data-tour="puzzle"]',
 					popover: { title: 'puzzles', description: 'a puzzle at your level, checked move by move. or ask the coach for any theme — “forks, around 1200”.', side: 'top', align: 'end' }
+				},
+				{
+					element: '[data-tour="view"]',
+					popover: { title: 'your view', description: 'snap the board to top, tilted, low or side. 2d brings back the flat board.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="chat"]',

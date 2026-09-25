@@ -155,7 +155,7 @@
 				});
 			}
 
-			return { x, y, s, k, m, p: pal, q: [4, rank, glow], w: glow, r: rank, f: 0 };
+			return { x, y, s, k, m, p: pal, q: [4, rank, glow], w: glow, r: rank, f: 0, h: 0 };
 		});
 
 		play = (e: MouseEvent) => {

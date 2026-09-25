@@ -75,6 +75,12 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Puzzle mode lives in `src/components/learn/puzzle.svelte.ts`. `find_puzzles` results are offered to it (voice dispatcher, and the chat `board` SSE event carries `p`), and a loaded FEN that matches one starts puzzle mode. Two modes: play it out against the engine (default) and challenge (every move checked, wrong moves undone); the choice is kept in localStorage `e4_challenge`. The engine colour is set before the load, because `svelte-chess` `load()` makes the engine move at once when it is the engine's turn. The local dev server has no puzzle rows in D1, so the puzzle API only works deployed.
 - `s.engine` must stay one object: the getter caches it per think time and carries its colour over. A fresh `LearnEngine` per read made every `setColor` land on a throwaway copy, so puzzles played themselves.
 - Board coordinates sit outside the board (styled in `app.css`); chessground's own coord rules have four classes, so overrides need five.
+- 3D board: `src/lib/board3d/scene.ts` (three.js, its own lazy chunk) and `pieces.ts` (lathe profiles). `Board3d.svelte` does input, marks and promotion; `ViewMenu.svelte` + `view.svelte.ts` hold the views (localStorage `e4_view`; `e4_flat` = the 2d board). Chessground stays mounted underneath as the game engine, faded out while `cam.on`; 3D moves go through `s.chessRef.move({ from, to, promotion })`.
+- The 3D board draws only on change: every frame while something moves, 20 fps idle, nothing off-screen. New animations must set `busy` in `update()` to get full frames.
+- 3D tiles are matte (Lambert), not tone mapped, and scaled by `TILE` to match the flat board. After changing lights, re-match with reduced motion on (it freezes the breathing) by comparing screenshots of both boards.
+- The field hides its own squares through `View.h` while the 3D board shows.
+- `app.css` gives every `[role=dialog]` an opaque background, so never put that role on a full-size overlay.
+- Headless agent-browser draws WebGL in software at 2–7 fps: let fades settle before screenshots and don't judge smoothness there. `$page.state.fen` makes LearnPage reload that FEN after every move, so load test positions with `start_puzzle` (import `/src/components/learn/puzzle.svelte.ts` in the page).
 
 # Build in Public / Auto-Tweet
 

@@ -6,6 +6,7 @@
 	import TargetIcon from '$lib/components/icons/target-icon.svelte';
 	import { end_puzzle, main_theme, next_puzzle, puzzle_hint, puzzle_solution, pz, solution_san, theme_words, toggle_challenge } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
+	import ViewMenu from './ViewMenu.svelte';
 	import { glass, lit } from './ui';
 	const s = get_learn_state();
 
@@ -61,9 +62,11 @@
 			<button aria-label="Next puzzle" data-tip="next puzzle" class={pz.st === 'w' ? lit : glass} onclick={() => next_puzzle()} disabled={pz.busy}>
 				<ArrowRightIcon size={16} strokeWidth={1.8} />
 			</button>
-			<button aria-label="Exit puzzle" data-tip="exit puzzle" data-tip-end class={glass} onclick={end_puzzle}>
+			<button aria-label="Exit puzzle" data-tip="exit puzzle" class={glass} onclick={end_puzzle}>
 				<XIcon size={15} strokeWidth={1.8} />
 			</button>
+			<span class="mx-0.5 h-5 w-px bg-haze/15" aria-hidden="true"></span>
+			<ViewMenu />
 		</div>
 	</div>
 </div>

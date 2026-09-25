@@ -12,6 +12,7 @@ export type View = {
 	w: number; // pawn overlay opacity
 	r: number; // pawn overlay row from bottom, on the e-file
 	f: number; // 1 when black sits at the bottom
+	h: number; // board squares hidden, 0 shown to 1 gone (the 3d board takes over)
 };
 
 export type Scene = (now: number, dt: number) => View;
@@ -25,9 +26,9 @@ export const palettes = [
 	['#2a1c28', '#5b3944', '#ad6a5c', '#f2bb8e', '#130d12']
 ].map((p) => new Float32Array(p.flatMap(rgb)));
 
-export const ui = $state({ sound: false, ripples: false, notes: false, living: false });
+export const ui = $state({ sound: false, ripples: false, notes: false, living: false, flat: false });
 
-type Feel = 'ripples' | 'notes' | 'living';
+type Feel = 'ripples' | 'notes' | 'living' | 'flat';
 
 export function set_feel(k: Feel, v: boolean) {
 	ui[k] = v;
@@ -37,7 +38,7 @@ export function set_feel(k: Feel, v: boolean) {
 }
 
 export function load_feel() {
-	for (const k of ['ripples', 'notes', 'living'] as Feel[]) {
+	for (const k of ['ripples', 'notes', 'living', 'flat'] as Feel[]) {
 		try {
 			ui[k] = localStorage.getItem(`e4_${k}`) === '1';
 		} catch {}
@@ -51,11 +52,13 @@ export const calm = {
 	from: null as View | null,
 	t0: 0,
 	phase: 0,
+	lung: 0.5,
 	app: false,
 	handoff: false,
 	quiet: false,
 	lit: { c: 0, r: 0, t: 0 },
 	ripple: (_x: number, _y: number, _a?: number) => {},
+	board_ripple: null as ((to: string) => void) | null,
 	arm: () => {},
 	wake: () => {}
 };
@@ -75,7 +78,8 @@ export function mix_view(a: View, b: View, t: number): View {
 		q: b.q,
 		w: mix(a.w, b.w, t),
 		r: mix(a.r, b.r, t),
-		f: b.f
+		f: b.f,
+		h: mix(a.h, b.h, t)
 	};
 }
 
@@ -116,7 +120,8 @@ export function play_move(m: { to: string; san?: string; captured?: string }) {
 	}
 	if (!calm.app || ui.ripples) {
 		const [x, y] = square_xy(v, col, row_top);
-		calm.ripple(x, y, m.captured ? 1.2 : 0.7);
+		if (calm.board_ripple) calm.board_ripple(m.to);
+		else calm.ripple(x, y, m.captured ? 1.2 : 0.7);
 	}
 	calm.sound.thock(m.captured ? 1.4 : 1);
 	if (m.san?.includes('#')) calm.sound.chord();

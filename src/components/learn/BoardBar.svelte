@@ -8,6 +8,7 @@
 	import BoardStatus from './BoardStatus.svelte';
 	import CapturedPieces from './CapturedPieces.svelte';
 	import PuzzleBar from './PuzzleBar.svelte';
+	import ViewMenu from './ViewMenu.svelte';
 	import { next_puzzle, pz } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { glass, lit } from './ui';
@@ -65,9 +66,11 @@
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
-				<button aria-label="Puzzle at your level" data-tip="a puzzle at your level" data-tip-end data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
+				<button aria-label="Puzzle at your level" data-tip="a puzzle at your level" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
 					<PuzzleIcon size={16} strokeWidth={1.8} />
 				</button>
+				<span class="mx-0.5 h-5 w-px bg-haze/15" aria-hidden="true"></span>
+				<ViewMenu />
 			</div>
 		</div>
 		{#if show_hints && !hint_loading && hints.length > 0}

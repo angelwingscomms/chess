@@ -3,6 +3,7 @@
 	import { calm, play_move } from '$lib/landing/calm.svelte';
 	import { puzzle_move } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
+	import { cam } from './view.svelte';
 	const s = get_learn_state();
 
 	let computer_think_time = $derived(s.computer_think_time);
@@ -43,7 +44,7 @@
 		}}
 	/>
 {/key}
-{#if show_hints && !hint_loading && hint_highlights.length}
+{#if show_hints && !hint_loading && hint_highlights.length && !cam.on}
 	<div class="pointer-events-none absolute inset-0 z-10 grid grid-cols-8 grid-rows-8">
 		{#each hint_highlights as square (square.k)}
 			{#if square.k === 'p' && square.p}

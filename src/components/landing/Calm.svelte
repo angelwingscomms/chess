@@ -34,6 +34,7 @@
 		let lit = 0;
 		let cell = -1;
 		let pw = 0;
+		let hv = 0;
 		let lv = ui.living ? 1 : 0;
 		let armed = false;
 		let hover: Element | null = null;
@@ -60,7 +61,7 @@
 
 		const hit = (x: number, y: number) => {
 			const v = calm.view;
-			if (!v || v.k > 0.04 || v.m > 0.04) return -1;
+			if (!v || v.k > 0.04 || v.m > 0.04 || v.h > 0.04) return -1;
 			const sq = v.s / 8;
 			const c = Math.floor((x - v.x + v.s / 2) / sq);
 			const r = Math.floor((y - v.y + v.s / 2) / sq);
@@ -91,6 +92,7 @@
 			const ph = Math.floor(cyc);
 			calm.phase = ph;
 			const lung = !motion ? 0.6 : ph === 0 ? ease(cyc - ph) : ph === 1 ? 1 : ph === 2 ? 1 - ease(cyc - ph) : 0;
+			calm.lung = lung;
 
 			let v = calm.scene ? calm.scene(now, dt) : calm.view;
 			if (v && calm.from) {
@@ -101,6 +103,7 @@
 			if (v) {
 				calm.view = v;
 				pw += (v.w - pw) * (1 - Math.exp(-8 * dt));
+				hv += (v.h - hv) * (motion ? 1 - Math.exp(-5 * dt) : 1);
 				const [x, y] = square_xy(v, 4, 8 - v.r);
 				pawn!.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${(v.s / 8) * 0.8 / 64})`;
 				pawn!.style.opacity = String(pw * clamp(1 - v.k * 12));
@@ -108,7 +111,7 @@
 				cy += (py - cy) * (1 - Math.exp(-6 * dt));
 				cs += ((now - lit < 1600 ? 1 : lit ? 0.3 : 0) - cs) * (1 - Math.exp(-3 * dt));
 				lv += ((ui.living ? 1 : 0) - lv) * (motion ? 1 - Math.exp(-4 * dt) : 1);
-				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, l: lv, p: v.p, c: [cx, cy, cs], q: v.q });
+				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, h: hv, l: lv, p: v.p, c: [cx, cy, cs], q: v.q });
 			}
 			if (motion || calm.from) raf = requestAnimationFrame(frame);
 		}
