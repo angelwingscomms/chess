@@ -16,13 +16,13 @@
 	);
 </script>
 
-{#key level}
+{#key `${level}${s.armed}`}
 	<Chess
 		class="cg-default-style board-themed"
 		bind:this={s.chessRef}
 		bind:fen={s.fen}
 		bind:orientation={s.orientation}
-		{engine}
+		engine={s.armed ? engine : undefined}
 		bind:turn={s.turn}
 		bind:moveNumber={s.moveNum}
 		bind:history={s.history}

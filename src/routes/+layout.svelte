@@ -87,7 +87,7 @@
   }
 </script>
 
-<Seo meta={{t:'e4 — learn chess with a calm coach',d:'learn chess from your very first move. play a friendly computer, ask a coach that explains every move in plain words, and try puzzles at your level. free, no sign-up.'}} />
+<Seo meta={{t:'e4 — learn chess with an ai coach',d:'learn chess from your first move with an ai coach that explains every move in plain words and talks with you out loud. free to start, no account needed.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'e4','url':'https://chess.apexlinks.org'}} />
 
 {#if calm_route}
@@ -99,7 +99,7 @@
       <img src="/logo.svg" alt="e4" class="nav-logo" />
     </a>
     <div class="nav-end">
-      {#if calm_route}
+      {#if calm_route && page.url.pathname !== '/i'}
         <button type="button" data-sound onclick={() => { calm.sound.set(!calm.sound.on); ui.sound = calm.sound.on; }} aria-pressed={ui.sound} title={ui.sound ? 'sound on' : 'sound off'} class="flex h-9 w-9 cursor-pointer items-center justify-center gap-[3px] rounded-full border border-haze/15 bg-haze/5 backdrop-blur-md transition duration-500 ease-expo hover:border-haze/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
           <span class="sr-only">sound</span>
           {#each ['[animation-delay:0s]', '[animation-delay:0.2s]', '[animation-delay:0.4s]', '[animation-delay:0.1s]'] as d}

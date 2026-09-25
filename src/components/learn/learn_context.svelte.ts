@@ -5,32 +5,39 @@ import { LEVELS, LearnEngine, getHints } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
+import { say_move } from '$lib/util/chess/words';
 import { arm_puzzle, offer_puzzles, start_puzzle } from './puzzle.svelte';
 import { init_tool_state, get_tool_declarations, dispatch_tool_call, summarize_tool_result } from '$lib/util/chat/tools/gemini_live_dispatcher';
 import { is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
 import { getContext, setContext } from 'svelte';
 
-const audience = `You are e4, a warm and patient chess coach. Many players are kids aged 10 to 14, and many have never played chess before.
+const audience = `You are e4, a friendly chess coach. Many players are kids aged 10 to 14, and many have never played chess before.
 
-Talk like a kind friend. Keep every reply short: 1 to 3 sentences, in simple words a 10-year-old knows. Say piece and square names ("your knight on f3"), not just move codes like Nf3. When you name a chess idea, explain it in a few words ("a fork: one piece attacking two at once"). A question about how a piece moves or what a chess word means is always welcome; answer it simply.
-
-Never say Stockfish, engine, evaluation, or scores like +1.5. Call the other side "the computer" or "your opponent". Praise good thinking, and never make anyone feel bad about a mistake.`;
-
-const socratic_sys = `${audience}
-
-Help them think instead of giving answers. Reply with one short, friendly question that points at the idea, for example:
-- "what is the computer's last move attacking?"
-- "is any of your pieces left with nobody guarding it?"
-- "can anything be taken for free?"
-- "is your king safe?"
-If they say "i don't know", give a small clue and ask again.`;
+How to answer:
+- Answer the question straight away, in 1 to 3 short sentences. The answer comes first.
+- Use simple words a 10-year-old knows. If you use a chess word, explain it in a few words ("a fork: one piece attacking two at once").
+- Say moves and pieces in words ("move your knight to f3", "the pawn on d5"), not codes like Nf3 or "d-pawn". Skip chess jargon like develop, tempo, or initiative, or explain it in a few words.
+- Stop when the answer is done. Never offer choices or ask what they want next ("do you want to…", "would you like…", "shall we…"). If a question at the end helps them learn, ask one short question about the board instead, like "can you see what that pawn attacks now?".
+- You always know the board: it comes with their messages as board_context. Use it without mentioning it, and never say you can't see the board. If you're unsure, give your best simple answer.
+- Never say Stockfish, engine, evaluation, or scores like +1.5. Call the other side "the computer" or "your opponent".
+- Be warm. Mistakes are how people learn, so never make anyone feel bad.`;
 
 const assistant_sys = `${audience}
 
-When they ask about a move, say what it does in plain words: what it attacks, protects, or gets ready for, and why that helps. When they ask what to play, name the move and the reason.
+When they ask what to play, name the move and the reason. Don't suggest moves or give hints they didn't ask for, and only use the hint or analysis tools when they ask for a move or a hint.`;
 
-Don't suggest moves or give hints unless they ask. Only use the hint or analysis tools when they ask for a move or a hint.`;
+const socratic_sys = `${audience}
+
+Help them find good moves themselves. When they ask what to play or why a move is good, give one short clue or guiding question instead of the move, for example:
+- "what is the computer's last move attacking?"
+- "is any of your pieces left with nobody guarding it?"
+- "can anything be taken for free?"
+If they say "i don't know", give a bigger clue. Questions about the rules, how pieces move, or what a word means always get a direct answer.`;
+
+const voice_sys = `You are speaking out loud, like a friendly coach sitting next to them. Keep each answer to one or two short sentences, in a warm, natural voice. Never read out symbols, lists, or board codes.
+Text that starts with "fen:" is a silent board update, not a question. Never reply to it.
+When the call starts, say one short hello, like "hi! ask me anything about chess."`;
 
 function tool_use_rules(search_enabled: boolean) {
 	let r = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, say in one short line what is on the board now.`;
@@ -82,12 +89,12 @@ export function get_learn_state(): LearnState {
 	return getContext(KEY)!;
 }
 
-export function create_learn_state(logged_in = false) {
-	return new LearnState(logged_in);
+export function create_learn_state(logged_in = false, demo = false) {
+	return new LearnState(logged_in, demo);
 }
 
 export class LearnState {
-	vibe = $state<'socratic' | 'assistant'>(browser && (localStorage.getItem('vibe') as 'socratic' | 'assistant') || 'socratic');
+	vibe = $state<'socratic' | 'assistant'>(browser && (localStorage.getItem('e4_help') as 'socratic' | 'assistant') || 'assistant');
 	level = $state(2);
 	turn = $state<Color>('w');
 	orientation = $state<Color>('w');
@@ -132,7 +139,7 @@ export class LearnState {
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	voice_provider = $state<'gemini' | 'openai'>('gemini');
 	// voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini');
-	voice_name = $state(voice_options.find((o) => o.v === (browser && localStorage.getItem('voice_name')))?.v ?? 'Kore');
+	voice_name = $state(voice_options.find((o) => o.v === (browser && localStorage.getItem('e4_voice')))?.v ?? 'Achird');
 	noise_suppression = $state(browser && localStorage.getItem('noise_suppression') !== 'false');
 	noise_suppression_level = $state(browser && parseFloat(localStorage.getItem('noise_suppression_level') || '50') || 50);
 
@@ -199,9 +206,14 @@ export class LearnState {
 	readonly LS_KEY = 'chess_save';
 
 	logged_in = $state(false);
+	// the home page's mini app: no saved game, no tour, and no engine until the first move
+	demo = false;
+	armed = $state(true);
 
-	constructor(logged_in = false) {
+	constructor(logged_in = false, demo = false) {
 		this.logged_in = logged_in;
+		this.demo = demo;
+		this.armed = !demo;
 		$effect(() => { if (browser) localStorage.setItem('autoexplain', String(this.autoexplain)); });
 		$effect(() => { if (browser) localStorage.setItem('auto_hint', String(this.auto_hint)); });
 		$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(this.hint_on_start)); });
@@ -211,8 +223,8 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('openai_api_key', this.openai_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
 		$effect(() => { if (browser) localStorage.setItem('voice_provider', this.voice_provider); });
-		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
-		$effect(() => { if (browser) localStorage.setItem('vibe', this.vibe); });
+		$effect(() => { if (browser) localStorage.setItem('e4_voice', this.voice_name); });
+		$effect(() => { if (browser) localStorage.setItem('e4_help', this.vibe); });
 		let lv = 0;
 		$effect(() => {
 			if (lv && lv !== this.level) this.save_game_debounced();
@@ -234,7 +246,7 @@ export class LearnState {
 		});
 
 		$effect(() => {
-			if (browser) { this.groq_api_key; this.gemini_api_key; this.fetch_models(); }
+			if (browser && !demo) { this.groq_api_key; this.gemini_api_key; this.fetch_models(); }
 		});
 
 		$effect(() => {
@@ -243,7 +255,7 @@ export class LearnState {
 			return () => document.removeEventListener('selectionchange', this.handle_selection);
 		});
 
-		if (browser) {
+		if (browser && !demo) {
 			let best: Record<string, unknown> | null = null;
 			try {
 				const ls = localStorage.getItem(this.LS_KEY);
@@ -283,10 +295,12 @@ export class LearnState {
 		if (this.chat_messages.length > 0 || this.gameOver) return [];
 		const s: string[] = [];
 		if (this.inCheck) s.push('how do i get out of check?');
-		if (this.moveNum === 0) s.push('how do the pieces move?', 'how should i start?');
+		// moveNum reads 1 at the start, so count the moves played instead
+		const played = this.history.length;
+		if (!played) s.push('how do the pieces move?', 'how should i start?');
 		else if (this.last_ai_move) s.push('why did the computer do that?');
-		if (this.moveNum > 0) s.push('what should i do now?');
-		if (this.moveNum >= 4) s.push('who is winning?', 'what is my plan?');
+		if (played) s.push('what should i do now?');
+		if (played >= 4) s.push('who is winning?', 'what is my plan?');
 		return s.slice(0, 3);
 	}
 
@@ -422,13 +436,6 @@ export class LearnState {
 		}
 	}
 
-	fmtScore(s: number): string {
-		if (s >= 100000) return 'Mate';
-		if (s <= -100000) return '-Mate';
-		const v = (s / 100).toFixed(2);
-		return s > 0 ? '+' + v : v;
-	}
-
 	move_text(m: any): string {
 		const uci = (m?.from ?? '') + (m?.to ?? '') + (m?.promotion ?? '');
 		return m?.san && uci ? `${m.san} (${uci})` : m?.san ?? uci;
@@ -487,6 +494,7 @@ export class LearnState {
 
 	onReady() {
 		this.ready = true;
+		if (this.demo) return;
 		if (browser && !localStorage.getItem('e4_tour_done')) this.show_tour = true;
 		if (this.hint_on_start && !this.start_hint_done) {
 			this.start_hint_done = true;
@@ -496,6 +504,7 @@ export class LearnState {
 
 	async onMove(e: CustomEvent<Record<string, unknown>>) {
 		const m = e.detail as any;
+		this.armed = true;
 		this.turn = m.color === 'w' ? 'b' : 'w';
 		this.moveNum++;
 		this.inCheck = m.check ?? false;
@@ -949,9 +958,8 @@ export class LearnState {
 		if (!this.hints[this.hint_index]) return;
 		const h = this.hints[this.hint_index];
 		const san = this.uciToSan(this.fen, h.move);
-		const score_str = this.fmtScore(h.score);
-		const msg = `why ${san}`;
-		const hint_data = `${san} (${h.move}), eval ${score_str}, depth ${h.depth}`;
+		const msg = `why is ${say_move(san)} a good move?`;
+		const hint_data = `${san} (${h.move}) is the best move here`;
 		if (this.chat_loading) {
 			this.chat_queue = [...this.chat_queue, { text: msg, hint: hint_data }];
 			return;
@@ -1033,6 +1041,7 @@ export class LearnState {
 	}
 
 	save_game_debounced() {
+		if (this.demo) return;
 		if (this.save_timeout) clearTimeout(this.save_timeout);
 		this.save_timeout = setTimeout(async () => {
 			const serialize_chat = (msgs: ChatMsg[]) => msgs.map(m => {
@@ -1557,7 +1566,7 @@ export class LearnState {
 			outputGain.connect(recording_dest);
 			(processorSource ?? micSource).connect(recording_dest);
 
-			const sys = this.current_sys + `\n\nWhen the conversation starts, say hi in one short line and ask what they would like: help with a move, or to learn something about chess.` + '\n\n' + tool_use_rules(this.gemini_search_tool);
+			const sys = this.current_sys + '\n\n' + voice_sys + '\n\n' + tool_use_rules(this.gemini_search_tool);
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });

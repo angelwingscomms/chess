@@ -4,11 +4,11 @@
 	import ArrowUpIcon from '$lib/components/icons/arrow-up-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import PlusIcon from '$lib/components/icons/plus-icon.svelte';
-	import MicIcon from '$lib/components/icons/mic-icon.svelte';
 	import VoiceStrip from './VoiceStrip.svelte';
 	import { pz } from './puzzle.svelte';
 	import { calm } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
+	let { hello = 'ask me anything about chess, even “how does the knight move?”', placeholder = 'ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
 	const s = get_learn_state();
 
 	let chat_messages = $derived(s.chat_messages);
@@ -37,8 +37,8 @@
 
 <div class="flex min-h-0 flex-1 flex-col">
 	<div bind:this={s.chat_body} class="relative flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-1 py-2 text-[14px] leading-relaxed lg:gap-3 lg:text-[15px]">
-		{#if chat_messages.length === 0}
-			<p class="m-auto max-w-[17rem] text-center font-calm-mono text-xs leading-relaxed tracking-[0.12em] text-mist [@media(max-height:44rem)]:hidden">ask me anything about chess, even “how does the knight move?”</p>
+		{#if chat_messages.length === 0 && hello}
+			<p class="m-auto max-w-[17rem] text-center font-calm-mono text-xs leading-relaxed tracking-[0.12em] text-mist [@media(max-height:44rem)]:hidden">{hello}</p>
 		{/if}
 		{#each chat_messages as msg, i (i)}
 			{#if msg.role === 'assistant'}
@@ -98,19 +98,9 @@
 			bind:value={s.chat_input}
 			onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); s.sendChatMessage(s.chat_input); } }}
 			oninput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }}
-			placeholder="ask your coach anything…"
+			{placeholder}
 			class="max-h-32 min-h-[38px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2 text-[14px] text-haze lg:min-h-[40px] lg:py-2.5 lg:text-[15px] outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"
 		></textarea>
-		<button
-			title={recording ? 'Stop talking' : 'Talk to the coach'}
-			aria-label="Voice input"
-			data-tour="voice"
-			onclick={() => s.toggleGeminiLive()}
-			disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
-			class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full transition duration-500 ease-expo disabled:opacity-30 lg:size-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow {recording ? 'bg-glow/20 text-glow motion-safe:animate-pulse' : 'text-haze/70 hover:bg-haze/10 hover:text-haze'}"
-		>
-			<MicIcon size={17} strokeWidth={1.8} />
-		</button>
 		<button
 			title="Send"
 			aria-label="Send"

@@ -61,7 +61,7 @@
 		opened = true;
 		setTimeout(
 			() => {
-				if (s.orientation === 'w' && s.fen.startsWith(START)) {
+				if (arrived === 'e4' && s.orientation === 'w' && s.fen.startsWith(START)) {
 					calm.quiet = true;
 					s.chessRef?.move('e4');
 				}
@@ -104,7 +104,7 @@
 	});
 </script>
 
-<Seo meta={{ t: 'play — e4', d: 'play chess on a calm, breathing board. ask the coach why any move works, out loud or in words.' }} />
+<Seo meta={{ t: 'play — e4', d: 'play chess with a friendly computer and ask your ai coach why any move works, out loud or in words.' }} />
 <JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'a calm chess coach that explains every move, with hints, voice, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }} />
 
 <main class="calm relative z-10 flex h-svh flex-col gap-3 overflow-hidden px-3 pt-[4.25rem] pb-3 font-calm font-light text-haze lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] lg:gap-10 lg:px-[4vw] lg:pt-20 lg:pb-8">

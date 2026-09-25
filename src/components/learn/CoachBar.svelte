@@ -6,6 +6,7 @@
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import InfoIcon from '$lib/components/icons/info-icon.svelte';
 	import { end_puzzle } from './puzzle.svelte';
+	import TalkButton from './TalkButton.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { glass } from './ui';
 	const s = get_learn_state();
@@ -45,6 +46,7 @@
 		{recording ? 'listening' : busy ? 'thinking' : 'coach'}
 	</p>
 	<div class="relative flex items-center gap-1.5" bind:this={wrap}>
+		<TalkButton />
 		<button title="Settings" aria-label="Settings" data-tour="settings" class={glass} onclick={() => (s.show_settings = true)}>
 			<GearIcon size={16} strokeWidth={1.8} />
 		</button>

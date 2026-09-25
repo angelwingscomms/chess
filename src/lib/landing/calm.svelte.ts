@@ -55,7 +55,7 @@ export const calm = {
 	phase: 0,
 	lung: 0.5,
 	app: false,
-	handoff: false,
+	handoff: '' as '' | 'glide' | 'e4',
 	quiet: false,
 	lit: { c: 0, r: 0, t: 0 },
 	ripple: (_x: number, _y: number, _a?: number) => {},
@@ -109,7 +109,7 @@ export function use_ambient(slot: () => HTMLElement | undefined = () => undefine
 
 export function take_handoff() {
 	const h = calm.handoff;
-	calm.handoff = false;
+	calm.handoff = '';
 	return h;
 }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import StepperInput from '$components/stepper-input.svelte';
 	import { get_learn_state, openai_voice_options, voice_options } from './learn_context.svelte';
-	import { set_feel, ui } from '$lib/landing/calm.svelte';
+	import { calm, set_feel, ui } from '$lib/landing/calm.svelte';
 	import { LEVELS } from '$lib/util/chess/engine';
 
 	const s = get_learn_state();
@@ -11,8 +11,8 @@
 		{ k: 'ripples', t: 'ripples', d: 'water ripples when pieces move and when you tap.' }
 	] as const;
 	const helps = [
-		{ v: 'socratic', t: 'asks you questions', d: 'helps you work it out yourself' },
-		{ v: 'assistant', t: 'explains the answer', d: 'tells you the move and why' }
+		{ v: 'assistant', t: 'explains the answer', d: 'tells you the move and why' },
+		{ v: 'socratic', t: 'asks you questions', d: 'helps you work it out yourself' }
 	] as const;
 	const hints = [
 		{ k: 'auto_hint', t: 'a hint after each computer move', d: 'the best move glows on the board.' },
@@ -133,6 +133,7 @@
 				<section data-tour-feel>
 					<h3 class={h3}>feel</h3>
 					<div class="mt-1 divide-y divide-haze/8">
+						{@render toggle(ui.sound, 'sounds', 'soft clicks and notes as you play, here and on the home page.', (v) => { calm.sound.set(v); ui.sound = calm.sound.on; })}
 						{#each feel as f}
 							{@render toggle(ui[f.k], f.t, f.d, (v) => set_feel(f.k, v))}
 						{/each}

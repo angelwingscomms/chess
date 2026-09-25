@@ -45,7 +45,7 @@
 				},
 				{
 					element: '[data-tour="voice"]',
-					popover: { title: 'talk out loud', description: 'tap the mic and just ask. the coach answers in a calm voice.', side: 'top', align: 'end' }
+					popover: { title: 'talk out loud', description: 'tap “talk” and just speak, like a phone call. your coach listens and answers out loud.', side: 'bottom', align: 'end' }
 				},
 				{
 					element: '[data-tour="more"]',

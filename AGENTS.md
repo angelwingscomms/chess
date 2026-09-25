@@ -86,7 +86,10 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 # Audience and words
 
 - Players are kids aged 10–14 (the BEEE project) and adults who have never played. The UI never says Stockfish, engine, scores or ratings, and never shows a bare move code: the opponent is "the computer", moves go through `say_move()` (`src/lib/util/chess/words.ts`), puzzle themes through `THEMES` in `puzzle.svelte.ts`, puzzle ratings through `difficulty()`.
-- The coach prompts (`audience` in `learn_context.svelte.ts`) hold the same rules for the AI.
+- The coach prompts (`audience` in `learn_context.svelte.ts`) hold the same rules for the AI: answer first in 1–3 sentences, never end with a menu ("do you want…"), never say the board is unknown. Text chat and live voice share them; voice adds `voice_sys`. The default style is `assistant` (localStorage `e4_help`); the default voice is Achird (`e4_voice`).
+- The home hero is the real app in miniature (`src/components/landing/Mini.svelte`): `create_learn_state(logged_in, true)` gives demo mode (no saved game, no tour, no model list) and `armed` keeps the 1.5 MB engine unloaded until the first move. The hero CTA hands off with `calm.handoff = 'glide'`; only the last CTA's pawn animation sends `'e4'`, which makes the app play e4.
+- Live voice starts from `TalkButton.svelte` (coach bar and the hero demo), not a mic in the text box, so it doesn't read as dictation. The sound toggle sits in the nav everywhere except `/i`, where it lives in settings → feel.
+- `svelte-chess` reports move number 1 at the start, so "no moves yet" checks use `s.history.length`.
 - Computer strength is `LEVELS` in `src/lib/util/chess/engine.ts` (learning → strongest, default easy). Stockfish can't play below about 1320, so the two easy levels also play a random legal move now and then. `s.level` sets puzzle difficulty too (rating 600 + level × 200).
 
 # Build in Public / Auto-Tweet
