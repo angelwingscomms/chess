@@ -107,13 +107,13 @@
 <Seo meta={{ t: 'play — e4', d: 'play chess on a calm, breathing board. ask the coach why any move works, out loud or in words.' }} />
 <JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'a calm chess coach that explains every move, with hints, voice, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }} />
 
-<main class="calm relative z-10 flex h-svh flex-col gap-4 overflow-hidden px-4 pt-[4.5rem] pb-4 font-calm font-light text-haze lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] lg:gap-10 lg:px-[4vw] lg:pt-20 lg:pb-8">
+<main class="calm relative z-10 flex h-svh flex-col gap-3 overflow-hidden px-3 pt-[4.25rem] pb-3 font-calm font-light text-haze lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] lg:gap-10 lg:px-[4vw] lg:pt-20 lg:pb-8">
 	<h1 class="sr-only">e4 — play, learn, and ask why</h1>
 	{#if s.toasts.length}
 		<ToastContainer toasts={s.toasts} />
 	{/if}
-	<div class="flex min-h-0 flex-col items-center justify-center gap-7 lg:gap-8">
-		<div bind:this={board_box} data-tour="board" class="relative ml-5 aspect-square w-[min(calc(100%-1.25rem),calc(100svh-27.5rem))] shrink-0 transition-opacity duration-700 ease-calm lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))] {shown ? '' : 'opacity-0'}">
+	<div class="flex min-h-0 flex-col items-center justify-center gap-6 lg:gap-8">
+		<div bind:this={board_box} data-tour="board" class="relative ml-4 aspect-square w-[min(calc(100%-1rem),calc(100svh-23rem))] shrink-0 transition-opacity duration-700 ease-calm lg:ml-5 lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))] {shown ? '' : 'opacity-0'}">
 			<div class="size-full transition-opacity duration-500 ease-calm {cam.on ? 'pointer-events-none opacity-0' : ''}">
 				<ChessBoard />
 			</div>
@@ -121,12 +121,12 @@
 				<Board3d {shown} />
 			{/if}
 		</div>
-		<div class="relative z-10 ml-5 w-[min(calc(100%-1.25rem),calc(100svh-27.5rem))] animate-surface [animation-delay:0.6s] lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))]">
+		<div class="relative z-10 w-full pl-4 animate-surface [animation-delay:0.6s] lg:ml-5 lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))] lg:pl-0">
 			<BoardBar />
 		</div>
 	</div>
 
-	<aside data-quiet class="relative z-10 flex min-h-0 flex-1 flex-col gap-3 rounded-3xl border border-haze/10 bg-night/40 p-3 backdrop-blur-xl animate-surface [animation-delay:0.9s] lg:h-full lg:p-4">
+	<aside data-quiet class="relative z-10 flex min-h-0 flex-1 flex-col gap-2 rounded-3xl border border-haze/10 bg-night/40 p-2.5 backdrop-blur-xl lg:gap-3 animate-surface [animation-delay:0.9s] lg:h-full lg:p-4">
 		<CoachBar />
 		<ChatPanel />
 	</aside>

@@ -69,7 +69,7 @@
 				{/if}
 				<div class="mx-2 my-1 h-px bg-haze/10"></div>
 				<button role="menuitem" title="Tutorial" aria-label="Tutorial" class={item} onclick={run(() => (s.show_tour = true))}>
-					<span class="grid size-4 place-items-center font-calm-mono text-xs">?</span>tour
+					<span class="grid size-4 place-items-center font-calm-mono text-xs">?</span>show me around
 				</button>
 				<button role="menuitem" title="Token usage" aria-label="Token usage" class={item} onclick={run(() => (s.show_token_modal = true))}>
 					<InfoIcon size={16} strokeWidth={1.6} />usage

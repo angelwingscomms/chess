@@ -1,7 +1,7 @@
 import { Chess } from 'svelte-chess';
 import { Chess as ChessJS } from 'chess.js';
 import { browser } from '$app/environment';
-import { LearnEngine, getHints } from '$lib/util/chess/engine';
+import { LEVELS, LearnEngine, getHints } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
@@ -11,35 +11,29 @@ import { is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_li
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
 import { getContext, setContext } from 'svelte';
 
-const socratic_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like talking to a friend.
+const audience = `You are e4, a warm and patient chess coach. Many players are kids aged 10 to 14, and many have never played chess before.
 
-You are a chess trainer asking questions to make the user think. Weave move types and strategic concepts into questions naturally — never lecture, just name the idea in context. Never mention engines or scores.
+Talk like a kind friend. Keep every reply short: 1 to 3 sentences, in simple words a 10-year-old knows. Say piece and square names ("your knight on f3"), not just move codes like Nf3. When you name a chess idea, explain it in a few words ("a fork: one piece attacking two at once"). A question about how a piece moves or what a chess word means is always welcome; answer it simply.
 
-Core: never give answers. Make the user figure it out. Use the move type and strategy as the frame:
-- Tactical error → "What's your opponent threatening?"
-- Passive/aimless move → "What's the strategic goal of your last move?"
-- Missed idea → "What does that move accomplish?"
-- No plan → "What's the position telling you?"
-- Broke a principle → "Which principle did you just break?"
-- Good move → "What does that accomplish strategically?"
-- "I don't know" → "Let's look at it differently. What stands out?"
+Never say Stockfish, engine, evaluation, or scores like +1.5. Call the other side "the computer" or "your opponent". Praise good thinking, and never make anyone feel bad about a mistake.`;
 
-Weave in concepts: move types (development, attack, defense, prophylaxis, positional, tactical), initiative, pawn structure, outposts, weak squares, tempi, color complexes, simplification, undermining, openings. Every question teaches by naming the idea.
+const socratic_sys = `${audience}
 
-End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
+Help them think instead of giving answers. Reply with one short, friendly question that points at the idea, for example:
+- "what is the computer's last move attacking?"
+- "is any of your pieces left with nobody guarding it?"
+- "can anything be taken for free?"
+- "is your king safe?"
+If they say "i don't know", give a small clue and ask again.`;
 
-const assistant_sys = `Keep responses extremely short — 1-3 sentences. Plain language, like talking to a friend.
+const assistant_sys = `${audience}
 
-You are a chess coach helping the user win. When analyzing a move, always name its type (development, attack, defense, prophylaxis, positional, tactical, simplification, undermining, etc.), explain the strategy behind it, and state the concrete advantage — what it threatens, prevents, or exploits. Weave in advanced ideas naturally: initiative, pawn structure, outposts, weak squares, tempi, color complexes, endgame principles, openings, etc., when relevant.
+When they ask about a move, say what it does in plain words: what it attacks, protects, or gets ready for, and why that helps. When they ask what to play, name the move and the reason.
 
-Never suggest moves or provide hints unless the user explicitly asks. Never call get_hints or any analysis tool proactively — only use them when the user directly requests a move suggestion or hint. Never mention engines or scores.
-
-When the user asks about a position: strongest continuation, its type, and the strategic idea. Be specific about squares and pieces.
-
-End by asking if they want you to explain any of those chess concepts further. No formal wrap-ups.`;
+Don't suggest moves or give hints unless they ask. Only use the hint or analysis tools when they ask for a move or a hint.`;
 
 function tool_use_rules(search_enabled: boolean) {
-	let r = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, briefly state the new position.`;
+	let r = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, say in one short line what is on the board now.`;
 	if (search_enabled) r += `\nYou can search the web in real time for current chess information — openings, grandmaster games, tournament results, strategy, and best responses to any position. When a user asks what the best move is or what to play in a given position, search the web to find up-to-date analysis, recent master games, or theoretical recommendations before answering.`;
 	return r;
 }
@@ -94,7 +88,7 @@ export function create_learn_state(logged_in = false) {
 
 export class LearnState {
 	vibe = $state<'socratic' | 'assistant'>(browser && (localStorage.getItem('vibe') as 'socratic' | 'assistant') || 'socratic');
-	level = $state(3);
+	level = $state(2);
 	turn = $state<Color>('w');
 	orientation = $state<Color>('w');
 	moveNum = $state(0);
@@ -131,7 +125,6 @@ export class LearnState {
 	auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
 	hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
-	computer_think_time = $state(1.5);
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	gemini_api_key = $state(browser && localStorage.getItem('gemini_api_key') || '');
 	openai_api_key = $state(browser && localStorage.getItem('openai_api_key') || '');
@@ -220,6 +213,11 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('voice_provider', this.voice_provider); });
 		$effect(() => { if (browser) localStorage.setItem('voice_name', this.voice_name); });
 		$effect(() => { if (browser) localStorage.setItem('vibe', this.vibe); });
+		let lv = 0;
+		$effect(() => {
+			if (lv && lv !== this.level) this.save_game_debounced();
+			lv = this.level;
+		});
 		$effect(() => { if (browser) localStorage.setItem('noise_suppression', String(this.noise_suppression)); });
 		$effect(() => { if (browser) localStorage.setItem('noise_suppression_level', String(this.noise_suppression_level)); });
 
@@ -284,11 +282,11 @@ export class LearnState {
 	get chat_suggestions() {
 		if (this.chat_messages.length > 0 || this.gameOver) return [];
 		const s: string[] = [];
-		if (this.inCheck) s.push('How do I get out of check?');
-		if (this.moveNum === 0) s.push('Suggest a good opening move');
-		else if (this.last_ai_move) s.push('Why did Stockfish play that?');
-		if (this.moveNum > 0) s.push('What is the best move for me?');
-		if (this.moveNum >= 4) { s.push('Who is winning right now?'); s.push('What is the plan here?'); }
+		if (this.inCheck) s.push('how do i get out of check?');
+		if (this.moveNum === 0) s.push('how do the pieces move?', 'how should i start?');
+		else if (this.last_ai_move) s.push('why did the computer do that?');
+		if (this.moveNum > 0) s.push('what should i do now?');
+		if (this.moveNum >= 4) s.push('who is winning?', 'what is my plan?');
 		return s.slice(0, 3);
 	}
 
@@ -303,13 +301,13 @@ export class LearnState {
 	}
 
 	#eng: LearnEngine | null = null;
-	#eng_mt = 0;
+	#eng_lv = 0;
 
 	get engine() {
-		const mt = Math.round(this.computer_think_time * 1000);
-		if (!this.#eng || this.#eng_mt !== mt) {
-			this.#eng = new LearnEngine({ elo: null, depth: 20, moveTime: mt, color: this.#eng?.getColor() ?? 'b' });
-			this.#eng_mt = mt;
+		if (!this.#eng || this.#eng_lv !== this.level) {
+			const l = LEVELS[Math.min(Math.max(this.level, 1), LEVELS.length) - 1];
+			this.#eng = new LearnEngine({ ...l, color: this.#eng?.getColor() ?? 'b' });
+			this.#eng_lv = this.level;
 		}
 		return this.#eng;
 	}
@@ -335,7 +333,7 @@ export class LearnState {
 					this._set_state_fail_count++;
 					if (this._set_state_fail_count >= 9) {
 						this._set_state_fail_count = 0;
-						this.add_toast('Failed to set board position', 'e');
+						this.add_toast('couldn’t set up that board', 'e');
 					}
 					return { valid: false, error: 'Invalid FEN' };
 				}
@@ -511,9 +509,12 @@ export class LearnState {
 	onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
 		this.gameOver = true;
 		const { reason, result } = e.detail;
-		if (result === 1) this.resultMsg = 'White wins!';
-		else if (result === 0) this.resultMsg = 'Black wins!';
-		else this.resultMsg = `Draw (${reason})`;
+		const draw: Record<string, string> = { stalemate: 'stalemate: no legal move left', 'insufficient material': 'not enough pieces to checkmate', repetition: 'the same moves kept repeating', 'fifty-move rule': '50 moves without a capture' };
+		const bot = this.engine?.getColor?.();
+		const winner = result === 1 ? 'w' : 'b';
+		if (result === 0.5) this.resultMsg = `draw: ${draw[reason] ?? reason}`;
+		else if (bot === 'w' || bot === 'b') this.resultMsg = bot === winner ? 'checkmate. the computer wins this one.' : 'checkmate. you win!';
+		else this.resultMsg = `checkmate. ${winner === 'w' ? 'white' : 'black'} wins.`;
 	}
 
 	resetGame() {
@@ -1043,7 +1044,6 @@ export class LearnState {
 				f: this.fen, h: this.history.join(' '), m: this.moveNum, o: this.orientation,
 				u: this.last_user_move, a: this.last_ai_move, r: this.redo_stack.join('|'),
 				v: this.gameOver, x: this.resultMsg, g: this.groq_api_key, k: this.gemini_api_key, l: this.level,
-				t: this.computer_think_time,
 				c: JSON.stringify(serialize_chat(this.chat_messages)),
 				d: Date.now()
 			};
@@ -1068,8 +1068,7 @@ export class LearnState {
 		if (r) this.redo_stack = r.split('|').filter(Boolean);
 		this.gameOver = (d.v as boolean) ?? false;
 		this.resultMsg = (d.x as string) ?? '';
-		this.level = (d.l as number) ?? 3;
-		this.computer_think_time = (d.t as number) ?? 1.5;
+		this.level = (d.l as number) ?? 2;
 		const gk = d.g as string;
 		if (gk) this.groq_api_key = gk;
 		const gemk = d.k as string;
@@ -1265,7 +1264,7 @@ export class LearnState {
 		if (t === 'session.started') {
 			this.gemini_live_healthy = true;
 			this.recording = true;
-			this.add_toast('voice connected');
+			this.add_toast('your voice coach is listening');
 			const greet = this.quiet
 				? 'Stay quiet until the user speaks. Then answer in 1-3 short sentences.'
 				: 'Greet the user in one short sentence and ask if they want a move idea or a chess concept.';
@@ -1492,7 +1491,7 @@ export class LearnState {
 		// }
 		this.gemini_live_closing = false;
 		try {
-			this.add_toast('Connecting voice...');
+			this.add_toast('connecting your voice coach…');
 			this.init_live_tools();
 			// if (this.voice_provider === 'openai') {
 			// 	this.voice_provider_active = 'openai';
@@ -1539,7 +1538,7 @@ export class LearnState {
 					micSource.connect(rnnoiseNode).connect(intermediateDest);
 					processorSource = audioCtx.createMediaStreamSource(intermediateDest.stream);
 				} catch {
-					this.add_toast('Noise suppression unavailable, using raw mic');
+					this.add_toast('the noise filter isn’t available here, so your mic is used as it is');
 				}
 			}
 
@@ -1558,7 +1557,7 @@ export class LearnState {
 			outputGain.connect(recording_dest);
 			(processorSource ?? micSource).connect(recording_dest);
 
-			const sys = this.current_sys + `\n\nWhen the conversation starts, greet the user and ask if they would like a move suggestion or to learn about a chess concept.` + '\n\n' + tool_use_rules(this.gemini_search_tool);
+			const sys = this.current_sys + `\n\nWhen the conversation starts, say hi in one short line and ask what they would like: help with a move, or to learn something about chess.` + '\n\n' + tool_use_rules(this.gemini_search_tool);
 
 			const { GoogleGenAI } = await import('@google/genai');
 			const ai = new GoogleGenAI({ apiKey: key, httpOptions: { apiVersion: 'v1alpha' } });
@@ -1571,7 +1570,7 @@ export class LearnState {
 					onopen: () => {
 						this.gemini_live_healthy = true;
 						this.recording = true;
-						this.add_toast('Voice connected');
+						this.add_toast('your voice coach is listening');
 					},
 					onmessage: (msg: any) => {
 						this.gemini_live_handle(msg);
@@ -1579,7 +1578,7 @@ export class LearnState {
 					onerror: (e: any) => {
 						this.gemini_live_healthy = false;
 						this.cleanup_gemini_live();
-						this.add_toast('Voice connection error: ' + (e?.message || e), 'e');
+						this.add_toast('voice couldn’t connect: ' + (e?.message || e), 'e');
 					},
 					onclose: () => {
 						this.gemini_live_healthy = false;
@@ -1608,13 +1607,13 @@ export class LearnState {
 					const devices = await navigator.mediaDevices.enumerateDevices();
 					const audio_inputs = devices.filter(d => d.kind === 'audioinput');
 					this.add_toast(audio_inputs.length === 0
-						? 'No microphone detected. Plug one in, then refresh the page.'
-						: `Mic found (${audio_inputs.length} device(s)) but couldn\'t access it. It may be in use by another app.`, 'e');
+						? 'no microphone found. plug one in, then refresh the page.'
+						: 'your mic is there, but another app may be using it. close it and try again.', 'e');
 				} catch {
-					this.add_toast('No microphone found. Connect a mic and refresh.', 'e');
+					this.add_toast('no microphone found. plug one in, then refresh the page.', 'e');
 				}
 			} else {
-				this.add_toast('Voice setup error: ' + (e instanceof Error ? e.message : String(e)), 'e');
+				this.add_toast('voice couldn’t start: ' + (e instanceof Error ? e.message : String(e)), 'e');
 			}
 			this.cleanup_gemini_live();
 		}
@@ -1663,7 +1662,7 @@ export class LearnState {
 			this.screen_recording = true;
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'NotAllowedError') return;
-			this.add_toast('Screen recording error: ' + (e instanceof Error ? e.message : String(e)), 'e');
+			this.add_toast('screen recording couldn’t start: ' + (e instanceof Error ? e.message : String(e)), 'e');
 		}
 	};
 

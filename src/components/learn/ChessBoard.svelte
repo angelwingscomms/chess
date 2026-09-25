@@ -6,7 +6,7 @@
 	import { cam } from './view.svelte';
 	const s = get_learn_state();
 
-	let computer_think_time = $derived(s.computer_think_time);
+	let level = $derived(s.level);
 	let engine = $derived(s.engine);
 	let hint_highlights = $derived(s.hint_highlights);
 	let show_hints = $derived(s.show_hints);
@@ -16,7 +16,7 @@
 	);
 </script>
 
-{#key computer_think_time}
+{#key level}
 	<Chess
 		class="cg-default-style board-themed"
 		bind:this={s.chessRef}

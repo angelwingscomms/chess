@@ -11,11 +11,15 @@
 
 	const breaths = ['breathe in', 'hold', 'breathe out', 'hold'];
 	const shards = [
-		[-70, -46, -22],
-		[34, -70, 16],
-		[84, 18, -12],
-		[20, 74, 28],
-		[96, 52, 40]
+		[-64, -40, -24],
+		[-22, -72, 14],
+		[18, -58, -10],
+		[46, -24, 22],
+		[70, 12, -16],
+		[34, 64, 30],
+		[88, 46, -26],
+		[120, -8, 18],
+		[140, 60, 36]
 	];
 	const sound = calm.sound;
 
@@ -174,22 +178,22 @@
 	});
 </script>
 
-<Seo meta={{ t: 'e4 — a calm chess coach that explains every move', d: 'breathe, then move. e4 explains any chess move in plain words, waits until you ask, and talks out loud. free, no sign-up.' }} />
-<JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'a calm chess coach that explains every move in plain words, with voice and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }} />
+<Seo meta={{ t: 'e4 — learn chess with a calm coach', d: 'learn chess from your very first move. a friendly coach explains every move in plain words, waits until you ask, and talks out loud. free, no sign-up.' }} />
+<JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'learn chess from your very first move, with a calm coach that explains every move in plain words, a friendly computer to play, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }} />
 
 
 <main class="calm relative z-10 font-calm font-light text-haze transition-opacity duration-700 ease-calm {leaving ? 'opacity-0' : ''}">
 	<section bind:this={sections[0]} class="relative grid min-h-svh items-center gap-10 px-[7vw] pt-24 pb-28 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
 		<div>
-			<p class="font-calm-mono text-xs tracking-[0.16em] text-mist animate-surface">{first ? `welcome back, ${first}.` : 'e4 · a calm chess coach'}</p>
+			<p class="font-calm-mono text-xs tracking-[0.16em] text-mist animate-surface">{first ? `welcome back, ${first}.` : 'e4 · learn chess, calmly'}</p>
 			<h1 class="mt-6 text-[clamp(3.8rem,8.4vw,9rem)] leading-[0.92] lg:mt-8 font-extralight tracking-[-0.05em]">
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block animate-rise [animation-delay:0.2s]">breathe.</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block animate-rise [animation-delay:0.38s]">then move.</span></span>
 			</h1>
-			<p class="mt-6 max-w-md text-lg leading-relaxed text-haze/70 animate-surface [animation-delay:0.9s] lg:mt-10">a chess coach that explains every move — quietly, in plain words.</p>
+			<p class="mt-6 max-w-md text-lg leading-relaxed text-haze/70 animate-surface [animation-delay:0.9s] lg:mt-10">learn chess from your very first move, with a friendly coach who explains everything in plain words.</p>
 			<div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 animate-surface [animation-delay:1.2s] lg:mt-12">
 				<a href="/i" onclick={(e) => play(e)} class="group inline-flex items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-7 py-3.5 text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
-					play e4
+					start playing
 					<span aria-hidden="true" class="transition-transform duration-500 ease-expo group-hover:translate-x-1">→</span>
 				</a>
 				<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">free · no sign-up</span>
@@ -216,14 +220,14 @@
 
 	<section bind:this={sections[1]} class="relative flex min-h-svh flex-col justify-center px-[7vw] py-[22svh]">
 		<div use:reveal>
-			<p data-r class="font-calm-mono text-xs tracking-[0.16em] text-mist transition duration-1400 ease-expo data-[s=a]:opacity-0">01 — the loss</p>
+			<p data-r class="font-calm-mono text-xs tracking-[0.16em] text-mist transition duration-1400 ease-expo data-[s=a]:opacity-0">01 — the start</p>
 			<h2 class="mt-10 text-[clamp(2.6rem,6.6vw,6.8rem)] leading-[1.02] font-extralight tracking-[-0.04em]">
-				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">you lost again.</span></span>
-				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">the engine says <span bind:this={num} class="inline-block whitespace-nowrap text-mist">{#each ['−', '2', '.', '3', '.'] as ch}<span class="inline-block">{ch}</span>{/each}</span></span></span>
-				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-haze/55 transition-transform delay-200 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">that’s a number.</span></span>
-				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-300 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">not a reason.</span></span>
+				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">you don’t need</span></span>
+				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">a <span bind:this={num} class="inline-block whitespace-nowrap text-mist">{#each [...'rulebook.'] as ch}<span class="inline-block">{ch}</span>{/each}</span></span></span>
+				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-haze/55 transition-transform delay-200 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">you need someone</span></span>
+				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-300 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">to show you.</span></span>
 			</h2>
-			<p data-r class="mt-16 max-w-sm text-lg leading-relaxed text-haze/70 transition delay-500 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">engines see everything and explain nothing.</p>
+			<p data-r class="mt-16 max-w-sm text-lg leading-relaxed text-haze/70 transition delay-500 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">never played before? perfect. tap a piece and it shows you where it can go. ask why, and get an answer you understand.</p>
 		</div>
 	</section>
 
@@ -234,7 +238,7 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">e4 tells you</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-glow transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">why.</span></span>
 			</h2>
-			<p data-r class="mt-12 max-w-sm text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">ask about any move. you get the reason in one breath — no numbers, no jargon.</p>
+			<p data-r class="mt-12 max-w-sm text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">ask about any move. the answer comes in one breath, in plain words, the way a friend would explain it.</p>
 		</div>
 		<div class="flex justify-center lg:justify-end">
 			<WhyDemo {sound} />
@@ -248,8 +252,8 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">it never plays</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">for you.</span></span>
 			</h2>
-			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">no hint until you ask. switch it to questions, and it answers with one — so the idea stays yours.</p>
-			<p data-r class="mt-8 font-calm-mono text-xs tracking-[0.16em] text-glow/80 transition delay-500 duration-1400 ease-expo data-[s=a]:opacity-0">yes, it’s ai. the quiet kind.</p>
+			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">no hints until you ask. want to work it out yourself? it can answer with a question instead, so the idea stays yours.</p>
+			<p data-r class="mt-8 font-calm-mono text-xs tracking-[0.16em] text-glow/80 transition delay-500 duration-1400 ease-expo data-[s=a]:opacity-0">yes, it’s ai. the patient kind.</p>
 		</div>
 		<div use:reveal class="mt-[16svh] grid items-center gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-20">
 			<div>
@@ -274,7 +278,7 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">a million puzzles.</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-haze/55 transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">just ask.</span></span>
 			</h2>
-			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">say “forks, around 1200” — and they’re on your board.</p>
+			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">tiny challenges where you find the winning move. say “give me an easy one”, and it’s on your board.</p>
 		</div>
 		<div use:reveal class="mt-[12svh]">
 			<div data-r class="transition duration-2000 ease-expo data-[s=a]:translate-y-10 data-[s=a]:opacity-0">
@@ -290,12 +294,13 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">every game starts</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">with one move.</span></span>
 			</h2>
+			<p data-r class="mt-8 max-w-sm text-lg leading-relaxed text-haze/70 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">e4 is the most famous first move in chess. yours is next.</p>
 		</div>
 		<div bind:this={end_slot} class="mt-[8svh] aspect-square w-[min(80vw,48svh)]"></div>
 		<div use:magnet class="mt-8 p-6">
 			<a href="/i" onclick={(e) => play(e)} class="group relative inline-flex overflow-hidden rounded-full bg-glow px-12 py-5 text-xl font-normal text-night shadow-[0_0_80px_-10px_rgba(233,164,124,0.6)] transition duration-700 ease-expo hover:shadow-[0_0_120px_-10px_rgba(233,164,124,0.9)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
-				<span class="block text-night transition-transform duration-500 ease-expo group-hover:-translate-y-[160%]">play e4</span>
-				<span aria-hidden="true" class="absolute inset-0 grid translate-y-[160%] place-items-center font-calm-mono text-lg text-night transition-transform duration-500 ease-expo group-hover:translate-y-0">1. e4</span>
+				<span class="block text-night transition-transform duration-500 ease-expo group-hover:-translate-y-[160%]">start playing</span>
+				<span aria-hidden="true" class="absolute inset-0 grid translate-y-[160%] place-items-center font-calm-mono text-lg text-night transition-transform duration-500 ease-expo group-hover:translate-y-0">your move</span>
 			</a>
 		</div>
 		<p class="mt-4 font-calm-mono text-xs tracking-[0.14em] text-mist">free · no sign-up · no download</p>

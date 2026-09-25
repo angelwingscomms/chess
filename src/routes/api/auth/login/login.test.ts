@@ -57,6 +57,6 @@ describe('login page', () => {
 		const page = readFileSync(resolve(process.cwd(), 'src/routes/login/+page.svelte'), 'utf8');
 		expect(page).toContain('type="password"');
 		expect(page).toContain('/api/auth/login');
-		expect(page).toContain('Sign in with Google');
+		expect(page).toContain('continue with google');
 	});
 });

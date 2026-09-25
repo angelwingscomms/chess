@@ -250,9 +250,9 @@
 			l.l = ui.living ? 1 : 0;
 		};
 
-		import('$lib/board3d/scene').then(({ make_board3d }) => {
+		Promise.all([import('$lib/board3d/scene'), import('$lib/board3d/pieces').then((m) => m.load_pieces())]).then(([{ make_board3d }, geos]) => {
 			if (dead) return;
-			const made = make_board3d(el, still, feed);
+			const made = make_board3d(el, still, feed, geos);
 			if (!made) return lost();
 			made.set_side(s.orientation, true);
 			b3 = made;
@@ -293,10 +293,10 @@
 
 {#if promo}
 	<div class="absolute inset-0 z-[2] grid place-items-center" role="presentation" onclick={(e) => e.target === e.currentTarget && cancel_promo()}>
-		<div role="dialog" aria-label="promote pawn" class="flex gap-1.5 rounded-full border border-haze/15 bg-deep/90 p-2 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-surface">
+		<div role="dialog" aria-label="your pawn made it across. pick what it becomes" class="flex gap-1.5 rounded-full border border-haze/15 bg-deep/90 p-2 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-surface">
 			{#each ['q', 'r', 'b', 'n'] as k}
 				<button
-					aria-label="promote to {NAMES[k]}"
+					aria-label="turn your pawn into a {NAMES[k]}"
 					class="grid size-14 cursor-pointer place-items-center rounded-full transition duration-300 ease-expo hover:bg-glow/15 focus-visible:outline-2 focus-visible:outline-glow"
 					onclick={() => {
 						const p = promo!;

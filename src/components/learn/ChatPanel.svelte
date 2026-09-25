@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marked } from 'marked';
-	import { NGN_USD } from '$lib/util/rates';
+	// import { NGN_USD } from '$lib/util/rates';
 	import ArrowUpIcon from '$lib/components/icons/arrow-up-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import PlusIcon from '$lib/components/icons/plus-icon.svelte';
@@ -36,21 +36,23 @@
 </script>
 
 <div class="flex min-h-0 flex-1 flex-col">
-	<div bind:this={s.chat_body} class="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-1 py-2 text-[15px] leading-relaxed">
+	<div bind:this={s.chat_body} class="relative flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-1 py-2 text-[14px] leading-relaxed lg:gap-3 lg:text-[15px]">
 		{#if chat_messages.length === 0}
-			<p class="m-auto max-w-[16rem] text-center font-calm-mono text-xs leading-relaxed tracking-[0.14em] text-mist">ask about any move. the coach waits until you do.</p>
+			<p class="m-auto max-w-[17rem] text-center font-calm-mono text-xs leading-relaxed tracking-[0.12em] text-mist [@media(max-height:44rem)]:hidden">ask me anything about chess, even “how does the knight move?”</p>
 		{/if}
 		{#each chat_messages as msg, i (i)}
 			{#if msg.role === 'assistant'}
-				<div class="calm-md max-w-[94%] self-start rounded-2xl rounded-bl-md border border-haze/10 bg-night/50 px-4 py-3 text-haze backdrop-blur-md animate-surface">
+				<div class="calm-md max-w-[94%] self-start rounded-2xl rounded-bl-md border border-haze/10 bg-night/50 px-3.5 py-2.5 text-haze backdrop-blur-md animate-surface lg:px-4 lg:py-3">
 					<span class="mb-1 block font-calm-mono text-[11px] tracking-[0.16em] text-glow">e4</span>
 					{@html marked.parse(msg.content)}
+					<!-- hidden for now: what each reply cost
 					{#if msg.u}
 						<span class="mt-2 block font-calm-mono text-[10px] tracking-[0.1em] text-mist/60">₦{(msg.u.cost * NGN_USD).toFixed(2)}</span>
 					{/if}
+					-->
 				</div>
 			{:else}
-				<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-4 py-2.5 text-haze/85 animate-surface {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">{msg.content}</p>
+				<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-3.5 py-2 text-haze/85 animate-surface lg:px-4 lg:py-2.5 {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">{msg.content}</p>
 			{/if}
 		{/each}
 		{#each chat_queue as q_msg, i (i)}
@@ -77,9 +79,9 @@
 		{/if}
 	</div>
 	{#if chat_suggestions.length > 0 && !pz.on}
-		<div data-ms class="flex flex-wrap gap-2 pt-2">
+		<div data-ms class="-mx-1 flex gap-2 overflow-x-auto px-1 pt-1.5 [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pt-2">
 			{#each chat_suggestions as suggestion}
-				<button onclick={() => s.sendChatMessage(suggestion)} class="rounded-full border border-glow/40 px-3.5 py-1.5 text-sm text-haze/90 transition duration-500 ease-expo hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion.toLowerCase()}</button>
+				<button onclick={() => s.sendChatMessage(suggestion)} class="shrink-0 rounded-full border border-glow/40 px-3 py-1.5 text-[13px] whitespace-nowrap text-haze/90 transition duration-500 ease-expo lg:px-3.5 lg:text-sm hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion.toLowerCase()}</button>
 			{/each}
 		</div>
 	{/if}
@@ -88,7 +90,7 @@
 			<VoiceStrip />
 		</div>
 	{/if}
-	<div data-mi class="mt-3 flex items-end gap-1 rounded-2xl border border-haze/15 bg-haze/5 p-1.5 transition duration-500 ease-expo focus-within:border-glow/50">
+	<div data-mi class="mt-2 flex items-end gap-1 rounded-2xl border border-haze/15 bg-haze/5 p-1 lg:mt-3 lg:p-1.5 transition duration-500 ease-expo focus-within:border-glow/50">
 		<textarea
 			data-tour="chat"
 			rows={1}
@@ -96,8 +98,8 @@
 			bind:value={s.chat_input}
 			onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); s.sendChatMessage(s.chat_input); } }}
 			oninput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }}
-			placeholder="ask about the position…"
-			class="max-h-32 min-h-[40px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2.5 text-[15px] text-haze outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"
+			placeholder="ask your coach anything…"
+			class="max-h-32 min-h-[38px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2 text-[14px] text-haze lg:min-h-[40px] lg:py-2.5 lg:text-[15px] outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"
 		></textarea>
 		<button
 			title={recording ? 'Stop talking' : 'Talk to the coach'}
@@ -105,7 +107,7 @@
 			data-tour="voice"
 			onclick={() => s.toggleGeminiLive()}
 			disabled={typeof navigator === 'undefined' || !navigator.mediaDevices}
-			class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full transition duration-500 ease-expo disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow {recording ? 'bg-glow/20 text-glow motion-safe:animate-pulse' : 'text-haze/70 hover:bg-haze/10 hover:text-haze'}"
+			class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full transition duration-500 ease-expo disabled:opacity-30 lg:size-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow {recording ? 'bg-glow/20 text-glow motion-safe:animate-pulse' : 'text-haze/70 hover:bg-haze/10 hover:text-haze'}"
 		>
 			<MicIcon size={17} strokeWidth={1.8} />
 		</button>
@@ -114,7 +116,7 @@
 			aria-label="Send"
 			onclick={() => s.sendChatMessage(s.chat_input)}
 			disabled={!chat_loading && !chat_input.trim()}
-			class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-glow text-night transition duration-500 ease-expo hover:shadow-[0_0_30px_rgba(233,164,124,0.6)] disabled:cursor-default disabled:opacity-30 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow"
+			class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-glow text-night lg:size-10 transition duration-500 ease-expo hover:shadow-[0_0_30px_rgba(233,164,124,0.6)] disabled:cursor-default disabled:opacity-30 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow"
 		>
 			<ArrowUpIcon size={16} strokeWidth={2} />
 		</button>

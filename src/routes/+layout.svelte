@@ -8,8 +8,9 @@
   import { calm, ui } from '$lib/landing/calm.svelte';
   import type { LayoutProps } from './$types';
   let { data, children }: LayoutProps = $props();
-  const calm_route = $derived(page.url.pathname === '/' || page.url.pathname === '/i');
+  const calm_route = $derived(!page.url.pathname.startsWith('/test'));
   let user = $derived(data.user);
+  const item = 'flex w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm text-haze/90 transition duration-300 ease-expo hover:bg-haze/10 hover:text-haze focus-visible:bg-haze/10 focus-visible:outline-none';
   let open = $state(false);
   let wrap: HTMLDivElement | undefined = $state();
   let img_err = $state(false);
@@ -51,7 +52,7 @@
       });
       const d = await r.json();
       if (!d.access_code) {
-        alert(d.error || 'Failed to initialize payment');
+        alert(d.error || 'payment couldn’t start. please try again.');
         buy_loading = false;
         return;
       }
@@ -76,7 +77,7 @@
       });
     } catch {
       if (auth_url) window.location.href = auth_url;
-      else { alert('Network error'); buy_loading = false; }
+      else { alert('no connection. please try again.'); buy_loading = false; }
     }
   }
   async function logout() {
@@ -86,7 +87,7 @@
   }
 </script>
 
-<Seo meta={{t:'e4 — Chess training with an AI coach',d:'Train chess against adaptive Stockfish AI with a coach that explains every move. Hints, 30 AI voices, and cloud saves.'}} />
+<Seo meta={{t:'e4 — learn chess with a calm coach',d:'learn chess from your very first move. play a friendly computer, ask a coach that explains every move in plain words, and try puzzles at your level. free, no sign-up.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'e4','url':'https://chess.apexlinks.org'}} />
 
 {#if calm_route}
@@ -117,18 +118,13 @@
           </button>
           {#if open}
             <div class="user-menu" role="menu">
-
-              <button onclick={() => { show_profile = true; open = false; }} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">{calm_route ? 'profile' : 'Profile'}</button>
-              <button onclick={logout} class="button-secondary-dark !min-h-8 !px-3 !py-1 text-xs w-full">{calm_route ? 'log out' : 'Logout'}</button>
+              <button role="menuitem" onclick={() => { show_profile = true; open = false; }} class={item}>your account</button>
+              <button role="menuitem" onclick={logout} class={item}>log out</button>
             </div>
           {/if}
         </div>
-      {:else}
-        {#if calm_route}
-          <a href="/login" class="rounded-full border border-haze/20 bg-haze/5 px-5 py-2 text-sm text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">log in</a>
-        {:else}
-          <a href="/login" class="button-primary !min-h-8 !px-3 !py-1 text-xs">Login</a>
-        {/if}
+      {:else if page.url.pathname !== '/login'}
+        <a href="/login" class="rounded-full border border-haze/20 bg-haze/5 px-5 py-2 text-sm text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">log in</a>
       {/if}
     </div>
   </div>
@@ -136,43 +132,35 @@
 
 {#if show_profile}
   <div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-night/70 p-4 backdrop-blur-sm" role="presentation" onkeydown={(e) => e.key === 'Escape' && (show_profile = false)} onclick={() => show_profile = false}>
-    <div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-hairline bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]" role="dialog" aria-modal="true" aria-labelledby="profile-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_profile = false)} onclick={(e) => e.stopPropagation()}>
-      <div class="shrink-0 border-b border-hairline bg-surface-soft px-6 py-5">
-        <h2 id="profile-title" class="font-display text-2xl font-medium text-ink">Profile</h2>
+    <div class="calm flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-3xl border border-haze/12 bg-deep/95 font-calm font-light text-haze shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9)] animate-surface" role="dialog" aria-modal="true" aria-labelledby="profile-title" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (show_profile = false)} onclick={(e) => e.stopPropagation()}>
+      <div class="px-6 pt-6 pb-2">
+        <p class="font-calm-mono text-[11px] tracking-[0.16em] text-mist">your account</p>
+        <h2 id="profile-title" class="mt-2 text-3xl font-extralight tracking-[-0.03em]">{(user?.name || 'hello').split(' ')[0].toLowerCase()}</h2>
       </div>
-      <div class="grid gap-4 p-6">
-        <div class="rounded-lg bg-surface-card p-4 space-y-3 border border-hairline">
+      <div class="grid gap-6 overflow-y-auto px-6 py-4">
+        <div class="divide-y divide-haze/8 text-sm [&>div]:flex [&>div]:items-center [&>div]:justify-between [&>div]:gap-4 [&>div]:py-3">
           {#if user?.email}
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-muted">Email</span>
-              <span class="font-medium text-ink">{user.email}</span>
-            </div>
+            <div><span class="text-mist">email</span><span class="min-w-0 truncate">{user.email}</span></div>
           {/if}
           {#if date_joined}
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-muted">Joined</span>
-              <span class="font-medium text-ink">{new Date(date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-            </div>
+            <div><span class="text-mist">joined</span><span>{new Date(date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).toLowerCase()}</span></div>
           {/if}
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-muted">Balance</span>
-            <span class="font-medium text-ink">₦{(token_balance / 100).toFixed(2)}</span>
-          </div>
+          <div><span class="text-mist">coach credit</span><span class="text-glow tabular-nums">₦{(token_balance / 100).toFixed(2)}</span></div>
         </div>
-        <div class="border-t border-hairline pt-4 space-y-3">
-          <p class="text-xs font-medium uppercase tracking-[0.12em] text-primary">Deposit</p>
+        <div class="grid gap-3">
+          <p class="font-calm-mono text-[11px] tracking-[0.16em] text-mist">add credit</p>
           <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">₦</span>
-            <input type="number" min={MIN_KOBO / 100} bind:value={buy_input} placeholder="100" class="w-full rounded-lg border border-hairline bg-surface-card py-2.5 pl-7 pr-3 text-sm text-ink outline-none transition-colors focus:border-primary" />
+            <span class="absolute top-1/2 left-3.5 -translate-y-1/2 text-sm text-mist">₦</span>
+            <input type="number" min={MIN_KOBO / 100} bind:value={buy_input} placeholder="100" aria-label="amount in naira" class="min-h-11 w-full rounded-xl border border-haze/15 bg-night/60 py-2.5 pr-3.5 pl-8 text-sm text-haze outline-none transition duration-300 ease-expo placeholder:text-mist/60 focus:border-glow/60" />
           </div>
-          <p class="text-[10px] text-muted/60">Min: ₦100</p>
-          <button class="button-primary w-full justify-center {buy_loading || !buy_input || parseInt(buy_input) <= 0 ? 'opacity-50 pointer-events-none' : ''}" onclick={() => deposit(parseInt(buy_input) * 100 || MIN_KOBO)} disabled={buy_loading || !buy_input || parseInt(buy_input) <= 0}>
-            {buy_loading ? 'Processing…' : `Deposit ₦${(parseInt(buy_input) * 100 || MIN_KOBO) / 100}`}
+          <p class="text-xs text-mist">the smallest top-up is ₦100.</p>
+          <button class="min-h-11 w-full cursor-pointer rounded-full bg-glow px-6 text-sm transition duration-500 ease-expo hover:shadow-[0_0_30px_rgba(233,164,124,0.6)] disabled:cursor-default disabled:opacity-40 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow" onclick={() => deposit(parseInt(buy_input) * 100 || MIN_KOBO)} disabled={buy_loading || !buy_input || parseInt(buy_input) <= 0}>
+            <span class="text-night">{buy_loading ? 'opening payment…' : `add ₦${(parseInt(buy_input) * 100 || MIN_KOBO) / 100}`}</span>
           </button>
         </div>
       </div>
-      <div class="shrink-0 flex justify-end border-t border-hairline bg-surface-soft px-6 py-4">
-        <button class="button-primary" onclick={() => show_profile = false}>Close</button>
+      <div class="flex justify-end border-t border-haze/10 px-6 py-4">
+        <button class="cursor-pointer text-sm text-mist transition hover:text-haze" onclick={() => show_profile = false}>close</button>
       </div>
     </div>
   </div>
@@ -218,14 +206,15 @@
     position: absolute;
     right: 0;
     top: calc(100% + 8px);
-    width: 220px;
-    border-radius: 12px;
-    border: 1px solid rgba(250,249,245,0.1);
-    background: rgba(24,23,21,0.8);
+    width: 200px;
+    border-radius: 16px;
+    border: 1px solid rgb(236 231 241 / 0.12);
+    background: rgb(20 18 31 / 0.95);
+    box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.8);
     backdrop-filter: blur(18px);
-    padding: 12px;
+    padding: 6px;
     display: grid;
-    gap: 12px;
+    gap: 2px;
     z-index: 70;
   }
   .nav-logo {

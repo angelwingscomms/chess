@@ -1510,6 +1510,21 @@ html.calm-html .cg-wrap.cg-default-style.board-themed coords.files.black {
   flex-flow: row-reverse;
 }
 
+@media (width < 64rem) {
+  html.calm-html .cg-wrap.cg-default-style.board-themed coords {
+    font-size: 10px;
+  }
+
+  html.calm-html .cg-wrap.cg-default-style.board-themed coords.ranks {
+    left: -14px;
+    width: 10px;
+  }
+
+  html.calm-html .cg-wrap.cg-default-style.board-themed coords.files {
+    bottom: -19px;
+  }
+}
+
 html.calm-html .cg-wrap .dialog {
   border-radius: 18px;
   background: rgb(12 11 19 / 0.55);

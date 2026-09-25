@@ -5,8 +5,8 @@
 	let { sound }: { sound: Sound } = $props();
 
 	const lines = [
-		'f7 was guarded only by your king. white’s queen and bishop both hit it — the queen takes f7, and it’s mate.',
-		'g6. it blocks the queen and attacks her. she has to move — and f7 is safe.'
+		'only your king was guarding f7, the square next to it. white’s queen and bishop were both aiming there, so the queen took it. that’s checkmate.',
+		'move the pawn in front of your knight up one square, to g6. it blocks the queen and attacks her, so she has to run, and f7 stays safe.'
 	];
 	const pieces = [
 		['wr1', 'wR', 'a1'], ['wn1', 'wN', 'b1'], ['wb1', 'wB', 'c1'], ['wk', 'wK', 'e1'], ['wn2', 'wN', 'g1'], ['wr2', 'wR', 'h1'],
@@ -67,7 +67,7 @@
 </script>
 
 <div bind:this={host} class="w-full max-w-md">
-	<svg viewBox="0 0 8 8" class="w-full overflow-hidden rounded-2xl shadow-[0_40px_120px_-40px_rgba(0,0,0,0.8)]" role="img" aria-label="after e4 e5, bishop c4, knight c6, queen h5, knight f6 — white’s queen can take f7 with mate">
+	<svg viewBox="0 0 8 8" class="w-full overflow-hidden rounded-2xl shadow-[0_40px_120px_-40px_rgba(0,0,0,0.8)]" role="img" aria-label="a board where white’s queen can take f7 and give checkmate">
 		<rect width="8" height="8" class="fill-haze/10" />
 		{#each light as s}
 			<rect x={s.x} y={s.y} width="1" height="1" class="fill-haze/25" />

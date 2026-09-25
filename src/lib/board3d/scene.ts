@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { make_pieces } from './pieces';
 
 export type View = 't' | 'p' | 'l' | 's';
 
@@ -41,15 +40,15 @@ const FOV = 26;
 const TILE = 0.63;
 // the canvas is this much wider than the board, so tall pieces and tilted views have room
 const SPAN = 1.24;
-const TALL: Record<string, number> = { P: 0.74, R: 0.88, N: 1, B: 1.06, Q: 1.22, K: 1.37 };
+const TALL: Record<string, number> = { P: 0.85, R: 0.96, N: 1.19, B: 1.36, Q: 1.44, K: 1.51 };
 const PRESETS: Record<View, number[]> = { t: [0.001, 0], p: [0.72, 0], l: [1.08, 0], s: [0.95, Math.PI / 2] };
 const AXES = ['az', 'pol', 'z'] as const;
 // the board plus a full set of pieces; every view is framed around it
 const HULL = [-1, 1].flatMap((x) => [-1, 1].flatMap((z) => [
 	new THREE.Vector3(4.45 * x, -0.24, 4.45 * z),
 	new THREE.Vector3(4.45 * x, -0.44, 4.45 * z),
-	new THREE.Vector3(3.5 * x, 0.9, 3.5 * z),
-	new THREE.Vector3(0.5 * x, 1.37, 3.5 * z)
+	new THREE.Vector3(3.5 * x, 0.96, 3.5 * z),
+	new THREE.Vector3(0.5 * x, 1.51, 3.5 * z)
 ]));
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -110,8 +109,8 @@ function radial(a: number) {
 	return new THREE.CanvasTexture(c);
 }
 
-// ray against a piece's upright cylinder; cheaper and kinder to fingers than its mesh
-function through(o: THREE.Vector3, d: THREE.Vector3, cx: number, cz: number, h: number, r = 0.34) {
+// ray against an upright cylinder around a piece; cheaper and kinder to fingers than its mesh
+function through(o: THREE.Vector3, d: THREE.Vector3, cx: number, cz: number, y0: number, h: number, r: number) {
 	const ox = o.x - cx;
 	const oz = o.z - cz;
 	const a = d.x * d.x + d.z * d.z;
@@ -121,7 +120,7 @@ function through(o: THREE.Vector3, d: THREE.Vector3, cx: number, cz: number, h: 
 	if (a > 1e-9 && disc >= 0) {
 		const s = (-b - Math.sqrt(disc)) / a;
 		const y = o.y + s * d.y;
-		if (s > 0 && y >= 0 && y <= h) t = s;
+		if (s > 0 && y >= y0 && y <= h) t = s;
 	}
 	if (d.y < 0) {
 		const s = (h - o.y) / d.y;
@@ -132,7 +131,7 @@ function through(o: THREE.Vector3, d: THREE.Vector3, cx: number, cz: number, h: 
 	return t;
 }
 
-export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (look: Look) => void) {
+export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (look: Look) => void, geos: Record<string, THREE.BufferGeometry>) {
 	let renderer: THREE.WebGLRenderer;
 	try {
 		renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
@@ -184,7 +183,6 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	tiles.frustumCulled = false;
 	scene.add(tiles);
 
-	const geos = make_pieces();
 	const mats: Record<string, THREE.Material> = {
 		w: new THREE.MeshPhysicalMaterial({ color: 0xe9dfd0, roughness: 0.34, clearcoat: 0.55, clearcoatRoughness: 0.3 }),
 		b: new THREE.MeshPhysicalMaterial({ color: 0x2c2433, roughness: 0.26, clearcoat: 1, clearcoatRoughness: 0.12 })
@@ -381,7 +379,8 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 		let hit = under(o.x + best * d.x, o.z + best * d.z);
 		for (const p of pcs) {
 			if (p.k || p === drag) continue;
-			const t = through(o, d, p.x, p.z, TALL[p.c[1]]);
+			// wide at the base, slim above, so a tall piece in front doesn't steal taps from the one behind
+			const t = Math.min(through(o, d, p.x, p.z, 0, 0.3, 0.34), through(o, d, p.x, p.z, 0.3, TALL[p.c[1]], 0.2));
 			if (t < best) {
 				best = t;
 				hit = p.q;

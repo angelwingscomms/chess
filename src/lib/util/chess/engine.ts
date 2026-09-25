@@ -1,3 +1,5 @@
+import { Chess } from 'chess.js';
+
 export type Color = 'w' | 'b';
 
 export interface Hint {
@@ -56,22 +58,20 @@ export interface LearnEngineOpts {
 	moveTime?: number
 	color?: Color | 'both' | 'none'
 	stockfishPath?: string
+	blunder?: number
 }
 
 const S = { Un: 'uninitialised', In: 'initialising', Wa: 'waiting', Se: 'searching' } as const;
 type St = (typeof S)[keyof typeof S];
 
-export const DIFFICULTY_PRESETS = [
-	{ elo: 800,  depth: 4,  moveTime: 500  },
-	{ elo: 1000, depth: 6,  moveTime: 750  },
-	{ elo: 1200, depth: 8,  moveTime: 1000 },
-	{ elo: 1400, depth: 10, moveTime: 1250 },
-	{ elo: 1600, depth: 12, moveTime: 1500 },
-	{ elo: 1800, depth: 14, moveTime: 1750 },
-	{ elo: 2000, depth: 16, moveTime: 2000 },
-	{ elo: 2200, depth: 20, moveTime: 2500 },
-	{ elo: 2500, depth: 24, moveTime: 3000 },
-	{ elo: null, depth: 40, moveTime: 5000 },
+// how strong the computer plays, from someone who just learned the moves to full strength.
+// stockfish can't play below about 1320, so the easy levels also make a random move now and then
+export const LEVELS = [
+	{ t: 'learning', d: 'just learned the moves', elo: null, depth: 1, moveTime: 400, blunder: 0.45 },
+	{ t: 'easy', d: 'plays for fun', elo: null, depth: 3, moveTime: 500, blunder: 0.2 },
+	{ t: 'medium', d: 'a good club player', elo: 1320, depth: 10, moveTime: 700, blunder: 0.05 },
+	{ t: 'hard', d: 'a strong player', elo: 1900, depth: 16, moveTime: 1000, blunder: 0 },
+	{ t: 'strongest', d: 'the computer at full power', elo: null, depth: 22, moveTime: 1500, blunder: 0 }
 ];
 
 export const HINT_PRESETS = [
@@ -95,6 +95,8 @@ export class LearnEngine {
 	private el: number | null;
 	private co: Color | 'both' | 'none';
 	private sp: string;
+	private bl: number;
+	private tm: ReturnType<typeof setTimeout> | undefined;
 	private uciCb: ((s: string) => void) | undefined;
 	private onReady: (() => void) | undefined;
 	private onBM: ((s: string) => void) | undefined;
@@ -105,6 +107,7 @@ export class LearnEngine {
 		this.el = o.elo ?? null;
 		this.co = o.color ?? 'b';
 		this.sp = o.stockfishPath ?? '/stockfish.js';
+		this.bl = o.blunder ?? 0;
 	}
 
 	init(): Promise<void> {
@@ -117,7 +120,7 @@ export class LearnEngine {
 				if (this.st !== S.In) return;
 				if (!sentOpts) {
 					sentOpts = true;
-					this.w!.postMessage('setoption name UCI_LimitStrength value true');
+					this.w!.postMessage(`setoption name UCI_LimitStrength value ${this.el !== null}`);
 					if (this.el !== null) this.w!.postMessage(`setoption name UCI_Elo value ${this.el}`);
 					this.w!.postMessage('isready');
 					return;
@@ -144,13 +147,25 @@ export class LearnEngine {
 			if (!this.w) throw Error('Engine not initialised');
 			if (this.st !== S.Wa) throw Error(`Engine not ready (state: ${this.st})`);
 			this.st = S.Se;
+			const t0 = performance.now();
+			// a short pause even when the search is instant, so the computer seems to think
+			const done = (lan: string) => {
+				this.tm = setTimeout(() => {
+					this.tm = undefined;
+					this.st = S.Wa;
+					res(lan);
+				}, Math.max(0, 500 - (performance.now() - t0)));
+			};
+			const all = this.bl && Math.random() < this.bl ? new Chess(fen).moves({ verbose: true }) : [];
+			if (all.length) {
+				const m = all[Math.floor(Math.random() * all.length)];
+				return done(m.from + m.to + (m.promotion ?? ''));
+			}
 			this.w.postMessage(`position fen ${fen}`);
 			this.w.postMessage(`go depth ${this.dp} movetime ${this.mt}`);
 			this.onBM = (u: string) => {
-				const lan = u.split(' ')[1];
-				this.st = S.Wa;
 				this.onBM = undefined;
-				res(lan);
+				done(u.split(' ')[1]);
 			};
 		});
 	}
@@ -163,6 +178,8 @@ export class LearnEngine {
 		return new Promise((res) => {
 			if (!this.w) throw Error('Engine not initialised');
 			if (this.st !== S.Se) { res(); return; }
+			// only the thinking pause is left: drop the move, like a stopped search
+			if (!this.onBM) { clearTimeout(this.tm); this.st = S.Wa; res(); return; }
 			this.onBM = () => { this.st = S.Wa; this.onBM = undefined; res(); };
 			this.w.postMessage('stop');
 		});

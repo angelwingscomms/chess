@@ -25,7 +25,32 @@ const pos = (fen: string) => fen.split(' ').slice(0, 4).join(' ');
 const side = () => (pz.p?.f.split(' ')[1] ?? 'w') as 'w' | 'b';
 const engine_for = (p: Puzzle) => (pz.mode === 'c' ? 'none' : p.f.split(' ')[1] === 'w' ? 'b' : 'w');
 
-export const theme_words = (t: string) => t.replace(/([a-z])([A-Z0-9])/g, '$1 $2').toLowerCase();
+// a short name for each puzzle theme, and what it means for someone new to chess
+const THEMES: Record<string, [string, string]> = {
+	fork: ['fork', 'one piece attacks two at once'],
+	pin: ['pin', 'a piece can’t move without losing what’s behind it'],
+	skewer: ['skewer', 'an attack that goes through one piece to hit another'],
+	discoveredAttack: ['surprise attack', 'one piece steps aside and another one attacks'],
+	doubleCheck: ['double check', 'two pieces give check at once'],
+	sacrifice: ['sacrifice', 'give up a piece to win something bigger'],
+	deflection: ['deflection', 'pull a defender away from its job'],
+	attraction: ['lure', 'pull a piece onto a bad square'],
+	hangingPiece: ['free piece', 'a piece nobody was guarding'],
+	trappedPiece: ['trapped piece', 'a piece with nowhere safe to go'],
+	mateIn1: ['mate in 1', 'checkmate in one move'],
+	mateIn2: ['mate in 2', 'checkmate in two moves'],
+	mateIn3: ['mate in 3', 'checkmate in three moves'],
+	backRankMate: ['back-row mate', 'checkmate on the king’s back row'],
+	smotheredMate: ['smothered mate', 'the king is boxed in by its own pieces'],
+	promotion: ['promotion', 'a pawn reaches the far side and becomes a queen'],
+	endgame: ['endgame', 'only a few pieces left'],
+	defensiveMove: ['defence', 'the one move that keeps you safe'],
+	quietMove: ['quiet move', 'a calm move that sets up a big threat'],
+	zugzwang: ['zugzwang', 'they must move, and every move hurts them']
+};
+export const theme_words = (t: string) => THEMES[t]?.[0] ?? t.replace(/([a-z])([A-Z0-9])/g, '$1 $2').toLowerCase();
+export const theme_meaning = (t: string) => THEMES[t]?.[1] ?? '';
+export const difficulty = (r = 0) => (r < 1000 ? 'easy' : r < 1400 ? 'medium' : r < 1800 ? 'hard' : 'expert');
 export const main_theme = (p: Puzzle | null) => TACTICS.find((t) => p?.t.includes(t)) ?? '';
 
 export function solution_san(p: Puzzle | null) {

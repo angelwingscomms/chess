@@ -12,6 +12,7 @@
 	import { next_puzzle, pz } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { glass, lit } from './ui';
+	import { say_move } from '$lib/util/chess/words';
 	const s = get_learn_state();
 
 	let ready = $derived(s.ready);
@@ -40,20 +41,20 @@
 			<div class="flex items-center gap-1.5">
 				{#if board_history.length > 1}
 					<span class="flex items-center gap-1.5" data-tour="history">
-						<button aria-label="Previous board" data-tip="previous position" class={glass} onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
+						<button aria-label="Previous board" data-tip="look back" class={glass} onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
 							<ArrowLeftIcon size={16} strokeWidth={1.8} />
 						</button>
-						<button aria-label="Next board" data-tip="next position" class={glass} onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
+						<button aria-label="Next board" data-tip="look forward" class={glass} onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
 							<ArrowRightIcon size={16} strokeWidth={1.8} />
 						</button>
 					</span>
 					<span class="mx-0.5 h-5 w-px bg-haze/15" aria-hidden="true"></span>
 				{/if}
-				<button aria-label="Undo move" data-tip="undo move" data-tour="undo" class={glass} onclick={() => s.undoMove()} disabled={!ready || !history.length || gameOver}>
+				<button aria-label="Undo move" data-tip="take back" data-tour="undo" class={glass} onclick={() => s.undoMove()} disabled={!ready || !history.length || gameOver}>
 					<UndoIcon size={16} strokeWidth={1.8} />
 				</button>
 				{#if redo_stack.length}
-					<button aria-label="Redo move" data-tip="redo move" data-tour="redo" class={glass} onclick={() => s.redoMove()}>
+					<button aria-label="Redo move" data-tip="put it back" data-tour="redo" class={glass} onclick={() => s.redoMove()}>
 						<RedoIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
@@ -66,7 +67,7 @@
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
-				<button aria-label="Puzzle at your level" data-tip="a puzzle at your level" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
+				<button aria-label="Puzzle at your level" data-tip="a puzzle for you" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
 					<PuzzleIcon size={16} strokeWidth={1.8} />
 				</button>
 				<span class="mx-0.5 h-5 w-px bg-haze/15" aria-hidden="true"></span>
@@ -76,7 +77,7 @@
 		{#if show_hints && !hint_loading && hints.length > 0}
 			<div class="flex items-center justify-end gap-2 animate-surface">
 				<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">try</span>
-				<span class="rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 font-calm-mono text-xs tracking-[0.08em] text-glow">{s.uciToSan(fen, hints[hint_index].move)}</span>
+				<span class="rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 text-xs text-glow">{say_move(s.uciToSan(fen, hints[hint_index].move))}</span>
 				<button aria-label="Explain hint" data-tip="ask the coach why" data-tip-end class="{glass} {chat_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.explainHint()}>
 					<span class="font-calm-mono text-xs">why</span>
 				</button>

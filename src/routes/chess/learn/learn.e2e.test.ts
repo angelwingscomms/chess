@@ -37,7 +37,7 @@ describe('/chess/learn chat', () => {
 	});
 
 	it('keeps desktop vertical chrome tight around the board', () => {
-		expect(page).toContain('flex h-svh flex-col gap-4 overflow-hidden');
+		expect(page).toContain('flex h-svh flex-col gap-3 overflow-hidden');
 		expect(page).toContain('lg:pt-20 lg:pb-8');
 		expect(page).not.toContain('container py-12');
 	});
@@ -56,7 +56,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('clearChat');
 		expect(page).toContain('/chess/learn/chat');
 		expect(page).toContain('Chat');
-		expect(page).toContain('ask about the position');
+		expect(page).toContain('ask your coach anything');
 	});
 
 	it('keeps board context hidden while sending request state', () => {
@@ -76,7 +76,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('border-dashed border-haze/20');
 		expect(page).toContain('aria-label="Remove queued message"');
 		expect(page).toContain('aria-label="Send this message now"');
-		expect(page).toContain('class="max-h-32 min-h-[40px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2.5 text-[15px] text-haze outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"');
+		expect(page).toContain('class="max-h-32 min-h-[38px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2 text-[14px] text-haze lg:min-h-[40px] lg:py-2.5 lg:text-[15px] outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"');
 		expect(page).toContain("s.sendChatMessage(s.chat_input)");
 		expect(page).toContain("this.chat_queue = [...this.chat_queue, { text: t }]");
 	});
@@ -105,13 +105,15 @@ describe('/chess/learn chat', () => {
 
 	it('shows board-state-aware chat suggestions above the input', () => {
 		expect(page).toContain('chat_suggestions');
-		expect(page).toContain("How do I get out of check?");
-		expect(page).toContain("Suggest a good opening move");
-		expect(page).toContain("Why did Stockfish play that?");
-		expect(page).toContain("What is the best move for me?");
-		expect(page).toContain("Who is winning right now?");
-		expect(page).toContain("What is the plan here?");
-		expect(page).toContain('rounded-full border border-glow/40 px-3.5 py-1.5 text-sm');
+		expect(page).toContain("how do i get out of check?");
+		expect(page).toContain("how do the pieces move?");
+		expect(page).toContain("how should i start?");
+		expect(page).toContain("why did the computer do that?");
+		expect(page).toContain("what should i do now?");
+		expect(page).toContain("who is winning?");
+		expect(page).toContain("what is my plan?");
+		expect(page).not.toContain('Stockfish play');
+		expect(page).toContain('rounded-full border border-glow/40 px-3 py-1.5 text-[13px]');
 	});
 });
 
@@ -140,10 +142,9 @@ describe('/chess/learn Gemini Live voice', () => {
 describe('/chess/learn settings modal', () => {
 	it('uses the warm product design system instead of the shared checkout modal shell', () => {
 		expect(page).toContain('data-testid="learn-settings-modal"');
-		expect(page).toContain('bg-canvas text-body shadow-[0_24px_80px_rgba(20,20,19,0.22)]');
-		expect(page).toContain('font-display text-2xl font-medium text-ink');
-		expect(page).toContain('bg-surface-card p-4');
-		expect(page).toContain('rounded-lg border border-hairline bg-canvas');
+		expect(page).toContain('rounded-3xl border border-haze/12 bg-deep/95 font-calm');
+		expect(page).toContain('make it yours');
+		expect(page).toContain('how strong should it play?');
 		expect(page).not.toContain('modal-card max-w-sm');
 	});
 
@@ -166,8 +167,8 @@ describe('/chess/learn settings modal', () => {
 
 	it('uses a tiny coral round control for auto explain', () => {
 		expect(page).toContain('sr-only');
-		expect(page).toContain('rounded-full border border-primary');
-		expect(page).toContain('bg-primary');
+		expect(page).toContain('{#snippet toggle(');
+		expect(page).toContain('peer-checked:bg-glow/25');
 		expect(page).not.toContain('type="checkbox" bind:checked={autoexplain} class="h-4 w-4 accent-primary"');
 	});
 
@@ -179,8 +180,8 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('request_hint() {');
 		expect(page).toContain('if (this.hint_on_start && !this.start_hint_done)');
 		expect(page).toContain("this.hints = await getHints(this.fen, 1, undefined, sig, undefined, this.hint_think_time * 1000);");
-		expect(page).toContain('Auto hint');
-		expect(page).toContain('Hint on start');
+		expect(page).toContain('a hint after each computer move');
+		expect(page).toContain('a hint when you open e4');
 	});
 
 	it('shows hint loading through the hint button instead of analyzing text', () => {
@@ -193,7 +194,7 @@ describe('/chess/learn settings modal', () => {
 	it('keeps chat chrome compact and icon-only', () => {
 		expect(page).toContain('data-testid="learn-status-toolbar"');
 		expect(page).toContain('aria-label="Clear chat"');
-		expect(page).toContain('rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 font-calm-mono text-xs');
+		expect(page).toContain('rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 text-xs text-glow');
 		expect(page).not.toContain('<span class="text-sm font-medium text-ink">Chat</span>');
 		expect(page).not.toContain('<button class="text-xs text-muted" onclick={clearChat}>Clear</button>');
 	});
@@ -210,15 +211,15 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('streamText');
 		expect(page).toContain("if (is_gemini && this.gemini_api_key.trim())");
 		expect(page).toContain("if (!this.model.startsWith('deepseek/') && !this.model.startsWith('bynara/') && this.groq_api_key.trim() && this.model.includes('/'))");
-		expect(page).toContain('Groq API key');
-		expect(page).toContain('Gemini API key');
+		expect(page).toContain('groq key');
+		expect(page).toContain('gemini key');
 		expect(page).toContain('type="password"');
-		expect(page).toContain('Get your free Groq API key @');
-		expect(page).toContain('href="https://console.groq.com/keys"');
-		expect(page).toContain('Get your free Gemini API key @');
-		expect(page).toContain('href="https://aistudio.google.com/apikey"');
+
+		expect(page).toContain('https://console.groq.com/keys');
+
+		expect(page).toContain('https://aistudio.google.com/apikey');
 		expect(page).toContain('target="_blank"');
-		expect(page).toContain('Use AI features for free by using your own API keys');
+		expect(page).toContain('optional: use your own keys');
 	});
 
 	it('reads direct text from AI SDK textStream', () => {
@@ -237,10 +238,9 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('const cost = calc_cost(m, p, c)');
 		expect(page).toContain('total_cost += cost');
 		expect(page).toContain('total_cost = 0');
-		expect(page).toContain('Cost (NGN)');
-		expect(page).toContain('(total_cost * NGN_USD).toFixed(2)}');
-		expect(page).toContain('Input');
-		expect(page).toContain('Output');
+		expect(page).toContain('text it read');
+		expect(page).toContain('total_cost * NGN_USD).toFixed(2)}');
+		expect(page).toContain('text it wrote');
 	});
 
 	it('stores per-message usage and shows NGN cost inline', () => {
@@ -252,13 +252,13 @@ describe('/chess/learn settings modal', () => {
 
 	it('shows model combobox regardless of api key', () => {
 		expect(page).toContain('show_model_menu = $state(false);');
-		expect(page).toContain('let model_options =');
+		expect(page).toContain('s.model_options');
 		expect(page).toContain('role="combobox"');
 		expect(page).toContain('aria-haspopup="listbox"');
-		expect(page).toContain('aria-expanded={show_model_menu}');
+		expect(page).toContain('aria-expanded={s.show_model_menu}');
 		expect(page).toContain('role="listbox"');
 		expect(page).toContain('role="option"');
-		expect(page).toContain('rounded-lg border border-hairline bg-canvas');
+		expect(page).toContain('rounded-xl border border-haze/15 bg-night/60');
 		expect(page).not.toContain('<select bind:value={model}');
 	});
 
@@ -266,8 +266,8 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('max-h-[calc(100dvh-2rem)]');
 		expect(page).toContain('flex max-h-[calc(100dvh-2rem)]');
 		expect(page).toContain('flex-col overflow-hidden');
-		expect(page).toContain('grid min-h-0 gap-3 overflow-y-auto');
-		expect(page).toContain('shrink-0 border-b border-hairline');
-		expect(page).toContain('shrink-0 grid grid-cols-2');
+		expect(page).toContain('grid min-h-0 gap-6 overflow-y-auto');
+		expect(page).toContain('shrink-0 px-6 pt-6 pb-4');
+		expect(page).toContain('flex shrink-0 items-center justify-between gap-3 border-t');
 	});
 });

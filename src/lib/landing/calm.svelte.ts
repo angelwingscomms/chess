@@ -26,7 +26,7 @@ export const palettes = [
 	['#2a1c28', '#5b3944', '#ad6a5c', '#f2bb8e', '#130d12']
 ].map((p) => new Float32Array(p.flatMap(rgb)));
 
-export const ui = $state({ sound: false, ripples: false, notes: false, living: false, flat: false });
+export const ui = $state({ sound: false, ripples: false, notes: false, living: false, flat: true });
 
 type Feel = 'ripples' | 'notes' | 'living' | 'flat';
 
@@ -40,7 +40,8 @@ export function set_feel(k: Feel, v: boolean) {
 export function load_feel() {
 	for (const k of ['ripples', 'notes', 'living', 'flat'] as Feel[]) {
 		try {
-			ui[k] = localStorage.getItem(`e4_${k}`) === '1';
+			const v = localStorage.getItem(`e4_${k}`);
+			ui[k] = k === 'flat' ? v !== '0' : v === '1';
 		} catch {}
 	}
 }
@@ -93,6 +94,17 @@ export function use_scene(fn: Scene) {
 	return () => {
 		if (calm.scene === fn) calm.scene = null;
 	};
+}
+
+// quiet pages: the board sits in a slot when there is one, otherwise it melts into the background
+export function use_ambient(slot: () => HTMLElement | undefined = () => undefined) {
+	const p = palettes[0];
+	return use_scene(() => {
+		const r = slot()?.getBoundingClientRect();
+		const base = { p, q: [0, 0, 0], w: 0, r: 4, f: 0, h: 0 };
+		if (r?.width) return { ...base, x: r.left + r.width / 2, y: r.top + r.height / 2, s: r.width, k: 0, m: 0 };
+		return { ...base, x: innerWidth / 2, y: innerHeight * 0.6, s: Math.max(innerWidth, innerHeight) * 1.3, k: 1, m: 1 };
+	});
 }
 
 export function take_handoff() {

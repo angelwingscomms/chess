@@ -20,40 +20,40 @@
 				{
 					popover: {
 						title: 'welcome to e4',
-						description: 'play stockfish on a calm board, with a coach that explains any move. a quick look around — 30 seconds.'
+						description: 'learn chess by playing. your coach explains anything you ask, in plain words. here’s a quick look around, about 30 seconds.'
 					}
 				},
 				{
 					element: '[data-tour="board"]',
-					popover: { title: 'make your move', description: 'drag or tap a piece. the engine answers, at the level you choose. drag the space around the board to turn it.', side: 'right', align: 'center' }
+					popover: { title: 'your board', description: 'tap a piece to see where it can go, then tap a glowing square to move it. the computer plays the other side.', side: 'right', align: 'center' }
 				},
 				{
 					element: '[data-tour="hint"]',
-					popover: { title: 'stuck?', description: 'the bulb shows a good move. tap “why” and the coach explains it.', side: 'top', align: 'center' }
+					popover: { title: 'stuck?', description: 'tap the bulb and a good move lights up. tap “why” and the coach tells you why it’s good.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="puzzle"]',
-					popover: { title: 'puzzles', description: 'a puzzle at your level, checked move by move. or ask the coach for any theme — “forks, around 1200”.', side: 'top', align: 'end' }
+					popover: { title: 'puzzles', description: 'short challenges: find the winning move. they match your level. you can also ask the coach, like “an easy puzzle, please”.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="view"]',
-					popover: { title: 'your view', description: 'snap the board to top, tilted, low or side. 2d brings back the flat board.', side: 'top', align: 'end' }
+					popover: { title: 'see it in 3d', description: 'tap here to turn the board into a real 3d chess set. drag around it to spin it any way you like.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="chat"]',
-					popover: { title: 'ask the coach', description: 'type any question. the coach sees the live board.', side: 'top', align: 'center' }
+					popover: { title: 'ask your coach', description: 'type any question, even “how does the knight move?”. the coach can see your board.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="voice"]',
-					popover: { title: 'talk out loud', description: 'tap the mic and just ask. it answers in a calm voice.', side: 'top', align: 'end' }
+					popover: { title: 'talk out loud', description: 'tap the mic and just ask. the coach answers in a calm voice.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="more"]',
-					popover: { title: 'new game, flip, sides', description: 'start over, flip the board, or play as black.', side: 'bottom', align: 'end' }
+					popover: { title: 'new game and more', description: 'start over, turn the board around, or play as black.', side: 'bottom', align: 'end' }
 				},
 				{
 					element: '[data-tour="settings"]',
-					popover: { title: 'make it yours', description: 'living colours, hover notes and ripples start off, so the board stays clear. turn them on in settings for the full dreamy feel. sound lives in the top bar.', side: 'bottom', align: 'end' }
+					popover: { title: 'make it yours', description: 'make the computer easier or harder, pick how your coach helps, and turn on extras like living colours. sound is in the top bar.', side: 'bottom', align: 'end' }
 				}
 			],
 		});
