@@ -1286,6 +1286,7 @@ img {
   --animate-cue: cue 3.2s var(--ease-calm) infinite;
   --animate-bar: bar 1.4s var(--ease-calm) infinite;
   --animate-think: think 1.5s var(--ease-calm) infinite;
+  --animate-twinkle: twinkle 2.4s var(--ease-calm) infinite;
 
   @keyframes rise {
     from { transform: translateY(110%); }
@@ -1295,6 +1296,10 @@ img {
   }
   @keyframes drift {
     to { transform: translateX(-50%); }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.8; transform: scale(0.88); }
+    50% { opacity: 1; transform: scale(1); }
   }
   @keyframes listen {
     0%, 100% { opacity: 0.35; transform: scale(0.8); }

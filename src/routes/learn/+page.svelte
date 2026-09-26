@@ -178,7 +178,7 @@
 			<Chessground bind:this={board} class="cg-default-style board-themed" config={{ orientation: 'white', coordinates: false, animation: { enabled: true, duration: 260 }, highlight: { lastMove: true, check: true }, premovable: { enabled: false }, drawable: { enabled: false }, movable: { free: false, color: 'white', showDests: true, events: { after: moved } } }} />
 			<div class="pointer-events-none absolute inset-0 z-10 grid grid-cols-8 grid-rows-8" aria-hidden="true">
 				{#each level.s ?? [] as q (q + si + li)}
-					<span class="grid place-items-center text-[min(5vw,2.4rem)] text-glow drop-shadow-[0_0_14px_rgba(233,164,124,0.9)] transition duration-500 ease-expo {COL[q.charCodeAt(0) - 97]} {ROW[8 - +q[1]]} {got.includes(q) ? 'scale-150 opacity-0' : 'motion-safe:animate-listen'}">✦</span>
+					<span class="grid place-items-center text-[min(7vw,2.6rem)] text-glow drop-shadow-[0_0_14px_rgba(233,164,124,0.9)] transition duration-500 ease-expo {COL[q.charCodeAt(0) - 97]} {ROW[8 - +q[1]]} {got.includes(q) ? 'scale-150 opacity-0' : 'motion-safe:animate-twinkle'}">✦</span>
 				{/each}
 			</div>
 		</div>
