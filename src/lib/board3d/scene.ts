@@ -33,6 +33,7 @@ type Pc = {
 	b: number; // born, ms
 	k: number; // dies from, ms, 0 while alive
 	u?: boolean; // reused by the current set_fen
+	w?: number; // wiggle started, ms, after a move that isn't allowed
 };
 
 const FOV = 26;
@@ -202,6 +203,16 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	const GLOW = new THREE.Color(0xe9a47c);
 	const RED = new THREE.Color(0xff7a7a);
 	const PALE = new THREE.Color(0xece7f1);
+	// the hint arrow, laid on the board along +x: a shaft and a head that keeps its size
+	const arrow_pts = new Float32Array([0.25, 0, -0.07, 1, 0, -0.07, 1, 0, 0.07, 0.25, 0, 0.07, 1, 0, -0.2, 1.36, 0, 0, 1, 0, 0.2]);
+	const arrow_geo = new THREE.BufferGeometry();
+	arrow_geo.setAttribute('position', new THREE.BufferAttribute(arrow_pts, 3));
+	arrow_geo.setIndex([0, 3, 2, 0, 2, 1, 4, 6, 5]);
+	const arrow = new THREE.Mesh(arrow_geo, new THREE.MeshBasicMaterial({ color: GLOW, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, side: THREE.DoubleSide }));
+	arrow.renderOrder = 2;
+	arrow.visible = false;
+	arrow.frustumCulled = false;
+	scene.add(arrow);
 
 	const glyphs = document.createElement('canvas');
 	glyphs.width = 1024;
@@ -491,7 +502,17 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 				y = floor + p.y + hop;
 			}
 			const m = packs[p.c];
-			if (m.count < 32) m.setMatrixAt(m.count++, m4.compose(pos.set(p.x, y, p.z), p.c[1] === 'N' ? q_face : q_id, scl.setScalar(s)));
+			let wig = 0;
+			if (p.w) {
+				const t = (now - p.w) / 380;
+				if (t >= 1) p.w = 0;
+				else wig = Math.sin(t * Math.PI * 5) * 0.08 * (1 - t);
+				busy = true;
+			}
+			// sideways as seen from the camera
+			const wx2 = p.x + Math.cos(cur.az) * wig;
+			const wz2 = p.z - Math.sin(cur.az) * wig;
+			if (m.count < 32) m.setMatrixAt(m.count++, m4.compose(pos.set(wx2, y, wz2), p.c[1] === 'N' ? q_face : q_id, scl.setScalar(s)));
 			const sh = 0.95 * s * (1 + (y - floor) * 0.6);
 			shadows.setMatrixAt(ns++, m4.compose(pos.set(p.x, floor + 0.004, p.z), q_id, scl.setScalar(sh)));
 			pcs[live++] = p;
@@ -508,6 +529,21 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 		mark(blobs, marks.k, 1.1, RED, 0.9);
 		mark(blobs, marks.h?.[1], 1, GLOW, 0.55 + 0.25 * Math.sin(clock * 3));
 		mark(rings, marks.h?.[0], 1, GLOW, 0.85);
+		arrow.visible = !!marks.h;
+		if (marks.h) {
+			const [a, b2] = marks.h;
+			const dx = wx(b2) - wx(a);
+			const dz = wz(b2) - wz(a);
+			const tip = Math.hypot(dx, dz) - 0.12;
+			if (arrow_pts[15] !== tip) {
+				arrow_pts[3] = arrow_pts[6] = arrow_pts[12] = arrow_pts[18] = tip - 0.36;
+				arrow_pts[15] = tip;
+				arrow_geo.attributes.position.needsUpdate = true;
+			}
+			arrow.position.set(wx(a), Math.max(off[a], off[b2]) + 0.03, wz(a));
+			arrow.rotation.set(0, -Math.atan2(dz, dx), 0);
+			(arrow.material as THREE.MeshBasicMaterial).opacity = 0.55 + 0.25 * Math.sin(clock * 3);
+		}
 		if (marks.d) for (const q of marks.d) mark(blobs, q, 0.34, PALE, 0.9);
 		if (marks.c) for (const q of marks.c) mark(rings, q, 1, PALE, 0.55);
 		blobs.instanceMatrix.needsUpdate = rings.instanceMatrix.needsUpdate = true;
@@ -632,6 +668,12 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 			aim_pt.x = clamp(o.x + t * d.x, -4.3, 4.3);
 			aim_pt.z = clamp(o.z + t * d.z, -4.3, 4.3);
 			hover = under(aim_pt.x, aim_pt.z);
+			kick();
+		},
+		shake(q: number) {
+			const p = pcs.find((c) => c.q === q && !c.k);
+			if (!p || still) return;
+			p.w = performance.now();
 			kick();
 		},
 		drop(hold = false) {

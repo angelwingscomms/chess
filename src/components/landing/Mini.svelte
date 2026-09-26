@@ -18,7 +18,7 @@
 	<div class="flex items-center justify-between gap-2">
 		<p class="flex items-center gap-2 pl-1 font-calm-mono text-xs tracking-[0.16em] text-mist">
 			<span class="block size-1.5 rounded-full {s.chat_loading || s.recording ? 'bg-glow motion-safe:animate-listen' : 'bg-haze/40'}"></span>
-			{s.recording ? 'listening' : s.chat_loading ? 'thinking' : s.history.length || s.chat_messages.length ? 'your coach' : 'tap a piece to play'}
+			{s.thinking ? 'thinking' : s.recording ? 'listening' : s.chat_loading ? 'writing' : s.history.length || s.chat_messages.length ? 'your coach' : 'tap a piece to play'}
 		</p>
 		<TalkButton />
 	</div>

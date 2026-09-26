@@ -32,5 +32,5 @@
 			<span class="block h-3.5 w-[2px] rounded-full bg-current {s.recording || waiting ? `animate-bar ${d}` : 'scale-y-[0.45]'}"></span>
 		{/each}
 	</span>
-	{s.recording ? 'listening' : waiting ? 'connecting…' : 'talk'}
+	{s.recording ? (s.thinking ? 'thinking…' : 'listening') : waiting ? 'connecting…' : 'talk'}
 </button>

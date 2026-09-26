@@ -55,6 +55,19 @@
 				<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-3.5 py-2 text-haze/85 animate-surface lg:px-4 lg:py-2.5 {i === pending_user_idx ? 'motion-safe:animate-chat-loading' : ''}">{msg.content}</p>
 			{/if}
 		{/each}
+		{#if s.thinking}
+			<div class="self-start rounded-2xl rounded-bl-md border border-glow/25 bg-night/50 px-4 py-3 backdrop-blur-md animate-surface" role="status" aria-label="your coach is thinking">
+				<span class="mb-1.5 block font-calm-mono text-[11px] tracking-[0.16em] text-glow">e4</span>
+				<span class="flex items-center gap-2.5 text-haze/70">
+					<span class="flex items-center gap-1" aria-hidden="true">
+						{#each ['[animation-delay:0s]', '[animation-delay:0.18s]', '[animation-delay:0.36s]'] as d}
+							<span class="block size-1.5 rounded-full bg-glow motion-safe:animate-think {d}"></span>
+						{/each}
+					</span>
+					thinking
+				</span>
+			</div>
+		{/if}
 		{#each chat_queue as q_msg, i (i)}
 			<div class="flex max-w-[85%] items-center gap-2 self-end rounded-2xl rounded-br-md border border-dashed border-haze/20 px-4 py-2.5 text-haze/60">
 				<span>{q_msg.text}</span>

@@ -21,7 +21,7 @@
 				<span class="block h-4 w-[2px] rounded-full bg-glow {voice_muted ? 'scale-y-[0.2]' : `animate-bar ${d}`}"></span>
 			{/each}
 		</span>
-		{voice_muted ? 'mic muted' : 'listening'}
+		{s.thinking ? 'thinking…' : voice_muted ? 'mic muted' : 'listening'}
 	</p>
 	<div class="flex items-center gap-1.5">
 		<button title={voice_muted ? 'Unmute mic' : 'Mute mic'} aria-label={voice_muted ? 'Unmute mic' : 'Mute mic'} class={voice_muted ? lit : glass} onclick={() => s.set_voice_muted(!s.voice_muted)}>

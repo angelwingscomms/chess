@@ -43,7 +43,7 @@
 <div class="flex items-center justify-between gap-2">
 	<p class="flex items-center gap-2 pl-1 font-calm-mono text-xs tracking-[0.16em] text-mist">
 		<span class="block size-1.5 rounded-full {busy || recording ? 'bg-glow motion-safe:animate-listen' : 'bg-haze/40'}"></span>
-		{recording ? 'listening' : busy ? 'thinking' : 'coach'}
+		{s.thinking ? 'thinking' : recording ? 'listening' : busy ? 'writing' : 'coach'}
 	</p>
 	<div class="relative flex items-center gap-1.5" bind:this={wrap}>
 		<TalkButton />

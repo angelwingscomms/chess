@@ -137,6 +137,7 @@ export class LearnState {
 	openai_api_key = $state(browser && localStorage.getItem('openai_api_key') || '');
 	gemini_search_tool = $state(false);
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
+	show_dests = $state(!browser || localStorage.getItem('e4_dots') !== '0');
 	voice_provider = $state<'gemini' | 'openai'>('gemini');
 	// voice_provider = $state<'gemini' | 'openai'>(browser && (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini');
 	voice_name = $state(voice_options.find((o) => o.v === (browser && localStorage.getItem('e4_voice')))?.v ?? 'Achird');
@@ -190,11 +191,19 @@ export class LearnState {
 
 	rnnoise_node: AudioWorkletNode | null = null;
 
-	_last_fen_sent = 0;
 	_set_state_fail_count = 0;
 	gemini_live_healthy = false;
 	gemini_live_closing = false;
 	thinking_sound: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
+	voice_thinking = $state(false);
+	// the gap between the end of what they said and the first word of the answer
+	voice_pending = $state(false);
+	pending_timer: ReturnType<typeof setTimeout> | undefined;
+
+	get thinking() {
+		const last = this.chat_messages[this.chat_messages.length - 1];
+		return (this.chat_loading && last?.role === 'user') || (this.recording && (this.voice_thinking || this.voice_pending));
+	}
 	thinking_sound_buf: AudioBuffer | null = null;
 	toasts = $state<{ id: number; msg: string; t: string }[]>([]);
 	toast_id = $state(0);
@@ -222,9 +231,15 @@ export class LearnState {
 		$effect(() => { if (browser) localStorage.setItem('gemini_api_key', this.gemini_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('openai_api_key', this.openai_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
+		$effect(() => { if (browser) localStorage.setItem('e4_dots', this.show_dests ? '1' : '0'); });
 		$effect(() => { if (browser) localStorage.setItem('voice_provider', this.voice_provider); });
 		$effect(() => { if (browser) localStorage.setItem('e4_voice', this.voice_name); });
 		$effect(() => { if (browser) localStorage.setItem('e4_help', this.vibe); });
+		$effect(() => {
+			void this.fen;
+			void this.gameOver;
+			if (this.recording) this.send_board_to_voice();
+		});
 		let lv = 0;
 		$effect(() => {
 			if (lv && lv !== this.level) this.save_game_debounced();
@@ -445,10 +460,31 @@ export class LearnState {
 		return { f: this.fen, p: this.history.join(' '), u: this.last_user_move, a: this.last_ai_move };
 	}
 
+	// where every piece stands, in words; models misread fen, and every reply should know the board
+	board_words() {
+		const names: Record<string, string> = { k: 'king', q: 'queen', r: 'rook', b: 'bishop', n: 'knight', p: 'pawn' };
+		const side: Record<string, string[]> = { w: [], b: [] };
+		try {
+			const c = new ChessJS(this.fen);
+			for (const row of c.board()) for (const p of row) if (p) side[p.color].push(`${names[p.type]} ${p.square}`);
+			const bot = this.engine?.getColor?.();
+			const me = bot === 'w' ? 'black' : bot === 'b' ? 'white' : '';
+			return `white: ${side.w.join(', ')}. black: ${side.b.join(', ')}. ${c.turn() === 'w' ? 'white' : 'black'} to move.${me ? ` the player is ${me}.` : ''}`;
+		} catch {
+			return '';
+		}
+	}
+
+	send_board_to_voice() {
+		if (!this.gemini_live_can_send()) return;
+		try {
+			this.gemini_live_session.sendClientContent({ turns: [{ role: 'user', parts: [{ text: `fen: ${this.fen}. ${this.board_words()} game over: ${this.gameOver ? 'yes' : 'no'}.` }] }], turnComplete: false });
+		} catch {}
+	}
+
 	build_chat_data(h = '', eval_data?: string): ChatData {
 		const c = this.current_chat_context();
-		const d: ChatData = {};
-		if (c.f !== this.successful_context.f) d.f = c.f;
+		const d: ChatData = { f: c.f, b: this.board_words() };
 		if (c.p && c.p !== this.successful_context.p) d.p = c.p;
 		if (c.u && c.u !== this.successful_context.u) d.u = c.u;
 		if (c.a && c.a !== this.successful_context.a) d.a = c.a;
@@ -462,6 +498,7 @@ export class LearnState {
 		const d = msg.d ?? {};
 		const rows = [
 			d.f && `fen: ${d.f}`,
+			d.b && `pieces: ${d.b}`,
 			d.p && `move_history: ${d.p}`,
 			d.u && `last_user_move: ${d.u}`,
 			d.a && `last_ai_move: ${d.a}`,
@@ -1116,6 +1153,9 @@ export class LearnState {
 	cleanup_gemini_live() {
 		if (this.gemini_live_closing) return;
 		this.gemini_live_closing = true;
+		clearTimeout(this.pending_timer);
+		this.voice_pending = false;
+		this.voice_thinking = false;
 		this.cleanup_openai_live();
 		if (this.screen_media_recorder) {
 			try { if (this.screen_media_recorder.state !== 'inactive') this.screen_media_recorder.stop(); } catch {}
@@ -1434,19 +1474,28 @@ export class LearnState {
 		} catch {}
 	}
 
-	async load_thinking_sound() {
-		if (this.thinking_sound_buf) return;
-		try {
-			const ctx = this.gemini_live_audio_ctx;
-			if (!ctx) return;
-			const res = await fetch('/sounds/thinking.wav');
-			if (!res.ok) return;
-			const array_buf = await res.arrayBuffer();
-			this.thinking_sound_buf = await ctx.decodeAudioData(array_buf);
-		} catch {}
+	// one 1.9 s loop: a C3 sine with soft 2nd and 3rd partials (so small speakers still carry it),
+	// a slow 0.45 s rise, a long fall, and a gentle lowpass so it stays muted
+	load_thinking_sound() {
+		const ctx = this.gemini_live_audio_ctx;
+		if (this.thinking_sound_buf || !ctx) return;
+		const rate = ctx.sampleRate;
+		const buf = ctx.createBuffer(1, Math.round(rate * 1.9), rate);
+		const d = buf.getChannelData(0);
+		const f = 130.81;
+		let lp = 0;
+		for (let i = 0; i < d.length; i++) {
+			const t = i / rate;
+			const env = t < 0.45 ? Math.sin((t / 0.45) * Math.PI * 0.5) ** 2 : Math.exp(-(t - 0.45) * 3.2);
+			const w = Math.sin(2 * Math.PI * f * t) + 0.3 * Math.sin(4 * Math.PI * f * t) + 0.08 * Math.sin(6 * Math.PI * f * t);
+			lp += (w * env - lp) * 0.12;
+			d[i] = lp * 0.22;
+		}
+		this.thinking_sound_buf = buf;
 	}
 
 	start_thinking_sound() {
+		this.voice_thinking = true;
 		const ctx = this.gemini_live_audio_ctx;
 		if (!ctx || this.thinking_sound || !this.thinking_sound_buf) return;
 		try {
@@ -1464,6 +1513,7 @@ export class LearnState {
 	}
 
 	stop_thinking_sound() {
+		this.voice_thinking = false;
 		if (!this.thinking_sound) return;
 		const { source, gain } = this.thinking_sound;
 		const ctx = this.gemini_live_audio_ctx;
@@ -1678,6 +1728,8 @@ export class LearnState {
 	set_voice_muted(v: boolean) {
 		this.voice_muted = v;
 		this.gemini_live_mic_stream?.getAudioTracks().forEach((t) => { t.enabled = !v; });
+		// with no more audio the service never hears the pause that ends a sentence, so say the stream ended
+		if (v && this.gemini_live_can_send()) this.send_gemini_realtime_input({ audioStreamEnd: true }, 'set_voice_muted');
 		if (this.openai_live_can_send()) {
 			this.send_openai_live_event({
 				type: v ? 'session.input_audio.mute' : 'session.input_audio.unmute',
@@ -1701,12 +1753,7 @@ export class LearnState {
 		const bytes = new Uint8Array(pcm16.buffer);
 		let binary = '';
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-		const now = Date.now();
-		this.send_gemini_realtime_input({
-			audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
-			...(this.quiet || now - (this._last_fen_sent ?? 0) < 2000 ? {} : { text: `fen:${this.fen} game_over:${this.gameOver}` }),
-		}, 'gemini_process_audio');
-		if (!this.quiet) this._last_fen_sent = now;
+		this.send_gemini_realtime_input({ audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' } }, 'gemini_process_audio');
 	};
 
 	play_next_audio() {
@@ -1766,6 +1813,8 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.modelTurn?.parts) {
+			clearTimeout(this.pending_timer);
+			this.voice_pending = false;
 			this.stop_thinking_sound();
 			for (const part of msg.serverContent.modelTurn.parts) {
 				if (part.inlineData?.mimeType?.startsWith('audio/')) {
@@ -1786,9 +1835,13 @@ export class LearnState {
 			}
 		}
 		if (msg.serverContent?.interrupted) {
+			clearTimeout(this.pending_timer);
+			this.voice_pending = false;
 			this.interrupt_audio();
 		}
 		if (msg.serverContent?.inputTranscription?.text) {
+			clearTimeout(this.pending_timer);
+			this.pending_timer = setTimeout(() => (this.voice_pending = true), 700);
 			const text = msg.serverContent.inputTranscription.text;
 			this.output_turn_active = false;
 			this.chat_messages = [...this.chat_messages, { role: 'user', content: text }];
@@ -1808,6 +1861,8 @@ export class LearnState {
 			this.save_game_debounced();
 		}
 		if (msg.serverContent?.turnComplete) {
+			clearTimeout(this.pending_timer);
+			this.voice_pending = false;
 			this.output_turn_active = false;
 		}
 		if (msg.usageMetadata) {

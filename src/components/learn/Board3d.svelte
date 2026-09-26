@@ -107,8 +107,8 @@
 		b3.marks({
 			l: last,
 			s: sel >= 0 ? sel : undefined,
-			d: [...new Set(moves.filter((m) => !m.captured).map((m) => idx(m.to)))],
-			c: [...new Set(moves.filter((m) => m.captured).map((m) => idx(m.to)))],
+			d: s.show_dests ? [...new Set(moves.filter((m) => !m.captured).map((m) => idx(m.to)))] : [],
+			c: s.show_dests ? [...new Set(moves.filter((m) => m.captured).map((m) => idx(m.to)))] : [],
 			k: king ? idx(king.square) : undefined,
 			h: hint ? [idx(hint.slice(0, 2)), idx(hint.slice(2, 4))] : undefined
 		});
@@ -154,6 +154,10 @@
 				sel = q;
 				mode = 'drag';
 				return;
+			}
+			if (sel >= 0 && q >= 0) {
+				b3.shake(sel);
+				calm.sound.nope();
 			}
 			sel = -1;
 			mode = 'orbit';
@@ -215,7 +219,13 @@
 			}
 			if (mode === 'drag' && start.moved) {
 				const to = b3.drop(true);
-				if (to < 0 || to === start.q || !attempt(start.q, to)) b3.drop();
+				if (to < 0 || to === start.q || !attempt(start.q, to)) {
+					b3.drop();
+					if (to >= 0 && to !== start.q) {
+						b3.shake(start.q);
+						calm.sound.nope();
+					}
+				}
 			} else if (mode && !start.moved && start.q >= 0) {
 				if (start.was) sel = -1;
 				note(start.q, 0.7);

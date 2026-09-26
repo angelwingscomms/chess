@@ -40,7 +40,7 @@ const getModel = (m: string, gemini_api_key?: string) => wrapLanguageModel({
 });
 
 type Msg = { r: 'system' | 'user' | 'assistant'; c: string; d?: Data };
-type Data = { f?: string; p?: string; u?: string; a?: string; h?: string; e?: string; t?: number };
+type Data = { f?: string; b?: string; p?: string; u?: string; a?: string; h?: string; e?: string; t?: number };
 
 const enc = new TextEncoder();
 
@@ -56,6 +56,7 @@ function build_input(msg: Msg) {
 	const d = msg.d ?? {};
 	const rows = [
 		d.f && `fen: ${d.f}`,
+		d.b && `pieces: ${d.b}`,
 		d.p && `move_history: ${d.p}`,
 		d.u && `last_user_move: ${d.u}`,
 		d.a && `last_ai_move: ${d.a}`,

@@ -15,6 +15,7 @@
 		{ v: 'socratic', t: 'asks you questions', d: 'helps you work it out yourself' }
 	] as const;
 	const hints = [
+		{ k: 'show_dests', t: 'show where a piece can go', d: 'dots on every square the piece you picked can move to. turn off to find moves yourself.' },
 		{ k: 'auto_hint', t: 'a hint after each computer move', d: 'the best move glows on the board.' },
 		{ k: 'autoexplain', t: 'explain every hint', d: 'the coach says why the hint is good.' },
 		{ k: 'hint_on_start', t: 'a hint when you open e4', d: 'start with a little help.' }
