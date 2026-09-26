@@ -28,6 +28,10 @@
 					popover: { title: 'your board', description: 'tap a piece to see where it can go, then tap a glowing square to move it. the computer plays the other side.', side: 'right', align: 'center' }
 				},
 				{
+					element: '[data-tour="lessons"]',
+					popover: { title: 'new to chess?', description: 'short lessons teach how every piece moves, then check and checkmate. start here if you’ve never played.', side: 'top', align: 'center' }
+				},
+				{
 					element: '[data-tour="hint"]',
 					popover: { title: 'stuck?', description: 'tap the bulb and a good move lights up. tap “why” and the coach tells you why it’s good.', side: 'top', align: 'center' }
 				},

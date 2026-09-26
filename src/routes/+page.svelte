@@ -229,6 +229,9 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-300 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">to show you.</span></span>
 			</h2>
 			<p data-r class="mt-16 max-w-sm text-lg leading-relaxed text-haze/70 transition delay-500 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">tap any piece and it shows where it can go. ask why, and get an answer that makes sense.</p>
+			<div data-r class="mt-8 transition delay-700 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">
+				<a href="/learn" class="group inline-flex items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-6 py-3 backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow"><span class="text-haze">learn the moves first</span><span aria-hidden="true" class="text-haze transition-transform duration-500 ease-expo group-hover:translate-x-1">→</span></a>
+			</div>
 		</div>
 	</section>
 

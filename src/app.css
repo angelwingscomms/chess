@@ -1471,7 +1471,7 @@ html.calm-html .cg-wrap square.current-premove {
 }
 
 html.calm-html .cg-wrap square.check {
-  background: radial-gradient(circle, rgb(231 120 120 / 0.75), rgb(231 120 120 / 0.2) 50%, transparent 71%);
+  background: radial-gradient(circle, rgb(236 96 96 / 0.95) 25%, rgb(236 96 96 / 0.45) 55%, transparent 74%);
 }
 
 html.calm-html .cg-wrap.cg-default-style.board-themed coords {

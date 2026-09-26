@@ -89,8 +89,8 @@ export function get_learn_state(): LearnState {
 	return getContext(KEY)!;
 }
 
-export function create_learn_state(logged_in = false, demo = false) {
-	return new LearnState(logged_in, demo);
+export function create_learn_state(logged_in = false, demo = false, fresh = false) {
+	return new LearnState(logged_in, demo, fresh);
 }
 
 export class LearnState {
@@ -219,10 +219,12 @@ export class LearnState {
 	demo = false;
 	armed = $state(true);
 
-	constructor(logged_in = false, demo = false) {
+	// fresh: the first game after the lessons, against the gentlest computer, ignoring any saved game
+	constructor(logged_in = false, demo = false, fresh = false) {
 		this.logged_in = logged_in;
 		this.demo = demo;
 		this.armed = !demo;
+		if (fresh) this.level = 1;
 		$effect(() => { if (browser) localStorage.setItem('autoexplain', String(this.autoexplain)); });
 		$effect(() => { if (browser) localStorage.setItem('auto_hint', String(this.auto_hint)); });
 		$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(this.hint_on_start)); });
@@ -270,7 +272,7 @@ export class LearnState {
 			return () => document.removeEventListener('selectionchange', this.handle_selection);
 		});
 
-		if (browser && !demo) {
+		if (browser && !demo && !fresh) {
 			let best: Record<string, unknown> | null = null;
 			try {
 				const ls = localStorage.getItem(this.LS_KEY);

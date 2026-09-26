@@ -5,6 +5,7 @@
 	import ArrowLeftIcon from '$lib/components/icons/arrow-left-icon.svelte';
 	import ArrowRightIcon from '$lib/components/icons/arrow-right-icon.svelte';
 	import PuzzleIcon from '$lib/components/icons/puzzle-icon.svelte';
+	import SchoolIcon from '$lib/components/icons/school-icon.svelte';
 	import BoardStatus from './BoardStatus.svelte';
 	import CapturedPieces from './CapturedPieces.svelte';
 	import PuzzleBar from './PuzzleBar.svelte';
@@ -67,6 +68,9 @@
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
+				<a href="/learn" aria-label="Lessons" data-tip="lessons: learn the moves" data-tour="lessons" class={glass}>
+					<SchoolIcon size={16} strokeWidth={1.8} />
+				</a>
 				<button aria-label="Puzzle at your level" data-tip="a puzzle for you" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
 					<PuzzleIcon size={16} strokeWidth={1.8} />
 				</button>

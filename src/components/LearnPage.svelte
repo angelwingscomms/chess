@@ -17,7 +17,7 @@
 	import TokenModal from '$components/learn/TokenModal.svelte';
 	import Tour from '$components/learn/Tour.svelte';
 
-	const s = create_learn_state(!!$page.data.user);
+	const s = create_learn_state(!!$page.data.user, false, $page.url.searchParams.get('play') === 'first');
 	set_learn_state(s);
 	bind_puzzles(s);
 
