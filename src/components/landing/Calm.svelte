@@ -69,7 +69,7 @@
 		};
 		const touch = (x: number, y: number, v: number) => {
 			const c = hit(x, y);
-			const rip = !calm.app || ui.ripples;
+			const rip = (!calm.app && !calm.no_ripples) || ui.ripples;
 			if (c >= 0) {
 				if (!calm.app || ui.notes) calm.sound.chime((c % 8) + 7 - Math.floor(c / 8), v);
 				const [mx, my] = square_xy(calm.view!, c % 8, Math.floor(c / 8));

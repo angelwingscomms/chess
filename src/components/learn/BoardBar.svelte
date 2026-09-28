@@ -68,7 +68,7 @@
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
-				<a href="/learn" aria-label="Lessons" data-tip="lessons: learn the moves" data-tour="lessons" class={glass}>
+				<a href="/learn" aria-label="Lessons" data-tip="lessons: learn step by step" data-tour="lessons" class={glass}>
 					<SchoolIcon size={16} strokeWidth={1.8} />
 				</a>
 				<button aria-label="Puzzle at your level" data-tip="a puzzle for you" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>

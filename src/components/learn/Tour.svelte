@@ -29,7 +29,7 @@
 				},
 				{
 					element: '[data-tour="lessons"]',
-					popover: { title: 'new to chess?', description: 'short lessons teach how every piece moves, then check and checkmate. start here if you’ve never played.', side: 'top', align: 'center' }
+					popover: { title: 'new to chess?', description: 'short lessons, step by step: how every piece moves, the rules, clever tricks and famous checkmates. start here if you’ve never played.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="hint"]',
