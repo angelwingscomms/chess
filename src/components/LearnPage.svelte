@@ -25,7 +25,12 @@
 	set_learn_state(s);
 	bind_puzzles(s);
 	bind_lessons(s);
-	if ($page.url.searchParams.has('learn')) open_lessons();
+
+	// lesson state is shared by the whole server, so lessons only open in the browser
+	const want_lessons = $page.url.searchParams.has('learn');
+	onMount(() => {
+		if (want_lessons) open_lessons();
+	});
 
 	const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w';
 	const cycle = [0, 2, 4, 5];
