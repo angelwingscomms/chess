@@ -187,6 +187,8 @@
 
 	// a piece sent where it can't go gives a little shake
 	function down(e: PointerEvent) {
+		// the board moves when the text above it changes length, so let chessground measure it again
+		board?.getState().dom.bounds.clear();
 		const q = square_at(e);
 		const d = board?.getState().movable.dests;
 		if (!q || !d || status === 'won') return;
