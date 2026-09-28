@@ -9,6 +9,8 @@
 	import BoardStatus from './BoardStatus.svelte';
 	import CapturedPieces from './CapturedPieces.svelte';
 	import PuzzleBar from './PuzzleBar.svelte';
+	import LessonBar from './LessonBar.svelte';
+	import { ls, open_lessons } from './lesson.svelte';
 	import ViewMenu from './ViewMenu.svelte';
 	import { next_puzzle, pz } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
@@ -30,7 +32,9 @@
 	let chat_loading = $derived(s.chat_loading);
 </script>
 
-{#if pz.on}
+{#if ls.on}
+	<LessonBar />
+{:else if pz.on}
 	<PuzzleBar />
 {:else}
 	<div class="flex w-full flex-col gap-2">
@@ -68,9 +72,9 @@
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
-				<a href="/learn" aria-label="Lessons" data-tip="lessons: learn step by step" data-tour="lessons" class={glass}>
+				<button aria-label="Lessons" data-tip="lessons: learn step by step" data-tour="lessons" class={glass} onclick={open_lessons}>
 					<SchoolIcon size={16} strokeWidth={1.8} />
-				</a>
+				</button>
 				<button aria-label="Puzzle at your level" data-tip="a puzzle for you" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
 					<PuzzleIcon size={16} strokeWidth={1.8} />
 				</button>

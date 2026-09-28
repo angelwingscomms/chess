@@ -7,6 +7,7 @@ import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
 import { say_move } from '$lib/util/chess/words';
 import { arm_puzzle, offer_puzzles, start_puzzle } from './puzzle.svelte';
+import { close_lessons, lesson_data, lesson_suggestions, lesson_voice, ls } from './lesson.svelte';
 import { init_tool_state, get_tool_declarations, dispatch_tool_call, summarize_tool_result } from '$lib/util/chat/tools/gemini_live_dispatcher';
 import { is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
 import type { ChatContext, ChatData, ChatUsage, ChatMsg } from './types';
@@ -21,6 +22,7 @@ How to answer:
 - Stop when the answer is done. Never offer choices or ask what they want next ("do you want to…", "would you like…", "shall we…"). If a question at the end helps them learn, ask one short question about the board instead, like "can you see what that pawn attacks now?".
 - You always know the board: it comes with their messages as board_context. Use it without mentioning it, and never say you can't see the board. If you're unsure, give your best simple answer.
 - Never say Stockfish, engine, evaluation, or scores like +1.5. Call the other side "the computer" or "your opponent".
+- If board_context has a lesson, they are doing that lesson, not playing a game. Help with it: give a small hint first, and say the answer only if they ask for it.
 - Be warm. Mistakes are how people learn, so never make anyone feel bad.`;
 
 const assistant_sys = `${audience}
@@ -36,7 +38,7 @@ Help them find good moves themselves. When they ask what to play or why a move i
 If they say "i don't know", give a bigger clue. Questions about the rules, how pieces move, or what a word means always get a direct answer.`;
 
 const voice_sys = `You are speaking out loud, like a friendly coach sitting next to them. Keep each answer to one or two short sentences, in a warm, natural voice. Never read out symbols, lists, or board codes.
-Text that starts with "fen:" is a silent board update, not a question. Never reply to it.
+Text that starts with "fen:" or "lesson:" is a silent update about the board, not a question. Never reply to it.
 When the call starts, say one short hello, like "hi! ask me anything about chess."`;
 
 function tool_use_rules(search_enabled: boolean) {
@@ -89,8 +91,8 @@ export function get_learn_state(): LearnState {
 	return getContext(KEY)!;
 }
 
-export function create_learn_state(logged_in = false, demo = false, fresh = false) {
-	return new LearnState(logged_in, demo, fresh);
+export function create_learn_state(logged_in = false, demo = false) {
+	return new LearnState(logged_in, demo);
 }
 
 export class LearnState {
@@ -219,12 +221,10 @@ export class LearnState {
 	demo = false;
 	armed = $state(true);
 
-	// fresh: the first game after the lessons, against the gentlest computer, ignoring any saved game
-	constructor(logged_in = false, demo = false, fresh = false) {
+	constructor(logged_in = false, demo = false) {
 		this.logged_in = logged_in;
 		this.demo = demo;
 		this.armed = !demo;
-		if (fresh) this.level = 1;
 		$effect(() => { if (browser) localStorage.setItem('autoexplain', String(this.autoexplain)); });
 		$effect(() => { if (browser) localStorage.setItem('auto_hint', String(this.auto_hint)); });
 		$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(this.hint_on_start)); });
@@ -240,6 +240,9 @@ export class LearnState {
 		$effect(() => {
 			void this.fen;
 			void this.gameOver;
+			void ls.on;
+			void ls.pos;
+			void ls.st;
 			if (this.recording) this.send_board_to_voice();
 		});
 		let lv = 0;
@@ -272,7 +275,7 @@ export class LearnState {
 			return () => document.removeEventListener('selectionchange', this.handle_selection);
 		});
 
-		if (browser && !demo && !fresh) {
+		if (browser && !demo) {
 			let best: Record<string, unknown> | null = null;
 			try {
 				const ls = localStorage.getItem(this.LS_KEY);
@@ -309,6 +312,7 @@ export class LearnState {
 	}
 
 	get chat_suggestions() {
+		if (ls.on) return lesson_suggestions();
 		if (this.chat_messages.length > 0 || this.gameOver) return [];
 		const s: string[] = [];
 		if (this.inCheck) s.push('how do i get out of check?');
@@ -353,6 +357,7 @@ export class LearnState {
 			get_board_state: () => this.get_board_state(),
 			load_fen: (fen) => {
 				try {
+					close_lessons();
 					this.chessRef?.load(fen);
 					this.hideHints(true);
 					this.last_user_move = '';
@@ -373,7 +378,7 @@ export class LearnState {
 	}
 
 	get_board_state() {
-		return {
+		const b = {
 			fen: this.fen,
 			turn: this.turn,
 			in_check: this.inCheck,
@@ -387,6 +392,7 @@ export class LearnState {
 			history_index: this.board_history_idx,
 			history_length: this.board_history.length,
 		};
+		return ls.on ? { ...b, fen: ls.pos, lesson: lesson_voice() } : b;
 	}
 
 	fetch_models = async () => {
@@ -480,11 +486,13 @@ export class LearnState {
 	send_board_to_voice() {
 		if (!this.gemini_live_can_send()) return;
 		try {
-			this.gemini_live_session.sendClientContent({ turns: [{ role: 'user', parts: [{ text: `fen: ${this.fen}. ${this.board_words()} game over: ${this.gameOver ? 'yes' : 'no'}.` }] }], turnComplete: false });
+			const text = ls.on ? lesson_voice() : `fen: ${this.fen}. ${this.board_words()} game over: ${this.gameOver ? 'yes' : 'no'}.`;
+			this.gemini_live_session.sendClientContent({ turns: [{ role: 'user', parts: [{ text }] }], turnComplete: false });
 		} catch {}
 	}
 
 	build_chat_data(h = '', eval_data?: string): ChatData {
+		if (ls.on) return lesson_data();
 		const c = this.current_chat_context();
 		const d: ChatData = { f: c.f, b: this.board_words() };
 		if (c.p && c.p !== this.successful_context.p) d.p = c.p;
@@ -499,6 +507,7 @@ export class LearnState {
 	build_direct_input(msg: ChatMsg) {
 		const d = msg.d ?? {};
 		const rows = [
+			d.l && `lesson: ${d.l}`,
 			d.f && `fen: ${d.f}`,
 			d.b && `pieces: ${d.b}`,
 			d.p && `move_history: ${d.p}`,
@@ -813,6 +822,7 @@ export class LearnState {
 		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
 		if (name === 'board' && typeof msg.f === 'string') {
+			close_lessons();
 			if (msg.p) offer_puzzles([msg.p]);
 			const puzzle = arm_puzzle(msg.f);
 			this.fen = msg.f;
@@ -1125,11 +1135,16 @@ export class LearnState {
 		if (cc) {
 			try {
 				const parsed = JSON.parse(cc);
-				if (Array.isArray(parsed)) this.chat_messages = parsed.map((m: any) => ({
-					role: m.r === 'u' ? 'user' as const : 'assistant' as const,
-					content: m.c,
-					...(m.u ? { u: m.u as ChatUsage } : {})
-				}));
+				if (Array.isArray(parsed)) {
+					const old: ChatMsg[] = parsed.map((m: any) => ({
+						role: m.r === 'u' ? 'user' as const : 'assistant' as const,
+						content: m.c,
+						...(m.u ? { u: m.u as ChatUsage } : {})
+					}));
+					// keep what was said before the save arrived, like a lesson's opening line
+					const now = this.chat_messages.filter((m, i) => i || m.content !== old.at(-1)?.content);
+					this.chat_messages = [...old, ...now];
+				}
 			} catch {}
 		}
 		this.saved_data = null;

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { page } from '$app/stores';
+	import { replaceState } from '$app/navigation';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import JsonLd from '$lib/components/seo/JsonLd.svelte';
 	import { calm, palettes, take_handoff, ui, use_scene } from '$lib/landing/calm.svelte';
@@ -9,6 +10,9 @@
 	import BoardBar from '$components/learn/BoardBar.svelte';
 	import CoachBar from '$components/learn/CoachBar.svelte';
 	import { bind_puzzles } from '$components/learn/puzzle.svelte';
+	import { bind_lessons, close_lessons, ls, open_lessons } from '$components/learn/lesson.svelte';
+	import LessonBoard from '$components/learn/LessonBoard.svelte';
+	import LessonList from '$components/learn/LessonList.svelte';
 	import ChessBoard from '$components/learn/ChessBoard.svelte';
 	import Board3d from '$components/learn/Board3d.svelte';
 	import { cam, load_view } from '$components/learn/view.svelte';
@@ -17,9 +21,11 @@
 	import TokenModal from '$components/learn/TokenModal.svelte';
 	import Tour from '$components/learn/Tour.svelte';
 
-	const s = create_learn_state(!!$page.data.user, false, $page.url.searchParams.get('play') === 'first');
+	const s = create_learn_state(!!$page.data.user, false);
 	set_learn_state(s);
 	bind_puzzles(s);
+	bind_lessons(s);
+	if ($page.url.searchParams.has('learn')) open_lessons();
 
 	const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w';
 	const cycle = [0, 2, 4, 5];
@@ -54,6 +60,14 @@
 		void cam.on;
 		void shown;
 		calm.wake();
+	});
+
+	// lessons show in the address, so a refresh or a shared link keeps them open
+	$effect(() => {
+		const on = ls.on;
+		untrack(() => {
+			if (on !== $page.url.searchParams.has('learn')) replaceState(on ? '?learn' : $page.url.pathname, $page.state);
+		});
 	});
 
 	$effect(() => {
@@ -93,12 +107,13 @@
 				q: [calm.lit.c, calm.lit.r, Math.exp(-(now - calm.lit.t) / 900) * 0.9],
 				w: arrived && !shown ? 1 : 0,
 				r: 4,
-				f: s.orientation === 'b' ? 1 : 0,
+				f: (ls.on ? ls.me === 'black' : s.orientation === 'b') ? 1 : 0,
 				h: cam.on && shown ? 1 : 0
 			};
 		});
 		return () => {
 			stop();
+			close_lessons();
 			calm.app = false;
 		};
 	});
@@ -114,10 +129,12 @@
 	{/if}
 	<div class="flex min-h-0 flex-col items-center justify-center gap-6 lg:gap-8">
 		<div bind:this={board_box} data-tour="board" class="relative ml-4 aspect-square w-[min(calc(100%-1rem),calc(100svh-23rem))] shrink-0 transition-opacity duration-700 ease-calm lg:ml-5 lg:w-[min(calc(100%-1.25rem),calc(100svh-11.5rem))] {shown ? '' : 'opacity-0'}">
-			<div class="size-full transition-opacity duration-500 ease-calm {cam.on ? 'pointer-events-none opacity-0' : ''}">
+			<div class="size-full transition-opacity duration-500 ease-calm {cam.on || ls.on ? 'pointer-events-none opacity-0' : ''}" inert={ls.on}>
 				<ChessBoard />
 			</div>
-			{#if !ui.flat}
+			{#if ls.on}
+				<LessonBoard />
+			{:else if !ui.flat}
 				<Board3d {shown} />
 			{/if}
 		</div>
@@ -133,5 +150,6 @@
 </main>
 
 <SettingsModal />
+<LessonList />
 <TokenModal />
 <Tour wait={arrived ? 3200 : 0} />

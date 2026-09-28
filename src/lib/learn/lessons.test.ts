@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Chess } from 'chess.js';
-import { STAGES, cleared, free_moves, hint, parse, play, right, type Level } from './lessons';
+import { STAGES, cleared, free_hint, free_moves, hint, parse, play, right, type Level } from './lessons';
 
 const levels = STAGES.flatMap((s) => s.l.map((l, i) => ({ l, id: `${s.k}-${i}` })));
 const played = (fen: string, u: string) => {
@@ -54,6 +54,21 @@ function lines(l: Level, fen: string, step: number, id: string): number {
 describe('lessons', () => {
 	it('every star and capture level can be done in exactly its best number of moves', () => {
 		for (const { l, id } of levels.filter((x) => x.l.g === 's' || x.l.g === 'c')) expect(fewest(l), id).toBe(l.b);
+	});
+
+	it('following the hint finishes every star and capture level in its best number of moves', () => {
+		for (const { l, id } of levels.filter((x) => x.l.g === 's' || x.l.g === 'c')) {
+			let b = parse(l.f);
+			const got: string[] = [];
+			let n = 0;
+			while (!cleared(l, b, new Set(got)) && n < 10) {
+				const m = free_hint(l, b, got)!;
+				b = play(b, m.slice(0, 2), m.slice(2, 4));
+				if (l.s?.includes(m.slice(2, 4)) && !got.includes(m.slice(2, 4))) got.push(m.slice(2, 4));
+				n++;
+			}
+			expect(n, id).toBe(l.b);
+		}
 	});
 
 	it('every other level is a real position with a right answer and a wrong one', () => {

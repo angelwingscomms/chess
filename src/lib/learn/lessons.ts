@@ -409,6 +409,30 @@ export function cleared(l: Level, board: Map<string, string>, got: Set<string>) 
 	return l.g === 's' ? got.size === (l.s?.length ?? 0) : ![...board.values()].some((p) => p[0] === 'b');
 }
 
+// the first move of a shortest way to finish a star or capture level
+export function free_hint(l: Level, board: Map<string, string>, got: string[]) {
+	let frontier = [{ b: board, g: new Set(got), first: '' }];
+	const seen = new Set<string>();
+	for (let n = 0; n < 8 && frontier.length; n++) {
+		const next: typeof frontier = [];
+		for (const st of frontier)
+			for (const [q, p] of st.b)
+				if (p[0] === 'w')
+					for (const to of free_moves(st.b, q)) {
+						const b = play(st.b, q, to);
+						const g = new Set(st.g);
+						if (l.s?.includes(to)) g.add(to);
+						const first = st.first || q + to;
+						if (cleared(l, b, g)) return first;
+						const key = [...b].sort().join() + [...g].sort().join();
+						if (seen.has(key)) continue;
+						seen.add(key);
+						next.push({ b, g, first });
+					}
+		frontier = next;
+	}
+}
+
 export function mate_in_one(c: Chess) {
 	return c.moves({ verbose: true }).find((m) => {
 		c.move(m);

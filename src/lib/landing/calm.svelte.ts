@@ -55,7 +55,6 @@ export const calm = {
 	phase: 0,
 	lung: 0.5,
 	app: false,
-	no_ripples: false,
 	handoff: '' as '' | 'glide' | 'e4',
 	quiet: false,
 	lit: { c: 0, r: 0, t: 0 },

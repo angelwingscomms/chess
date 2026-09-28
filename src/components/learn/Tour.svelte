@@ -2,11 +2,13 @@
 	import { driver } from 'driver.js';
 	import 'driver.js/dist/driver.css';
 	import { get_learn_state } from './learn_context.svelte';
+	import { ls } from './lesson.svelte';
 	const s = get_learn_state();
 	let { wait = 0 }: { wait?: number } = $props();
 
 	$effect(() => {
-		if (!s.show_tour || !s.ready) return;
+		// the tour shows the game, so it waits until lessons are closed
+		if (!s.show_tour || !s.ready || ls.on) return;
 		s.show_tour = false;
 		const done = () => localStorage.setItem('e4_tour_done', '1');
 		const tour = driver({
@@ -29,7 +31,7 @@
 				},
 				{
 					element: '[data-tour="lessons"]',
-					popover: { title: 'new to chess?', description: 'short lessons, step by step: how every piece moves, the rules, clever tricks and famous checkmates. start here if you’ve never played.', side: 'top', align: 'center' }
+					popover: { title: 'new to chess?', description: 'short lessons, step by step: how every piece moves, the rules, clever tricks and famous checkmates. your coach helps with each one. start here if you’ve never played.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="hint"]',

@@ -6,6 +6,7 @@
 	import PlusIcon from '$lib/components/icons/plus-icon.svelte';
 	import VoiceStrip from './VoiceStrip.svelte';
 	import { pz } from './puzzle.svelte';
+	import { ls } from './lesson.svelte';
 	import { calm } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	let { hello = 'ask me anything about chess, even “how does the knight move?”', placeholder = 'ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
@@ -91,7 +92,7 @@
 			</button>
 		{/if}
 	</div>
-	{#if chat_suggestions.length > 0 && !pz.on}
+	{#if chat_suggestions.length > 0 && (ls.on || !pz.on)}
 		<div data-ms class="-mx-1 flex gap-2 overflow-x-auto px-1 pt-1.5 [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pt-2">
 			{#each chat_suggestions as suggestion}
 				<button onclick={() => s.sendChatMessage(suggestion)} class="shrink-0 rounded-full border border-glow/40 px-3 py-1.5 text-[13px] whitespace-nowrap text-haze/90 transition duration-500 ease-expo lg:px-3.5 lg:text-sm hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion.toLowerCase()}</button>

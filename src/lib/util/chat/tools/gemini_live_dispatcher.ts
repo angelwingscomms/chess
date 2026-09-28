@@ -14,6 +14,7 @@ type BoardState = {
 	captured: { w: string[]; b: string[] };
 	history_index: number;
 	history_length: number;
+	lesson?: string;
 };
 
 type LoadFenResult = {
