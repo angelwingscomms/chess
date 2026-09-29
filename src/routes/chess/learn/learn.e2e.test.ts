@@ -84,9 +84,7 @@ describe('/chess/learn chat', () => {
 	it('saves game progress and chat to user profile on move and message', () => {
 		expect(page).toContain("import { page } from '$app/stores'");
 		expect(page).toContain('save_game_debounced');
-		expect(page).toContain('/api/save');
-		expect(page).toContain('/api/load');
-		expect(page).toContain('fetch(\'/api/load\')');
+		expect(page).toContain("fetch('/api/sessions'");
 		expect(page).toContain("chessRef.load(d.f as string)");
 		expect(page).toContain('clearTimeout');
 		expect(page).toContain('join(\'|\')');

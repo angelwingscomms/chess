@@ -4,7 +4,7 @@ declare global {
 			user: { id: string; name: string; picture?: string; email?: string } | null;
 		}
 		interface Platform {
-			env: { PUZ: import('@cloudflare/workers-types').D1Database };
+			env: { PUZ: D1Database; DB: D1Database };
 			context: { waitUntil(promise: Promise<unknown>): void };
 			caches: CacheStorage;
 		}

@@ -5,7 +5,7 @@
 	import FlipIcon from '$lib/components/icons/flip-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import InfoIcon from '$lib/components/icons/info-icon.svelte';
-	import { end_puzzle } from './puzzle.svelte';
+	import HistoryIcon from '$lib/components/icons/history-icon.svelte';
 	import TalkButton from './TalkButton.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { glass } from './ui';
@@ -55,8 +55,11 @@
 		</button>
 		{#if open}
 			<div role="menu" class="absolute top-[calc(100%+8px)] right-0 z-30 w-56 rounded-2xl border border-haze/12 bg-deep/95 p-1.5 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-surface">
-				<button role="menuitem" title="New game" aria-label="New game" data-tour="new" class={item} onclick={run(() => { end_puzzle(); s.resetGame(); })}>
+				<button role="menuitem" title="New game" aria-label="New game" data-tour="new" class={item} onclick={run(() => s.resetGame())}>
 					<RefreshIcon size={16} strokeWidth={1.6} />new game
+				</button>
+				<button role="menuitem" title="Your games" aria-label="Your games" class={item} onclick={run(() => (s.show_sessions = true))}>
+					<HistoryIcon size={16} strokeWidth={1.6} />your games
 				</button>
 				<button role="menuitem" title="Flip board" aria-label="Flip board" class={item} onclick={run(() => s.chessRef?.toggleOrientation())}>
 					<FlipIcon size={16} strokeWidth={1.6} />flip board

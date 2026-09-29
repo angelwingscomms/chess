@@ -11,8 +11,10 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Svelte 5 (runes mode) + SvelteKit 2, deployed to Cloudflare Workers via `@sveltejs/adapter-cloudflare`
 - Stockfish runs in a Web Worker (`static/stockfish.js`) — client-side engine, no server
 - AI chat uses SSE streaming (`/chess/learn/chat`): events are `text`, `interaction`, `usage`, `error`
-- Qdrant single collection `'i'` for token balances; multi-tenancy via payload field `s`
-- Qdrant collection `'puz'` holds all 6,014,381 lichess puzzles — **vectorless** (`vectors: {}`, points upserted with `vector: {}`), payload-only. Search is tag + rating filtering, no embeddings: a puzzle's meaning is its theme set, and only 73 themes / 69,782 theme-combos exist, so per-puzzle vectors would cost ~98 GB to buy nothing. Payload indexes on `t` (keyword), `r`/`v` (integer) — the instance runs strict mode, so filtering an unindexed field fails. Re-ingest with `node scripts/ingest_puzzles.mjs [csv]` (idempotent: point id = base62-decoded PuzzleId)
+- Qdrant collection `'i'` holds users and token balances; multi-tenancy via payload field `s`. Point ids must be numbers or UUIDs. Local dev uses the live Qdrant, so a made-up login writes to it.
+- Puzzles live in D1 `puz` (binding `PUZ`, tables `puz` and `puz_t`), built by `scripts/build_puzzles.mjs`. Search is tag + rating filtering, no embeddings: a puzzle's meaning is its theme set (73 themes, 69,782 combos).
+- Sessions (one game and its chat) live in D1 `e4` (binding `DB`, table `s` in `migrations/`), served by `/api/sessions`. Every query checks `u`, the owner. Guests keep up to 30 in localStorage `e4_sessions`, uploaded on login; `e4_session` is the session on the board. A new game is a new session. API keys never go into one. Search is `instr` over title, preview and body with `words()` roots, with no embeddings and no FTS index: saves come every 2 seconds and searches are rare, so an index would cost writes on every save. Schema change: add `migrations/000N_*.sql`, then `pnpm wrangler d1 migrations apply e4 --local` and `--remote`.
+- Move counts come from the FEN: `s.history` starts over whenever a position loads, and the board is rebuilt when the level changes.
 - Piece images: `static/pieces/gioco/` — solid CSS background-image references in `app.css:569-589`
 - `svelte-chess` uses legacy (non-runes) mode — `dynamicCompileOptions` in `svelte.config.js:15-20`
 
@@ -50,7 +52,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - User can set a Groq API key in localStorage — bypasses server, calls `@ai-sdk/groq` directly from browser
 - Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
 - Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
-- `find_puzzles` tool searches the `puz` collection. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
+- `find_puzzles` tool searches the D1 `puz` table. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
 - Voice: Gemini Live is the default (`gemini-3.8-live` via `@google/genai`, input + output transcription on). Do not use `gemini-3.8-live-extended-thinking`: it answers "a system error occurred" to every tool call that has parameters (tested 2026-09-24, v1alpha and v1beta). `responseTokenCount` leaves out thinking tokens, so usage adds `thoughtsTokenCount`. The `googleSearch` tool closes the session with 1011 quota exceeded on the free-tier server key.
 
 # Git Workflow

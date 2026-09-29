@@ -6,7 +6,8 @@ import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
 import { say_move } from '$lib/util/chess/words';
-import { arm_puzzle, offer_puzzles, start_puzzle } from './puzzle.svelte';
+import { arm_puzzle, end_puzzle, main_theme, offer_puzzles, pz, start_puzzle, theme_words } from './puzzle.svelte';
+import { words, type Sess } from '$lib/sessions';
 import { close_lessons, lesson_data, lesson_suggestions, lesson_voice, ls } from './lesson.svelte';
 import { init_tool_state, get_tool_declarations, dispatch_tool_call, summarize_tool_result } from '$lib/util/chat/tools/gemini_live_dispatcher';
 import { is_openai_voice, openai_voice_options } from '$lib/util/voice/openai_live';
@@ -82,6 +83,22 @@ export const voice_options = [
 ];
 
 const KEY = Symbol('learn');
+const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const new_id = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, '0')).join('');
+
+// players who are not logged in keep their sessions on the device
+const device = (): Sess[] => {
+	try {
+		return JSON.parse(localStorage.getItem('e4_sessions') ?? '[]');
+	} catch {
+		return [];
+	}
+};
+const keep = (all: Sess[]) => {
+	try {
+		localStorage.setItem('e4_sessions', JSON.stringify(all.sort((a, b) => b.d - a.d).slice(0, 30)));
+	} catch {}
+};
 
 export function set_learn_state(state: LearnState) {
 	setContext(KEY, state);
@@ -213,8 +230,10 @@ export class LearnState {
 	model_options = $state<{ v: string; l: string; d: string; r?: boolean }[]>([]);
 	save_timeout: ReturnType<typeof setTimeout> | null = null;
 	saved_data: Record<string, unknown> | null = null;
-
-	readonly LS_KEY = 'chess_save';
+	sid = $state('');
+	sessions = $state<Sess[] | null>(null);
+	show_sessions = $state(false);
+	list_n = 0;
 
 	logged_in = $state(false);
 	// the home page's mini app: no saved game, no tour, and no engine until the first move
@@ -275,17 +294,17 @@ export class LearnState {
 			return () => document.removeEventListener('selectionchange', this.handle_selection);
 		});
 
-		if (browser && !demo) {
-			let best: Record<string, unknown> | null = null;
-			try {
-				const ls = localStorage.getItem(this.LS_KEY);
-				if (ls) best = JSON.parse(ls);
-			} catch {}
-			fetch('/api/load').then(r => r.json()).then(({ data: sd }) => {
-				if (sd && (!best || (sd.d ?? 0) > (best.d ?? 0))) best = sd;
-				if (best) this.saved_data = best;
-			}).catch(() => { if (best) this.saved_data = best; });
-		}
+		if (browser && !demo) void this.resume();
+
+		// keep the last move when the tab closes before the save timer runs
+		$effect(() => {
+			if (!browser || demo) return;
+			const hide = () => {
+				if (document.visibilityState === 'hidden' && this.save_timeout) void this.save_now(true);
+			};
+			document.addEventListener('visibilitychange', hide);
+			return () => document.removeEventListener('visibilitychange', hide);
+		});
 
 		$effect(() => {
 			if (this.ready && this.saved_data) {
@@ -574,8 +593,13 @@ export class LearnState {
 		else this.resultMsg = `checkmate. ${winner === 'w' ? 'white' : 'black'} wins.`;
 	}
 
+	// a new game is a new session
 	resetGame() {
 		if (!this.chessRef) return;
+		void this.flush();
+		end_puzzle();
+		this.sid = new_id();
+		localStorage.setItem('e4_session', this.sid);
 		this.chessRef.reset();
 		this.resultMsg = '';
 		this.gameOver = false;
@@ -1092,45 +1116,135 @@ export class LearnState {
 	save_game_debounced() {
 		if (this.demo) return;
 		if (this.save_timeout) clearTimeout(this.save_timeout);
-		this.save_timeout = setTimeout(async () => {
-			const serialize_chat = (msgs: ChatMsg[]) => msgs.map(m => {
-				const r: Record<string, unknown> = { r: m.role === 'user' ? 'u' : 'a', c: m.content };
-				if (m.u) r.u = m.u;
-				return r;
-			});
-			const payload = {
+		this.save_timeout = setTimeout(() => void this.save_now(), 2000);
+	}
+
+	flush() {
+		return this.save_timeout ? this.save_now() : Promise.resolve();
+	}
+
+	get session_title() {
+		if (pz.on) return `a ${theme_words(main_theme(pz.p)) || 'chess'} puzzle`;
+		// counted from the fen, since the move list starts over whenever a position loads
+		const f = this.fen.split(' ');
+		const n = +f[5] - (f[1] === 'w' ? 1 : 0) || 0;
+		const m = n === 1 ? '1 move' : `${n} moves`;
+		const r = this.resultMsg;
+		const how = !n ? 'no moves yet' : r.includes('you win') ? `you won in ${m}` : r.includes('computer wins') ? `the computer won in ${m}` : r.startsWith('draw') ? `a draw after ${m}` : r || `${m} so far`;
+		return `${how} · ${LEVELS[this.level - 1]?.t ?? ''}`;
+	}
+
+	// api keys stay on the device, so they are never part of a session
+	async save_now(keepalive = false) {
+		if (this.save_timeout) clearTimeout(this.save_timeout);
+		this.save_timeout = null;
+		if (this.demo || !this.sid || (!this.history.length && !this.chat_messages.length && this.fen === START)) return;
+		const c = this.chat_messages.map((m) => ({ r: m.role === 'user' ? 'u' : 'a', c: m.content, ...(m.u ? { u: m.u } : {}) }));
+		await this.put([{
+			i: this.sid,
+			t: this.session_title,
+			p: this.chat_messages.find((m) => m.role === 'user')?.content.slice(0, 300) ?? '',
+			f: this.fen,
+			d: Date.now(),
+			b: JSON.stringify({
 				f: this.fen, h: this.history.join(' '), m: this.moveNum, o: this.orientation,
 				u: this.last_user_move, a: this.last_ai_move, r: this.redo_stack.join('|'),
-				v: this.gameOver, x: this.resultMsg, g: this.groq_api_key, k: this.gemini_api_key, l: this.level,
-				c: JSON.stringify(serialize_chat(this.chat_messages)),
-				d: Date.now()
-			};
-			if (browser) {
-				try { localStorage.setItem(this.LS_KEY, JSON.stringify({ ...payload, c: JSON.stringify(serialize_chat(this.chat_messages.slice(-50))) })); } catch {}
-			}
-			try { await fetch('/api/save', { method: 'POST', body: JSON.stringify(payload) }); } catch {}
-		}, 2000);
+				v: this.gameOver, x: this.resultMsg, l: this.level, c: JSON.stringify(c)
+			})
+		}], keepalive);
+	}
+
+	async put(all: Sess[], keepalive = false) {
+		if (!this.logged_in) return keep([...all, ...device().filter((o) => !all.some((x) => x.i === o.i))]);
+		await fetch('/api/sessions', { method: 'POST', body: JSON.stringify(all), keepalive }).catch(() => {});
+	}
+
+	async get(i: string): Promise<Sess | null | undefined> {
+		if (!this.logged_in) return device().find((o) => o.i === i);
+		return fetch(`/api/sessions?i=${i}`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+	}
+
+	// picks up the session this device was on
+	async resume() {
+		if (this.logged_in && device().length) {
+			const r = await fetch('/api/sessions', { method: 'POST', body: JSON.stringify(device()) }).catch(() => null);
+			if (r?.ok) localStorage.removeItem('e4_sessions');
+		}
+		const old = localStorage.getItem('chess_save');
+		if (old) {
+			// the one save from before sessions becomes the first session
+			try {
+				const b = JSON.parse(old);
+				delete b.g;
+				delete b.k;
+				const i = new_id();
+				await this.put([{ i, t: 'your last game', p: JSON.parse(b.c ?? '[]').find((m: { r: string }) => m.r === 'u')?.c.slice(0, 300) ?? '', f: b.f, d: b.d ?? Date.now(), b: JSON.stringify(b) }]);
+				localStorage.setItem('e4_session', i);
+			} catch {}
+			localStorage.removeItem('chess_save');
+		}
+		const p = localStorage.getItem('e4_session');
+		const x = p ? await this.get(p) : null;
+		// a fresh id when it is gone, so a guest game never reuses an account session's id
+		this.sid = x?.i ?? new_id();
+		localStorage.setItem('e4_session', this.sid);
+		if (x?.b) this.saved_data = JSON.parse(x.b);
+	}
+
+	async list_sessions(q = '') {
+		const n = ++this.list_n;
+		await this.flush();
+		const w = words(q);
+		const all: Sess[] = this.logged_in
+			? await fetch(`/api/sessions?q=${encodeURIComponent(q)}`).then((r) => (r.ok ? r.json() : [])).catch(() => [])
+			: device().filter((o) => w.every((x) => `${o.t} ${o.p} ${o.b}`.toLowerCase().includes(x)));
+		if (n === this.list_n) this.sessions = all;
+	}
+
+	async open_session(i: string) {
+		this.show_sessions = false;
+		if (i === this.sid) return;
+		void this.flush();
+		const x = await this.get(i);
+		if (!x?.b) return this.add_toast('couldn’t open that game', 'e');
+		end_puzzle();
+		close_lessons();
+		// the voice call knows the old game, so it ends
+		if (this.recording) this.cleanup_gemini_live();
+		this.clearChat();
+		this.sid = i;
+		localStorage.setItem('e4_session', i);
+		this.restore_game(JSON.parse(x.b));
+	}
+
+	async delete_session(i: string) {
+		this.sessions = this.sessions?.filter((o) => o.i !== i) ?? null;
+		if (i === this.sid) {
+			if (this.save_timeout) clearTimeout(this.save_timeout);
+			this.save_timeout = null;
+			this.resetGame();
+		}
+		if (this.logged_in) await fetch(`/api/sessions?i=${i}`, { method: 'DELETE' }).catch(() => {});
+		else keep(device().filter((o) => o.i !== i));
 	}
 
 	restore_game(d: Record<string, unknown>) {
 		if (!this.chessRef) return;
+		const o = (d.o as 'w' | 'b') ?? 'w';
+		// set before the load, which makes the computer move at once when it is its turn
+		this.engine?.setColor?.(o === 'w' ? 'b' : 'w');
 		this.chessRef.load(d.f as string);
 		this.fen = d.f as string;
-		const h = d.h as string;
-		if (h) this.history = h.split(' ').filter(Boolean);
+		this.history = ((d.h as string) ?? '').split(' ').filter(Boolean);
 		this.moveNum = (d.m as number) ?? 0;
-		this.orientation = (d.o as 'w' | 'b') ?? 'w';
+		this.orientation = o;
 		this.last_user_move = (d.u as string) ?? '';
 		this.last_ai_move = (d.a as string) ?? '';
-		const r = d.r as string;
-		if (r) this.redo_stack = r.split('|').filter(Boolean);
+		this.redo_stack = ((d.r as string) ?? '').split('|').filter(Boolean);
 		this.gameOver = (d.v as boolean) ?? false;
 		this.resultMsg = (d.x as string) ?? '';
 		this.level = (d.l as number) ?? 2;
-		const gk = d.g as string;
-		if (gk) this.groq_api_key = gk;
-		const gemk = d.k as string;
-		if (gemk) this.gemini_api_key = gemk;
+		this.hideHints(true);
 		const cc = d.c as string;
 		if (cc) {
 			try {

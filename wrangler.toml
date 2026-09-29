@@ -33,3 +33,8 @@ database_name = "puz"
 database_id = "9a77b1f0-fce1-4f82-a09f-763676740f8e"
 
 
+
+[[d1_databases]]
+binding = "DB"
+database_name = "e4"
+database_id = "a30bed2e-4f65-4a9d-a0f5-6eab3df9295f"

@@ -13,6 +13,7 @@
 	import { bind_lessons, close_lessons, ls, open_lessons } from '$components/learn/lesson.svelte';
 	import LessonBoard from '$components/learn/LessonBoard.svelte';
 	import LessonList from '$components/learn/LessonList.svelte';
+	import SessionList from '$components/learn/SessionList.svelte';
 	import ChessBoard from '$components/learn/ChessBoard.svelte';
 	import Board3d from '$components/learn/Board3d.svelte';
 	import { cam, load_view } from '$components/learn/view.svelte';
@@ -156,5 +157,6 @@
 
 <SettingsModal />
 <LessonList />
+<SessionList />
 <TokenModal />
 <Tour wait={arrived ? 3200 : 0} />
