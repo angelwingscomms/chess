@@ -37,6 +37,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 - Unit tests co-located with modules as `*.test.ts`
 - E2E tests in `src/routes/chess/learn/` — these are **static** (string-matching source files, no browser)
+- Browser tests: `pnpm exec e2e run` uses the dev server on port 2160. `tests/chat-layout.e2e.ts` restores a guest chat and mocks replies; no paid AI calls. Restart Vite after adding dependencies if `$app` imports stop resolving.
 
 # SEO
 
@@ -58,8 +59,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 # Git Workflow
 
 - Pushing to `main` deploys: Cloudflare builds and ships every push (seen 2026-09-25), so there is no separate `wrangler deploy` step, and a push is a release.
-- Every single change, no matter how trivial: `git add .` + detailed commit + `git push`
-- Do not skip commits — commit and push after every file edit, creation, or deletion
+- Commit and push completed changes without asking for approval, including the release triggered by a push. Stage only the task's files.
 
 # Env
 

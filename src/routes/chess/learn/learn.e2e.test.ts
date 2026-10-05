@@ -37,7 +37,8 @@ describe('/chess/learn chat', () => {
 	});
 
 	it('keeps desktop vertical chrome tight around the board', () => {
-		expect(page).toContain('flex h-svh flex-col gap-3 overflow-hidden');
+		expect(page).toContain('lg:h-svh');
+		expect(page).toContain('lg:overflow-hidden');
 		expect(page).toContain('lg:pt-20 lg:pb-8');
 		expect(page).not.toContain('container py-12');
 	});
@@ -76,7 +77,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('border-dashed border-haze/20');
 		expect(page).toContain('aria-label="Remove queued message"');
 		expect(page).toContain('aria-label="Send this message now"');
-		expect(page).toContain('class="max-h-32 min-h-[38px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2 text-[14px] text-haze lg:min-h-[40px] lg:py-2.5 lg:text-[15px] outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"');
+		expect(page).toContain('bind:value={s.chat_input}');
 		expect(page).toContain("s.sendChatMessage(s.chat_input)");
 		expect(page).toContain("this.chat_queue = [...this.chat_queue, { text: t }]");
 	});

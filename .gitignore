@@ -21,3 +21,5 @@ node_modules
 
 .log
 scripts/out/
+
+.e2e/
