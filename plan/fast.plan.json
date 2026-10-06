@@ -1,0 +1,151 @@
+{
+	"_": "GOAL: make e4 (~/i/e4, live at chess.apexlinks.org and e4.apexlinks.org) fast on budget phones (Tecno Spark 40 / Pop 10 class: Helio G81 or Unisoc T7250, Mali-G52 or G57, 3-4 GB, 720x1600 at 120 Hz, ~400 ms RTT) WITHOUT losing anything. Every effect, sound, animation, feature and setting stays, and every still frame looks the same. If a step would change what people see or hear, it is wrong: block it.\n\nWHY: ~/search/e4-fast-budget-phones-first-principles.md holds the measured causes and sources. Read it once if a step's reason is unclear.\n\nSTACK: SvelteKit 2 + Svelte 5 runes, Tailwind 4, adapter-cloudflare (Workers). pnpm only, never npm/npx. If pnpm says ERR_PNPM_UNEXPECTED_STORE, add `--store-dir /home/ed/.local/share/pnpm/store`. Pushing main deploys, so a push is a release: after every mark, commit only the step's files and push. Commit format: `<type>(<scope>): <imperative, lowercase, max 50 chars>`, a blank line, a body of `- ` bullets (what and why), then `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.\n\nCHECKS: `pnpm test` (24 files, 129 tests, green on 2026-10-06). `pnpm check` already has 4 errors (genai.d.ts MCP types, ChessBoard.svelte:92 and :101, LearnPage.svelte:50 PageState.fen). A step may not add errors, so gates use `pnpm check 2>&1 | grep COMPLETED | grep -qE ' [0-4] ERRORS'`.\n\nPERF HARNESS (built by perf_harness): `node scripts/perf.mjs <metric> <route> [assert ...]`. Run `pnpm build` first, because it serves the last build through its own `vite preview`. Metrics:\n- idle / active: per-second busy ms of main, cc, viz and gpu threads, plus fps, draws (field draws/s), forced (forced style+layout ms/s), dom (element count), cw (field canvas width). active moves the pointer the whole time.\n- bytes: gz bytes by type (js, css, font, img, doc, engine, other) for requests started before load + 2 s, plus third_party (count).\n- engine: the route is a worker script URL; reports nps, startup, search, nodes, best.\n- field: ms per frame of the real make_field at 1080x2400.\n- same: pixel diff, in 0-255 units, between scripts/field/v1.ts and src/lib/landing/field.ts over 7 scenes. v1.ts is today's field, frozen; never edit it.\n- load: Lighthouse 13.5.0 median of score, fcp, lcp, tbt, si, tti.\n- css: needs `<route> <selector>`, then computed CSS props.\n- fonts: families (loaded font families).\n- offline: sw, ok.\nAsserts: `key<=n`, `key>=n`, `key=v`, `key~sub`, `key!~sub`. PERF_RUNS=n changes the 3 runs, PERF_VERBOSE=1 lists each request. It needs the real GPU (ANGLE GL on the Intel UHD 620), because Chrome 139+ has no WebGL without one. Baseline numbers are in the plan notes. This machine is noisy (Waydroid may run), so gate budgets keep a 40% margin. If a gate misses by a little, rerun it once before you debug.\n\nCODE RULES (from e4 AGENTS.md and Ed):\n- Tailwind utilities in markup; global overrides go in src/app.css under `html.calm-html ...`.\n- snake_case, no comments except a non-obvious why, no single-use variables, extreme simplicity.\n- grep before writing; one owner module per domain.\n- Add any repo fact a later agent would miss to the Performance section of ~/i/e4/AGENTS.md.\n- Never judge smoothness in headless agent-browser: its software WebGL runs at 2-7 fps. Use the harness numbers, and use agent-browser (ab-1440fl) only to look.\n\nKEY FILES:\n- src/components/landing/Calm.svelte: the one rAF loop, pawn overlay, pointer sounds.\n- src/lib/landing/calm.svelte.ts: View, scenes, use_scene, use_ambient, mix_view.\n- src/lib/landing/field.ts: the WebGL field and its adaptive quality q.\n- src/components/LearnPage.svelte (/i scene), src/routes/+page.svelte (landing scene).\n- src/lib/util/chess/engine.ts: LearnEngine, getHints, LEVELS.\n- src/app.css: calm rules from about line 1270.\n\nTRAPS:\n- svelte-chessground embeds chessground CSS, including `.cg-default-style.cg-wrap piece { will-change: transform }` (specificity 0,3,1 with its svelte class).\n- On phones, /i scrolls inside <main> (h-dvh overflow-y-auto), not the window.\n- Reduced motion must keep working: the loop then draws only on demand.\n- field.ts lowers quality q when the gap between draws averages over 24 ms. Today it already sits at its floor on this machine (cw 216, not 297).",
+	"measure": {
+		"s": "measure first: one harness that every later gate calls",
+		"d": 1,
+		"c": {
+			"perf_harness": {
+				"s": "Outcome: scripts/perf.mjs exists and works as the preamble describes, and the baseline is in the plan notes.\n1. Add playwright-core 1.63.0 (exact) as a devDependency. Drive /usr/bin/chromium (CHROME_PATH overrides it) with `--headless=new --enable-gpu --use-angle=gl-egl --ignore-gpu-blocklist`. Exit 2 when WebGL is missing or SwiftShader.\n2. Each run starts its own `vite preview` on a free port and kills its process group on exit. field and same draw on about:blank.\n3. Use a phone context: 360x800, DPR 2, mobile, touch, Android UA, localStorage e4_tour_done=1, CPU throttle 4x. Workers ignore the throttle.\n4. Freeze today's src/lib/landing/field.ts as scripts/field/v1.ts. Then `same` must report max 0.\n5. Record the baseline for / and /i with `plan fast --note`, and add a Performance section to AGENTS.md.",
+				"d": 1,
+				"t": "test -f scripts/perf.mjs && cmp -s scripts/field/v1.ts src/lib/landing/field.ts && grep -q '\"playwright-core\": \"1.63.0\"' package.json && grep -q 'scripts/perf.mjs' AGENTS.md && grep -q 'baseline' plan/fast.notes.md && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs bytes /i 'js_gz>=50000' 'engine_gz>=100000' && node scripts/perf.mjs engine /stockfish.js 'nps>=1000' && node scripts/perf.mjs field / 'ms>=0.1' && node scripts/perf.mjs same / 'max<=0' && node scripts/perf.mjs idle /i 'fps>=1' 'viz>=1' && pnpm test"
+			}
+		}
+	},
+	"frames": {
+		"s": "stop paying every frame for pixels that did not change",
+		"d": 0,
+		"t": "pnpm build >/dev/null 2>&1 && node scripts/perf.mjs idle /i 'viz<=200' 'draws<=36' 'forced<=5' 'cw>=250' && node scripts/perf.mjs same / 'mean<=0.01' && pnpm test",
+		"c": {
+			"pieces_off_gpu": {
+				"s": "Outcome: chess pieces at rest are no longer compositor layers, and their two drop-shadows stay exactly as they are.\n1. In src/app.css (calm rules), set `will-change: auto` on `.cg-wrap piece` and on `cg-board square.last-move`. Use a selector that beats svelte-chessground's, e.g. `html.calm-html .cg-wrap.cg-default-style piece`.\n2. Keep `will-change: transform` only on `piece.dragging` and `piece.anim`, so moving pieces still glide on the GPU.\n3. Leave the `filter: drop-shadow(...)` rule untouched.\n4. Look at /i and / with agent-browser: pieces, shadows, dragging and the move animation look as before.\nWhy: chessground layers all 32 pieces. A layer with a filter gets filtered again every frame, because the field under it changes every frame. Measured: fps 37 to 60, viz 475 to 115 ms/s.",
+				"d": 0,
+				"v": "grep -q 'drop-shadow(0 0 1px rgb(236 231 241 / 0.35))' src/app.css && grep -q 'will-change: transform' node_modules/svelte-chessground/dist/Chessground.svelte",
+				"t": "pnpm build >/dev/null 2>&1 && node scripts/perf.mjs css /i '.cg-wrap piece' 'will-change=auto' 'filter~drop-shadow' && node scripts/perf.mjs idle /i 'viz<=250' 'fps>=50' && node scripts/perf.mjs idle / 'viz<=320' && pnpm test"
+			},
+			"calm_loop_no_layout_reads": {
+				"s": "Outcome: no calm-loop frame forces style or layout, and idle frames write no styles.\n1. The LearnPage scene, the landing scene and use_ambient stop calling getBoundingClientRect every frame. Each keeps a cached rect, measured only when dirty. Positions on the window-scrolled landing stay in document coordinates (rect + scrollY), and each frame derives viewport positions from the current scrollY.\n2. Mark dirty on resize, on `scroll` (window, capture phase, so /i's <main> counts), from a ResizeObserver on document.body and on each measured element, on document.fonts `loadingdone`, and at most once per 1000 ms as a safety net.\n3. Calm.svelte (pawn) and the landing shards write style.transform and opacity only when the string differs from the last one written.\nPixels stay the same; the trace's forced number proves the reads are gone.",
+				"d": 0,
+				"v": "grep -q 'getBoundingClientRect' src/components/LearnPage.svelte && grep -q 'getBoundingClientRect' src/routes/+page.svelte",
+				"t": "pnpm build >/dev/null 2>&1 && node scripts/perf.mjs idle /i 'forced<=5' && node scripts/perf.mjs idle / 'forced<=5' && pnpm test && pnpm check 2>&1 | grep COMPLETED | grep -qE ' [0-4] ERRORS'"
+			},
+			"quality_meter": {
+				"s": "Outcome: field.ts judges slow frames against the interval it was asked to draw at, so a deliberate 30 fps can never blur the board.\n1. draw() in src/lib/landing/field.ts gains a second parameter, the intended interval in ms, defaulting to 1000/60.\n2. The moving average becomes gap divided by interval. q drops when that average passes 1.45, which equals today's 24 ms at 60 fps. Keep the 90-draw check, the 0.85 step and the 0.4 floor.\n3. Callers pass nothing yet; frame_budget passes the real interval.\nFrames do not change, so `same` stays at max 0.",
+				"d": 0,
+				"v": "grep -q 'ema > 24' src/lib/landing/field.ts",
+				"t": "! grep -q 'ema > 24' src/lib/landing/field.ts && grep -q '1.45' src/lib/landing/field.ts && node scripts/perf.mjs same / 'max<=0' && pnpm test && pnpm check 2>&1 | grep COMPLETED | grep -qE ' [0-4] ERRORS'"
+			},
+			"frame_budget": {
+				"s": "Outcome: the field draws at most 60 times a second, and 30 when nothing moves. Nothing looks different.\n1. Calm.svelte frame(): draw only when at least 15 ms (active) or 31 ms (idle) passed since the last draw, and pass that interval to draw(). Keep scheduling rAF, and keep the clocks on real time.\n2. Active means any of: a pointer, scroll, wheel, key or resize event, or a calm.wake() call, in the last 1500 ms; calm.from is set; a ripple is younger than 3 s; the cursor light is above 0.01.\n3. The landing's play() and other one-shot animations call calm.wake() when they start.\n4. Wave.svelte: redraw at most every 31 ms unless the pointer is near or a burst is fading. Keep the last draw time in `drawn`.",
+				"d": 0,
+				"v": "grep -q '1.45' src/lib/landing/field.ts",
+				"t": "grep -q 'drawn' src/components/landing/Wave.svelte && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs idle /i 'draws<=36' 'draws>=24' 'cw>=250' && node scripts/perf.mjs active /i 'draws>=42' && node scripts/perf.mjs idle / 'draws<=36' && node scripts/perf.mjs same / 'mean<=0.01' && pnpm test"
+			}
+		}
+	},
+	"engine": {
+		"s": "the computer: the same Stockfish 10, compiled to WebAssembly",
+		"d": 0,
+		"c": {
+			"engine_wasm": {
+				"s": "Outcome: the computer and hints run the WebAssembly build of the same Stockfish 10, so moves stay identical and search is about 20x faster. asm.js stays as the fallback for browsers without WebAssembly.\n1. Take stockfish.wasm.js and stockfish.wasm from the npm tarball https://registry.npmjs.org/stockfish.js/-/stockfish.js-10.0.2.tgz (package/ folder) and put them in static/engine/sf10/. Keep the names, because the loader fetches stockfish.wasm next to itself. The gate checks their sha256.\n2. One exported constant in src/lib/util/chess/engine.ts picks '/engine/sf10/stockfish.wasm.js' when `typeof WebAssembly === 'object'`, else '/stockfish.js'. LearnEngine and getHints both use it; grep src for any other '/stockfish.js'.\n3. Keep static/stockfish.js where it is: AGENTS.md's Node trick check uses it.\nChecked 2026-10-06: at depth 14 from one position, both builds search 281,933 nodes and pick the same move.",
+				"d": 0,
+				"v": "test -f static/stockfish.js && grep -q \"'/stockfish.js'\" src/lib/util/chess/engine.ts",
+				"t": "echo '45816b436eb8c180acb2c5b9fda0148101f411edbfa6bf919918e0a362eafca8  static/engine/sf10/stockfish.wasm' | sha256sum -c - && echo '064175042d8b72eb9fba8311b730f6f5cebcfec736494698d675dc433f3bd275  static/engine/sf10/stockfish.wasm.js' | sha256sum -c - && grep -q 'engine/sf10/stockfish.wasm.js' src/lib/util/chess/engine.ts && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs engine /engine/sf10/stockfish.wasm.js 'nps>=100000' 'best=a7a6' && node scripts/perf.mjs bytes /i 'engine_gz<=220000' 'engine_gz>=20000' && pnpm test"
+			}
+		}
+	},
+	"first_paint": {
+		"s": "first paint: nothing crosses to another origin or waits on a chain",
+		"d": 0,
+		"c": {
+			"fonts_self_hosted": {
+				"s": "Outcome: no request leaves our origin before text can paint. Geist and Geist Mono render from the exact files Google serves today.\n1. Fetch the CSS that Calm.svelte links today (`family=Geist:wght@200..500&family=Geist+Mono:wght@400&display=swap`) with a current Chrome UA. Download every woff2 it lists into static/fonts/v1/, named by family and subset (geist-latin.woff2 ...).\n2. Copy its @font-face blocks (unicode-range, weight range, font-display: swap) into src/app.css with the local URLs.\n3. Remove Calm.svelte's Google links and preconnects, and the `@import` on app.css line 1. No rendered text on the calm routes uses Cormorant, Inter or JetBrains (scan 2026-10-06).\n4. In Calm.svelte's svelte:head, preload (as=font, type=font/woff2, crossorigin) the Geist latin and Geist Mono latin files.\n5. Scan /, /i, /login, /i?learn and a 404 again for text still in those three fonts.",
+				"d": 0,
+				"v": "grep -q 'fonts.googleapis.com/css2?family=Geist' src/components/landing/Calm.svelte && grep -q 'fonts.googleapis.com/css2?family=Cormorant' src/app.css",
+				"t": "ls static/fonts/v1/*.woff2 >/dev/null && ! grep -q 'fonts.googleapis' src/app.css src/components/landing/Calm.svelte && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs bytes / 'third_party<=0' 'font_gz>=20000' && node scripts/perf.mjs bytes /i 'third_party<=0' && node scripts/perf.mjs fonts / 'families~Geist' 'families!~Inter' && pnpm test"
+			},
+			"static_cache_headers": {
+				"s": "Outcome: versioned static files are cached for a year and the rest for a day, so repeat visits and each new hint worker skip a revalidation round trip (~0.4 s here).\n1. Create `_headers` in the project root. adapter-cloudflare copies it and appends its own /_app block; it rejects static/_headers.\n2. /engine/* and /fonts/*: `Cache-Control: public, max-age=31536000, immutable`. Put this rule in AGENTS.md: a changed file in these folders goes into a new folder name (sf11/, v2/).\n3. /pieces/*, /models/*, /stockfish.js, /rnnoise*, /logo.svg, /logo.png, /apple-touch-icon.png: `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.\n4. After the push, `curl -sI` the live /engine/sf10/stockfish.wasm and note its Cache-Control with `plan fast --note`.",
+				"d": 0,
+				"v": "test -d static/engine/sf10 && test -d static/fonts/v1 && ! test -f _headers",
+				"t": "test -f _headers && pnpm build >/dev/null 2>&1 && grep -q '/engine/\\*' .svelte-kit/cloudflare/_headers && grep -q 'immutable' .svelte-kit/cloudflare/_headers && grep -q 'stale-while-revalidate' .svelte-kit/cloudflare/_headers && grep -q 'AUTOGENERATED SVELTE IMMUTABLE HEADERS' .svelte-kit/cloudflare/_headers && pnpm test"
+			}
+		}
+	},
+	"shader": {
+		"s": "the nebula shader: the same pixels for a fraction of the math",
+		"d": 0,
+		"c": {
+			"field_noise_texture": {
+				"s": "Outcome: the field takes value noise from a hash texture instead of four hash calls per noise, and its frames match v1.\n1. At init, render the original `hash(floor(gl_FragCoord.xy) - 256.0)` once into a 512x512 RGBA8 texture (one small extra program and framebuffer). Sample it LINEAR + REPEAT.\n2. noise(p): i = floor(p), u = smoothstep of fract(p) as today, then one texture2D at (i + u + 0.5 + 256.0) / 512.0 (iq's smooth-lookup trick). It equals the old noise for lattice points in [-256, 256), then repeats seamlessly.\n3. Keep hash() for the film grain; keep the rest of FRAG byte-identical.\n4. Context loss keeps today's behaviour.\nThe 8-bit texture gives a small mean diff and no visible change. If p999 passes 8, store each cell's four corner hashes in RGBA, sample NEAREST and mix in the shader.",
+				"d": 0,
+				"v": "grep -q 'float hash(vec2 p)' src/lib/landing/field.ts && test -f scripts/field/v1.ts",
+				"t": "node scripts/perf.mjs same / 'mean<=0.6' 'p999<=8' && node scripts/perf.mjs field / 'ms<=13' && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs idle /i 'fps>=50' 'cw>=250' && pnpm test"
+			}
+		}
+	},
+	"landing": {
+		"s": "the home page: render only what is on screen",
+		"d": 0,
+		"c": {
+			"landing_offscreen": {
+				"s": "Outcome: landing sections below the first screen skip style, layout and paint until they come near the viewport.\n1. Give every <section> after the hero in src/routes/+page.svelte `content-visibility: auto` and `contain-intrinsic-size: auto <its height on a 360x800 phone>`, as Tailwind arbitrary properties. Measure the heights once with agent-browser.\n2. Check that the scene still finds the end slot and section tops (since calm_loop_no_layout_reads they are measured only when dirty), and that reveal() still plays when a section scrolls in.\n3. MiniBoard.svelte: draw the 32 light squares as one <path> of unit squares, not 32 <rect>s. Pieces stay as they are.\n4. Scroll the whole page in agent-browser next to the live site; they must look the same.",
+				"d": 0,
+				"v": "grep -q '<rect x={s.x} y={s.y}' src/components/landing/MiniBoard.svelte",
+				"t": "pnpm build >/dev/null 2>&1 && node scripts/perf.mjs css / 'main section:nth-of-type(2)' 'content-visibility=auto' && node scripts/perf.mjs idle / 'dom<=1000' && node scripts/perf.mjs load / 'tbt<=3000' && pnpm test"
+			}
+		}
+	},
+	"bundle": {
+		"s": "the app page: the first load carries only what the first screen needs",
+		"d": 0,
+		"c": {
+			"lazy_tour_and_sheets": {
+				"s": "Outcome: /i's first load no longer carries the tour or the four sheets.\n1. Tour.svelte imports driver.js and its CSS dynamically, only when the tour actually starts. First-visit behaviour and timing stay the same.\n2. LearnPage.svelte mounts SettingsModal, LessonList, SessionList and TokenModal through a dynamic import the first time their flag turns true (s.show_settings, ls.list, s.show_sessions, s.show_token_modal). After that each stays mounted, so its open and close transitions still play. One small shared wrapper in src/components/learn/ is fine.\n3. 4000 ms after mount, import() all four chunks, so the first open never waits on the network.\n4. Open and close each sheet in agent-browser.",
+				"d": 0,
+				"v": "grep -q \"import { driver } from 'driver.js'\" src/components/learn/Tour.svelte",
+				"t": "! grep -q \"import { driver } from 'driver.js'\" src/components/learn/Tour.svelte && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs bytes /i 'js_gz<=148000' && pnpm test && pnpm check 2>&1 | grep COMPLETED | grep -qE ' [0-4] ERRORS'"
+			}
+		}
+	},
+	"voice": {
+		"s": "live voice: the mic does not wait on the main thread",
+		"d": 0,
+		"c": {
+			"mic_worklet": {
+				"s": "Outcome: live voice reads the mic in an AudioWorklet, so a busy main thread can no longer delay or drop mic audio. The bytes sent stay identical.\n1. static/mic-worklet.js: a processor that gathers 2048 input frames (16 render quanta), downsamples exactly like gemini_process_audio does today (nearest sample at Math.floor(i * ratio), clamped to Int16), and posts the Int16Array buffer to its port as a transfer.\n2. In the mic setup in learn_context.svelte.ts, use it when audioCtx.audioWorklet exists. The main thread only base64-encodes and sends, with the same mimeType 'audio/pcm;rate=16000'. Keep the ScriptProcessorNode path as the fallback.\n3. voice_muted and gemini_live_can_send() checks stay on the main thread, before each send.\n4. Teardown disconnects the worklet node wherever the processor is disconnected today.\n5. src/lib/util/voice/mic_worklet.test.ts loads the worklet with stub registerProcessor and sampleRate and checks its output against today's formula for a 48 kHz block.",
+				"d": 0,
+				"v": "grep -q 'createScriptProcessor(2048, 1, 1)' src/components/learn/learn_context.svelte.ts",
+				"t": "test -f static/mic-worklet.js && grep -q 'mic-worklet.js' src/components/learn/learn_context.svelte.ts && grep -q 'createScriptProcessor' src/components/learn/learn_context.svelte.ts && pnpm exec vitest run --pool=threads src/lib/util/voice/mic_worklet.test.ts && pnpm test && pnpm check 2>&1 | grep COMPLETED | grep -qE ' [0-4] ERRORS'"
+			}
+		}
+	},
+	"offline": {
+		"s": "repeat visits and bad networks",
+		"d": 0,
+		"c": {
+			"service_worker": {
+				"s": "Outcome: repeat visits load versioned assets from the device, and pages still open on a dead network.\n1. Write src/service-worker.ts with $service-worker. Cache 'e4-assets' is cache-first for /_app/immutable/*, /engine/*, /fonts/*, /pieces/* and /models/*. On activate, delete only entries under /_app/immutable/ that are not in `build`.\n2. Navigations are network-first with a 4 s timeout, then the cached copy of that URL, then the cached /i. Install pre-caches /i. Cache 'e4-pages' keeps each successful navigation.\n3. Never intercept non-GET requests, other origins, /api/*, /chess/learn/*, /login, /logout, /google*, /payment*, /webhook* or /og*.\n4. Call skipWaiting and clients.claim. Registration stays SvelteKit's default.\n5. Log in, pay and talk once in agent-browser on the preview to prove none of them is cached.",
+				"d": 0,
+				"v": "! test -f src/service-worker.ts",
+				"t": "test -f src/service-worker.ts && pnpm build >/dev/null 2>&1 && node scripts/perf.mjs offline /i 'sw=1' 'ok=1' && pnpm test && pnpm check 2>&1 | grep COMPLETED | grep -qE ' [0-4] ERRORS'"
+			}
+		}
+	},
+	"finish": {
+		"s": "prove it, and hand Ed the one choice only he can make",
+		"d": 0,
+		"c": {
+			"measure_after": {
+				"s": "Outcome: the gains are measured and recorded next to the baseline.\n1. Run idle, active, bytes and load on / and /i, plus engine (current URL) and field, against a fresh build.\n2. Run Lighthouse 13.5.0 on the live https://chess.apexlinks.org/ and /i, 3 runs each, with `--chrome-flags='--headless=new --enable-gpu --use-angle=gl-egl --ignore-gpu-blocklist'` and CHROME_PATH=/usr/bin/chromium.\n3. Append a `## After (<date>)` section with a before/after table to ~/search/e4-fast-budget-phones-first-principles.md, and one line per metric to AGENTS.md's Performance section.\n4. Record anything still slow as one `plan fast --note` line each, for the planner.",
+				"d": 0,
+				"t": "grep -q '^## After' ~/search/e4-fast-budget-phones-first-principles.md && grep -q 'Performance' AGENTS.md"
+			},
+			"cloudflare_injected_scripts": {
+				"s": "This is Ed's decision, not code. Block this step at once with this text:\nCloudflare injects two scripts into every HTML page on apexlinks.org:\n- Bot Fight Mode's JavaScript detections (/cdn-cgi/challenge-platform/scripts/jsd/main.js): a 276 ms long task at 4x CPU on /.\n- The Web Analytics beacon (static.cloudflareinsights.com).\nOn the Free plan, Bot Fight Mode covers the whole zone (ed., fl., chess., e4. ...), and its JS detections cannot be turned off while it is on. Web Analytics can exclude hostnames in its site rules.\nOptions: turn Bot Fight Mode off for the zone and rely on Turnstile or WAF rules where needed; and/or exclude chess.apexlinks.org and e4.apexlinks.org from Web Analytics.",
+				"d": 0,
+				"t": "-"
+			}
+		}
+	}
+}
