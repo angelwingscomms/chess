@@ -421,8 +421,16 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 		}
 		dir.set(Math.sin(cur.pol) * Math.sin(cur.az), Math.cos(cur.pol), Math.sin(cur.pol) * Math.cos(cur.az));
 		if (cur.pol !== fit.pol || cur.az !== fit.az || camera.aspect !== fit.a) frame_all();
-		camera.position.copy(focus).addScaledVector(dir, fit.r * cur.z);
+		const r = fit.r * cur.z;
+		camera.position.copy(focus).addScaledVector(dir, r);
 		camera.lookAt(focus);
+		const near = Math.min(1, r * 0.25);
+		const far = Math.max(60, r + 20);
+		if (near !== camera.near || far !== camera.far) {
+			camera.near = near;
+			camera.far = far;
+			camera.updateProjectionMatrix();
+		}
 
 		const b = still ? 0.6 : look.b;
 		const drift = 0.1 * Math.sin(clock * 0.05);
@@ -633,7 +641,7 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 			kick();
 		},
 		zoom_by(f: number) {
-			tgt.z = clamp(tgt.z * f, 0.88, 1.6);
+			tgt.z = Math.max(tgt.z * f, 1e-8);
 			if (still) cur.z = tgt.z;
 			kick();
 		},
