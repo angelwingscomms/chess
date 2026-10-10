@@ -259,6 +259,7 @@ export class LearnState {
 		$effect(() => {
 			void this.fen;
 			void this.gameOver;
+			void this.recording;
 			void ls.on;
 			void ls.pos;
 			void ls.st;
@@ -368,7 +369,7 @@ export class LearnState {
 
 	init_live_tools() {
 		init_tool_state({
-			get_fen: () => this.fen,
+			get_fen: () => (ls.on ? ls.pos || this.fen : this.fen),
 			hint: async (f, think_time) => {
 				const mt = (think_time ?? this.hint_think_time) * 1000;
 				return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
@@ -751,6 +752,7 @@ export class LearnState {
 			});
 		} else if (this.gemini_live_can_send()) {
 			this.output_turn_active = false;
+			this.send_board_to_voice();
 			this.send_gemini_realtime_input({ text: user_msg }, 'send_chess_chat');
 		} else {
 			await this.execute_chat();
@@ -1791,6 +1793,7 @@ export class LearnState {
 				} as any,
 			}), connect_timeout]);
 			this.gemini_live_session = session;
+			this.send_board_to_voice();
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'NotFoundError') {
 				try {

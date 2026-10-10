@@ -43,5 +43,7 @@ describe('/chess/learn/chat route', () => {
 		expect(route).toContain("const sys_i = messages.findIndex((msg) => msg.r === 'system')");
 		expect(route).not.toContain('CRITICAL: You are not a teacher');
 		expect(route).not.toContain('Position (FEN)');
+		expect(route).toContain('make_get_fen(last_board(messages))');
+		expect(route).not.toContain('evaluate_position');
 	});
 });

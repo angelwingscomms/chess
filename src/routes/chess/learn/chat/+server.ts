@@ -8,8 +8,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { calc_cost } from '$lib/util/ai/pricing';
 import { deduct, TOKEN_RATE } from '$lib/server/token_balance';
 import { NGN_USD } from '$lib/util/rates';
-import { get_fen } from '$lib/util/chat/tools/get_fen';
-import { evaluate_position } from '$lib/util/chat/tools/stockfish_analysis';
+import { last_board, make_get_fen } from '$lib/util/chat/tools/get_fen';
 import { make_find_puzzles } from '$lib/util/chat/tools/find_puzzles';
 import { tool } from 'ai';
 import { z } from 'zod';
@@ -107,7 +106,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 						role: msg.r as 'user' | 'assistant',
 						content: msg.r === 'user' ? build_input(msg) : msg.c,
 					})),
-					tools: { get_fen, evaluate_position, find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state },
+					tools: { get_fen: make_get_fen(last_board(messages)), find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state },
 					stopWhen: stepCountIs(10),
 				});
 				for await (const part of result.fullStream) {

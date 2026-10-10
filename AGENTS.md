@@ -57,7 +57,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 # AI Chat
 
-- Board context (FEN, move history, last moves) injected into **user messages**, not system prompt
+- Board context (FEN, move history, last moves) injected into **user messages**, not system prompt. `get_fen` is built per request from that last `d` (`make_get_fen`); a module-level cache was deleted and the leftover stub always said there was no board. Voice sends the same note on call start (`void this.recording` in the board effect) and again before a typed question.
 - User can set a Groq API key in localStorage — bypasses server, calls `@ai-sdk/groq` directly from browser
 - Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
 - Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
