@@ -1695,10 +1695,10 @@ export class LearnState {
 			let key = own;
 			if (!key) {
 				const res = await fetch('/api/voice/gemini-live/key');
-				const body = await res.json();
-				key = body.k;
+				if (res.status === 401) throw Error('Log in to talk to your coach, or add your own Gemini key in settings.');
+				key = (await res.json().catch(() => ({}))).k;
 			}
-			if (!key) throw Error('No API key available');
+			if (!key) throw Error('The voice coach is unavailable right now. Please try again soon.');
 
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			this.gemini_live_mic_stream = stream;

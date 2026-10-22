@@ -1,4 +1,5 @@
 import { GEMINI } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { GoogleGenAI, Modality } from '@google/genai';
@@ -8,7 +9,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	if (!locals.user?.id) return json({ error: 'Unauthorized' }, { status: 401 });
 
 	const token = await new GoogleGenAI({
-		apiKey: GEMINI.trim(),
+		apiKey: (env.GEMINI || GEMINI).trim(),
 		httpOptions: { apiVersion: 'v1alpha', timeout: 10000 }
 	}).authTokens.create({
 		config: {
