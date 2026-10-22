@@ -54,7 +54,7 @@
 			<DotsIcon size={16} strokeWidth={1.8} />
 		</button>
 		{#if open}
-			<div role="menu" class="absolute top-[calc(100%+8px)] right-0 z-30 w-56 rounded-2xl border border-haze/12 bg-deep/95 p-1.5 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-surface">
+			<div role="menu" class="absolute top-[calc(100%+8px)] right-0 z-30 w-56 rounded-2xl border border-haze/12 bg-deep/95 p-1.5 shadow-[0_30px_80px_-20px_rgb(0_0_0/calc(0.8*var(--sh-k)))] backdrop-blur-xl animate-surface">
 				<button role="menuitem" title="New game" aria-label="New game" data-tour="new" class={item} onclick={run(() => s.resetGame())}>
 					<RefreshIcon size={16} strokeWidth={1.6} />new game
 				</button>

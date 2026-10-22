@@ -9,6 +9,7 @@ uniform vec4 u_board;
 uniform float u_melt;
 uniform float u_hide;
 uniform float u_live;
+uniform float u_light;
 uniform vec3 u_c0;
 uniform vec3 u_c1;
 uniform vec3 u_c2;
@@ -104,18 +105,22 @@ void main() {
 		float tn = fbm((cell + 0.5) / 8.0 * 2.4 + w * 0.7 + vec2(sl * 3.0, -sl * 2.0));
 		float wave = 0.5 + 0.5 * sin(t * 0.8 - length(cell - vec2(4.0, 4.0)) * 0.9);
 		float tv = (tn - 0.47) * 0.12;
-		vec3 classic = lite > 0.5 ? pal(0.8 + drift * 0.3) * (1.05 + tv) : pal(0.18 + drift * 0.3) * (0.85 + tv);
-		vec3 living = pal((tn - 0.15) / 0.6 + drift) * mix(0.58, 1.12, lite);
-		vec3 tc = mix(classic, living, u_live) * (0.8 + 0.28 * u_breath) * (0.94 + 0.06 * wave);
-		tc += smoothstep(-0.16, 0.0, sd) * 0.07 * (1.0 - u_melt);
+		vec3 classic = lite > 0.5 ? pal(0.8 + drift * 0.3) * (mix(1.05, 1.0, u_light) + tv) : pal(0.18 + drift * 0.3) * (mix(0.85, 0.9, u_light) + tv);
+		vec3 living = pal((tn - 0.15) / 0.6 + drift) * mix(mix(0.58, 0.86, u_light), mix(1.12, 1.0, u_light), lite);
+		vec3 tc = mix(classic, living, u_live) * mix(0.8 + 0.28 * u_breath, 0.97 + 0.05 * u_breath, u_light) * (0.94 + 0.06 * wave);
+		tc += smoothstep(-0.16, 0.0, sd) * mix(0.07, -0.05, u_light) * (1.0 - u_melt);
 		vec2 mk = g * 8.0 - vec2(u_mark.x + 0.5, 8.5 - u_mark.y);
-		tc += u_glow * exp(-dot(mk, mk) * 1.6) * u_mark.z * 0.42;
-		col = mix(col, tc * (1.0 + cl * 0.35), tile);
+		float mg = exp(-dot(mk, mk) * 1.6) * u_mark.z;
+		tc += u_glow * mg * 0.42 * (1.0 - u_light);
+		tc = mix(tc, u_glow, mg * 0.4 * u_light);
+		col = mix(col, tc * (1.0 + cl * mix(0.35, -0.08, u_light)), tile);
 	}
-	col += u_glow * (cl * 0.08 + ring * 0.07);
+	float lit = cl * 0.08 + ring * 0.07;
+	col += u_glow * lit * (1.0 - u_light);
+	col = mix(col, u_glow, lit * 0.9 * u_light);
 
 	vec2 vc = v_uv - 0.5;
-	col *= 1.0 - dot(vc, vc) * 0.9;
+	col *= 1.0 - dot(vc, vc) * mix(0.9, 0.16, u_light);
 	col += (hash(p + fract(t * 7.0) * 91.0) - 0.5) * 0.03;
 	gl_FragColor = vec4(col, 1.0);
 }
@@ -131,6 +136,7 @@ export type Frame = {
 	m: number; // melt, 0 crisp squares to 1 liquid
 	h: number; // squares hidden, 0 shown to 1 gone
 	l: number; // living colours, 0 classic two-tone squares to 1 flowing per-square colour
+	d?: number; // theme, 0 dark (the default) to 1 light
 	p: Float32Array; // palette c0 c1 c2 c3 bg, rgb 0-1
 	c: number[]; // cursor x, y, light strength
 	q: number[]; // lit square file 0-7, rank 1-8, strength
@@ -166,8 +172,9 @@ export function make_field(canvas: HTMLCanvasElement) {
 	gl.vertexAttribPointer(attr, 2, gl.FLOAT, false, 0, 0);
 
 	const u = (n: string) => gl.getUniformLocation(prog, 'u_' + n);
-	const at = { res: u('res'), time: u('time'), breath: u('breath'), board: u('board'), melt: u('melt'), hide: u('hide'), live: u('live'), c0: u('c0'), c1: u('c1'), c2: u('c2'), c3: u('c3'), bg: u('bg'), cursor: u('cursor'), mark: u('mark'), rip: u('rip[0]') };
-	gl.uniform3fv(u('glow'), rgb('#e9a47c'));
+	const at = { res: u('res'), time: u('time'), breath: u('breath'), board: u('board'), melt: u('melt'), hide: u('hide'), live: u('live'), light: u('light'), glow: u('glow'), c0: u('c0'), c1: u('c1'), c2: u('c2'), c3: u('c3'), bg: u('bg'), cursor: u('cursor'), mark: u('mark'), rip: u('rip[0]') };
+	const coral = rgb('#e9a47c');
+	const clay = rgb('#c8603a');
 
 	const rips: { x: number; y: number; t: number; a: number }[] = [];
 	const rip = new Float32Array(24);
@@ -216,6 +223,9 @@ export function make_field(canvas: HTMLCanvasElement) {
 		gl!.uniform1f(at.melt, fr.m);
 		gl!.uniform1f(at.hide, fr.h);
 		gl!.uniform1f(at.live, fr.l);
+		const d = fr.d ?? 0;
+		gl!.uniform1f(at.light, d);
+		gl!.uniform3f(at.glow, coral[0] + (clay[0] - coral[0]) * d, coral[1] + (clay[1] - coral[1]) * d, coral[2] + (clay[2] - coral[2]) * d);
 		gl!.uniform3fv(at.c0, fr.p.subarray(0, 3));
 		gl!.uniform3fv(at.c1, fr.p.subarray(3, 6));
 		gl!.uniform3fv(at.c2, fr.p.subarray(6, 9));

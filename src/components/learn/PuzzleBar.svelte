@@ -20,11 +20,11 @@
 	const challenge = $derived(pz.mode === 'c');
 	const say = $derived.by(() => {
 		const idea = meaning ? ` that’s a ${theme}: ${meaning}.` : '';
-		if (pz.st === 'w') return (pz.shown ? 'that’s the answer.' : challenge ? 'solved!' : 'you found it! keep playing.') + idea;
-		if (pz.st === 'x') return `the puzzle move was ${say_move(sans[pz.i] ?? '')}. keep playing.`;
-		if (pz.st === 'n') return 'not quite. try again.';
-		if (pz.st === 'y') return challenge ? 'yes! keep going.' : 'that’s the idea. keep playing.';
-		return `you’re ${mover}. ${challenge ? 'find the best move.' : 'there’s a winning move here.'}`;
+		if (pz.st === 'w') return (pz.shown ? 'That’s the answer.' : challenge ? 'Solved!' : 'You found it! Keep playing.') + idea;
+		if (pz.st === 'x') return `The puzzle move was ${say_move(sans[pz.i] ?? '')}. Keep playing.`;
+		if (pz.st === 'n') return 'Not quite. Try again.';
+		if (pz.st === 'y') return challenge ? 'Yes! Keep going.' : 'That’s the idea. Keep playing.';
+		return `You’re ${mover}. ${challenge ? 'Find the best move.' : 'There’s a winning move here.'}`;
 	});
 	const ask = () =>
 		s.sendChatMessage(
@@ -44,7 +44,7 @@
 		</div>
 	</div>
 	<div class="flex flex-wrap items-center justify-between gap-2">
-		<p class="text-[15px] transition-colors duration-500 {pz.st === 'n' ? 'text-[#e78686]' : pz.st === 'w' ? 'text-glow' : 'text-haze/85'}">{say}</p>
+		<p class="text-[15px] transition-colors duration-500 {pz.st === 'n' ? 'text-bad' : pz.st === 'w' ? 'text-glow' : 'text-haze/85'}">{say}</p>
 		<div class="flex items-center gap-1.5">
 			<button aria-label="Challenge mode" aria-pressed={challenge} data-tip={challenge ? 'challenge on: each move is checked' : 'challenge: check each move'} class={challenge ? lit : glass} onclick={toggle_challenge}>
 				<TargetIcon size={16} strokeWidth={1.8} />

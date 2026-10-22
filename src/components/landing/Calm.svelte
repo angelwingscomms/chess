@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { make_field } from '$lib/landing/field';
-	import { calm, load_feel, mix_view, square_xy, ui } from '$lib/landing/calm.svelte';
+	import { calm, load_feel, mix_view, set_look, square_xy, ui } from '$lib/landing/calm.svelte';
+	import { theme } from '$lib/theme.svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 	let pawn = $state<HTMLImageElement>();
@@ -9,6 +10,11 @@
 	const clamp = (v: number) => Math.min(1, Math.max(0, v));
 	const ease = (t: number) => 0.5 - 0.5 * Math.cos(Math.PI * t);
 	const quiet = 'a,button,input,textarea,select,label,[role=button],[data-quiet]';
+
+	$effect(() => {
+		void theme.mode;
+		calm.wake();
+	});
 
 	onMount(() => {
 		const motion = matchMedia('(prefers-reduced-motion: no-preference)').matches;
@@ -36,6 +42,9 @@
 		let pw = 0;
 		let hv = 0;
 		let lv = ui.living ? 1 : 0;
+		let tt = theme.mode === 'light' ? 1 : 0;
+		set_look(tt);
+		calm.look = tt;
 		let armed = false;
 		let hover: Element | null = null;
 		let down = { x: 0, y: 0, t: 0 };
@@ -88,6 +97,13 @@
 			psy = scrollY;
 			clock += motion ? dt * (1 + Math.min(Math.abs(vel) / 1400, 2)) : 0;
 
+			const goal = theme.mode === 'light' ? 1 : 0;
+			if (tt !== goal) {
+				tt = !motion || Math.abs(goal - tt) < 0.004 ? goal : tt + (goal - tt) * (1 - Math.exp(-7 * dt));
+				set_look(tt);
+				calm.look = tt;
+			}
+
 			const cyc = ((now / 1000) % 16) / 4;
 			const ph = Math.floor(cyc);
 			calm.phase = ph;
@@ -111,9 +127,9 @@
 				cy += (py - cy) * (1 - Math.exp(-6 * dt));
 				cs += ((now - lit < 1600 ? 1 : lit ? 0.3 : 0) - cs) * (1 - Math.exp(-3 * dt));
 				lv += ((ui.living ? 1 : 0) - lv) * (motion ? 1 - Math.exp(-4 * dt) : 1);
-				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, h: hv, l: lv, p: v.p, c: [cx, cy, cs], q: v.q });
+				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, h: hv, l: lv, d: tt, p: v.p, c: [cx, cy, cs], q: v.q });
 			}
-			if (motion || calm.from) raf = requestAnimationFrame(frame);
+			if (motion || calm.from || tt !== goal) raf = requestAnimationFrame(frame);
 		}
 
 		const on_move = (e: PointerEvent) => {
@@ -189,10 +205,10 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@200..500&family=Geist+Mono:wght@400&display=swap" />
-	<meta name="theme-color" content="#0c0b13" />
+	<meta name="theme-color" content={theme.mode === 'light' ? '#f5f1ea' : '#0c0b13'} />
 </svelte:head>
 
 <div aria-hidden="true" class="fixed inset-0 bg-night bg-radial-[at_70%_35%] from-dusk to-night to-70%"></div>
 <canvas bind:this={canvas} aria-hidden="true" class="pointer-events-none fixed inset-x-0 top-0 h-lvh w-full opacity-0 transition-opacity duration-2000 ease-calm data-[on]:opacity-100"></canvas>
-<img bind:this={pawn} src="/pieces/gioco/wP.svg" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 left-0 z-[5] size-16 opacity-0 drop-shadow-[0_0_24px_rgba(233,164,124,0.55)]" />
+<img bind:this={pawn} src="/pieces/gioco/wP.svg" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 left-0 z-[5] size-16 opacity-0 drop-shadow-[0_0_24px_color-mix(in_srgb,var(--color-glow)_55%,transparent)]" />
 

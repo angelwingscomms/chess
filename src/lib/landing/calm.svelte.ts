@@ -17,7 +17,7 @@ export type View = {
 
 export type Scene = (now: number, dt: number) => View;
 
-export const palettes = [
+const dark = [
 	['#1c1832', '#3b3060', '#74507a', '#d08c6c', '#0c0b13'],
 	['#0e1126', '#1d2348', '#322e60', '#5d4d80', '#07070e'],
 	['#0b1e25', '#11404a', '#2b6c6a', '#8cb5a5', '#051014'],
@@ -25,6 +25,25 @@ export const palettes = [
 	['#15182b', '#2c2d56', '#554f82', '#ab91bb', '#0a0a15'],
 	['#2a1c28', '#5b3944', '#ad6a5c', '#f2bb8e', '#130d12']
 ].map((p) => new Float32Array(p.flatMap(rgb)));
+
+// the same six moods on paper, one for one
+const light = [
+	['#d9cfea', '#b9abd6', '#ecdcd6', '#fbe9dc', '#f7f2ec'],
+	['#d3d8ee', '#b6bde3', '#d9d2ee', '#ece7f6', '#f3f3f8'],
+	['#cfe3de', '#a9cfc6', '#d6e8df', '#eef5ee', '#f1f5f0'],
+	['#cfdfe8', '#a9c4d4', '#cfdde6', '#e6eef2', '#f0f4f6'],
+	['#d6d3ea', '#bbb4de', '#d9cde6', '#efe4f2', '#f5f2f8'],
+	['#ecd5d3', '#dcb4ae', '#f1d0bf', '#fbe6d2', '#f8f0ea']
+].map((p) => new Float32Array(p.flatMap(rgb)));
+
+// what scenes read: moves from dark to light with the theme
+export const palettes = dark.map((p) => p.slice());
+
+export function set_look(t: number) {
+	palettes.forEach((p, i) => {
+		for (let j = 0; j < 15; j++) p[j] = dark[i][j] + (light[i][j] - dark[i][j]) * t;
+	});
+}
 
 export const ui = $state({ sound: false, ripples: false, notes: false, living: false, flat: true });
 
@@ -54,6 +73,7 @@ export const calm = {
 	t0: 0,
 	phase: 0,
 	lung: 0.5,
+	look: 0, // theme, 0 dark to 1 light
 	app: false,
 	handoff: '' as '' | 'glide' | 'e4',
 	quiet: false,

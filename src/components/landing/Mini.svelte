@@ -22,7 +22,7 @@
 		</p>
 		<TalkButton />
 	</div>
-	<ChatPanel hello="" placeholder="ask me anything…" />
+	<ChatPanel hello="" placeholder="Ask me anything…" />
 </div>
 {#if s.toasts.length}
 	<ToastContainer toasts={s.toasts} />

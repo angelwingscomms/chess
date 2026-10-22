@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-		<p class="min-w-0 flex-1 basis-56 text-[15px] leading-snug transition-colors duration-500 {ls.st === 'n' ? 'text-[#e78686]' : ls.st === 'w' ? 'text-glow' : 'text-haze/85'}">{text}</p>
+		<p class="min-w-0 flex-1 basis-56 text-[15px] leading-snug transition-colors duration-500 {ls.st === 'n' ? 'text-bad' : ls.st === 'w' ? 'text-glow' : 'text-haze/85'}">{text}</p>
 		<div class="flex items-center gap-1.5">
 			<button aria-label="All lessons" data-tip="all lessons" class={glass} onclick={() => (ls.list = true)}>
 				<SchoolIcon size={16} strokeWidth={1.8} />
@@ -34,7 +34,7 @@
 				{#if part_end() && !last()}
 					<button class="{pill} border border-haze/20 bg-haze/5 text-haze hover:border-glow/60 hover:bg-glow/10" onclick={close_lessons}>play a game</button>
 				{/if}
-				<button class="{pill} bg-glow text-night shadow-[0_0_30px_-8px_rgba(233,164,124,0.7)]" onclick={next}>{last() ? 'play a game →' : 'next →'}</button>
+				<button class="{pill} bg-glow text-night shadow-[0_0_30px_-8px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]" onclick={next}>{last() ? 'play a game →' : 'next →'}</button>
 			{:else}
 				<button aria-label="Show me the move" data-tip="show me" class={glass} onclick={point} disabled={ls.st === 'n'}>
 					<BulbIcon size={16} strokeWidth={1.8} />

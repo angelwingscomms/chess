@@ -30,7 +30,7 @@
 {#if s.show_sessions}
 	<div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-night/70 p-4 backdrop-blur-sm" role="presentation" onclick={close}>
 		<div
-			class="calm flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-haze/12 bg-deep/95 font-calm font-light text-haze shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9)] animate-surface"
+			class="calm flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-haze/12 bg-deep/95 font-calm font-light text-haze shadow-[0_40px_120px_-30px_rgb(0_0_0/calc(0.9*var(--sh-k)))] animate-surface"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="games-title"
@@ -51,7 +51,7 @@
 				<input
 					type="search"
 					bind:value={q}
-					placeholder="find a game…"
+					placeholder="Find a game…"
 					aria-label="Find a game or a chat"
 					class="min-w-0 flex-1 rounded-full border border-haze/15 bg-haze/5 px-4 py-2 text-sm text-haze outline-none placeholder:text-mist/70 focus:border-glow/60"
 				/>
@@ -74,19 +74,19 @@
 								<span class="min-w-0">
 									<span class="block truncate text-sm text-haze">{x.t}</span>
 									{#if x.p}<span class="mt-0.5 block truncate text-xs text-mist">“{x.p}”</span>{/if}
-									<span class="mt-1 block font-calm-mono text-[10px] tracking-[0.12em] text-mist/70">{ago(x.d)}</span>
+									<span class="mt-1 block font-calm-mono text-[10px] tracking-[0.12em] text-mist/70 light:text-mist">{ago(x.d)}</span>
 								</span>
 							</button>
 							<button
 								aria-label={sure === x.i ? 'Yes, delete this game' : 'Delete this game'}
-								class="mr-2 grid h-8 min-w-8 shrink-0 cursor-pointer place-items-center rounded-full px-2 text-xs transition duration-300 ease-expo {sure === x.i ? 'bg-glow/15 text-glow' : 'text-mist/60 hover:text-haze'}"
+								class="mr-2 grid h-8 min-w-8 shrink-0 cursor-pointer place-items-center rounded-full px-2 text-xs transition duration-300 ease-expo {sure === x.i ? 'bg-glow/15 text-glow' : 'text-mist/60 light:text-mist/85 hover:text-haze'}"
 								onclick={() => (sure === x.i ? s.delete_session(x.i) : (sure = x.i))}
 							>
 								{#if sure === x.i}delete?{:else}<XIcon size={14} strokeWidth={1.8} />{/if}
 							</button>
 						</li>
 					{:else}
-						<li class="px-3 py-10 text-center text-sm text-mist">{q.trim() ? `nothing found for “${q.trim()}”` : 'no games yet. make a move and it saves by itself.'}</li>
+						<li class="px-3 py-10 text-center text-sm text-mist">{q.trim() ? `Nothing found for “${q.trim()}”` : 'No games yet. Make a move and it saves by itself.'}</li>
 					{/each}
 				</ul>
 			{/if}

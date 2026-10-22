@@ -258,6 +258,7 @@
 			if (calm.view) l.p.set(calm.view.p);
 			l.b = calm.lung;
 			l.l = ui.living ? 1 : 0;
+			l.d = calm.look;
 		};
 
 		Promise.all([import('$lib/board3d/scene'), import('$lib/board3d/pieces').then((m) => m.load_pieces())]).then(([{ make_board3d }, geos]) => {
@@ -297,13 +298,13 @@
 <canvas
 	bind:this={canvas}
 	data-quiet
-	aria-label="3d chess board. drag a piece to move it. drag the space around it to turn the board."
+	aria-label="3D chess board. Drag a piece to move it. Drag the space around it to turn the board."
 	class="absolute inset-[-12%] z-[1] size-[124%] touch-none outline-none select-none mask-x-from-93% mask-y-from-93% transition-opacity duration-700 ease-calm {cursor} {b3 && shown && cam.on ? '' : 'pointer-events-none opacity-0'}"
 ></canvas>
 
 {#if promo}
 	<div class="absolute inset-0 z-[2] grid place-items-center" role="presentation" onclick={(e) => e.target === e.currentTarget && cancel_promo()}>
-		<div role="dialog" aria-label="your pawn made it across. pick what it becomes" class="flex gap-1.5 rounded-full border border-haze/15 bg-deep/90 p-2 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-surface">
+		<div role="dialog" aria-label="Your pawn made it across. Pick what it becomes" class="flex gap-1.5 rounded-full border border-haze/15 bg-deep/90 p-2 shadow-[0_30px_80px_-20px_rgb(0_0_0/calc(0.8*var(--sh-k)))] backdrop-blur-xl animate-surface">
 			{#each ['q', 'r', 'b', 'n'] as k}
 				<button
 					aria-label="turn your pawn into a {NAMES[k]}"

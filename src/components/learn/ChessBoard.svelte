@@ -113,7 +113,7 @@
 {/key}
 </div>
 {#if arrow && !cam.on}
-	<svg viewBox="0 0 8 8" class="pointer-events-none absolute inset-0 z-10 size-full overflow-visible drop-shadow-[0_0_10px_rgba(233,164,124,0.7)]" aria-hidden="true">
+	<svg viewBox="0 0 8 8" class="pointer-events-none absolute inset-0 z-10 size-full overflow-visible drop-shadow-[0_0_10px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]" aria-hidden="true">
 		<defs>
 			<marker id="hint-head" viewBox="0 0 4 4" refX="1.2" refY="2" markerWidth="2.4" markerHeight="2.4" orient="auto">
 				<path d="M0 0 L4 2 L0 4 Z" class="fill-glow" />
@@ -133,7 +133,7 @@
 				/>
 			{:else}
 				<div
-					class={'pointer-events-none size-[62%] rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? 'border-2 border-glow/80 shadow-[0_0_24px_rgba(233,164,124,0.5)]' : 'bg-glow/60 motion-safe:animate-listen shadow-[0_0_30px_rgba(233,164,124,0.7)]')}
+					class={'pointer-events-none size-[62%] rounded-full place-self-center ' + square.r + ' ' + square.c + ' ' + (square.k === 'f' ? 'border-2 border-glow/80 shadow-[0_0_24px_color-mix(in_srgb,var(--color-glow)_50%,transparent)]' : 'bg-glow/60 motion-safe:animate-listen shadow-[0_0_30px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]')}
 					data-testid={square.k === 'f' ? 'hint-square-from' : 'hint-square-to'}
 					role="img"
 					aria-label={`Hint ${square.l} square ${square.s}`}

@@ -208,7 +208,7 @@ export async function next_puzzle(theme = main_theme(pz.p), rating = pz.p?.r) {
 		s.reset_board_state(p.f);
 		start_puzzle(p);
 	} catch {
-		s.add_toast('no puzzle found. try again.', 'e');
+		s.add_toast('No puzzle found. Try again.', 'e');
 	} finally {
 		pz.busy = false;
 	}

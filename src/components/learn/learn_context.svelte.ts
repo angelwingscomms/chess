@@ -335,13 +335,13 @@ export class LearnState {
 		if (ls.on) return lesson_suggestions();
 		if (this.chat_messages.length > 0 || this.gameOver) return [];
 		const s: string[] = [];
-		if (this.inCheck) s.push('how do i get out of check?');
+		if (this.inCheck) s.push('How do I get out of check?');
 		// moveNum reads 1 at the start, so count the moves played instead
 		const played = this.history.length;
-		if (!played) s.push('how do the pieces move?', 'how should i start?');
-		else if (this.last_ai_move) s.push('why did the computer do that?');
-		if (played) s.push('what should i do now?');
-		if (played >= 4) s.push('who is winning?', 'what is my plan?');
+		if (!played) s.push('How do the pieces move?', 'How should I start?');
+		else if (this.last_ai_move) s.push('Why did the computer do that?');
+		if (played) s.push('What should I do now?');
+		if (played >= 4) s.push('Who is winning?', 'What is my plan?');
 		return s.slice(0, 3);
 	}
 
@@ -389,7 +389,7 @@ export class LearnState {
 					this._set_state_fail_count++;
 					if (this._set_state_fail_count >= 9) {
 						this._set_state_fail_count = 0;
-						this.add_toast('couldn’t set up that board', 'e');
+						this.add_toast('Couldn’t set up that board', 'e');
 					}
 					return { valid: false, error: 'Invalid FEN' };
 				}
@@ -1208,7 +1208,7 @@ export class LearnState {
 		if (i === this.sid) return;
 		void this.flush();
 		const x = await this.get(i);
-		if (!x?.b) return this.add_toast('couldn’t open that game', 'e');
+		if (!x?.b) return this.add_toast('Couldn’t open that game', 'e');
 		end_puzzle();
 		close_lessons();
 		// the voice call knows the old game, so it ends
@@ -1357,7 +1357,7 @@ export class LearnState {
 
 	end_openai_trial() {
 		if (this.gemini_live_closing) return;
-		this.add_toast("today's 3 minutes are used. paste your own openai key to keep talking.", 'e');
+		this.add_toast("Today's 3 minutes are used. Paste your own openai key to keep talking.", 'e');
 		if (this.openai_live_can_send()) {
 			this.send_openai_live_event({ type: 'session.close', event_id: this.next_openai_evt() });
 			setTimeout(() => this.cleanup_gemini_live(), 1500);
@@ -1446,7 +1446,7 @@ export class LearnState {
 		if (t === 'session.started') {
 			this.gemini_live_healthy = true;
 			this.recording = true;
-			this.add_toast('your voice coach is listening');
+			this.add_toast('Your voice coach is listening');
 			const greet = this.quiet
 				? 'Stay quiet until the user speaks. Then answer in 1-3 short sentences.'
 				: 'Greet the user in one short sentence and ask if they want a move idea or a chess concept.';
@@ -1504,7 +1504,7 @@ export class LearnState {
 			return;
 		}
 		if (t === 'error') {
-			this.add_toast(event?.error?.message || 'voice error', 'e');
+			this.add_toast(event?.error?.message || 'Voice error', 'e');
 		}
 	}
 
@@ -1539,7 +1539,7 @@ export class LearnState {
 		this.load_thinking_sound();
 		const micSource = audioCtx.createMediaStreamSource(stream);
 		if (this.noise_suppression) {
-			this.add_toast('openai live uses the raw mic');
+			this.add_toast('Openai live uses the raw mic');
 		}
 		const recording_dest = audioCtx.createMediaStreamDestination();
 		this.gemini_live_recording_dest = recording_dest;
@@ -1683,7 +1683,7 @@ export class LearnState {
 		// }
 		this.gemini_live_closing = false;
 		try {
-			this.add_toast('connecting your voice coach…');
+			this.add_toast('Connecting your voice coach…');
 			this.init_live_tools();
 			// if (this.voice_provider === 'openai') {
 			// 	this.voice_provider_active = 'openai';
@@ -1730,7 +1730,7 @@ export class LearnState {
 					micSource.connect(rnnoiseNode).connect(intermediateDest);
 					processorSource = audioCtx.createMediaStreamSource(intermediateDest.stream);
 				} catch {
-					this.add_toast('the noise filter isn’t available here, so your mic is used as it is');
+					this.add_toast('The noise filter isn’t available here, so your mic is used as it is');
 				}
 			}
 
@@ -1762,7 +1762,7 @@ export class LearnState {
 					onopen: () => {
 						this.gemini_live_healthy = true;
 						this.recording = true;
-						this.add_toast('your voice coach is listening');
+						this.add_toast('Your voice coach is listening');
 					},
 					onmessage: (msg: any) => {
 						this.gemini_live_handle(msg);
@@ -1770,7 +1770,7 @@ export class LearnState {
 					onerror: (e: any) => {
 						this.gemini_live_healthy = false;
 						this.cleanup_gemini_live();
-						this.add_toast('voice couldn’t connect: ' + (e?.message || e), 'e');
+						this.add_toast('Voice couldn’t connect: ' + (e?.message || e), 'e');
 					},
 					onclose: () => {
 						this.gemini_live_healthy = false;
@@ -1800,13 +1800,13 @@ export class LearnState {
 					const devices = await navigator.mediaDevices.enumerateDevices();
 					const audio_inputs = devices.filter(d => d.kind === 'audioinput');
 					this.add_toast(audio_inputs.length === 0
-						? 'no microphone found. plug one in, then refresh the page.'
-						: 'your mic is there, but another app may be using it. close it and try again.', 'e');
+						? 'No microphone found. Plug one in, then refresh the page.'
+						: 'Your mic is there, but another app may be using it. Close it and try again.', 'e');
 				} catch {
-					this.add_toast('no microphone found. plug one in, then refresh the page.', 'e');
+					this.add_toast('No microphone found. Plug one in, then refresh the page.', 'e');
 				}
 			} else {
-				this.add_toast('voice couldn’t start: ' + (e instanceof Error ? e.message : String(e)), 'e');
+				this.add_toast('Voice couldn’t start: ' + (e instanceof Error ? e.message : String(e)), 'e');
 			}
 			this.cleanup_gemini_live();
 		}
@@ -1855,7 +1855,7 @@ export class LearnState {
 			this.screen_recording = true;
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'NotAllowedError') return;
-			this.add_toast('screen recording couldn’t start: ' + (e instanceof Error ? e.message : String(e)), 'e');
+			this.add_toast('Screen recording couldn’t start: ' + (e instanceof Error ? e.message : String(e)), 'e');
 		}
 	};
 

@@ -5,8 +5,8 @@
 	let { sound }: { sound: Sound } = $props();
 
 	const lines = [
-		'only your king was guarding f7, the square next to it. white’s queen and bishop were both aiming there, so the queen took it. that’s checkmate.',
-		'move the pawn in front of your knight up one square, to g6. it blocks the queen and attacks her, so she has to run, and f7 stays safe.'
+		'Only your king was guarding f7, the square next to it. White’s queen and bishop were both aiming there, so the queen took it. That’s checkmate.',
+		'Move the pawn in front of your knight up one square, to g6. It blocks the queen and attacks her, so she has to run, and f7 stays safe.'
 	];
 	const pieces = [
 		['wr1', 'wR', 'a1'], ['wn1', 'wN', 'b1'], ['wb1', 'wB', 'c1'], ['wk', 'wK', 'e1'], ['wn2', 'wN', 'g1'], ['wr2', 'wR', 'h1'],
@@ -67,7 +67,7 @@
 </script>
 
 <div bind:this={host} class="w-full max-w-md">
-	<svg viewBox="0 0 8 8" class="w-full overflow-hidden rounded-2xl shadow-[0_40px_120px_-40px_rgba(0,0,0,0.8)]" role="img" aria-label="a board where white’s queen can take f7 and give checkmate">
+	<svg viewBox="0 0 8 8" class="w-full overflow-hidden rounded-2xl shadow-[0_40px_120px_-40px_rgb(0_0_0/calc(0.8*var(--sh-k)))]" role="img" aria-label="a board where white’s queen can take f7 and give checkmate">
 		<rect width="8" height="8" class="fill-haze/10" />
 		{#each light as s}
 			<rect x={s.x} y={s.y} width="1" height="1" class="fill-haze/25" />
@@ -90,7 +90,7 @@
 
 	<div class="mt-6 flex min-h-56 flex-col gap-3 text-[15px] leading-relaxed" aria-live="polite">
 		{#if step >= 1}
-			<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-4 py-2.5 text-haze/85 animate-surface">why did i lose?</p>
+			<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-4 py-2.5 text-haze/85 animate-surface">Why did I lose?</p>
 			<div class="max-w-[94%] rounded-2xl rounded-bl-md border border-haze/10 bg-night/50 px-4 py-3 text-haze backdrop-blur-md animate-surface [animation-delay:0.5s]">
 				<span class="mb-1 block font-calm-mono text-[11px] tracking-[0.16em] text-glow">e4</span>
 				<span aria-hidden="true">{typed[0] || '…'}</span>
@@ -98,12 +98,12 @@
 			</div>
 		{/if}
 		{#if done[0] && step === 1}
-			<button type="button" onclick={ask} class="mt-1 w-fit cursor-pointer self-end rounded-full border border-glow/40 px-4 py-2 text-haze/90 transition duration-500 ease-expo animate-surface hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
-				what should i have played?
+			<button type="button" onclick={ask} class="mt-1 w-fit cursor-pointer self-end normal-case rounded-full border border-glow/40 px-4 py-2 text-haze/90 transition duration-500 ease-expo animate-surface hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
+				What should I have played?
 			</button>
 		{/if}
 		{#if step === 2}
-			<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-4 py-2.5 text-haze/85 animate-surface">what should i have played?</p>
+			<p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-haze/10 px-4 py-2.5 text-haze/85 animate-surface">What should I have played?</p>
 			<div class="max-w-[94%] rounded-2xl rounded-bl-md border border-haze/10 bg-night/50 px-4 py-3 text-haze backdrop-blur-md animate-surface [animation-delay:0.5s]">
 				<span class="mb-1 block font-calm-mono text-[11px] tracking-[0.16em] text-glow">e4</span>
 				<span aria-hidden="true">{typed[1] || '…'}</span>

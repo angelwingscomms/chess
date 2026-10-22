@@ -47,10 +47,10 @@ export const part_end = () => ls.si > MATE && ls.li === stage().l.length - 1 && 
 export function won_text() {
 	const l = level();
 	if (l.w) return l.w;
-	if (l.g === 'k') return 'yes! that’s check.';
-	if (l.g === 'm') return 'checkmate! you won.';
-	if (l.g === 'e') return 'safe! your king is out of check.';
-	return ls.moves <= (l.b ?? 0) ? `perfect! ${ls.moves} moves, the best way.` : `done in ${ls.moves} moves. the best is ${l.b}.`;
+	if (l.g === 'k') return 'Yes! That’s check.';
+	if (l.g === 'm') return 'Checkmate! You won.';
+	if (l.g === 'e') return 'Safe! Your king is out of check.';
+	return ls.moves <= (l.b ?? 0) ? `Perfect! ${ls.moves} moves, the best way.` : `Done in ${ls.moves} moves. The best is ${l.b}.`;
 }
 
 export function bind_lessons(state: LearnState) {
@@ -198,7 +198,7 @@ function wrong(before: string, dest: Key, san: string) {
 	ls.st = 'n';
 	ls.miss = say_move(san);
 	misses++;
-	ls.oops = rules!.isStalemate() ? 'stalemate! the other side can’t move, but it isn’t in check, so it’s only a draw. try again.' : level().g === 'd' ? 'that doesn’t stop it. watch, then try again.' : 'not quite. try again.';
+	ls.oops = rules!.isStalemate() ? 'Stalemate! The other side can’t move, but it isn’t in check, so it’s only a draw. Try again.' : level().g === 'd' ? 'That doesn’t stop it. Watch, then try again.' : 'Not quite. Try again.';
 	shake(dest);
 	board!.set({ movable: { color: undefined, dests: new Map() } });
 	const mate = level().g === 'd' && mate_in_one(rules!);

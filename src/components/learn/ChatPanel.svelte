@@ -9,7 +9,7 @@
 	import { ls } from './lesson.svelte';
 	import { calm } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
-	let { hello = 'ask me anything about chess, even “how does the knight move?”', placeholder = 'ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
+	let { hello = 'Ask me anything about chess, even “how does the knight move?”', placeholder = 'Ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
 	const s = get_learn_state();
 
 	let chat_messages = $derived(s.chat_messages);
@@ -39,7 +39,7 @@
 <div class="flex min-h-0 flex-1 flex-col">
 	<div bind:this={s.chat_body} class="relative flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain px-1 py-2 text-base leading-relaxed lg:gap-3 lg:text-[15px]">
 		{#if chat_messages.length === 0 && hello}
-			<p class="m-auto max-w-[17rem] text-center font-calm-mono text-xs leading-relaxed tracking-[0.12em] text-mist [@media(max-height:44rem)]:hidden">{hello}</p>
+			<p class="m-auto max-w-[17rem] text-center font-calm-mono normal-case text-xs leading-relaxed tracking-[0.12em] text-mist [@media(max-height:44rem)]:hidden">{hello}</p>
 		{/if}
 		{#each chat_messages as msg, i (i)}
 			{#if msg.role === 'assistant'}
@@ -48,7 +48,7 @@
 					{@html marked.parse(msg.content)}
 					<!-- hidden for now: what each reply cost
 					{#if msg.u}
-						<span class="mt-2 block font-calm-mono text-[10px] tracking-[0.1em] text-mist/60">₦{(msg.u.cost * NGN_USD).toFixed(2)}</span>
+						<span class="mt-2 block font-calm-mono text-[10px] tracking-[0.1em] text-mist/60 light:text-mist/85">₦{(msg.u.cost * NGN_USD).toFixed(2)}</span>
 					{/if}
 					-->
 				</div>
@@ -86,7 +86,7 @@
 				aria-label="Append selected text to message"
 				onclick={() => s.append_selection()}
 				style="left:{sel_pos.x}px;top:{sel_pos.y}px"
-				class="absolute z-50 grid size-7 -translate-x-1/2 -translate-y-full place-items-center rounded-full bg-glow text-night shadow-[0_0_24px_rgba(233,164,124,0.6)] transition duration-300 ease-expo hover:scale-110 active:scale-95"
+				class="absolute z-50 grid size-7 -translate-x-1/2 -translate-y-full place-items-center rounded-full bg-glow text-night shadow-[0_0_24px_color-mix(in_srgb,var(--color-glow)_60%,transparent)] transition duration-300 ease-expo hover:scale-110 active:scale-95"
 			>
 				<PlusIcon size={14} strokeWidth={2.5} />
 			</button>
@@ -95,7 +95,7 @@
 	{#if chat_suggestions.length > 0 && (ls.on || !pz.on)}
 		<div data-ms class="-mx-1 flex gap-2 overflow-x-auto px-1 pt-1.5 [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pt-2">
 			{#each chat_suggestions as suggestion}
-				<button onclick={() => s.sendChatMessage(suggestion)} class="shrink-0 rounded-full border border-glow/40 px-3 py-1.5 text-[13px] whitespace-nowrap text-haze/90 transition duration-500 ease-expo lg:px-3.5 lg:text-sm hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion.toLowerCase()}</button>
+				<button onclick={() => s.sendChatMessage(suggestion)} class="shrink-0 rounded-full border border-glow/40 px-3 py-1.5 text-[13px] whitespace-nowrap normal-case first-letter:uppercase text-haze/90 transition duration-500 ease-expo lg:px-3.5 lg:text-sm hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion}</button>
 			{/each}
 		</div>
 	{/if}
@@ -120,7 +120,7 @@
 			aria-label="Send"
 			onclick={() => s.sendChatMessage(s.chat_input)}
 			disabled={!chat_loading && !chat_input.trim()}
-			class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-glow text-night lg:size-10 transition duration-500 ease-expo hover:shadow-[0_0_30px_rgba(233,164,124,0.6)] disabled:cursor-default disabled:opacity-30 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow"
+			class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-glow text-night lg:size-10 transition duration-500 ease-expo hover:shadow-[0_0_30px_color-mix(in_srgb,var(--color-glow)_60%,transparent)] disabled:cursor-default disabled:opacity-30 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow"
 		>
 			<ArrowUpIcon size={16} strokeWidth={2} />
 		</button>

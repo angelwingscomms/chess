@@ -57,7 +57,7 @@ describe('/chess/learn chat', () => {
 		expect(page).toContain('clearChat');
 		expect(page).toContain('/chess/learn/chat');
 		expect(page).toContain('Chat');
-		expect(page).toContain('ask your coach anything');
+		expect(page).toContain('Ask your coach anything');
 	});
 
 	it('keeps board context hidden while sending request state', () => {
@@ -104,13 +104,13 @@ describe('/chess/learn chat', () => {
 
 	it('shows board-state-aware chat suggestions above the input', () => {
 		expect(page).toContain('chat_suggestions');
-		expect(page).toContain("how do i get out of check?");
-		expect(page).toContain("how do the pieces move?");
-		expect(page).toContain("how should i start?");
-		expect(page).toContain("why did the computer do that?");
-		expect(page).toContain("what should i do now?");
-		expect(page).toContain("who is winning?");
-		expect(page).toContain("what is my plan?");
+		expect(page).toContain("How do I get out of check?");
+		expect(page).toContain("How do the pieces move?");
+		expect(page).toContain("How should I start?");
+		expect(page).toContain("Why did the computer do that?");
+		expect(page).toContain("What should I do now?");
+		expect(page).toContain("Who is winning?");
+		expect(page).toContain("What is my plan?");
 		expect(page).not.toContain('Stockfish play');
 		expect(page).toContain('rounded-full border border-glow/40 px-3 py-1.5 text-[13px]');
 	});
@@ -143,7 +143,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain('data-testid="learn-settings-modal"');
 		expect(page).toContain('rounded-3xl border border-haze/12 bg-deep/95 font-calm');
 		expect(page).toContain('make it yours');
-		expect(page).toContain('how strong should it play?');
+		expect(page).toContain('How strong should it play?');
 		expect(page).not.toContain('modal-card max-w-sm');
 	});
 
@@ -218,7 +218,7 @@ describe('/chess/learn settings modal', () => {
 
 		expect(page).toContain('https://aistudio.google.com/apikey');
 		expect(page).toContain('target="_blank"');
-		expect(page).toContain('optional: use your own keys');
+		expect(page).toContain('Optional: use your own keys');
 	});
 
 	it('reads direct text from AI SDK textStream', () => {

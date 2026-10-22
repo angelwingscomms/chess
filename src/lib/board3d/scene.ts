@@ -17,6 +17,7 @@ export type Look = {
 	p: Float32Array; // palette c0 c1 c2 c3 bg, rgb 0-1
 	b: number; // breath, 0 empty to 1 full
 	l: number; // living colours, 0 off or 1 on
+	d: number; // theme, 0 dark to 1 light
 };
 
 type Pc = {
@@ -156,7 +157,8 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	key.position.set(4, 10, 6);
 	const rim = new THREE.DirectionalLight(0xaab6ff, 1.1);
 	rim.position.set(-6, 5, -8);
-	scene.add(new THREE.HemisphereLight(0xe9e2f5, 0x1b1728, 0.85), key, rim);
+	const hemi = new THREE.HemisphereLight(0xe9e2f5, 0x1b1728, 0.85);
+	scene.add(hemi, key, rim);
 
 	const plate_mat = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.9, toneMapped: false });
 	const plate = new THREE.Mesh(new RoundedBoxGeometry(8.9, 0.2, 8.9, 4, 0.09), plate_mat);
@@ -203,6 +205,12 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	const GLOW = new THREE.Color(0xe9a47c);
 	const RED = new THREE.Color(0xff7a7a);
 	const PALE = new THREE.Color(0xece7f1);
+	// on the light theme marks darken the tile instead of lighting it: a soft blob fading from white into these
+	const TINT = new Map([[GLOW, new THREE.Color(0xc8603a)], [RED, new THREE.Color(0xb3261e)], [PALE, new THREE.Color(0x1c1a2b)]]);
+	const WHITE = new THREE.Color(1, 1, 1);
+	const GROUND = [new THREE.Color(0x1b1728), new THREE.Color(0x8f88a3)];
+	const IVORY = [new THREE.Color(0xe9dfd0), new THREE.Color(0xcfc2ad)];
+	let paper = false;
 	// the hint arrow, laid on the board along +x: a shaft and a head that keeps its size
 	const arrow_pts = new Float32Array([0.25, 0, -0.07, 1, 0, -0.07, 1, 0, 0.07, 0.25, 0, 0.07, 1, 0, -0.2, 1.36, 0, 0, 1, 0, 0.2]);
 	const arrow_geo = new THREE.BufferGeometry();
@@ -223,7 +231,7 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	const draw_glyphs = () => {
 		const x = glyphs.getContext('2d')!;
 		x.clearRect(0, 0, 1024, 64);
-		x.fillStyle = 'rgba(236,231,241,0.72)';
+		x.fillStyle = paper ? 'rgba(28,26,43,0.7)' : 'rgba(236,231,241,0.72)';
 		x.font = '400 34px "Geist Mono", ui-monospace, monospace';
 		x.textAlign = 'center';
 		x.textBaseline = 'middle';
@@ -258,7 +266,7 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	let marks: Marks = {};
 	let fresh = true;
 	const ripples: { q: number; t: number }[] = [];
-	const look: Look = { p: new Float32Array(15), b: 0.5, l: 0 };
+	const look: Look = { p: new Float32Array(15), b: 0.5, l: 0, d: 0 };
 	let lv = 0;
 	const off = new Float32Array(64);
 	const lift = new Float32Array(64);
@@ -436,6 +444,18 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 		const drift = 0.1 * Math.sin(clock * 0.05);
 		lv += (look.l - lv) * (still ? 1 : 1 - Math.exp(-4 * dt));
 		glow.value = 0.3;
+		const d = look.d;
+		hemi.groundColor.copy(GROUND[0]).lerp(GROUND[1], d);
+		(mats.w as THREE.MeshPhysicalMaterial).color.copy(IVORY[0]).lerp(IVORY[1], d);
+		if ((d > 0.5) !== paper) {
+			paper = d > 0.5;
+			for (const mm of [blobs.material, rings.material, arrow.material] as THREE.MeshBasicMaterial[]) {
+				mm.blending = paper ? THREE.NormalBlending : THREE.AdditiveBlending;
+				mm.needsUpdate = true;
+			}
+			(arrow.material as THREE.MeshBasicMaterial).color.copy(paper ? TINT.get(GLOW)! : GLOW);
+			draw_glyphs();
+		}
 		plate_mat.color.copy(pal(look.p, 0.1, 0.55, c1));
 		while (ripples.length && clock - ripples[0].t > 3.2) ripples.shift();
 		if (ripples.length) busy = true;
@@ -458,13 +478,13 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 			off[q] = y;
 			const lite = (f + rk) % 2 === 1;
 			const tv = (noise(f * 0.9 + clock * 0.04, rk * 0.9 - clock * 0.03) - 0.5) * 0.12;
-			const k = (0.8 + 0.28 * b) * (0.97 + 0.03 * Math.sin(clock * 0.8 - Math.hypot(f - 3.5, rk - 3.5) * 0.9));
-			pal(look.p, (lite ? 0.8 : 0.18) + drift * 0.3, ((lite ? 1.05 : 0.85) + tv) * k, c2);
+			const k = mix(0.8 + 0.28 * b, 0.97 + 0.05 * b, d) * (0.97 + 0.03 * Math.sin(clock * 0.8 - Math.hypot(f - 3.5, rk - 3.5) * 0.9));
+			pal(look.p, (lite ? 0.8 : 0.18) + drift * 0.3, (mix(lite ? 1.05 : 0.85, lite ? 1 : 0.9, d) + tv) * k, c2);
 			if (lv > 0.001) {
 				const tn = noise(f * 0.55 + clock * 0.06, rk * 0.55 + clock * 0.05) * 0.7 + noise(f * 1.3 - clock * 0.04, rk * 1.3) * 0.3;
-				c2.lerp(pal(look.p, (tn - 0.15) / 0.6 + drift, (lite ? 1.12 : 0.58) * k, c1), lv);
+				c2.lerp(pal(look.p, (tn - 0.15) / 0.6 + drift, mix(lite ? 1.12 : 0.58, lite ? 1 : 0.86, d) * k, c1), lv);
 			}
-			tiles.setColorAt(q, c2.multiplyScalar(TILE * (1 + 0.25 * lift[q])));
+			tiles.setColorAt(q, c2.multiplyScalar(TILE * mix(1, 0.9, d) * (1 + 0.25 * lift[q])));
 			tiles.setMatrixAt(q, m4.compose(pos.set(f - 3.5, y - 0.12, 3.5 - rk), q_id, scl));
 		}
 		tiles.instanceMatrix.needsUpdate = true;
@@ -562,7 +582,7 @@ export function make_board3d(canvas: HTMLCanvasElement, still: boolean, feed: (l
 	function mark(m: THREE.InstancedMesh, q: number | undefined, size: number, color: THREE.Color, a: number) {
 		if (q == null || q < 0 || m.count >= m.instanceMatrix.count) return;
 		m.setMatrixAt(m.count, m4.compose(pos.set(wx(q), off[q] + 0.006, wz(q)), q_id, scl.setScalar(size)));
-		m.setColorAt(m.count++, c1.copy(color).multiplyScalar(a));
+		m.setColorAt(m.count++, paper ? c1.copy(WHITE).lerp(TINT.get(color)!, a) : c1.copy(color).multiplyScalar(a));
 	}
 
 	let raf = 0;

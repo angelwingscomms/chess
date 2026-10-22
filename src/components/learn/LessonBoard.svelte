@@ -21,7 +21,7 @@
 	<div class="pointer-events-none absolute inset-0 z-10 grid grid-cols-8 grid-rows-8" aria-hidden="true">
 		{#each level().s ?? [] as q (q + ls.si + ls.li)}
 			{@const f = q.charCodeAt(0) - 97}
-			<span class="grid place-items-center text-[min(7vw,2.6rem)] text-glow drop-shadow-[0_0_14px_rgba(233,164,124,0.9)] transition duration-500 ease-expo {COL[ls.me === 'white' ? f : 7 - f]} {ROW[ls.me === 'white' ? 8 - +q[1] : +q[1] - 1]} {ls.got.includes(q) ? 'scale-150 opacity-0' : 'motion-safe:animate-twinkle'}">✦</span>
+			<span class="grid place-items-center text-[min(7vw,2.6rem)] text-glow drop-shadow-[0_0_14px_color-mix(in_srgb,var(--color-glow)_90%,transparent)] transition duration-500 ease-expo {COL[ls.me === 'white' ? f : 7 - f]} {ROW[ls.me === 'white' ? 8 - +q[1] : +q[1] - 1]} {ls.got.includes(q) ? 'scale-150 opacity-0' : 'motion-safe:animate-twinkle'}">✦</span>
 		{/each}
 	</div>
 </div>

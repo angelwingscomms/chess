@@ -13,16 +13,16 @@
 
 <div class="flex items-center gap-3 font-calm-mono text-xs tracking-[0.14em] text-mist" data-testid="learn-status-toolbar">
 	{#if !ready}
-		<span class="motion-safe:animate-pulse">waking the board…</span>
+		<span class="motion-safe:animate-pulse">Waking the board…</span>
 	{:else if gameOver}
 		<span class="text-glow">{resultMsg}</span>
 	{:else}
 		<span class="flex items-center gap-2">
 			<span class="block size-1.5 rounded-full {thinking ? 'bg-glow motion-safe:animate-listen' : 'bg-haze/50'}"></span>
-			{thinking ? 'the computer is thinking…' : bot === 'w' || bot === 'b' ? 'your move' : `${turn === 'w' ? 'white' : 'black'} to move`}
+			{thinking ? 'The computer is thinking…' : bot === 'w' || bot === 'b' ? 'Your move' : `${turn === 'w' ? 'White' : 'Black'} to move`}
 		</span>
 		{#if inCheck}
-			<span class="text-[#e78686]">check!</span>
+			<span class="text-bad">Check!</span>
 		{/if}
 	{/if}
 </div>
