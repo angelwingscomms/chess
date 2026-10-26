@@ -209,7 +209,7 @@ describe('/chess/learn settings modal', () => {
 		expect(page).toContain("createGoogleGenerativeAI({ apiKey: this.gemini_api_key.trim() })");
 		expect(page).toContain('streamText');
 		expect(page).toContain("if (is_gemini && this.gemini_api_key.trim())");
-		expect(page).toContain("if (!this.model.startsWith('deepseek/') && !this.model.startsWith('bynara/') && this.groq_api_key.trim() && this.model.includes('/'))");
+		expect(page).toContain("if (!this.model.startsWith('deepseek/') && this.groq_api_key.trim() && this.model.includes('/'))");
 		expect(page).toContain('groq key');
 		expect(page).toContain('gemini key');
 		expect(page).toContain('type="password"');

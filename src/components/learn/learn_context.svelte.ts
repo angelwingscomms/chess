@@ -430,7 +430,7 @@ export class LearnState {
 				if (!res.ok) throw Error(`${res.status}`);
 				this.model_options = await res.json();
 			}
-			const prio = ['nex-agi/nex-n2-pro:free', 'deepseek/deepseek-v4-flash', 'bynara/mimo-v2.5-pro-free', 'bynara/mimo-v2.5-free', 'bynara/mistral-large', 'gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
+			const prio = ['nex-agi/nex-n2-pro:free', 'deepseek/deepseek-v4-flash', 'gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'openai/gpt-oss-120b', 'qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
 			this.model_options.sort((a, b) => {
 				const pa = prio.indexOf(a.v), pb = prio.indexOf(b.v);
 				return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
@@ -438,9 +438,6 @@ export class LearnState {
 			const extra: Record<string, { l: string; d: string }> = {
 				'nex-agi/nex-n2-pro:free': { l: 'Nex-N2-Pro', d: 'openrouter' },
 				'deepseek/deepseek-v4-flash': { l: 'DeepSeek V4 Flash', d: 'openrouter' },
-				'bynara/mimo-v2.5-pro-free': { l: 'MiMo V2.5 Pro', d: 'bynara' },
-				'bynara/mimo-v2.5-free': { l: 'MiMo V2.5', d: 'bynara' },
-				'bynara/mistral-large': { l: 'Mistral Large', d: 'bynara' },
 				'gemma-4-26b-a4b-it': { l: 'Gemma 4 26B', d: 'google' },
 				'gemma-4-31b-it': { l: 'Gemma 4 31B', d: 'google' },
 				'openai/gpt-oss-120b': { l: 'GPT-OSS 120B', d: 'groq' },
@@ -456,7 +453,6 @@ export class LearnState {
 			this.model_options = [
 				{ v: 'nex-agi/nex-n2-pro:free', l: 'Nex-N2-Pro', d: 'openrouter', r: true },
 				{ v: 'deepseek/deepseek-v4-flash', l: 'DeepSeek V4 Flash', d: 'openrouter' },
-				{ v: 'bynara/mimo-v2.5-pro-free', l: 'MiMo V2.5 Pro', d: 'bynara' },
 				{ v: 'gemma-4-26b-a4b-it', l: 'Gemma 4 26B', d: 'google' },
 				{ v: 'gemma-4-31b-it', l: 'Gemma 4 31B', d: 'google' },
 				{ v: 'openai/gpt-oss-120b', l: 'GPT-OSS 120B', d: 'groq' },
@@ -777,7 +773,7 @@ export class LearnState {
 			if (is_gemini && this.gemini_api_key.trim()) {
 				await this.send_direct_gemini(ac, [{ role: 'system', content: this.current_sys } as ChatMsg, ...this.chat_messages], this.model);
 				this.interaction_id = '';
-			} else if (!this.model.startsWith('deepseek/') && !this.model.startsWith('bynara/') && this.groq_api_key.trim() && this.model.includes('/')) {
+			} else if (!this.model.startsWith('deepseek/') && this.groq_api_key.trim() && this.model.includes('/')) {
 				await this.send_direct_generation(ac, [{ role: 'system', content: this.current_sys } as ChatMsg, ...this.chat_messages], this.model);
 				this.interaction_id = '';
 			} else {
