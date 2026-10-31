@@ -185,7 +185,7 @@
 </script>
 
 <Seo meta={{ t: 'E4 — Learn Chess With an AI Coach', d: 'Learn chess from your first move with an AI coach that explains every move in plain words and talks with you out loud. Free to start, no account needed.' }} />
-<JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'Learn chess from your first move with an AI coach that explains every move in plain words, a friendly computer to play, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }} />
+<JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'Learn chess from your first move with an AI coach that explains every move in plain words, a friendly computer to play, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, url: 'https://chess.apexlinks.org/', publisher: { '@type': 'Organization', name: 'angelwingscomms', url: 'https://github.com/angelwingscomms', sameAs: ['https://github.com/angelwingscomms/chess'] } }} />
 
 
 <main class="calm relative z-10 font-calm font-light text-haze transition-opacity duration-700 ease-calm {leaving ? 'opacity-0' : ''}">
@@ -311,6 +311,7 @@
 		<p class="mt-4 font-calm-mono text-xs tracking-[0.14em] text-mist">Free · nothing to download · start without an account</p>
 		<footer class="mt-auto flex w-full flex-wrap justify-between gap-4 pt-[10svh] font-calm-mono text-[11px] tracking-[0.14em] text-mist/70 light:text-mist">
 			<span>E4 — every move, explained.</span>
+			<nav class="flex flex-wrap gap-4"><a href="/about" class="hover:text-haze">about</a><a href="/developers" class="hover:text-haze">developers</a><a href="/contact" class="hover:text-haze">contact</a><a href="/privacy" class="hover:text-haze">privacy</a></nav>
 			<span>© {new Date().getFullYear()}</span>
 		</footer>
 	</section>

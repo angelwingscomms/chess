@@ -1,5 +1,6 @@
 import { PUBLIC_DOMAIN } from '$env/static/public';
 import type { RequestHandler } from '@sveltejs/kit';
+import { info } from '$lib/info';
 
 export const GET: RequestHandler = () => {
   const b = `<?xml version="1.0" encoding="UTF-8"?>
@@ -13,7 +14,12 @@ export const GET: RequestHandler = () => {
     <loc>${PUBLIC_DOMAIN}/login</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
-  </url>
+  </url>${Object.keys(info).map((k) => `
+  <url>
+    <loc>${PUBLIC_DOMAIN}/${k}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>`).join('')}
 </urlset>`;
   return new Response(b, { headers: { 'Content-Type': 'application/xml' } });
 };

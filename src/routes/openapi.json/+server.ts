@@ -4,12 +4,14 @@ import type { RequestHandler } from '@sveltejs/kit';
 export const GET: RequestHandler = () => {
 	const spec = {
 		openapi: '3.1.0',
-		info: { title: 'e4 public API', version: '1.0.0' },
+		info: { title: 'e4 public API', version: '1.0.0', description: 'Anonymous, read-only API for the e4 chess coach. No key needed. Docs: /developers' },
 		servers: [{ url: PUBLIC_DOMAIN }],
 		paths: {
 			'/api/puzzles': {
 				post: {
+					operationId: 'search_puzzles',
 					summary: 'Search chess puzzles by theme tags and rating',
+					description: 'Returns up to n training puzzles whose tags match all of t and at least one of any, within the rating range.',
 					requestBody: {
 						required: true,
 						content: {
