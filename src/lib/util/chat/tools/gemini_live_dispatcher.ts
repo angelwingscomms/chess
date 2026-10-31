@@ -28,6 +28,7 @@ type ToolState = {
 	hint: (fen: string, think_time?: number) => Promise<{ move: string; score: number; depth: number } | null>;
 	get_board_state: () => BoardState;
 	load_fen: (fen: string) => LoadFenResult;
+	undo_move: () => void;
 };
 
 let state: ToolState | null = null;
@@ -55,6 +56,11 @@ export function get_tool_declarations(include_search = true) {
 			{
 				name: 'get_board_state',
 				description: 'Get the full current board state, including FEN, whose turn it is, check/checkmate status, game over state, move history navigation position, captured pieces, and last moves by both sides. Use this to understand the complete game context.',
+				parameters: { type: 'OBJECT', properties: {} },
+			},
+			{
+				name: 'undo_move',
+				description: 'Take back the last move the player made, plus the computer reply to it if it has played. Use this for any request to undo or take back a move, instead of set_state.',
 				parameters: { type: 'OBJECT', properties: {} },
 			},
 			{
@@ -136,6 +142,11 @@ export async function dispatch_tool_call(fc: { id?: string; name?: string; args?
 				log(`find_puzzles FAILED — ${e}`);
 				return { id: fc.id, name, response: { puzzles: [], error: 'Puzzle search failed.' } };
 			}
+		}
+
+		case 'undo_move': {
+			state?.undo_move?.();
+			return { id: fc.id, name, response: { undone: true } };
 		}
 
 		case 'set_state': {

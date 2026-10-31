@@ -28,6 +28,12 @@ const set_state = tool({
 	}
 });
 
+const undo_move = tool({
+	description: 'Take back the last move the player made, plus the computer reply to it if it has played. Use this for any request to undo or take back a move, instead of set_state.',
+	inputSchema: z.object({}),
+	execute: async () => ({ undone: true }),
+});
+
 const groq = createGroq({ apiKey: GROQ });
 const google = createGoogleGenerativeAI({ apiKey: GEMINI });
 const openrouter = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: OPENROUTER_KEY });
@@ -105,7 +111,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 						role: msg.r as 'user' | 'assistant',
 						content: msg.r === 'user' ? build_input(msg) : msg.c,
 					})),
-					tools: { get_fen: make_get_fen(last_board(messages)), find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state },
+					tools: { get_fen: make_get_fen(last_board(messages)), find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state, undo_move },
 					stopWhen: stepCountIs(10),
 				});
 				for await (const part of result.fullStream) {
@@ -118,6 +124,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 						const p: any = part;
 						const out = p.output ?? p.result;
 						if (p.toolName === 'find_puzzles') found = [...(out?.puzzles ?? []), ...found];
+						if (p.toolName === 'undo_move') controller.enqueue(event('undo', {}));
 						if (p.toolName === 'set_state' && out?.valid && out?.fen) {
 							const key = String(out.fen).split(' ').slice(0, 4).join(' ');
 							const puzzle = found.find((z) => String(z.f).split(' ').slice(0, 4).join(' ') === key);

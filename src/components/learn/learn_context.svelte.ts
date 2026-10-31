@@ -43,7 +43,7 @@ Text that starts with "fen:" or "lesson:" is a silent update about the board, no
 When the call starts, say one short hello, like "hi! ask me anything about chess."`;
 
 function tool_use_rules(search_enabled: boolean) {
-	let r = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, say in one short line what is on the board now.`;
+	let r = `You have a set_state tool to set up any board position. Only use it when the user explicitly asks you to set up a position, puzzle, or game. If you suggest showing a position to teach something, ask first and only proceed if the user agrees. After changing the board, say in one short line what is on the board now. To take back a move, use undo_move, never set_state.`;
 	if (search_enabled) r += `\nYou can search the web in real time for current chess information — openings, grandmaster games, tournament results, strategy, and best responses to any position. When a user asks what the best move is or what to play in a given position, search the web to find up-to-date analysis, recent master games, or theoretical recommendations before answering.`;
 	return r;
 }
@@ -375,6 +375,7 @@ export class LearnState {
 				return (await getHints(f, 1, undefined, undefined, undefined, mt))[0] ?? null;
 			},
 			get_board_state: () => this.get_board_state(),
+			undo_move: () => this.undoMove(),
 			load_fen: (fen) => {
 				try {
 					close_lessons();
@@ -613,17 +614,13 @@ export class LearnState {
 	}
 
 	undoMove() {
-		if (!this.chessRef) return;
+		if (!this.chessRef || !this.history.length) return;
 		this.redo_stack.push(this.fen);
-		if (this.moveNum >= 2) {
-			this.chessRef.undo();
-			this.chessRef.undo();
-			this.moveNum = Math.max(0, this.moveNum - 2);
-		} else if (this.moveNum === 1) {
-			this.chessRef.undo();
-			this.moveNum = 0;
-			this.turn = 'w';
-		}
+		if (this.engine.isSearching()) void this.engine.stopSearch();
+		// the computer is to move, so its reply has not come yet and only the player's move goes back
+		const pending = this.turn === this.engine.getColor();
+		this.chessRef.undo();
+		if (!pending) this.chessRef.undo();
 		this.gameOver = false;
 		this.resultMsg = '';
 		this.sync_chat_moves();
@@ -843,6 +840,10 @@ export class LearnState {
 			return true;
 		}
 		if (name === 'error') throw Error(msg.e || 'Request failed');
+		if (name === 'undo') {
+			this.undoMove();
+			return true;
+		}
 		if (name === 'board' && typeof msg.f === 'string') {
 			close_lessons();
 			if (msg.p) offer_puzzles([msg.p]);
