@@ -7,7 +7,7 @@
 	import ToastContainer from '$components/learn/ToastContainer.svelte';
 
 	let { slot = $bindable(), size }: { slot?: HTMLDivElement; size: string } = $props();
-	const s = create_learn_state(!!page.data.user, true);
+	const s = create_learn_state(!!page.data.user?.a, true);
 	set_learn_state(s);
 </script>
 

@@ -15,6 +15,7 @@
 	import { next_puzzle, pz } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { glass, lit } from './ui';
+	import { clear, wt } from './watch.svelte';
 	import { say_move } from '$lib/util/chess/words';
 	const s = get_learn_state();
 
@@ -30,6 +31,12 @@
 	let show_hints = $derived(s.show_hints);
 	let hint_loading = $derived(s.hint_loading);
 	let chat_loading = $derived(s.chat_loading);
+	// praise fades by itself; a warning stays until the next move or a tap
+	$effect(() => {
+		if (wt.k !== 'g') return;
+		const t = setTimeout(clear, 4000);
+		return () => clearTimeout(t);
+	});
 </script>
 
 {#if ls.on}
@@ -82,13 +89,33 @@
 				<ViewMenu />
 			</div>
 		</div>
+		{#if wt.k && !gameOver}
+			<div class="flex flex-wrap items-center justify-end gap-2 animate-surface" role="status">
+				<p class="text-[15px] {wt.k === 'b' ? 'text-warn' : 'text-glow'}">{wt.w}</p>
+				{#if wt.k === 'b'}
+					<button class="{glass} w-auto px-3.5" onclick={() => s.undoMove()} disabled={!history.length}>
+						<span class="font-calm-mono text-xs">take it back</span>
+					</button>
+					<button aria-label="why was that a mistake" data-tip="ask the coach why" data-tip-end class="{glass} {chat_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.explain_mistake()}>
+						<span class="font-calm-mono text-xs">why</span>
+					</button>
+				{/if}
+			</div>
+		{/if}
 		{#if show_hints && !hint_loading && hints.length > 0}
-			<div class="flex items-center justify-end gap-2 animate-surface">
-				<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">try</span>
-				<span class="rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 text-xs text-glow">{say_move(s.uciToSan(fen, hints[hint_index].move))}</span>
-				<button aria-label="explain hint" data-tip="ask the coach why" data-tip-end class="{glass} {chat_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.explainHint()}>
-					<span class="font-calm-mono text-xs">why</span>
-				</button>
+			<div class="flex items-center justify-end gap-2 animate-surface" aria-live="polite">
+				{#if s.hint_step === 1}
+					<span class="text-[15px] text-haze/85">move the glowing piece. where to?</span>
+					<button class="{glass} w-auto px-3.5" onclick={() => s.reveal_hint()}>
+						<span class="font-calm-mono text-xs">show me</span>
+					</button>
+				{:else}
+					<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">try</span>
+					<span class="rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 text-xs text-glow">{say_move(s.uciToSan(fen, hints[hint_index].move))}</span>
+					<button aria-label="explain hint" data-tip="ask the coach why" data-tip-end class="{glass} {chat_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.explainHint()}>
+						<span class="font-calm-mono text-xs">why</span>
+					</button>
+				{/if}
 			</div>
 		{/if}
 	</div>

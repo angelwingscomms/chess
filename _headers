@@ -1,9 +1,10 @@
 # the speech files are versioned by folder (speech/1), so they never change: a year
 /speech/*
   Cache-Control: public, max-age=31536000, immutable
-# the engine, pieces and 3d set change rarely: a week, then a check
-/stockfish.js
-  Cache-Control: public, max-age=604800
+# stockfish 10 in webassembly, versioned by folder (engine/10) like the speech files: a year
+/engine/*
+  Cache-Control: public, max-age=31536000, immutable
+# the pieces and 3d set change rarely: a week, then a check
 /pieces/*
   Cache-Control: public, max-age=604800
 /models/*

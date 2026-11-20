@@ -1,5 +1,4 @@
 <script lang="ts">
-	import StepperInput from '$components/stepper-input.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { MODELS } from '$lib/coach/models';
 	import { calm, set_feel, ui } from '$lib/landing/calm.svelte';
@@ -17,9 +16,10 @@
 		{ v: 'socratic', t: 'asks you questions', d: 'helps you work it out yourself' }
 	] as const;
 	const hints = [
+		{ k: 'warn', t: 'warn me about big mistakes', d: 'after a move that gives something away, the coach says so and you can take it back.' },
 		{ k: 'show_dests', t: 'show where a piece can go', d: 'dots on every square the piece you picked can move to. turn off to find moves yourself.' },
-		{ k: 'auto_hint', t: 'a hint after each computer move', d: 'the best move glows on the board.' },
-		{ k: 'autoexplain', t: 'explain every hint', d: 'the coach says why the hint is good.' },
+		{ k: 'auto_hint', t: 'a hint after each computer move', d: 'the piece to move glows on the board.' },
+		{ k: 'autoexplain', t: 'explain every hint', d: 'when you ask to see the whole move, the coach says why it is good.' },
 		{ k: 'hint_on_start', t: 'a hint when you open e4', d: 'start with a little help.' }
 	] as const;
 	const voice_opts = [{ k: 'quiet', t: 'quiet voice', d: 'in a call, the coach only speaks when you speak, not when you type.' }] as const;
@@ -78,7 +78,7 @@
 							>
 						{/each}
 					</div>
-					<p class="mt-2 text-xs text-mist">{level.d}. puzzles match this level too.</p>
+					<p class="mt-2 text-xs text-mist">{level.d}.</p>
 				</section>
 
 				<section>
@@ -145,10 +145,6 @@
 									{/each}
 								</div>
 							{/if}
-						</div>
-						<div class="flex items-center justify-between gap-3">
-							<span class="text-sm text-haze/85">hint thinking time <span class="text-mist">(seconds)</span></span>
-							<StepperInput bind:value={s.hint_think_time} min={1} step={0.5} />
 						</div>
 						<p class="text-xs leading-5 text-mist">optional: your own groq key. it stays in this browser, and the coach then talks to groq directly.</p>
 						<label class="grid gap-2">

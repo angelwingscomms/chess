@@ -17,11 +17,9 @@
   "dependencies": {
     "@ai-sdk/groq": "^3.0.42",
     "@ethercorps/sveltekit-og": "^4.2.1",
-    "@qdrant/js-client-rest": "^1.18.0",
     "@sveltejs/kit": "^2.65.2",
     "ai": "^6.0.207",
     "arctic": "^3.7.0",
-    "bcryptjs": "^3.0.3",
     "chess.js": "^1.4.0",
     "chessground": "8.4.0",
     "driver.js": "^1.8.0",

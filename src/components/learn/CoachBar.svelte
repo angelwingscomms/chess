@@ -6,6 +6,7 @@
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import InfoIcon from '$lib/components/icons/info-icon.svelte';
 	import HistoryIcon from '$lib/components/icons/history-icon.svelte';
+	import TargetIcon from '$lib/components/icons/target-icon.svelte';
 	import TalkButton from './TalkButton.svelte';
 	import { get_learn_state } from './learn_context.svelte';
 	import { glass } from './ui';
@@ -60,6 +61,9 @@
 				</button>
 				<button role="menuitem" title="your games" aria-label="your games" class={item} onclick={run(() => (s.show_sessions = true))}>
 					<HistoryIcon size={16} strokeWidth={1.6} />your games
+				</button>
+				<button role="menuitem" title="how you’re doing" aria-label="how you’re doing" class={item} onclick={run(() => (s.show_progress = true))}>
+					<TargetIcon size={16} strokeWidth={1.6} />how you’re doing
 				</button>
 				<button role="menuitem" title="flip board" aria-label="flip board" class={item} onclick={run(() => s.chessRef?.toggleOrientation())}>
 					<FlipIcon size={16} strokeWidth={1.6} />flip board

@@ -9,9 +9,9 @@ import { board_note, read_messages } from '$lib/coach/context';
 import { pick_model } from '$lib/coach/models';
 import { coach_prompt } from '$lib/coach/prompts';
 import { calc_cost } from '$lib/util/ai/pricing';
-import { last_board, make_get_fen } from '$lib/util/chat/tools/get_fen';
 import { make_find_puzzles } from '$lib/util/chat/tools/find_puzzles';
 import { over_limit } from '$lib/server/limit';
+import { guard } from '$lib/coach/guard';
 
 const enc = new TextEncoder();
 const event = (name: string, data: object) => enc.encode(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -49,37 +49,56 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			let wrote = false;
 			let acted = false;
 			let found: { f: string }[] = [];
+			const stop = new AbortController();
+			request.signal.addEventListener('abort', () => stop.abort());
+			// the safety check runs beside the coach; the coach's words wait for it, so nothing unsafe is ever shown
+			const checked = guard(groq, messages.findLast((x) => x.r === 'user')!.c, stop.signal);
+			let ok: boolean | undefined;
+			const send = async (b: Uint8Array) => {
+				if (ok === undefined) {
+					const no = await checked;
+					ok = !no;
+					if (no) {
+						stop.abort();
+						wrote = true;
+						controller.enqueue(event('text', { t: no }));
+					}
+				}
+				if (ok) controller.enqueue(b);
+			};
 			try {
 				const result = streamText({
+					abortSignal: stop.signal,
 					model: wrapLanguageModel({ model: groq(m), middleware: extractReasoningMiddleware({ tagName: 'think' }) }),
 					system: coach_prompt(body?.b === 's' ? 's' : 'a', body?.v === 1),
 					messages: messages.map((x) => ({ role: x.r, content: x.r === 'user' ? board_note(x.c, x.d) : x.c })),
-					tools: { get_fen: make_get_fen(last_board(messages)), find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state, undo_move },
+					// the board rides along with every message, so the coach needs no tool to read it
+					tools: { find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state, undo_move },
 					stopWhen: stepCountIs(4)
 				});
 				for await (const part of result.fullStream) {
-					if (request.signal.aborted) break;
+					if (stop.signal.aborted) break;
 					if (part.type === 'error') throw part.error;
 					if (part.type === 'text-delta' && part.text) {
-						wrote = true;
-						controller.enqueue(event('text', { t: part.text }));
+						await send(event('text', { t: part.text }));
+						if (ok) wrote = true;
 					}
 					if (part.type === 'tool-result') {
 						const out = part.output as { puzzles?: { f: string }[]; valid?: boolean; fen?: string };
 						if (part.toolName === 'find_puzzles') found = [...(out?.puzzles ?? []), ...found];
 						if (part.toolName === 'undo_move') {
 							acted = true;
-							controller.enqueue(event('undo', {}));
+							await send(event('undo', {}));
 						}
 						if (part.toolName === 'set_state' && out?.valid && out.fen) {
 							const key = out.fen.split(' ').slice(0, 4).join(' ');
 							const puzzle = found.find((z) => z.f.split(' ').slice(0, 4).join(' ') === key);
 							acted = true;
-							controller.enqueue(event('board', puzzle ? { f: out.fen, p: puzzle } : { f: out.fen }));
+							await send(event('board', puzzle ? { f: out.fen, p: puzzle } : { f: out.fen }));
 						}
 					}
 				}
-				if (!request.signal.aborted && wrote) {
+				if (!stop.signal.aborted && wrote) {
 					const u = await result.totalUsage;
 					const p = u?.inputTokens ?? 0;
 					const c = u?.outputTokens ?? 0;
@@ -87,6 +106,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				}
 				if (!request.signal.aborted && !wrote && !acted) controller.enqueue(event('error', { e: SORRY }));
 			} catch (e) {
+				if (stop.signal.aborted && !request.signal.aborted) return; // the guard answered instead
 				console.error('[chat]', m, e instanceof Error ? e.message : e);
 				if (!request.signal.aborted && !wrote) controller.enqueue(event('error', { e: SORRY }));
 			} finally {

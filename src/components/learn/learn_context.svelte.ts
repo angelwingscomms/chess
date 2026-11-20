@@ -1,7 +1,7 @@
 import { Chess } from 'svelte-chess';
 import { Chess as ChessJS } from 'chess.js';
 import { browser } from '$app/environment';
-import { LEVELS, LearnEngine, check_position, getHints } from '$lib/util/chess/engine';
+import { LEVELS, LearnEngine, check_position } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
 import { can_reuse_hints, hint_squares } from '$lib/util/chess/hint_highlight';
 import { calc_cost } from '$lib/util/ai/pricing';
@@ -14,6 +14,8 @@ import { call_audio, end_call, say, start_call, toggle_mic as flip_mic, toggle_s
 import { arm_puzzle, end_puzzle, main_theme, offer_puzzles, pz, start_puzzle, theme_words } from './puzzle.svelte';
 import { words, type Sess } from '$lib/sessions';
 import { close_lessons, lesson_data, lesson_suggestions, ls } from './lesson.svelte';
+import { end_watch, look, undo_watch, watch_move, wt } from './watch.svelte';
+import { game_done } from '$lib/progress.svelte';
 import type { ChatContext, ChatUsage, ChatMsg } from './types';
 import { getContext, setContext } from 'svelte';
 
@@ -71,6 +73,7 @@ export class LearnState {
 	hints = $state<Hint[]>([]);
 	hint_fen = $state('');
 	hint_index = $state(0);
+	hint_step = $state(1); // 1 shows only which piece to move, 2 the whole move: the player gets a chance to find it first
 	hint_loading = $state(false);
 	hint_ac = $state<AbortController | null>(null);
 	chat_messages = $state<ChatMsg[]>([]);
@@ -81,15 +84,14 @@ export class LearnState {
 
 	last_user_move = $state('');
 	last_ai_move = $state('');
-	last_ai_random = false; // the computer's last move came from the easy levels' dice
 	redo_stack = $state<string[]>([]); // each entry is the moves one undo took back, as uci, space separated
 	successful_context = $state<Partial<ChatContext>>({});
 
 	model = $state(pick_model(browser && localStorage.getItem('explain_model')));
-	autoexplain = $state(browser && localStorage.getItem('autoexplain') !== 'false');
+	autoexplain = $state(browser && localStorage.getItem('autoexplain') === 'true');
+	warn = $state(!browser || localStorage.getItem('e4_warn') !== '0'); // the mistake watch
 	auto_hint = $state(browser && localStorage.getItem('auto_hint') === 'true');
 	hint_on_start = $state(browser && localStorage.getItem('hint_on_start') === 'true');
-	hint_think_time = $state(browser && parseFloat(localStorage.getItem('hint_think_time') || '2.7') || 2.7);
 	groq_api_key = $state(browser && localStorage.getItem('groq_api_key') || '');
 	quiet = $state(browser && localStorage.getItem('quiet') === 'true');
 	show_dests = $state(!browser || localStorage.getItem('e4_dots') !== '0');
@@ -100,6 +102,7 @@ export class LearnState {
 	show_vibe_menu = $state(false);
 	show_token_modal = $state(false);
 	show_tour = $state(false);
+	show_progress = $state(false);
 
 	total_p = $state(0);
 	total_c = $state(0);
@@ -147,11 +150,11 @@ export class LearnState {
 		this.demo = demo;
 		this.armed = !demo;
 		// settings the app no longer has, so old keys don't sit in the browser
-		if (browser) for (const k of ['gemini_api_key', 'openai_api_key', 'voice_provider', 'e4_voice', 'noise_suppression', 'noise_suppression_level']) localStorage.removeItem(k);
+		if (browser) for (const k of ['hint_think_time', 'gemini_api_key', 'openai_api_key', 'voice_provider', 'e4_voice', 'noise_suppression', 'noise_suppression_level']) localStorage.removeItem(k);
 		$effect(() => { if (browser) localStorage.setItem('autoexplain', String(this.autoexplain)); });
 		$effect(() => { if (browser) localStorage.setItem('auto_hint', String(this.auto_hint)); });
 		$effect(() => { if (browser) localStorage.setItem('hint_on_start', String(this.hint_on_start)); });
-		$effect(() => { if (browser) localStorage.setItem('hint_think_time', String(this.hint_think_time)); });
+		$effect(() => { if (browser) localStorage.setItem('e4_warn', this.warn ? '1' : '0'); });
 		$effect(() => { if (browser) localStorage.setItem('groq_api_key', this.groq_api_key); });
 		$effect(() => { if (browser) localStorage.setItem('explain_model', this.model); });
 		$effect(() => { if (browser) localStorage.setItem('quiet', String(this.quiet)); });
@@ -233,7 +236,8 @@ export class LearnState {
 	}
 
 	get hint_highlights() {
-		return this.hints[this.hint_index] ? hint_squares(this.hints[this.hint_index].move, this.orientation) : [];
+		const all = this.hints[this.hint_index] ? hint_squares(this.hints[this.hint_index].move, this.orientation) : [];
+		return this.hint_step === 1 ? all.filter((q) => q.k === 'f') : all;
 	}
 
 	#eng: LearnEngine | null = null;
@@ -289,7 +293,7 @@ export class LearnState {
 		if (c.u && c.u !== this.successful_context.u) d.u = c.u;
 		if (c.a && c.a !== this.successful_context.a) {
 			d.a = c.a;
-			if (this.last_ai_random) d.n = 'the computer’s last move was picked at random, because it is set to play easy. it had no plan.';
+			if (this.level <= 2) d.n = 'the computer is set to play easy: it sometimes misses better moves on purpose.';
 		}
 		if (h) d.h = h;
 		return d;
@@ -314,7 +318,6 @@ export class LearnState {
 		this.history = moves.map((m) => m.san);
 		this.last_user_move = this.move_text([...moves].reverse().find((m) => m.color === me));
 		this.last_ai_move = this.move_text([...moves].reverse().find((m) => m.color !== me));
-		this.last_ai_random = false;
 	}
 
 
@@ -337,15 +340,21 @@ export class LearnState {
 		this.turn = m.color === 'w' ? 'b' : 'w';
 		this.moveNum++;
 		this.inCheck = m.check ?? false;
-		if (m.color === this.me) this.last_user_move = this.move_text(m);
-		else {
+		const game = !this.demo && !pz.on && !ls.on && !this.#redoing && ['w', 'b'].includes(this.engine?.getColor?.());
+		if (m.color === this.me) {
+			this.last_user_move = this.move_text(m);
+			if (game && this.warn) void watch_move(m, this.me);
+		} else {
 			this.last_ai_move = this.move_text(m);
-			this.last_ai_random = !!this.engine?.random;
+			// the player is thinking now, so the computer checks this position in the meantime
+			if (game && this.warn && m.after) void look(m.after);
 		}
 		if (!this.#redoing) this.redo_stack = [];
 		this.hideHints(true);
 		this.save_game_debounced();
+		if (game && this.auto_hint && m.color !== this.me) this.request_hint();
 	}
+
 
 
 	onGameOver(e: CustomEvent<{ reason: string; result: number }>) {
@@ -354,6 +363,7 @@ export class LearnState {
 		const draw: Record<string, string> = { stalemate: 'stalemate: no legal move left', 'insufficient material': 'not enough pieces to checkmate', repetition: 'the same moves kept repeating', 'fifty-move rule': '50 moves without a capture' };
 		const bot = this.engine?.getColor?.();
 		const winner = result === 1 ? 'w' : 'b';
+		if (!this.demo && !pz.on && !ls.on && (bot === 'w' || bot === 'b')) game_done(result === 0.5 ? 'd' : bot === winner ? 'l' : 'w', end_watch(), this.level);
 		if (result === 0.5) this.resultMsg = `draw: ${draw[reason] ?? reason}`;
 		else if (bot === 'w' || bot === 'b') this.resultMsg = bot === winner ? 'checkmate. the computer wins this one.' : 'checkmate. you win!';
 		else this.resultMsg = `checkmate. ${winner === 'w' ? 'white' : 'black'} wins.`;
@@ -376,8 +386,8 @@ export class LearnState {
 		this.history = [];
 		this.last_user_move = '';
 		this.last_ai_move = '';
-		this.last_ai_random = false;
 		this.redo_stack = [];
+		end_watch();
 		this.clearChat();
 
 	}
@@ -391,6 +401,7 @@ export class LearnState {
 		const back = all.slice(pending ? -1 : -2).map((m) => m.from + m.to + (m.promotion ?? '')).join(' ');
 		this.chessRef.undo();
 		if (!pending) this.chessRef.undo();
+		undo_watch();
 		this.redo_stack.push(back);
 		this.gameOver = false;
 		this.resultMsg = '';
@@ -467,29 +478,32 @@ export class LearnState {
 		if (this.gameOver) return;
 		if (can_reuse_hints(this.hints, this.hint_fen, this.fen)) {
 			this.show_hints = true;
+			this.hint_step = 1;
 			return;
 		}
 		this.hint_loading = true;
 		this.show_hints = true;
+		this.hint_step = 1;
 		if (this.hint_ac) this.hint_ac.abort();
 		this.hint_ac = new AbortController();
 		const sig = this.hint_ac.signal;
+		const fen = this.fen;
 		try {
-			this.hints = await getHints(this.fen, 1, undefined, sig, undefined, this.hint_think_time * 1000);
+			const c = await look(fen);
 			if (sig.aborted) return;
-			this.hint_fen = this.fen;
-			console.log('hints:', this.hints);
+			this.hints = c ? [{ move: c.m, score: c.s, depth: 0 }] : [];
+			this.hint_fen = fen;
 			this.hint_index = 0;
-			if (this.autoexplain) this.explainHint();
-		} catch (e) {
-			if ((e as Error)?.name === 'AbortError') return;
-			console.error('getHints failed:', e);
-			this.hints = [];
-			this.hint_fen = '';
 		} finally {
 			this.hint_loading = false;
 			this.hint_ac = null;
 		}
+	}
+
+	// the second tap of the hint shows the whole move, and the coach explains it if asked to
+	reveal_hint() {
+		this.hint_step = 2;
+		if (this.autoexplain) void this.explainHint();
 	}
 
 	nextHint() {
@@ -502,6 +516,7 @@ export class LearnState {
 
 	hideHints(clear = false) {
 		this.show_hints = false;
+		this.hint_step = 1;
 		this.hint_loading = false;
 		if (this.hint_ac) { this.hint_ac.abort(); this.hint_ac = null; }
 		if (clear) {
@@ -729,6 +744,13 @@ export class LearnState {
 			return;
 		}
 		await this.send_chess_chat(msg, hint_data);
+	}
+
+	// the coach explains what the mistake allowed; the chess computer's check of the new position rides along
+	async explain_mistake() {
+		const w = wt.w;
+		if (!w || this.chat_loading) return;
+		await this.send_chess_chat('what did my last move allow?', `the player's last move was a big mistake. the computer saw: ${w}`);
 	}
 
 	stopChat() {

@@ -146,6 +146,7 @@ export function play_move(m: { to: string; san?: string; captured?: string }) {
 	const col = v.f ? 7 - file : file;
 	const row_top = v.f ? rank - 1 : 8 - rank;
 	calm.lit = { c: col, r: 8 - row_top, t: performance.now() };
+	calm.wake();
 	if (calm.quiet) {
 		calm.quiet = false;
 		return;

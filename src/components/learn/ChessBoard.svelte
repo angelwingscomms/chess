@@ -22,7 +22,7 @@
 
 	// the hint as an arrow, in board units with white or black at the bottom
 	const arrow = $derived.by(() => {
-		const m = show_hints && !hint_loading ? s.hints[s.hint_index]?.move : '';
+		const m = show_hints && !hint_loading && s.hint_step === 2 ? s.hints[s.hint_index]?.move : '';
 		if (!m) return null;
 		const at = (q: string) => {
 			const f = q.charCodeAt(0) - 97;

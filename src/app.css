@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
@@ -22,9 +21,9 @@
   --color-amber: #e8a55a;
   --animate-hint-loading: hint-loading 3.2s ease-in-out infinite;
 
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Cormorant Garamond', serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
 
    --animate-hint-pulse: hint-pulse 3.2s ease-in-out infinite;
    --animate-chat-loading: chat-loading 2s ease-in-out infinite;
@@ -106,9 +105,9 @@
   --success: #5db872;
   --warning: #d4a017;
   --error: #c64545;
-  --font-display: 'Cormorant Garamond', 'EB Garamond', Garamond, 'Times New Roman', serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-code: 'Geist Mono', ui-monospace, monospace;
   --shadow-soft: 0 1px 3px rgba(20, 20, 19, 0.08);
   --sh-k: 1;
 }
@@ -1274,6 +1273,7 @@ img {
   --color-glow: #e9a47c;
   --color-deep: #14121f;
   --color-bad: #e78686;
+  --color-warn: #f2c879;
 
   --font-calm: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-calm-mono: 'Geist Mono', ui-monospace, monospace;
@@ -1395,6 +1395,7 @@ html[data-theme='light'] {
   --color-glow: #b04c27;
   --color-deep: #fcfaf6;
   --color-bad: #b3261e;
+  --color-warn: #8a5300;
   --sh-k: 0.3;
   color-scheme: light;
 }

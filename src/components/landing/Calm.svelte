@@ -49,7 +49,16 @@
 		let hover: Element | null = null;
 		let down = { x: 0, y: 0, t: 0 };
 
+		// the field breathes over 16 s, so with nothing moving 20 frames a second looks the same as 60 and leaves the
+		// phone's cpu to stockfish; any touch, scroll, ripple or change runs it at full speed for a moment
+		let idle: ReturnType<typeof setTimeout> | undefined;
+		let busy = 0;
 		const wake = () => {
+			busy = performance.now() + 1500;
+			if (idle) {
+				clearTimeout(idle);
+				idle = undefined;
+			}
 			if (!raf) raf = requestAnimationFrame(frame);
 		};
 		calm.wake = wake;
@@ -58,6 +67,7 @@
 		calm.ripple = (x, y, a = 1) => {
 			if (motion) field?.ripple(x, y, a);
 			wake();
+			busy = performance.now() + 3500; // a ripple takes a few seconds to fade
 		};
 		calm.arm = () => {
 			if (armed) return;
@@ -129,7 +139,11 @@
 				lv += ((ui.living ? 1 : 0) - lv) * (motion ? 1 - Math.exp(-4 * dt) : 1);
 				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, h: hv, l: lv, d: tt, p: v.p, c: [cx, cy, cs], q: v.q });
 			}
-			if (motion || calm.from || tt !== goal) raf = requestAnimationFrame(frame);
+			if (calm.from || tt !== goal || (motion && now < busy)) raf = requestAnimationFrame(frame);
+			else if (motion) idle = setTimeout(() => {
+				idle = undefined;
+				raf = requestAnimationFrame(frame);
+			}, 50);
 		}
 
 		const on_move = (e: PointerEvent) => {
@@ -184,6 +198,7 @@
 
 		return () => {
 			cancelAnimationFrame(raf);
+			clearTimeout(idle);
 			ro.disconnect();
 			calm.wake = () => {};
 			removeEventListener('scroll', wake);

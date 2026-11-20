@@ -21,8 +21,10 @@
 	import SettingsModal from '$components/learn/SettingsModal.svelte';
 	import TokenModal from '$components/learn/TokenModal.svelte';
 	import Tour from '$components/learn/Tour.svelte';
+	import ProgressModal from '$components/learn/ProgressModal.svelte';
+	import { load_progress } from '$lib/progress.svelte';
 
-	const s = create_learn_state(!!$page.data.user, false);
+	const s = create_learn_state(!!$page.data.user?.a, false);
 	set_learn_state(s);
 	bind_puzzles(s);
 	bind_lessons(s);
@@ -30,6 +32,7 @@
 	// lesson state is shared by the whole server, so lessons only open in the browser
 	const want_lessons = $page.url.searchParams.has('learn');
 	onMount(() => {
+		void load_progress(!!$page.data.user);
 		if (want_lessons) open_lessons();
 	});
 
@@ -159,4 +162,5 @@
 <LessonList />
 <SessionList />
 <TokenModal />
+<ProgressModal />
 <Tour wait={arrived ? 3200 : 0} />

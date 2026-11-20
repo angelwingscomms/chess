@@ -50,7 +50,7 @@ export function won_text() {
 	if (l.g === 'k') return 'yes! that’s check.';
 	if (l.g === 'm') return 'checkmate! you won.';
 	if (l.g === 'e') return 'safe! your king is out of check.';
-	return ls.moves <= (l.b ?? 0) ? `Perfect! ${ls.moves} moves, the best way.` : `Done in ${ls.moves} moves. The best is ${l.b}.`;
+	return ls.moves <= (l.b ?? 0) ? `perfect! ${ls.moves} moves, the best way.` : `done in ${ls.moves} moves. the best is ${l.b}.`;
 }
 
 export function bind_lessons(state: LearnState) {

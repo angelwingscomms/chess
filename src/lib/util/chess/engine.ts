@@ -1,6 +1,7 @@
-import { Chess } from 'chess.js';
-
 export type Color = 'w' | 'b';
+
+// stockfish 10 in webassembly: ~10x the speed of the old asm.js build at a quarter of the bytes
+export const ENGINE = '/engine/10/stockfish.js';
 
 export interface Hint {
 	move: string
@@ -8,83 +9,25 @@ export interface Hint {
 	depth: number
 }
 
-export function getHints(fen: string, count = 5, stockfishPath?: string, signal?: AbortSignal, depth?: number, moveTime?: number): Promise<Hint[]> {
-	const sp = stockfishPath ?? '/stockfish.js';
-	const mt = moveTime ?? 8000;
-	let w: Worker | undefined;
-	try { w = new Worker(sp); } catch (e) { return Promise.reject(e); }
-	const ww = w!;
-	return new Promise((res, rej) => {
-		if (signal?.aborted) { ww.terminate(); rej(signal.reason); return; }
-		const hints: Hint[] = [];
-		const t = setTimeout(() => { ww.terminate(); rej(new Error('timeout')); }, mt + 10000);
-		signal?.addEventListener('abort', () => { clearTimeout(t); ww.terminate(); rej(signal.reason); }, { once: true });
-		ww.addEventListener('message', ({ data }) => {
-			const u = data as string;
-			if (u === 'uciok') {
-				ww.postMessage('setoption name MultiPV value ' + count);
-				ww.postMessage('setoption name UCI_LimitStrength value false');
-				ww.postMessage('isready');
-			} else if (u === 'readyok') {
-				ww.postMessage('position fen ' + fen);
-				if (depth !== undefined) {
-					ww.postMessage(`go depth ${depth} movetime ${mt}`);
-				} else {
-					ww.postMessage(`go movetime ${mt}`);
-				}
-			} else if (u.startsWith('info') && u.includes('multipv')) {
-				const mpv = parseInt(u.match(/multipv\s+(\d+)/)?.[1] ?? '0');
-				const depth = parseInt(u.match(/depth\s+(\d+)/)?.[1] ?? '0');
-				const sc = u.match(/score\s+mate\s+([-\d]+)/);
-				const sc2 = u.match(/score\s+cp\s+([-\d]+)/);
-				let score = 0;
-				if (sc) score = parseInt(sc[1]) > 0 ? 100000 : -100000;
-				else if (sc2) score = parseInt(sc2[1]);
-				const move = u.match(/\bpv\s+(\S+)/)?.[1] ?? '';
-				if (move && mpv > 0 && mpv <= count) hints[mpv - 1] = { move, score, depth };
-			} else if (u.startsWith('bestmove')) {
-				clearTimeout(t);
-				ww.terminate();
-				res(hints.filter(Boolean));
-			}
-		});
-		ww.postMessage('uci');
-	});
-}
-
 export interface LearnEngineOpts {
-	elo?: number | null
 	depth?: number
 	moveTime?: number
 	color?: Color | 'both' | 'none'
-	stockfishPath?: string
-	blunder?: number
+	skill?: number
 }
 
 const S = { Un: 'uninitialised', In: 'initialising', Wa: 'waiting', Se: 'searching' } as const;
 type St = (typeof S)[keyof typeof S];
 
 // how strong the computer plays, from someone who just learned the moves to full strength.
-// stockfish can't play below about 1320, so the easy levels also make a random move now and then
+// stockfish's skill level (0-20) makes it choose a weaker move among its best few, the way lichess's easy bots do,
+// so its mistakes are human-looking misses, never random moves with no idea behind them
 export const LEVELS = [
-	{ t: 'learning', d: 'just learned the moves', elo: null, depth: 1, moveTime: 400, blunder: 0.45 },
-	{ t: 'easy', d: 'plays for fun', elo: null, depth: 3, moveTime: 500, blunder: 0.2 },
-	{ t: 'medium', d: 'knows the basics', elo: 1320, depth: 10, moveTime: 700, blunder: 0.05 },
-	{ t: 'hard', d: 'a strong club player', elo: 1900, depth: 16, moveTime: 1000, blunder: 0 },
-	{ t: 'strongest', d: 'the computer at full power', elo: null, depth: 22, moveTime: 1500, blunder: 0 }
-];
-
-export const HINT_PRESETS = [
-	{ depth: 4,  moveTime: 500  },
-	{ depth: 6,  moveTime: 1000 },
-	{ depth: 8,  moveTime: 1500 },
-	{ depth: 10, moveTime: 2000 },
-	{ depth: 14, moveTime: 3000 },
-	{ depth: 18, moveTime: 4000 },
-	{ depth: 22, moveTime: 5000 },
-	{ depth: 28, moveTime: 6000 },
-	{ depth: 34, moveTime: 7000 },
-	{ depth: 40, moveTime: 8000 },
+	{ t: 'learning', d: 'just learned the moves', skill: 0, depth: 1, moveTime: 50 },
+	{ t: 'easy', d: 'plays for fun', skill: 3, depth: 2, moveTime: 100 },
+	{ t: 'medium', d: 'knows the basics', skill: 8, depth: 5, moveTime: 300 },
+	{ t: 'hard', d: 'a strong club player', skill: 15, depth: 12, moveTime: 800 },
+	{ t: 'strongest', d: 'the computer at full power', skill: 20, depth: 22, moveTime: 1500 }
 ];
 
 export class LearnEngine {
@@ -92,12 +35,8 @@ export class LearnEngine {
 	private st: St = S.Un;
 	private mt: number;
 	private dp: number;
-	private el: number | null;
+	private sk: number;
 	private co: Color | 'both' | 'none';
-	private sp: string;
-	private bl: number;
-	// true when the last move came from the easy levels' dice, not from thinking
-	random = false;
 	private tm: ReturnType<typeof setTimeout> | undefined;
 	private uciCb: ((s: string) => void) | undefined;
 	private onReady: (() => void) | undefined;
@@ -106,24 +45,21 @@ export class LearnEngine {
 	constructor(o: LearnEngineOpts = {}) {
 		this.mt = o.moveTime ?? 2000;
 		this.dp = o.depth ?? 40;
-		this.el = o.elo ?? null;
+		this.sk = o.skill ?? 20;
 		this.co = o.color ?? 'b';
-		this.sp = o.stockfishPath ?? '/stockfish.js';
-		this.bl = o.blunder ?? 0;
 	}
 
 	init(): Promise<void> {
 		return new Promise((res) => {
 			this.st = S.In;
-			this.w = new Worker(this.sp);
+			this.w = new Worker(ENGINE);
 			this.w.addEventListener('message', (e) => this._onMsg(e));
 			let sentOpts = false;
 			this.onReady = () => {
 				if (this.st !== S.In) return;
 				if (!sentOpts) {
 					sentOpts = true;
-					this.w!.postMessage(`setoption name UCI_LimitStrength value ${this.el !== null}`);
-					if (this.el !== null) this.w!.postMessage(`setoption name UCI_Elo value ${this.el}`);
+					this.w!.postMessage(`setoption name Skill Level value ${this.sk}`);
 					this.w!.postMessage('isready');
 					return;
 				}
@@ -158,12 +94,6 @@ export class LearnEngine {
 					res(lan);
 				}, Math.max(0, 500 - (performance.now() - t0)));
 			};
-			const all = this.bl && Math.random() < this.bl ? new Chess(fen).moves({ verbose: true }) : [];
-			this.random = all.length > 0;
-			if (all.length) {
-				const m = all[Math.floor(Math.random() * all.length)];
-				return done(m.from + m.to + (m.promotion ?? ''));
-			}
 			this.w.postMessage(`position fen ${fen}`);
 			this.w.postMessage(`go depth ${this.dp} movetime ${this.mt}`);
 			this.onBM = (u: string) => {
@@ -198,7 +128,7 @@ let queue: Promise<unknown> = Promise.resolve();
 
 function coach_engine() {
 	warm ??= new Promise<Worker>((ok, no) => {
-		const w = new Worker('/stockfish.js');
+		const w = new Worker(ENGINE);
 		const t = setTimeout(() => no(new Error('engine timeout')), 20000);
 		w.onmessage = ({ data }: MessageEvent<string>) => {
 			if (data === 'uciok') w.postMessage('isready');
@@ -240,8 +170,8 @@ async function think(fen: string, ms: number): Promise<Check | null> {
 	});
 }
 
-// one check at a time, in order
-export function check_position(fen: string, ms = 1200): Promise<Check | null> {
+// one check at a time, in order, all on the one warm worker: the coach's facts, hints and the mistake watch
+export function check_position(fen: string, ms = 1000): Promise<Check | null> {
 	const job = queue.then(() => think(fen, ms)).catch(() => null);
 	queue = job;
 	return job;

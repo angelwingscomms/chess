@@ -2,6 +2,7 @@ import { Chess } from 'chess.js';
 import type { Puzzle } from '$lib/types/puzzle';
 import type { Hint } from '$lib/util/chess/engine';
 import type { LearnState } from './learn_context.svelte';
+import { pg, puzzle_done } from '$lib/progress.svelte';
 
 const TACTICS = ['fork', 'pin', 'skewer', 'discoveredAttack', 'doubleCheck', 'sacrifice', 'deflection', 'attraction', 'hangingPiece', 'trappedPiece', 'mateIn1', 'mateIn2', 'mateIn3', 'backRankMate', 'smotheredMate', 'promotion', 'endgame', 'defensiveMove', 'quietMove', 'zugzwang'];
 
@@ -15,8 +16,17 @@ export const pz = $state({
 	off: false,
 	shown: false,
 	busy: false,
-	recent: [] as Puzzle[]
+	recent: [] as Puzzle[],
+	clean: true, // no hint and no wrong move yet, so a solve counts
+	got: null as boolean | null // this puzzle's result once counted: solved first time or not
 });
+
+// each puzzle counts once toward the player's puzzle level
+function count(solved: boolean) {
+	if (pz.got !== null || !pz.p) return;
+	pz.got = solved && pz.clean;
+	puzzle_done(pz.got, pz.p.r);
+}
 
 let s: LearnState | null = null;
 let timer: ReturnType<typeof setTimeout> | undefined;
@@ -93,6 +103,8 @@ export function start_puzzle(p: Puzzle) {
 	pz.st = 's';
 	pz.off = false;
 	pz.shown = false;
+	pz.clean = true;
+	pz.got = null;
 	s.engine?.setColor?.(engine_for(p));
 	if (s.orientation !== side()) s.chessRef?.toggleOrientation();
 }
@@ -113,16 +125,19 @@ export function puzzle_move(m: { from: string; to: string; promotion?: string; c
 				return '';
 			}
 			pz.st = 'x';
+			count(false);
 			return 'x';
 		}
 		pz.i++;
 		if (!mine) return '';
 		pz.st = pz.i >= pz.line.length || m.san?.endsWith('#') ? 'w' : 'y';
+		if (pz.st === 'w') count(true);
 		return pz.st;
 	}
 	if (!mine) return '';
 	if (!hit) {
 		pz.st = 'n';
+		count(false);
 		timer = setTimeout(() => {
 			s?.chessRef?.undo();
 			pz.st = 's';
@@ -132,6 +147,7 @@ export function puzzle_move(m: { from: string; to: string; promotion?: string; c
 	pz.i++;
 	if (pz.i >= pz.line.length || m.san?.endsWith('#')) {
 		pz.st = 'w';
+		count(true);
 		return 'w';
 	}
 	pz.st = 'y';
@@ -165,6 +181,7 @@ export function toggle_challenge() {
 
 export function puzzle_hint() {
 	if (!s || !pz.on || pz.st === 'w' || pz.st === 'x' || pz.off) return;
+	pz.clean = false;
 	s.hints = [{ move: pz.line[pz.i], score: 0, depth: 0 } as Hint];
 	s.hint_index = 0;
 	s.hint_fen = s.fen;
@@ -174,6 +191,7 @@ export function puzzle_hint() {
 export function puzzle_solution() {
 	if (!s || !pz.on || !pz.p) return;
 	clearTimeout(timer);
+	count(false);
 	pz.shown = true;
 	s.hideHints(true);
 	s.engine?.setColor?.('none');
@@ -191,11 +209,12 @@ export function puzzle_solution() {
 	timer = setTimeout(step, 500);
 }
 
-export async function next_puzzle(theme = main_theme(pz.p), rating = pz.p?.r) {
+// the next puzzle is at the player's puzzle level; after a miss it keeps the same idea, so it gets practised
+export async function next_puzzle(theme = pz.got === false ? main_theme(pz.p) : '', rating = pg.r) {
 	if (!s || pz.busy) return;
 	pz.busy = true;
 	try {
-		const r = rating ?? 600 + s.level * 200;
+		const r = rating;
 		const res = await fetch('/api/puzzles', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
