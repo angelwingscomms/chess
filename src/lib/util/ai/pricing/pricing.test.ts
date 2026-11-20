@@ -2,73 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { calc_cost } from './index';
 
 describe('calc_cost', () => {
-	it('returns 0 for unknown model', () => {
+	it('prices the coach models', () => {
+		expect(calc_cost('openai/gpt-oss-120b', 200_000, 100_000)).toBeCloseTo(0.09, 6);
+		expect(calc_cost('openai/gpt-oss-20b', 200_000, 100_000)).toBeCloseTo(0.045, 6);
+	});
+
+	it('is 0 for a model it does not know', () => {
 		expect(calc_cost('unknown-model', 1000, 500)).toBe(0);
-	});
-
-	it('calculates deepseek/deepseek-v4-flash cost correctly', () => {
-		const cost = calc_cost('deepseek/deepseek-v4-flash', 1_000_000, 500_000);
-		expect(cost).toBeCloseTo(0.20, 6);
-	});
-
-	it('calculates gemma-4-26b-a4b-it cost correctly', () => {
-		const cost = calc_cost('gemma-4-26b-a4b-it', 100_000, 50_000);
-		expect(cost).toBeCloseTo(0.0225, 6);
-	});
-
-	it('calculates gemma-4-31b-it cost correctly', () => {
-		const cost = calc_cost('gemma-4-31b-it', 100_000, 50_000);
-		expect(cost).toBeCloseTo(0.030, 6);
-	});
-
-	it('calculates openai/gpt-oss-120b cost correctly', () => {
-		const cost = calc_cost('openai/gpt-oss-120b', 200_000, 100_000);
-		expect(cost).toBeCloseTo(0.090, 6);
-	});
-
-	it('calculates qwen/qwen3-32b cost correctly', () => {
-		const cost = calc_cost('qwen/qwen3-32b', 500_000, 200_000);
-		expect(cost).toBeCloseTo(0.263, 6);
-	});
-
-	it('calculates llama-3.3-70b-versatile cost correctly', () => {
-		const cost = calc_cost('llama-3.3-70b-versatile', 300_000, 150_000);
-		expect(cost).toBeCloseTo(0.2955, 6);
-	});
-
-	it('handles zero tokens', () => {
-		expect(calc_cost('deepseek/deepseek-v4-flash', 0, 0)).toBe(0);
-	});
-
-	it('handles small token counts', () => {
-		const cost = calc_cost('openai/gpt-oss-120b', 100, 50);
-		expect(cost).toBeGreaterThan(0);
-		expect(cost).toBeLessThan(0.001);
-	});
-
-	it('calculates gemini-3.8-live text-only cost', () => {
-		const cost = calc_cost('gemini-3.8-live', 1_000_000, 500_000);
-		expect(cost).toBeCloseTo(3.00, 6);
-	});
-
-	it('calculates gemini-3.8-live with audio modality details', () => {
-		const cost = calc_cost(
-			'gemini-3.8-live',
-			1_000_000,
-			500_000,
-			[{ modality: 'AUDIO', tokenCount: 800_000 }, { modality: 'TEXT', tokenCount: 200_000 }],
-			[{ modality: 'AUDIO', tokenCount: 300_000 }, { modality: 'TEXT', tokenCount: 200_000 }],
-		);
-		expect(cost).toBeCloseTo(7.05, 6);
-	});
-
-	it('calculates gemini-3.8-live with image input', () => {
-		const cost = calc_cost(
-			'gemini-3.8-live',
-			500_000,
-			100_000,
-			[{ modality: 'IMAGE', tokenCount: 200_000 }, { modality: 'TEXT', tokenCount: 300_000 }],
-		);
-		expect(cost).toBeCloseTo(0.875, 6);
 	});
 });

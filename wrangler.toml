@@ -11,7 +11,6 @@ directory = ".svelte-kit/cloudflare"
 enabled = true
 
 [vars]
-RESEMBLE_API_KEY = ""
 COOKIE_DOMAIN = ".beeeproject.com"
 head_sampling_rate = 1
 
@@ -37,3 +36,9 @@ database_id = "9a77b1f0-fce1-4f82-a09f-763676740f8e"
 binding = "DB"
 database_name = "e4"
 database_id = "a30bed2e-4f65-4a9d-a0f5-6eab3df9295f"
+
+# per-ip budgets for the coach chat and the puzzle search (src/lib/server/limit.ts)
+[[ratelimits]]
+name = "LIMIT"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }

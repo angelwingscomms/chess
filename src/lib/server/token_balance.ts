@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { QDRANT_KEY, QDRANT_URL } from '$env/static/private';
 import { env } from '$env/dynamic/private';
 
 export const TOKEN_RATE = Number(env.TOKEN_RATE) || 1.08;
@@ -17,7 +16,7 @@ function id_to_uuid(s: string): string {
 }
 
 function client(): QdrantClient {
-	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY, checkCompatibility: false });
+	if (!q) q = new QdrantClient({ url: env.QDRANT_URL, apiKey: env.QDRANT_KEY, checkCompatibility: false });
 	return q;
 }
 
@@ -78,4 +77,10 @@ export async function deduct(_event: unknown, user_id: string, amount: number): 
 	const n = Math.max(0, cur - amount);
 	await write_bal(user_id, n);
 	return n;
+}
+
+export async function forget_balance(user_id: string) {
+	local.delete(user_id);
+	local_daily.delete(user_id);
+	await client().delete(C, { points: [id_to_uuid(user_id)], wait: true });
 }

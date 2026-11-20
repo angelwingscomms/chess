@@ -5,8 +5,7 @@ import bcrypt from 'bcryptjs';
 
 const store = new Map<string, any>();
 
-vi.mock('$env/static/private', () => ({ QDRANT_URL: 'http://x', QDRANT_KEY: 'k', SECRET: 'test-secret' }));
-vi.mock('$env/dynamic/private', () => ({ env: {} }));
+vi.mock('$env/dynamic/private', () => ({ env: { QDRANT_URL: 'http://x', QDRANT_KEY: 'k', SECRET: 'test-secret' } }));
 
 vi.mock('@qdrant/js-client-rest', () => {
 	return {

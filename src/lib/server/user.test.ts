@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const store = new Map<string, any>();
 
-vi.mock('$env/static/private', () => ({ QDRANT_URL: 'http://x', QDRANT_KEY: 'k' }));
+vi.mock('$env/dynamic/private', () => ({ env: { QDRANT_URL: 'http://x', QDRANT_KEY: 'k' } }));
 
 vi.mock('@qdrant/js-client-rest', () => {
 	return {

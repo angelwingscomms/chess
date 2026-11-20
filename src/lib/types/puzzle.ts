@@ -39,7 +39,7 @@ export const PUZZLE_EXTRA_TAGS = [
 	'rating_master', 'solve_white', 'solve_black', 'popular'
 ] as const;
 
-export const PUZZLE_TOOL_DESCRIPTION = `Search 6 million lichess tactics puzzles by tag and rating. Returns each puzzle's FEN (the exact position the user solves from) and its solution moves in UCI. After finding one, load it on the board with set_state using the returned fen.
+export const PUZZLE_TOOL_DESCRIPTION = `Search about a million lichess tactics puzzles by tag and rating. Returns each puzzle's FEN (the exact position the user solves from) and its solution moves in UCI. After finding one, load it on the board with set_state using the returned fen.
 
 Tags in "t" must ALL match; tags in "any" match if at least one does. Available tags:
 themes: ${PUZZLE_THEMES.join(', ')}

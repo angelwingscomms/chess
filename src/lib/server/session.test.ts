@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('$env/dynamic/private', () => ({ env: { COOKIE_DOMAIN: '.beeeproject.com' } }));
+vi.mock('$env/dynamic/private', () => ({ env: { COOKIE_DOMAIN: '.beeeproject.com', SECRET: 'test-secret' } }));
 
 describe('session cookie', () => {
 	it('bakes the shared domain from wrangler vars, host-only in dev', async () => {

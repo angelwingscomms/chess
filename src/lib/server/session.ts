@@ -1,4 +1,3 @@
-import { SECRET } from '$env/static/private';
 import { env } from '$env/dynamic/private';
 
 type CookieOpts = {
@@ -41,7 +40,7 @@ function ub64(s: string): string {
 }
 
 async function get_key(): Promise<CryptoKey> {
-  const secret = new TextEncoder().encode(SECRET).slice(0, 32);
+  const secret = new TextEncoder().encode(env.SECRET).slice(0, 32);
   return crypto.subtle.importKey('raw', secret, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
 }
 
@@ -51,18 +50,15 @@ export async function encode_session(data: { id: string; name: string; picture?:
   const k = await get_key();
   const sig = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(raw));
   const out = raw + '.' + b64(String.fromCharCode(...new Uint8Array(sig)));
-  console.log('[SESSION] encoded for user', data.id, 'expires', new Date(p.e).toISOString());
   return out;
 }
 
 export async function decode_session(c: string | undefined | null): Promise<{ user: { id: string; name: string; picture?: string; email?: string } } | null> {
   if (!c) {
-    console.log('[SESSION] decode: null/undefined input');
     return null;
   }
   const [raw, sig] = c.split('.');
   if (!raw || !sig) {
-    console.log('[SESSION] decode: malformed cookie (no dot separator)');
     return null;
   }
   try {
@@ -70,18 +66,14 @@ export async function decode_session(c: string | undefined | null): Promise<{ us
     const sig_buf = Uint8Array.from(ub64(sig), c => c.charCodeAt(0)).buffer as ArrayBuffer;
     const valid = await crypto.subtle.verify('HMAC', k, sig_buf, new TextEncoder().encode(raw));
     if (!valid) {
-      console.log('[SESSION] decode: HMAC verification failed');
       return null;
     }
     const p = JSON.parse(ub64(raw));
     if (p.e < Date.now()) {
-      console.log('[SESSION] decode: expired', new Date(p.e).toISOString());
       return null;
     }
-    console.log('[SESSION] decode: valid for user', p.u);
     return { user: { id: p.u, name: p.n, picture: p.p, email: p.m } };
   } catch (e) {
-    console.log('[SESSION] decode: exception', String(e));
     return null;
   }
 }

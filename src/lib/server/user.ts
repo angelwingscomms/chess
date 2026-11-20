@@ -1,13 +1,14 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { QDRANT_KEY, QDRANT_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { User } from '$lib/types/user';
+import { forget_balance } from './token_balance';
 
 const C = 'i';
 const local = new Map<string, User>();
 let q: QdrantClient | null = null;
 
 function client(): QdrantClient {
-	if (!q) q = new QdrantClient({ url: QDRANT_URL, apiKey: QDRANT_KEY, checkCompatibility: false });
+	if (!q) q = new QdrantClient({ url: env.QDRANT_URL, apiKey: env.QDRANT_KEY, checkCompatibility: false });
 	return q;
 }
 
@@ -83,4 +84,12 @@ export async function find_login_user(email: string): Promise<{ i: string; n?: s
 		pic: (hit.pl.pic as string) || (hit.pl.p as string) || undefined,
 		hash
 	};
+}
+
+// deletes every saved game, the balance and the account itself
+export async function forget_user(id: string, db: D1Database) {
+	await db.prepare('delete from s where u = ?').bind(id).run();
+	await forget_balance(id);
+	await client().delete(C, { points: [id], wait: true });
+	local.delete(id);
 }

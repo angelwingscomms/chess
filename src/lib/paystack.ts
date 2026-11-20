@@ -91,6 +91,19 @@ export async function paystack_verify(reference: string): Promise<PaystackVerify
 	return body.data as PaystackVerifyResult;
 }
 
+// a payment counts only for the account that started it; metadata comes back as an object or as the string sent
+export function paid_by(r: PaystackVerifyResult, user_id: string) {
+	let m: unknown = r.metadata;
+	if (typeof m === 'string') {
+		try {
+			m = JSON.parse(m);
+		} catch {
+			return false;
+		}
+	}
+	return (m as { user_id?: string } | null)?.user_id === user_id;
+}
+
 export function verify_webhook_sig(raw_body: string, signature: string): boolean {
 	const secret_key = get_secret_key();
 	if (!secret_key) return false;

@@ -1,27 +1,28 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { GROQ, GEMINI, OPENROUTER_KEY } from '$env/static/private';
-import { streamText, wrapLanguageModel, extractReasoningMiddleware, stepCountIs } from 'ai';
+import { env } from '$env/dynamic/private';
 import { createGroq } from '@ai-sdk/groq';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createOpenAI } from '@ai-sdk/openai';
+import { extractReasoningMiddleware, stepCountIs, streamText, tool, wrapLanguageModel } from 'ai';
+import { Chess } from 'chess.js';
+import { z } from 'zod';
+import { board_note, read_messages } from '$lib/coach/context';
+import { pick_model } from '$lib/coach/models';
+import { coach_prompt } from '$lib/coach/prompts';
 import { calc_cost } from '$lib/util/ai/pricing';
-import { deduct, TOKEN_RATE } from '$lib/server/token_balance';
-import { NGN_USD } from '$lib/util/rates';
 import { last_board, make_get_fen } from '$lib/util/chat/tools/get_fen';
 import { make_find_puzzles } from '$lib/util/chat/tools/find_puzzles';
-import { tool } from 'ai';
-import { z } from 'zod';
-import { Chess } from 'chess.js';
+import { over_limit } from '$lib/server/limit';
+
+const enc = new TextEncoder();
+const event = (name: string, data: object) => enc.encode(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
+const SORRY = 'the coach couldn’t answer just now. try again in a moment.';
 
 const set_state = tool({
 	description: 'Set the board to any position using a FEN string. Use this when the user asks you to set up a specific position, puzzle, or famous game position. Only use this tool when the user explicitly asks you to, or when you suggest showing a position and they agree.',
 	inputSchema: z.object({ fen: z.string().describe('The FEN string of the position to load.') }),
 	execute: async ({ fen }) => {
-		const f = fen.trim();
 		try {
-			const c = new Chess(f);
-			return { valid: true, fen: c.fen() };
+			return { valid: true, fen: new Chess(fen.trim()).fen() };
 		} catch {
 			return { valid: false, error: 'Invalid FEN' };
 		}
@@ -31,139 +32,68 @@ const set_state = tool({
 const undo_move = tool({
 	description: 'Take back the last move the player made, plus the computer reply to it if it has played. Use this for any request to undo or take back a move, instead of set_state.',
 	inputSchema: z.object({}),
-	execute: async () => ({ undone: true }),
+	execute: async () => ({ undone: true })
 });
 
-const groq = createGroq({ apiKey: GROQ });
-const google = createGoogleGenerativeAI({ apiKey: GEMINI });
-const openrouter = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: OPENROUTER_KEY });
-
-const getModel = (m: string, gemini_api_key?: string) => wrapLanguageModel({
-	model: m.startsWith('gemini-') || m.startsWith('gemma-') ? createGoogleGenerativeAI({ apiKey: gemini_api_key || GEMINI })(m) : m.startsWith('deepseek/') || m.startsWith('nex-agi/') ? openrouter(m) : groq(m),
-	middleware: extractReasoningMiddleware({ tagName: 'think' }),
-});
-
-type Msg = { r: 'system' | 'user' | 'assistant'; c: string; d?: Data };
-type Data = { f?: string; b?: string; p?: string; u?: string; a?: string; h?: string; e?: string; t?: number; l?: string }; // l = the lesson the player is doing
-
-const enc = new TextEncoder();
-
-function event(name: string, data: object) {
-	return enc.encode(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
-}
-
-function text(v: unknown) {
-	return typeof v === 'string' ? v.trim() : '';
-}
-
-function build_input(msg: Msg) {
-	const d = msg.d ?? {};
-	const rows = [
-		d.l && `lesson: ${d.l}`,
-		d.f && `fen: ${d.f}`,
-		d.b && `pieces: ${d.b}`,
-		d.p && `move_history: ${d.p}`,
-		d.u && `last_user_move: ${d.u}`,
-		d.a && `last_ai_move: ${d.a}`,
-		d.h && `hint: ${d.h}`,
-		d.e && `evaluation: ${d.e}`,
-		d.t !== undefined && `hint_think_time: ${d.t}s`,
-	].filter(Boolean);
-
-	return rows.length
-		? `${msg.c}\n\n[board_context]\n${rows.join('\n')}\n[/board_context]`
-		: msg.c;
-}
-
-function normalize_msg(v: any): Msg | null {
-	const r = v?.r ?? v?.role;
-	const c = text(v?.c ?? v?.content);
-	if ((r !== 'system' && r !== 'user' && r !== 'assistant') || !c) return null;
-	return { r, c, d: v?.d && typeof v.d === 'object' ? v.d : undefined };
-}
-
-export const POST: RequestHandler = async ({ request, locals, platform }) => {
+// body: x the conversation, m model, b how the coach helps ('a' or 's'), v 1 when spoken aloud
+export const POST: RequestHandler = async ({ request, platform }) => {
+	if (await over_limit(platform, 'c', request)) return json({ error: 'slow down a little, then ask again.' }, { status: 429 });
 	const body = await request.json().catch(() => null);
-	const raw = Array.isArray(body?.x) ? body.x : Array.isArray(body?.messages) ? body.messages : [];
-	const messages = raw.map(normalize_msg).filter(Boolean) as Msg[];
-	if (!messages.length) {
-		console.error('[chat] no messages in request');
-		return json({ error: 'Missing messages array' }, { status: 400 });
-	}
-
-	const m = text(body?.m) || 'openai/gpt-oss-120b';
-	const gmk = text(body?.gmk);
-	console.log(`[chat] request: messages=${messages.length} model=${m}`);
-
-	const sys_i = messages.findIndex((msg) => msg.r === 'system');
-	const sys = sys_i >= 0 ? messages[sys_i].c : '';
-	if (sys_i >= 0) messages.splice(sys_i, 1);
+	const messages = read_messages(body?.x);
+	if (!messages.length) return json({ error: 'nothing to answer yet.' }, { status: 400 });
+	const m = pick_model(body?.m);
+	const groq = createGroq({ apiKey: env.GROQ });
 
 	const stream = new ReadableStream({
 		async start(controller) {
 			let wrote = false;
-			let found: any[] = [];
+			let acted = false;
+			let found: { f: string }[] = [];
 			try {
 				const result = streamText({
-					model: getModel(m, gmk),
-					system: sys,
-					messages: messages.map((msg) => ({
-						role: msg.r as 'user' | 'assistant',
-						content: msg.r === 'user' ? build_input(msg) : msg.c,
-					})),
+					model: wrapLanguageModel({ model: groq(m), middleware: extractReasoningMiddleware({ tagName: 'think' }) }),
+					system: coach_prompt(body?.b === 's' ? 's' : 'a', body?.v === 1),
+					messages: messages.map((x) => ({ role: x.r, content: x.r === 'user' ? board_note(x.c, x.d) : x.c })),
 					tools: { get_fen: make_get_fen(last_board(messages)), find_puzzles: make_find_puzzles(platform!.env.PUZ), set_state, undo_move },
-					stopWhen: stepCountIs(10),
+					stopWhen: stepCountIs(4)
 				});
 				for await (const part of result.fullStream) {
 					if (request.signal.aborted) break;
+					if (part.type === 'error') throw part.error;
 					if (part.type === 'text-delta' && part.text) {
 						wrote = true;
 						controller.enqueue(event('text', { t: part.text }));
 					}
-					if ((part as any).type === 'tool-result') {
-						const p: any = part;
-						const out = p.output ?? p.result;
-						if (p.toolName === 'find_puzzles') found = [...(out?.puzzles ?? []), ...found];
-						if (p.toolName === 'undo_move') controller.enqueue(event('undo', {}));
-						if (p.toolName === 'set_state' && out?.valid && out?.fen) {
-							const key = String(out.fen).split(' ').slice(0, 4).join(' ');
-							const puzzle = found.find((z) => String(z.f).split(' ').slice(0, 4).join(' ') === key);
+					if (part.type === 'tool-result') {
+						const out = part.output as { puzzles?: { f: string }[]; valid?: boolean; fen?: string };
+						if (part.toolName === 'find_puzzles') found = [...(out?.puzzles ?? []), ...found];
+						if (part.toolName === 'undo_move') {
+							acted = true;
+							controller.enqueue(event('undo', {}));
+						}
+						if (part.toolName === 'set_state' && out?.valid && out.fen) {
+							const key = out.fen.split(' ').slice(0, 4).join(' ');
+							const puzzle = found.find((z) => z.f.split(' ').slice(0, 4).join(' ') === key);
+							acted = true;
 							controller.enqueue(event('board', puzzle ? { f: out.fen, p: puzzle } : { f: out.fen }));
 						}
 					}
 				}
 				if (!request.signal.aborted && wrote) {
-					try {
-						const u = await result.usage;
-							if (u?.totalTokens != null) {
-							const p = u.inputTokens ?? 0, c = u.outputTokens ?? 0;
-							const cost = calc_cost(m, p, c);
-							const cost_kobo = Math.round(cost * NGN_USD * 100 * TOKEN_RATE);
-							let bal = 0;
-							if (locals.user?.id && cost_kobo > 0) {
-								try { bal = await deduct({ platform }, locals.user.id, cost_kobo); } catch {}
-							}
-							controller.enqueue(event('usage', { p, c, t: u.totalTokens, cost, bal }));
-						}
-					} catch {}
+					const u = await result.totalUsage;
+					const p = u?.inputTokens ?? 0;
+					const c = u?.outputTokens ?? 0;
+					controller.enqueue(event('usage', { p, c, t: p + c, cost: calc_cost(m, p, c) }));
 				}
+				if (!request.signal.aborted && !wrote && !acted) controller.enqueue(event('error', { e: SORRY }));
 			} catch (e) {
-				console.error('[chat] streamText error:', e);
-				if (!request.signal.aborted && !wrote) {
-					controller.enqueue(event('error', { e: e instanceof Error ? e.stack || e.message : String(e) }));
-				}
+				console.error('[chat]', m, e instanceof Error ? e.message : e);
+				if (!request.signal.aborted && !wrote) controller.enqueue(event('error', { e: SORRY }));
 			} finally {
-				const aborted = request.signal.aborted;
-				console.log(`[chat] stream closed: wrote=${wrote} aborted=${aborted}`);
-				if (!aborted) controller.close();
+				if (!request.signal.aborted) controller.close();
 			}
-		},
+		}
 	});
 
-	return new Response(stream, {
-		headers: {
-			'Content-Type': 'text/event-stream; charset=utf-8',
-			'Cache-Control': 'no-cache',
-		},
-	});
+	return new Response(stream, { headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-cache' } });
 };
