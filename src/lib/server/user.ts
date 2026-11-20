@@ -1,95 +1,46 @@
-import { QdrantClient } from '@qdrant/js-client-rest';
 import { env } from '$env/dynamic/private';
 import type { User } from '$lib/types/user';
-import { forget_balance } from './token_balance';
 
-const C = 'i';
-const local = new Map<string, User>();
-let q: QdrantClient | null = null;
+type Row = { i: string; e: string; n: string; p: string | null; a: number | null; d: number };
 
-function client(): QdrantClient {
-	if (!q) q = new QdrantClient({ url: env.QDRANT_URL, apiKey: env.QDRANT_KEY, checkCompatibility: false });
-	return q;
-}
-
-async function find_by(field: 'e' | 'm', value: string): Promise<{ i: string; pl: Record<string, unknown> } | null> {
+// accounts made before 2026-11-20 lived in the shared qdrant collection; the first login copies one into d1
+async function old_id(email: string): Promise<string | null> {
+	if (!env.QDRANT_URL) return null;
 	try {
-		const r = await client().scroll(C, {
-			filter: { must: [{ key: 's', match: { value: 'u' } }, { key: field, match: { value } }] },
-			limit: 1,
-			with_payload: true,
-			with_vector: false
+		const r = await fetch(`${env.QDRANT_URL}/collections/i/points/scroll`, {
+			method: 'POST',
+			headers: { 'api-key': env.QDRANT_KEY ?? '', 'content-type': 'application/json' },
+			body: JSON.stringify({ filter: { must: [{ key: 's', match: { value: 'u' } }], should: [{ key: 'e', match: { value: email } }, { key: 'm', match: { value: email } }] }, limit: 1, with_payload: false, with_vector: false })
 		});
-		const p = r.points?.[0];
-		if (!p) return null;
-		const pl = p.payload as Record<string, unknown>;
-		if (pl.s !== 'u') return null;
-		return { i: p.id as string, pl };
+		const id = r.ok ? (await r.json())?.result?.points?.[0]?.id : null;
+		return typeof id === 'string' ? id : null;
 	} catch {
 		return null;
 	}
 }
 
-export async function find_or_create_user(name: string, picture: string | undefined, email: string): Promise<string> {
-	const by_e = await find_by('e', email);
-	if (by_e) return by_e.i;
-	const by_m = await find_by('m', email);
-	if (by_m) {
-		try {
-			await client().setPayload(C, { points: [by_m.i], payload: { e: email }, wait: true });
-		} catch {}
-		return by_m.i;
+// one account per email; d1 errors reach the caller, so a hiccup never makes a second account
+export async function find_or_create_user(db: D1Database, name: string, picture: string | undefined, email: string): Promise<Row> {
+	const e = email.trim().toLowerCase();
+	const hit = await db.prepare('select i, e, n, p, a, d from u where e = ?').bind(e).first<Row>();
+	if (hit) {
+		if (hit.n !== name || hit.p !== (picture ?? null)) await db.prepare('update u set n = ?, p = ? where i = ?').bind(name, picture ?? null, hit.i).run();
+		return { ...hit, n: name, p: picture ?? null };
 	}
-	const id = crypto.randomUUID();
-	const u: Record<string, unknown> = { s: 'u', e: email, n: name, m: email, d: Date.now() };
-	if (picture) u.pic = picture;
-	const ZV: number[] = new Array(4096).fill(0);
-	try {
-		await client().upsert(C, { points: [{ id, vector: ZV, payload: u }] });
-	} catch {
-		local.set(id, u as unknown as User);
-	}
-	return id;
+	const row: Row = { i: (await old_id(e)) ?? crypto.randomUUID(), e, n: name, p: picture ?? null, a: null, d: Date.now() };
+	await db.prepare('insert into u (i, e, n, p, a, d) values (?, ?, ?, ?, ?, ?) on conflict (e) do nothing').bind(row.i, row.e, row.n, row.p, row.a, row.d).run();
+	return (await db.prepare('select i, e, n, p, a, d from u where e = ?').bind(e).first<Row>())!;
 }
 
-export async function get_user(id: string): Promise<User | null> {
-	try {
-		const r = await client().retrieve(C, { ids: [id] });
-		const pl = r[0]?.payload as Record<string, unknown> | undefined;
-		if (pl?.s !== 'u') return null;
-		const raw_c = pl.c;
-		return {
-			s: 'u',
-			n: (pl.n as string) || '',
-			p: (pl.pic as string) || (pl.p as string),
-			m: (pl.m as string) || (pl.e as string),
-			c: typeof raw_c === 'string' ? (raw_c as string) : undefined,
-			r: pl.r as string[] | undefined,
-			d: (pl.d as number) || 0
-		};
-	} catch {
-		return local.get(id) || null;
-	}
+export async function get_user(db: D1Database, id: string): Promise<User | null> {
+	const r = await db.prepare('select n, p, e, a, d from u where i = ?').bind(id).first<{ n: string; p: string | null; e: string; a: number | null; d: number }>();
+	return r && { s: 'u', n: r.n, p: r.p ?? undefined, m: r.e, a: r.a ?? undefined, d: r.d };
 }
 
-export async function find_login_user(email: string): Promise<{ i: string; n?: string; pic?: string; hash?: string } | null> {
-	const by_e = await find_by('e', email);
-	const hit = by_e || (await find_by('m', email));
-	if (!hit) return null;
-	const raw_p = hit.pl.p;
-	const hash = typeof raw_p === 'string' && raw_p.startsWith('$2') ? (raw_p as string) : undefined;
-	return {
-		i: hit.i,
-		n: (hit.pl.n as string) || undefined,
-		pic: (hit.pl.pic as string) || (hit.pl.p as string) || undefined,
-		hash
-	};
-}
+// a grown-up said yes to keeping this account's games and chats
+export const allow = (db: D1Database, id: string) => db.prepare('update u set a = ? where i = ? and a is null').bind(Date.now(), id).run();
 
-// deletes every saved game, the balance and the account itself
-export async function forget_user(id: string, db: D1Database) {
-	await db.prepare('delete from s where u = ?').bind(id).run();
-	await forget_balance(id);
-	await client().delete(C, { points: [id], wait: true });
-	local.delete(id);
+// deletes every saved game, every payment record and the account itself
+export async function forget_user(db: D1Database, id: string) {
+	await db.batch([db.prepare('delete from s where u = ?').bind(id), db.prepare('delete from p where u = ?').bind(id), db.prepare('delete from u where i = ?').bind(id)]);
 }

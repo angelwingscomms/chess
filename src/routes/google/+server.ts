@@ -1,42 +1,27 @@
 import { google_client } from '$lib/server/oauth';
-import { encode_session, session_cookie } from '$lib/server/session';
+import { encode_session, SESSION_COOKIE } from '$lib/server/session';
 import { find_or_create_user } from '$lib/server/user';
 import type { RequestEvent } from '@sveltejs/kit';
 
-export async function GET(event: RequestEvent): Promise<Response> {
-  const code = event.url.searchParams.get('code');
-  const state = event.url.searchParams.get('state');
-  const stored_state = event.cookies.get('oauth_state') ?? null;
-  const stored_verifier = event.cookies.get('oauth_verifier') ?? null;
-
-  if (!code || !state || !stored_state || !stored_verifier || state !== stored_state) {
-    return new Response(null, { status: 400 });
-  }
-  let tokens: any;
-  try {
-    tokens = await google_client(event.url.origin).validateAuthorizationCode(code, stored_verifier);
-  } catch {
-    console.error('[google] token exchange failed');
-    return new Response(null, { status: 400 });
-  }
-  const ures = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: `Bearer ${tokens.accessToken()}` }
-  });
-  if (!ures.ok) {
-    console.error('[google] userinfo failed', ures.status);
-    return new Response(null, { status: 400 });
-  }
-  const guser = await ures.json();
-  let uid: string;
-  try {
-    uid = await find_or_create_user(guser.name, guser.picture, guser.email);
-  } catch {
-    console.error('[google] user lookup failed');
-    return new Response(null, { status: 500 });
-  }
-  const session = await encode_session({ id: uid, name: guser.name, picture: guser.picture, email: guser.email });
-  event.cookies.set('session', session, session_cookie(event.url.hostname));
-  event.cookies.delete('oauth_state', { path: '/' });
-  event.cookies.delete('oauth_verifier', { path: '/' });
-  return new Response(null, { status: 302, headers: { Location: '/i' } });
+// google sends the player back here; an account nobody has said yes for goes to the grown-up question first
+export async function GET({ url, cookies, platform }: RequestEvent): Promise<Response> {
+	const code = url.searchParams.get('code');
+	const state = url.searchParams.get('state');
+	const want = cookies.get('oauth_state');
+	const verifier = cookies.get('oauth_verifier');
+	const next = cookies.get('oauth_next') || '/i';
+	for (const k of ['oauth_state', 'oauth_verifier', 'oauth_next']) cookies.delete(k, { path: '/' });
+	if (!code || !state || !verifier || state !== want) return new Response(null, { status: 302, headers: { Location: '/login?e=1' } });
+	try {
+		const tokens = await google_client(url.origin).validateAuthorizationCode(code, verifier);
+		const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${tokens.accessToken()}` } });
+		if (!r.ok) throw Error(`userinfo ${r.status}`);
+		const g = await r.json();
+		const u = await find_or_create_user(platform!.env.DB, g.name || g.email.split('@')[0], g.picture, g.email);
+		cookies.set('session', await encode_session({ id: u.i, name: u.n, picture: u.p ?? undefined, email: u.e, a: !!u.a }), SESSION_COOKIE);
+		return new Response(null, { status: 302, headers: { Location: u.a ? next : `/welcome?next=${encodeURIComponent(next)}` } });
+	} catch (e) {
+		console.error('[google] login failed', e instanceof Error ? e.message : 'unknown');
+		return new Response(null, { status: 302, headers: { Location: '/login?e=1' } });
+	}
 }

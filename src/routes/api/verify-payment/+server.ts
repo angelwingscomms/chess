@@ -1,26 +1,19 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { paid_by, paystack_verify } from '$lib/paystack';
-import { credit, get_balance } from '$lib/server/token_balance';
+import { credit } from '$lib/server/token_balance';
 
 export const POST: RequestHandler = async ({ request, locals, platform }) => {
-	const user = locals.user;
-	if (!user?.id) throw error(401, 'Unauthorized');
-
-	const body = await request.json().catch(() => null);
-	const ref = body?.reference;
-	if (!ref || typeof ref !== 'string') return json({ success: false, error: 'Missing reference' }, { status: 400 });
-
+	if (!locals.user) error(401, 'log in first');
+	const ref = (await request.json().catch(() => null))?.reference;
+	if (!ref || typeof ref !== 'string') return json({ success: false, error: 'no payment reference.' }, { status: 400 });
 	try {
-		const result = await paystack_verify(ref);
-		if (result.status !== 'success') return json({ success: false, error: `Transaction ${result.status}` });
-		if (!paid_by(result, user.id)) return json({ success: false, error: 'This payment belongs to another account.' }, { status: 403 });
-
-		await credit({ platform }, user.id, result.amount);
-		const bal = await get_balance({ platform }, user.id);
-		return json({ success: true, balance: bal });
+		const r = await paystack_verify(ref);
+		if (r.status !== 'success') return json({ success: false, error: 'that payment didn’t go through.' });
+		if (!paid_by(r, locals.user.id)) return json({ success: false, error: 'this payment belongs to another account.' }, { status: 403 });
+		return json({ success: true, balance: await credit(platform!.env.DB, locals.user.id, ref, r.amount) });
 	} catch (e) {
-		console.error('[verify-payment]', e);
-		return json({ success: false, error: 'Verification failed' }, { status: 500 });
+		console.error('[verify-payment]', e instanceof Error ? e.message : e);
+		return json({ success: false, error: 'we couldn’t check that payment. try again soon.' }, { status: 500 });
 	}
 };

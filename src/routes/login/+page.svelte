@@ -2,49 +2,14 @@
 	import { onMount } from 'svelte';
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import { browser } from '$app/environment';
-	import { goto, invalidateAll } from '$app/navigation';
 	import { use_ambient } from '$lib/landing/calm.svelte';
 
-	let em = $state('');
-	let pw = $state('');
-	let apiError = $state('');
-	let isProcessing = $state(false);
 	let slot = $state<HTMLDivElement>();
-
-	const next = $derived(browser ? new URLSearchParams(location.search).get('next') || '/i' : '/i');
-	let allValid = $derived(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.trim()) && pw.length >= 8);
-	const field = 'min-h-12 w-full rounded-2xl border border-haze/15 bg-night/50 px-4 text-[15px] text-haze outline-none backdrop-blur-md transition duration-500 ease-expo placeholder:text-mist/70 focus:border-glow/60';
+	const q = browser ? new URLSearchParams(location.search) : null;
+	const next = q?.get('next') || '/i';
+	const failed = q?.has('e');
 
 	onMount(() => use_ambient(() => slot));
-
-	async function handleSubmit(e: Event) {
-		e.preventDefault();
-		if (!allValid || isProcessing) return;
-		isProcessing = true;
-		try {
-			const r = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: em.trim(), password: pw })
-			});
-			const d = await r.json();
-			if (!r.ok) {
-				apiError = d.error || 'that email and password don’t match. try again?';
-				isProcessing = false;
-				return;
-			}
-			isProcessing = false;
-			try {
-				await invalidateAll();
-				await goto(next);
-			} catch {
-				window.location.href = next;
-			}
-		} catch {
-			apiError = 'no connection. please try again.';
-			isProcessing = false;
-		}
-	}
 </script>
 
 <Seo meta={{ t: 'log in — e4', d: 'log in to e4 to keep your chess games and coach chats on every device.' }} />
@@ -63,19 +28,9 @@
 				<svg viewBox="0 0 24 24" class="size-[18px]" aria-hidden="true"><path class="fill-haze" d="M21.35 11.1H12v2.9h5.35c-.23 1.4-1.66 4.1-5.35 4.1-3.22 0-5.85-2.67-5.85-5.95S8.78 6.2 12 6.2c1.83 0 3.06.78 3.76 1.45l2.56-2.47C16.68 3.65 14.53 2.7 12 2.7 6.87 2.7 2.7 6.87 2.7 12s4.17 9.3 9.3 9.3c5.37 0 8.93-3.77 8.93-9.09 0-.61-.07-1.08-.16-1.54z" /></svg>
 				<span class="text-haze">continue with google</span>
 			</a>
-			<div class="flex items-center gap-4 font-calm-mono text-[11px] tracking-[0.16em] text-mist" aria-hidden="true">
-				<span class="h-px flex-1 bg-haze/12"></span>or with email<span class="h-px flex-1 bg-haze/12"></span>
-			</div>
-			<form onsubmit={handleSubmit} novalidate class="grid gap-3">
-				<input bind:value={em} type="email" autocomplete="email" placeholder="email" aria-label="email" class={field} />
-				<input bind:value={pw} type="password" autocomplete="current-password" placeholder="password" aria-label="password" class={field} />
-				{#if apiError}
-					<p class="text-sm text-bad" role="alert">{apiError}</p>
-				{/if}
-				<button type="submit" disabled={!allValid || isProcessing} class="mt-2 min-h-12 cursor-pointer rounded-full bg-glow px-6 text-[15px] shadow-[0_0_60px_-12px_color-mix(in_srgb,var(--color-glow)_60%,transparent)] transition duration-500 ease-expo hover:shadow-[0_0_80px_-8px_color-mix(in_srgb,var(--color-glow)_85%,transparent)] disabled:cursor-default disabled:opacity-40 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
-					<span class="text-night">{isProcessing ? 'logging you in…' : 'log in'}</span>
-				</button>
-			</form>
+			{#if failed}
+				<p class="text-sm text-bad" role="alert">google didn’t finish signing you in. try again?</p>
+			{/if}
 		</div>
 		<p class="mt-8 text-sm text-mist animate-surface [animation-delay:1s]">
 			no account? you don’t need one.

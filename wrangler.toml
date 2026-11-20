@@ -10,10 +10,6 @@ directory = ".svelte-kit/cloudflare"
 [observability]
 enabled = true
 
-[vars]
-COOKIE_DOMAIN = ".beeeproject.com"
-head_sampling_rate = 1
-
 [observability.logs]
 enabled = true
 head_sampling_rate = 1

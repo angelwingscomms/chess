@@ -38,11 +38,11 @@
 		</div>
 		<h1 class="mt-8 text-[clamp(2.4rem,7vw,3.6rem)] leading-[0.95] font-extralight tracking-[-0.04em] animate-surface [animation-delay:0.2s]">{data.success ? 'all done.' : 'not finished.'}</h1>
 		<p class="mt-4 text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 animate-surface [animation-delay:0.4s]">
-			{data.success ? `Your coach credit is now ₦${(data.balance / 100).toFixed(2)}.` : data.message}
+			{data.success ? `your coach credit is now ₦${(data.balance / 100).toFixed(2)}.` : data.message}
 		</p>
 		<a href="/i" class="mt-10 inline-flex min-h-12 items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-7 backdrop-blur-md transition duration-500 ease-expo animate-surface [animation-delay:0.6s] hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
 			<span class="text-haze">back to the board</span><span aria-hidden="true" class="text-haze">→</span>
 		</a>
-		<p class="mt-5 font-calm-mono normal-case text-xs tracking-[0.14em] text-mist">Going back by itself in {countdown}…</p>
+		<p class="mt-5 font-calm-mono normal-case text-xs tracking-[0.14em] text-mist">going back by itself in {countdown}…</p>
 	</div>
 </main>

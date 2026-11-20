@@ -1,7 +1,7 @@
 declare global {
 	namespace App {
 		interface Locals {
-			user: { id: string; name: string; picture?: string; email?: string } | null;
+			user: import('$lib/server/session').SessionUser | null;
 		}
 		interface Platform {
 			env: { PUZ: D1Database; DB: D1Database; LIMIT?: import('@cloudflare/workers-types').RateLimit };

@@ -1,79 +1,32 @@
 import { env } from '$env/dynamic/private';
 
-type CookieOpts = {
-	path: string;
-	httpOnly: boolean;
-	maxAge?: number;
-	sameSite: 'lax';
-	domain?: string;
-};
+export type SessionUser = { id: string; name: string; picture?: string; email?: string; a?: boolean };
 
-export function session_cookie(host = ''): CookieOpts {
-	const h = host.split(':')[0].toLowerCase();
-	const share = env.COOKIE_DOMAIN || '';
-	const use_share = Boolean(share) && (h === share.replace(/^\./, '') || h.endsWith(share));
-	return {
-		path: '/',
-		httpOnly: true,
-		maxAge: 604800,
-		sameSite: 'lax',
-		...(use_share && { domain: share })
-	};
+// host-only, so chess.apexlinks.org's login never leaks to another site
+export const SESSION_COOKIE = { path: '/', httpOnly: true, secure: true, maxAge: 604800, sameSite: 'lax' } as const;
+export const SESSION_COOKIE_DELETE = { path: '/' };
+
+const b64 = (s: string) => btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const ub64 = (s: string) => atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4));
+
+const key = () => crypto.subtle.importKey('raw', new TextEncoder().encode(env.SECRET).slice(0, 32), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+
+// payload keys: u id, n name, p picture, m email, a a grown-up said yes, e expires (ms)
+export async function encode_session(d: SessionUser): Promise<string> {
+	const raw = b64(JSON.stringify({ u: d.id, n: d.name, p: d.picture, m: d.email, a: d.a ? 1 : 0, e: Date.now() + 604800000 }));
+	const sig = await crypto.subtle.sign('HMAC', await key(), new TextEncoder().encode(raw));
+	return raw + '.' + b64(String.fromCharCode(...new Uint8Array(sig)));
 }
 
-export function session_cookie_delete(host = '') {
-	const { path, domain } = session_cookie(host);
-	return domain ? { path, domain } : { path };
-}
-
-export const SESSION_COOKIE = session_cookie();
-export const SESSION_COOKIE_DELETE = session_cookie_delete();
-
-function b64(s: string): string {
-  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function ub64(s: string): string {
-  s = s.replace(/-/g, '+').replace(/_/g, '/');
-  while (s.length % 4) s += '=';
-  return atob(s);
-}
-
-async function get_key(): Promise<CryptoKey> {
-  const secret = new TextEncoder().encode(env.SECRET).slice(0, 32);
-  return crypto.subtle.importKey('raw', secret, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
-}
-
-export async function encode_session(data: { id: string; name: string; picture?: string; email?: string }): Promise<string> {
-  const p = { u: data.id, n: data.name, p: data.picture, m: data.email, e: Date.now() + 604800000 };
-  const raw = b64(JSON.stringify(p));
-  const k = await get_key();
-  const sig = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(raw));
-  const out = raw + '.' + b64(String.fromCharCode(...new Uint8Array(sig)));
-  return out;
-}
-
-export async function decode_session(c: string | undefined | null): Promise<{ user: { id: string; name: string; picture?: string; email?: string } } | null> {
-  if (!c) {
-    return null;
-  }
-  const [raw, sig] = c.split('.');
-  if (!raw || !sig) {
-    return null;
-  }
-  try {
-    const k = await get_key();
-    const sig_buf = Uint8Array.from(ub64(sig), c => c.charCodeAt(0)).buffer as ArrayBuffer;
-    const valid = await crypto.subtle.verify('HMAC', k, sig_buf, new TextEncoder().encode(raw));
-    if (!valid) {
-      return null;
-    }
-    const p = JSON.parse(ub64(raw));
-    if (p.e < Date.now()) {
-      return null;
-    }
-    return { user: { id: p.u, name: p.n, picture: p.p, email: p.m } };
-  } catch (e) {
-    return null;
-  }
+export async function decode_session(c: string | undefined | null): Promise<SessionUser | null> {
+	const [raw, sig] = c?.split('.') ?? [];
+	if (!raw || !sig) return null;
+	try {
+		const ok = await crypto.subtle.verify('HMAC', await key(), Uint8Array.from(ub64(sig), (x) => x.charCodeAt(0)), new TextEncoder().encode(raw));
+		const p = ok && JSON.parse(ub64(raw));
+		// sessions from before consent existed carry no a, so they go through the grown-up question once
+		return p && p.e > Date.now() ? { id: p.u, name: p.n, picture: p.p, email: p.m, a: p.a === 1 } : null;
+	} catch {
+		return null;
+	}
 }
