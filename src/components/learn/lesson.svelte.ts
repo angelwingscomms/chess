@@ -5,6 +5,7 @@ import type { Chessground } from 'svelte-chessground';
 import { calm, play_move } from '$lib/landing/calm.svelte';
 import { say_move } from '$lib/util/chess/words';
 import { STAGES, cleared, free_hint, free_moves, hint, level_id, mate_in_one, parse, play, right } from '$lib/learn/lessons';
+import { due, lesson_done, lessons_known, pg } from '$lib/progress.svelte';
 import type { ChatData } from './types';
 import type { LearnState } from './learn_context.svelte';
 
@@ -13,10 +14,13 @@ export const ls = $state({
 	list: false,
 	si: 0,
 	li: 0,
-	done: [] as string[],
 	moves: 0,
 	got: [] as string[],
-	st: '', // '' solving, w solved, n wrong move
+	st: '', // '' solving, w solved, n wrong move, f a review or quick check is over
+	run: [] as [number, number][], // the stage and level of each question in a review or quick check
+	ri: 0,
+	mode: '' as '' | 'r' | 't', // r mixed review, t quick check to skip the basics
+	slips: 0, // run questions not solved cleanly
 	oops: '',
 	miss: '',
 	me: 'white' as 'white' | 'black',
@@ -30,6 +34,7 @@ let pieces = new Map<string, string>();
 let rules: Chess | null = null;
 let step = 0;
 let misses = 0;
+let helped = false; // the arrow was shown on this level
 let timer: ReturnType<typeof setTimeout> | undefined;
 let said = '';
 let held = '';
@@ -37,12 +42,22 @@ let sel = '';
 
 const NAMES: Record<string, string> = { k: 'king', q: 'queen', r: 'rook', b: 'bishop', n: 'knight', p: 'pawn' };
 const MATE = STAGES.findIndex((t) => t.k === 'mate');
+const BASICS = ['the pieces', 'the rules'];
+// one question per idea a player who already plays should know
+const CHECK = ['knight-1', 'pawn-2', 'escape-1', 'mate-1', 'castle-2', 'passant-0', 'stalemate-0'];
+const where = (id: string): [number, number] => {
+	const k = id.lastIndexOf('-');
+	return [STAGES.findIndex((t) => t.k === id.slice(0, k)), +id.slice(k + 1)];
+};
+
+export const is_done = (k: string, i: number) => pg.l.includes(level_id(k, i));
+export const basics_done = () => STAGES.every((t) => !BASICS.includes(t.p) || t.l.every((_, i) => is_done(t.k, i)));
 
 export const stage = () => STAGES[ls.si];
 export const level = () => stage().l[ls.li];
 export const free = () => level().g === 's' || level().g === 'c';
-export const last = () => ls.si === STAGES.length - 1 && ls.li === stage().l.length - 1;
-export const part_end = () => ls.si > MATE && ls.li === stage().l.length - 1 && STAGES[ls.si + 1]?.p !== stage().p;
+export const last = () => (ls.mode ? ls.ri === ls.run.length - 1 : ls.si === STAGES.length - 1 && ls.li === stage().l.length - 1);
+export const part_end = () => !ls.mode && ls.si > MATE && ls.li === stage().l.length - 1 && STAGES[ls.si + 1]?.p !== stage().p;
 
 export function won_text() {
 	const l = level();
@@ -57,9 +72,6 @@ export function bind_lessons(state: LearnState) {
 	s = state;
 	ls.on = false;
 	ls.list = false;
-	try {
-		ls.done = JSON.parse(localStorage.getItem('e4_lessons') ?? '[]');
-	} catch {}
 }
 
 export function bind_lesson_board(b: Chessground, e: HTMLElement) {
@@ -75,7 +87,7 @@ export function bind_lesson_board(b: Chessground, e: HTMLElement) {
 
 export function open_lessons() {
 	ls.on = true;
-	go(Math.max(0, STAGES.findIndex((t) => t.l.some((_, i) => !ls.done.includes(level_id(t.k, i))))));
+	go(Math.max(0, STAGES.findIndex((t) => t.l.some((_, i) => !is_done(t.k, i)))));
 }
 
 export function close_lessons() {
@@ -88,22 +100,78 @@ export const toggle_lessons = () => (ls.on ? close_lessons() : open_lessons());
 
 // a topic opens at its first unfinished level
 export function go(i: number) {
+	ls.mode = '';
 	ls.si = i;
-	ls.li = Math.max(0, STAGES[i].l.findIndex((_, j) => !ls.done.includes(level_id(STAGES[i].k, j))));
+	ls.li = Math.max(0, STAGES[i].l.findIndex((_, j) => !is_done(STAGES[i].k, j)));
 	ls.list = false;
-	misses = 0;
-	start();
+	fresh();
 	intro();
 }
 
+function fresh() {
+	misses = 0;
+	helped = false;
+	start();
+}
+
+// up to six questions from different topics, so ideas get mixed: the ones due for review first, then any solved ones
+export function start_run(mode: 'r' | 't') {
+	let ids = CHECK;
+	if (mode === 'r') {
+		const asks = (id: string) => {
+			const [si, li] = where(id);
+			return si >= 0 && !!STAGES[si].l[li] && !['s', 'c'].includes(STAGES[si].l[li].g);
+		};
+		const now = due().filter(asks);
+		const rest = pg.l.filter((id) => asks(id) && !now.includes(id)).sort(() => Math.random() - 0.5);
+		ids = [...now, ...rest].slice(0, 6).sort(() => Math.random() - 0.5);
+		// no two questions in a row from the same topic, when it can be helped
+		for (let i = 1; i < ids.length; i++) {
+			const t = (x: string) => x.slice(0, x.lastIndexOf('-'));
+			if (t(ids[i]) !== t(ids[i - 1])) continue;
+			const j = ids.findIndex((x, k) => k > i && t(x) !== t(ids[i - 1]));
+			if (j > 0) [ids[i], ids[j]] = [ids[j], ids[i]];
+		}
+	}
+	if (!ids.length) return;
+	ls.mode = mode;
+	ls.run = ids.map(where);
+	ls.ri = 0;
+	ls.slips = 0;
+	ls.on = true;
+	ls.list = false;
+	[ls.si, ls.li] = ls.run[0];
+	fresh();
+}
+
+function finish() {
+	ls.st = 'f';
+	const n = ls.run.length;
+	if (ls.mode === 't' && ls.slips <= 1) {
+		lessons_known(STAGES.filter((t) => BASICS.includes(t.p)).flatMap((t) => t.l.map((_, i) => level_id(t.k, i))));
+		ls.oops = `${n - ls.slips} of ${n} right first time. you know the basics, so they’re marked done. on to the tricks!`;
+	} else if (ls.mode === 't') ls.oops = `${n - ls.slips} of ${n} right first time. a few basics are worth a look first. start with the lessons, and skip what you know.`;
+	else ls.oops = ls.slips ? `${n - ls.slips} of ${n} right first time. the ones you missed come back tomorrow.` : `all ${n} right first time! they come back later, with longer gaps each time.`;
+	calm.sound.chord();
+}
+
 export function next() {
+	if (ls.mode) {
+		if (ls.ri < ls.run.length - 1) {
+			[ls.si, ls.li] = ls.run[++ls.ri];
+			fresh();
+		} else finish();
+		return;
+	}
 	if (last()) return close_lessons();
 	if (ls.li < stage().l.length - 1) {
 		ls.li++;
-		misses = 0;
-		start();
+		fresh();
 	} else go(ls.si + 1);
 }
+
+// after a review or quick check: on with the first lesson not yet done
+export const keep_going = () => (basics_done() || ls.mode !== 't' ? open_lessons() : go(0));
 
 // the coach opens each topic with its idea, in the chat, once
 function intro() {
@@ -162,6 +230,7 @@ function answer() {
 export function point() {
 	const m = ls.st === '' && answer();
 	if (!m || !board) return;
+	helped = true;
 	board.getState().drawable.brushes.glow ??= { key: 'gw', color: '#e9a47c', opacity: 0.9, lineWidth: 11 };
 	board.setAutoShapes([{ orig: m.slice(0, 2) as Key, dest: m.slice(2, 4) as Key, brush: 'glow' }]);
 }
@@ -176,15 +245,13 @@ function shake(q: string) {
 
 function win(mate = false) {
 	ls.st = 'w';
-	misses = 0;
 	if (!mate) calm.sound.chord();
 	board!.set({ movable: { color: undefined, dests: new Map() } });
 	const id = level_id(stage().k, ls.li);
-	if (ls.done.includes(id)) return;
-	ls.done = [...ls.done, id];
-	try {
-		localStorage.setItem('e4_lessons', JSON.stringify(ls.done));
-	} catch {}
+	const clean = misses === 0 && !helped && (!free() || ls.moves <= (level().b ?? 0));
+	misses = 0;
+	if (ls.mode && !clean) ls.slips++;
+	if (ls.mode || !pg.l.includes(id)) lesson_done(id, clean, !!ls.mode);
 }
 
 function back(fen: string) {
@@ -299,7 +366,10 @@ export function lesson_words() {
 	const l = level();
 	return [
 		`the player is doing a lesson, not playing a game. topic: ${t.t}. ${t.d}`,
-		`level ${ls.li + 1} of ${t.l.length}. the task: ${l.t}`,
+		ls.mode === 'r' && `this is a mixed review of lessons they solved before, question ${ls.ri + 1} of ${ls.run.length}`,
+		ls.mode === 't' && `this is a quick check to skip the basics, question ${ls.ri + 1} of ${ls.run.length}`,
+		!ls.mode && `level ${ls.li + 1} of ${t.l.length}`,
+		ls.st === 'f' ? `they finished it: ${ls.oops}` : `the task: ${l.t}`,
 		l.s && (l.g === 's' ? `stars to collect: ${l.s.filter((q) => !ls.got.includes(q)).join(', ') || 'none left'}` : `stars mark: ${l.s.join(', ')}`),
 		free() ? `only white moves here, and the black pieces never move. moves used: ${ls.moves}, fewest possible: ${l.b}` : `the player is ${ls.me}`,
 		ls.st === 'w' ? 'they just solved it' : ls.miss && `their last wrong try: ${ls.miss}`,
@@ -319,6 +389,7 @@ export function lesson_voice() {
 
 export function lesson_suggestions() {
 	const more = `tell me more about ${stage().t}`;
+	if (ls.st === 'f') return ['what should i practise next?'];
 	if (ls.st === 'w') return ['why does that work?', more];
 	if (ls.miss) return ['why was that wrong?', 'give me a hint'];
 	return ['give me a hint', more];

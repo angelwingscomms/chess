@@ -1,6 +1,7 @@
 <script lang="ts">
 	import XIcon from '$lib/components/icons/x-icon.svelte';
-	import { pg } from '$lib/progress.svelte';
+	import { due, pg } from '$lib/progress.svelte';
+	import { STAGES } from '$lib/learn/lessons';
 	import { LEVELS } from '$lib/util/chess/engine';
 	import { difficulty } from './puzzle.svelte';
 	import { get_learn_state } from './learn_context.svelte';
@@ -14,7 +15,9 @@
 		{ k: 'days in a row', v: pg.s },
 		{ k: 'puzzles solved', v: pg.y },
 		{ k: 'best puzzle run', v: pg.b },
-		{ k: 'games won', v: won }
+		{ k: 'games won', v: won },
+		{ k: `lessons done, of ${STAGES.reduce((n, t) => n + t.l.length, 0)}`, v: pg.l.length },
+		{ k: 'lessons to review', v: due().length }
 	]);
 	const word = { w: 'won', l: 'lost', d: 'draw' };
 </script>

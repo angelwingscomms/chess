@@ -3,21 +3,23 @@
 	import BulbIcon from '$lib/components/icons/bulb-icon.svelte';
 	import RefreshIcon from '$lib/components/icons/refresh-icon.svelte';
 	import SchoolIcon from '$lib/components/icons/school-icon.svelte';
-	import { level_id } from '$lib/learn/lessons';
-	import { close_lessons, last, level, ls, next, part_end, point, stage, start, won_text } from './lesson.svelte';
+	import { close_lessons, is_done, keep_going, last, level, ls, next, part_end, point, stage, start, won_text } from './lesson.svelte';
 	import { glass } from './ui';
 
 	const t = $derived(stage());
-	const text = $derived(ls.st === 'w' ? won_text() : ls.st === 'n' ? ls.oops : level().t);
+	const text = $derived(ls.st === 'w' ? won_text() : ls.st === 'n' || ls.st === 'f' ? ls.oops : level().t);
+	// a review or quick check shows one dot per question; a topic, one per level
+	const dots = $derived(ls.mode ? ls.run.map((_, k) => [k === ls.ri, k < ls.ri]) : t.l.map((_, k) => [k === ls.li, is_done(t.k, k)]));
+	const label = $derived(ls.mode === 'r' ? 'review' : ls.mode === 't' ? 'quick check' : 'lesson');
 	const pill = 'inline-flex h-9 shrink-0 cursor-pointer items-center rounded-full px-4 transition duration-500 ease-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow lg:h-10';
 </script>
 
 <div class="flex w-full flex-col gap-2 animate-surface" aria-live="polite">
 	<div class="flex items-center justify-between gap-3">
-		<p class="font-calm-mono text-xs tracking-[0.14em] text-mist"><span class="text-glow">lesson</span> · {t.t}</p>
-		<div class="flex items-center gap-1.5" role="img" aria-label="level {ls.li + 1} of {t.l.length}">
-			{#each t.l as _, k}
-				<span class="block size-1.5 rounded-full transition duration-500 ease-expo {k === ls.li ? 'scale-150 bg-glow' : ls.done.includes(level_id(t.k, k)) ? 'bg-glow/55' : 'bg-haze/25'}"></span>
+		<p class="font-calm-mono text-xs tracking-[0.14em] text-mist"><span class="text-glow">{label}</span> · {t.t}</p>
+		<div class="flex items-center gap-1.5" role="img" aria-label="{ls.mode ? 'question' : 'level'} {(ls.mode ? ls.ri : ls.li) + 1} of {dots.length}">
+			{#each dots as [now, done], k (k)}
+				<span class="block size-1.5 rounded-full transition duration-500 ease-expo {now && ls.st !== 'f' ? 'scale-150 bg-glow' : done || ls.st === 'f' ? 'bg-glow/55' : 'bg-haze/25'}"></span>
 			{/each}
 		</div>
 	</div>
@@ -27,14 +29,18 @@
 			<button aria-label="all lessons" data-tip="all lessons" class={glass} onclick={() => (ls.list = true)}>
 				<SchoolIcon size={16} strokeWidth={1.8} />
 			</button>
-			<button aria-label="start over" data-tip="start over" class={glass} onclick={start}>
-				<RefreshIcon size={16} strokeWidth={1.8} />
-			</button>
-			{#if ls.st === 'w'}
+			{#if ls.st !== 'f'}
+				<button aria-label="start over" data-tip="start over" class={glass} onclick={start}>
+					<RefreshIcon size={16} strokeWidth={1.8} />
+				</button>
+			{/if}
+			{#if ls.st === 'f'}
+				<button class="{pill} bg-glow text-night shadow-[0_0_30px_-8px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]" onclick={keep_going}>keep learning →</button>
+			{:else if ls.st === 'w'}
 				{#if part_end() && !last()}
 					<button class="{pill} border border-haze/20 bg-haze/5 text-haze hover:border-glow/60 hover:bg-glow/10" onclick={close_lessons}>play a game</button>
 				{/if}
-				<button class="{pill} bg-glow text-night shadow-[0_0_30px_-8px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]" onclick={next}>{last() ? 'play a game →' : 'next →'}</button>
+				<button class="{pill} bg-glow text-night shadow-[0_0_30px_-8px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]" onclick={next}>{ls.mode ? (last() ? 'see how you did →' : 'next →') : last() ? 'play a game →' : 'next →'}</button>
 			{:else}
 				<button aria-label="show me the move" data-tip="show me" class={glass} onclick={point} disabled={ls.st === 'n'}>
 					<BulbIcon size={16} strokeWidth={1.8} />

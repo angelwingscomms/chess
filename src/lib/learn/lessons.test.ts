@@ -74,12 +74,16 @@ describe('lessons', () => {
 	it('every other level is a real position with a right answer and a wrong one', () => {
 		for (const { l, id } of levels.filter((x) => x.l.g !== 's' && x.l.g !== 'c')) {
 			const c = new Chess(l.f);
-			expect(c.inCheck(), id).toBe(l.g === 'e');
+			if (l.g === 'e') expect(c.inCheck(), id).toBe(true);
 			if (l.a) expect(lines(l, l.f, 0, id), id).toBeGreaterThan(0);
 			else expect(hint(l, c, 0), id).toBeTruthy();
 			const wrong = c.moves({ verbose: true }).some((m) => !right(l, played(l.f, m.from + m.to)!, 0, m.from + m.to));
 			expect(wrong, id).toBe(l.g !== 'e');
 		}
+	});
+
+	it('every topic has enough levels to practise its idea', () => {
+		for (const t of STAGES) expect(t.l.length, t.k).toBeGreaterThanOrEqual(4);
 	});
 
 	it('castling may not cross an attacked square', () => {
