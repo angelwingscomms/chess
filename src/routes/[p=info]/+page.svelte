@@ -6,7 +6,7 @@
 	const x = $derived(info[page.params.p!]);
 </script>
 
-<Seo meta={{ t: `${x.t} — E4`, d: x.d }} />
+<Seo meta={{ t: `${x.t} — e4`, d: x.d }} />
 
 <main class="calm relative z-10 mx-auto max-w-2xl px-6 pt-24 pb-16 font-calm font-light text-haze">
 	<a href="/" class="font-calm-mono text-xs tracking-[0.16em] text-mist hover:text-haze">e4</a>

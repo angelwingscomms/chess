@@ -29,7 +29,7 @@
 			});
 			const d = await r.json();
 			if (!r.ok) {
-				apiError = d.error || 'That email and password don’t match. Try again?';
+				apiError = d.error || 'that email and password don’t match. try again?';
 				isProcessing = false;
 				return;
 			}
@@ -41,13 +41,13 @@
 				window.location.href = next;
 			}
 		} catch {
-			apiError = 'No connection. Please try again.';
+			apiError = 'no connection. please try again.';
 			isProcessing = false;
 		}
 	}
 </script>
 
-<Seo meta={{ t: 'Log In — E4', d: 'Log in to e4 to keep your chess games and coach chats on every device.' }} />
+<Seo meta={{ t: 'log in — e4', d: 'log in to e4 to keep your chess games and coach chats on every device.' }} />
 
 <main class="calm relative z-10 grid min-h-svh items-center gap-12 px-[7vw] pt-28 pb-16 font-calm font-light text-haze lg:grid-cols-2 lg:gap-8">
 	<div class="mx-auto w-full max-w-sm lg:mx-0 lg:justify-self-center">
@@ -56,7 +56,7 @@
 			<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block animate-rise [animation-delay:0.15s]">welcome</span></span>
 			<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block animate-rise [animation-delay:0.3s]">back.</span></span>
 		</h1>
-		<p class="mt-5 text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 animate-surface [animation-delay:0.6s]">Log in to keep your games and coach chats on every device.</p>
+		<p class="mt-5 text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 animate-surface [animation-delay:0.6s]">log in to keep your games and coach chats on every device.</p>
 
 		<div class="mt-8 grid gap-4 animate-surface [animation-delay:0.8s]">
 			<a href="/login/google?next={encodeURIComponent(next)}" class="group inline-flex min-h-12 items-center justify-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-6 backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
@@ -64,11 +64,11 @@
 				<span class="text-haze">continue with google</span>
 			</a>
 			<div class="flex items-center gap-4 font-calm-mono text-[11px] tracking-[0.16em] text-mist" aria-hidden="true">
-				<span class="h-px flex-1 bg-haze/12"></span>Or with email<span class="h-px flex-1 bg-haze/12"></span>
+				<span class="h-px flex-1 bg-haze/12"></span>or with email<span class="h-px flex-1 bg-haze/12"></span>
 			</div>
 			<form onsubmit={handleSubmit} novalidate class="grid gap-3">
-				<input bind:value={em} type="email" autocomplete="email" placeholder="Email" aria-label="email" class={field} />
-				<input bind:value={pw} type="password" autocomplete="current-password" placeholder="Password" aria-label="password" class={field} />
+				<input bind:value={em} type="email" autocomplete="email" placeholder="email" aria-label="email" class={field} />
+				<input bind:value={pw} type="password" autocomplete="current-password" placeholder="password" aria-label="password" class={field} />
 				{#if apiError}
 					<p class="text-sm text-bad" role="alert">{apiError}</p>
 				{/if}
@@ -78,12 +78,12 @@
 			</form>
 		</div>
 		<p class="mt-8 text-sm text-mist animate-surface [animation-delay:1s]">
-			No account? You don’t need one.
+			no account? you don’t need one.
 			<a href="/i" class="group ml-1 inline-flex items-center gap-1"><span class="text-haze transition group-hover:text-glow">start playing</span><span aria-hidden="true" class="text-haze transition-transform duration-500 ease-expo group-hover:translate-x-1 group-hover:text-glow">→</span></a>
 		</p>
 	</div>
 	<div class="hidden flex-col items-center lg:flex">
 		<div bind:this={slot} class="aspect-square w-[min(36vw,60svh)]"></div>
-		<p class="mt-6 font-calm-mono text-[11px] tracking-[0.16em] text-mist/70 light:text-mist">Touch the board</p>
+		<p class="mt-6 font-calm-mono text-[11px] tracking-[0.16em] text-mist/70 light:text-mist">touch the board</p>
 	</div>
 </main>

@@ -26,7 +26,7 @@
 					<p class="font-calm-mono text-[11px] tracking-[0.16em] text-mist">lessons · {ls.done.length} of {total} done</p>
 					<h2 id="lessons-title" class="mt-2 text-3xl font-extralight tracking-[-0.03em]">learn step by step</h2>
 				</div>
-				<button aria-label="Close lessons list" class={glass} onclick={close}>
+				<button aria-label="close lessons list" class={glass} onclick={close}>
 					<XIcon size={15} strokeWidth={1.8} />
 				</button>
 			</div>
@@ -44,7 +44,7 @@
 											aria-current={i === ls.si ? 'step' : undefined}
 											onclick={() => go(i)}
 										>
-											<img src="/pieces/gioco/{t.i}.svg" alt="" class="size-6" />
+											<img src="/pieces/chessnut/{t.i}.svg" alt="" class="size-6" />
 											{t.t}
 											<span class="font-calm-mono text-[11px] text-mist">{n === t.l.length ? '✓' : `${n}/${t.l.length}`}</span>
 										</button>

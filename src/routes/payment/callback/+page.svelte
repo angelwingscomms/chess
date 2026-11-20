@@ -23,7 +23,7 @@
 	});
 </script>
 
-<Seo meta={{ t: `Payment ${data.success ? 'Done' : 'Not Finished'} — E4`, d: 'Payment result', n: true }} />
+<Seo meta={{ t: `payment ${data.success ? 'done' : 'not finished'} — e4`, d: 'payment result', n: true }} />
 
 <main class="calm relative z-10 grid min-h-svh place-items-center px-6 pt-24 pb-16 font-calm font-light text-haze">
 	<div class="w-full max-w-sm text-center" aria-live="polite">

@@ -15,8 +15,8 @@
 	data-sound
 	onclick={() => set_theme(theme.mode === 'light' ? 'dark' : 'light')}
 	aria-pressed={ready ? light : undefined}
-	aria-label="Light theme"
-	title={light ? 'Switch to the dark theme' : 'Switch to the light theme'}
+	aria-label="light theme"
+	title={light ? 'switch to the dark theme' : 'switch to the light theme'}
 	class="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-haze/15 bg-haze/5 text-haze backdrop-blur-md transition duration-500 ease-expo before:absolute before:-inset-1.5 before:content-[''] hover:border-haze/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow"
 >
 	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="{icon} light:scale-50 light:-rotate-90 light:opacity-0" aria-hidden="true">

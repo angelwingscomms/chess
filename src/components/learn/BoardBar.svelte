@@ -46,36 +46,36 @@
 			<div class="flex items-center gap-1.5">
 				{#if board_history.length > 1}
 					<span class="flex items-center gap-1.5" data-tour="history">
-						<button aria-label="Previous board" data-tip="look back" class={glass} onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
+						<button aria-label="previous board" data-tip="look back" class={glass} onclick={() => s.go_back_board()} disabled={board_history_idx <= 0}>
 							<ArrowLeftIcon size={16} strokeWidth={1.8} />
 						</button>
-						<button aria-label="Next board" data-tip="look forward" class={glass} onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
+						<button aria-label="next board" data-tip="look forward" class={glass} onclick={() => s.go_forward_board()} disabled={board_history_idx >= board_history.length - 1}>
 							<ArrowRightIcon size={16} strokeWidth={1.8} />
 						</button>
 					</span>
 					<span class="mx-0.5 h-5 w-px bg-haze/15" aria-hidden="true"></span>
 				{/if}
-				<button aria-label="Undo move" data-tip="take back" data-tour="undo" class={glass} onclick={() => s.undoMove()} disabled={!ready || !history.length || gameOver}>
+				<button aria-label="undo move" data-tip="take back" data-tour="undo" class={glass} onclick={() => s.undoMove()} disabled={!ready || !history.length || gameOver}>
 					<UndoIcon size={16} strokeWidth={1.8} />
 				</button>
 				{#if redo_stack.length}
-					<button aria-label="Redo move" data-tip="put it back" data-tour="redo" class={glass} onclick={() => s.redoMove()}>
+					<button aria-label="redo move" data-tip="put it back" data-tour="redo" class={glass} onclick={() => s.redoMove()}>
 						<RedoIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
 				{#if show_hints}
-					<button aria-label="Hide hints" data-tip="hide hint" class="{lit} {hint_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.hideHints()} aria-busy={hint_loading}>
+					<button aria-label="hide hints" data-tip="hide hint" class="{lit} {hint_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.hideHints()} aria-busy={hint_loading}>
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{:else}
-					<button aria-label="Show hint" data-tip="show a hint" data-tour="hint" class={glass} onclick={() => s.showHint()} disabled={!ready || gameOver || hint_loading}>
+					<button aria-label="show hint" data-tip="show a hint" data-tour="hint" class={glass} onclick={() => s.showHint()} disabled={!ready || gameOver || hint_loading}>
 						<BulbIcon size={16} strokeWidth={1.8} />
 					</button>
 				{/if}
-				<button aria-label="Lessons" data-tip="lessons: learn step by step" data-tour="lessons" class={glass} onclick={open_lessons}>
+				<button aria-label="lessons" data-tip="lessons: learn step by step" data-tour="lessons" class={glass} onclick={open_lessons}>
 					<SchoolIcon size={16} strokeWidth={1.8} />
 				</button>
-				<button aria-label="Puzzle at your level" data-tip="a puzzle for you" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
+				<button aria-label="puzzle at your level" data-tip="a puzzle for you" data-tour="puzzle" class={glass} onclick={() => next_puzzle('', undefined)} disabled={!ready || pz.busy}>
 					<PuzzleIcon size={16} strokeWidth={1.8} />
 				</button>
 				<span class="mx-0.5 h-5 w-px bg-haze/15" aria-hidden="true"></span>
@@ -86,7 +86,7 @@
 			<div class="flex items-center justify-end gap-2 animate-surface">
 				<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">try</span>
 				<span class="rounded-full border border-glow/50 bg-glow/10 px-3 py-1.5 text-xs text-glow">{say_move(s.uciToSan(fen, hints[hint_index].move))}</span>
-				<button aria-label="Explain hint" data-tip="ask the coach why" data-tip-end class="{glass} {chat_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.explainHint()}>
+				<button aria-label="explain hint" data-tip="ask the coach why" data-tip-end class="{glass} {chat_loading ? 'motion-safe:animate-listen' : ''}" onclick={() => s.explainHint()}>
 					<span class="font-calm-mono text-xs">why</span>
 				</button>
 			</div>

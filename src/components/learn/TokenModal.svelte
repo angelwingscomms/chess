@@ -19,9 +19,9 @@
 						<div><span class="text-mist">text it wrote</span><span class="tabular-nums">{s.total_c.toLocaleString()}</span></div>
 						<div><span class="text-mist">cost</span><span class="text-glow tabular-nums">₦{(s.total_cost * NGN_USD).toFixed(2)}</span></div>
 					</div>
-					<p class="mt-2 text-xs leading-5 text-mist">Text is counted in tokens, small pieces of words.</p>
+					<p class="mt-2 text-xs leading-5 text-mist">text is counted in tokens, small pieces of words.</p>
 				{:else}
-					<p class="py-6 text-center text-sm text-mist">Nothing used yet. Ask the coach something!</p>
+					<p class="py-6 text-center text-sm text-mist">nothing used yet. ask the coach something!</p>
 				{/if}
 			</div>
 			<div class="flex justify-end border-t border-haze/10 px-6 py-4">

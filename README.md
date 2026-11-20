@@ -1,28 +1,10 @@
-# Beee Chess
+# e4
 
-Chess training app where you play against Stockfish, get AI coaching via Groq, and buy tokens via Paystack.
+a calm chess coach for beginners: play a friendly computer, then ask why any move works, by typing or out loud.
 
-## Stack
+- live: https://chess.apexlinks.org (a push to main deploys)
+- stack: svelte 5 + sveltekit on cloudflare workers, stockfish in the browser, groq for the coach, conformer + leokani speech in the browser, d1 for puzzles and saved games
+- run: `pnpm install`, put `PUBLIC_DOMAIN=https://chess.apexlinks.org` in `.env`, `pnpm dev` (port 2160)
+- check: `pnpm test`, `pnpm check`, `pnpm build`
 
-Svelte 5 + SvelteKit 2, TypeScript, Tailwind CSS 4, Cloudflare Workers, Qdrant (vector DB — also used for token balances), Google OAuth, Groq + Gemini AI, Paystack.
-
-## Routes
-
-| Route | What it does |
-|---|---|---|
-| `/` | Main chess board vs Stockfish (10 difficulty presets), hint overlay, AI chat/analysis |
-| `/login` | Sign in with Google |
-| `/api/me` | Current user |
-| `/api/buy-tokens` | Paystack payment init (POST) |
-| `/payment/callback` | Paystack redirect — verifies tx + credits tokens |
-| `/api/webhook/paystack` | Paystack async webhook (POST, signature-verified) |
-| `/chess/learn/chat` | SSE stream — AI chat via Groq |
-| `/chess/learn/models` | Available Groq models |
-
-## AI Chat
-
-Board context (FEN, move history, last moves) is injected as hidden `[board_context]` into the user message — not the system prompt. The server streams text by SSE (`text`, `interaction`, `error` events). Falls back to `generateContentStream` if Interactions API fails.
-
-## Testing
-
-`pnpm test` — Vitest with unit + static e2e tests.
+how it fits together: AGENTS.md.

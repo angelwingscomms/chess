@@ -32,11 +32,11 @@
 
 {#if cam.gl}
 	<div bind:this={box} class="relative">
-		<button aria-label="Board view" aria-haspopup="menu" aria-expanded={open} data-tip={open ? undefined : 'view'} data-tip-end data-tour="view" class={open ? lit : glass} onclick={() => (open = !open)}>
+		<button aria-label="board view" aria-haspopup="menu" aria-expanded={open} data-tip={open ? undefined : 'view'} data-tip-end data-tour="view" class={open ? lit : glass} onclick={() => (open = !open)}>
 			<CubeIcon size={16} strokeWidth={1.8} />
 		</button>
 		{#if open}
-			<div role="menu" aria-label="Board view" class="absolute right-0 bottom-full z-30 mb-2 flex w-48 flex-col gap-0.5 rounded-2xl border border-haze/15 bg-deep p-1.5 shadow-[0_24px_60px_-18px_rgb(0_0_0/calc(0.85*var(--sh-k)))] animate-surface">
+			<div role="menu" aria-label="board view" class="absolute right-0 bottom-full z-30 mb-2 flex w-48 flex-col gap-0.5 rounded-2xl border border-haze/15 bg-deep p-1.5 shadow-[0_24px_60px_-18px_rgb(0_0_0/calc(0.85*var(--sh-k)))] animate-surface">
 				{#each VIEWS as o (o.v)}
 					<button
 						role="menuitemradio"
@@ -48,7 +48,7 @@
 						{o.t}
 					</button>
 				{/each}
-				<p class="px-3 pt-2 pb-1 text-xs leading-snug text-mist">Drag around the board to turn it. Scroll or pinch to zoom.</p>
+				<p class="px-3 pt-2 pb-1 text-xs leading-snug text-mist">drag around the board to turn it. scroll or pinch to zoom.</p>
 			</div>
 		{/if}
 	</div>

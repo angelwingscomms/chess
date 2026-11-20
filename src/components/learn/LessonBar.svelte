@@ -24,10 +24,10 @@
 	<div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
 		<p class="min-w-0 flex-1 basis-56 text-[15px] leading-snug transition-colors duration-500 {ls.st === 'n' ? 'text-bad' : ls.st === 'w' ? 'text-glow' : 'text-haze/85'}">{text}</p>
 		<div class="flex items-center gap-1.5">
-			<button aria-label="All lessons" data-tip="all lessons" class={glass} onclick={() => (ls.list = true)}>
+			<button aria-label="all lessons" data-tip="all lessons" class={glass} onclick={() => (ls.list = true)}>
 				<SchoolIcon size={16} strokeWidth={1.8} />
 			</button>
-			<button aria-label="Start over" data-tip="start over" class={glass} onclick={start}>
+			<button aria-label="start over" data-tip="start over" class={glass} onclick={start}>
 				<RefreshIcon size={16} strokeWidth={1.8} />
 			</button>
 			{#if ls.st === 'w'}
@@ -36,11 +36,11 @@
 				{/if}
 				<button class="{pill} bg-glow text-night shadow-[0_0_30px_-8px_color-mix(in_srgb,var(--color-glow)_70%,transparent)]" onclick={next}>{last() ? 'play a game →' : 'next →'}</button>
 			{:else}
-				<button aria-label="Show me the move" data-tip="show me" class={glass} onclick={point} disabled={ls.st === 'n'}>
+				<button aria-label="show me the move" data-tip="show me" class={glass} onclick={point} disabled={ls.st === 'n'}>
 					<BulbIcon size={16} strokeWidth={1.8} />
 				</button>
 			{/if}
-			<button aria-label="Leave lessons" data-tip="back to your game" data-tip-end class={glass} onclick={close_lessons}>
+			<button aria-label="leave lessons" data-tip="back to your game" data-tip-end class={glass} onclick={close_lessons}>
 				<XIcon size={15} strokeWidth={1.8} />
 			</button>
 		</div>

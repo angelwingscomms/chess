@@ -155,16 +155,6 @@ a {
   text-decoration: none;
 }
 
-@layer base {
-  h1, h2, h3, h4, h5, h6, a, button, label, summary, th, .font-calm-mono {
-    text-transform: capitalize;
-  }
-
-  p::first-letter {
-    text-transform: uppercase;
-  }
-}
-
 img {
   display: block;
   max-width: 100%;
@@ -594,27 +584,27 @@ img {
   opacity: 0.72 !important;
 }
 
-.cg-default-style.cg-wrap piece.pawn.white { background-image: url('/pieces/gioco/wP.svg') !important; }
-.cg-default-style.cg-wrap piece.knight.white { background-image: url('/pieces/gioco/wN.svg') !important; }
-.cg-default-style.cg-wrap piece.bishop.white { background-image: url('/pieces/gioco/wB.svg') !important; }
-.cg-default-style.cg-wrap piece.rook.white { background-image: url('/pieces/gioco/wR.svg') !important; }
-.cg-default-style.cg-wrap piece.queen.white { background-image: url('/pieces/gioco/wQ.svg') !important; }
-.cg-default-style.cg-wrap piece.king.white { background-image: url('/pieces/gioco/wK.svg') !important; }
-.cg-default-style.cg-wrap piece.pawn.black { background-image: url('/pieces/gioco/bP.svg') !important; }
-.cg-default-style.cg-wrap piece.knight.black { background-image: url('/pieces/gioco/bN.svg') !important; }
-.cg-default-style.cg-wrap piece.bishop.black { background-image: url('/pieces/gioco/bB.svg') !important; }
-.cg-default-style.cg-wrap piece.rook.black { background-image: url('/pieces/gioco/bR.svg') !important; }
-.cg-default-style.cg-wrap piece.queen.black { background-image: url('/pieces/gioco/bQ.svg') !important; }
-.cg-default-style.cg-wrap piece.king.black { background-image: url('/pieces/gioco/bK.svg') !important; }
+.cg-default-style.cg-wrap piece.pawn.white { background-image: url('/pieces/chessnut/wP.svg') !important; }
+.cg-default-style.cg-wrap piece.knight.white { background-image: url('/pieces/chessnut/wN.svg') !important; }
+.cg-default-style.cg-wrap piece.bishop.white { background-image: url('/pieces/chessnut/wB.svg') !important; }
+.cg-default-style.cg-wrap piece.rook.white { background-image: url('/pieces/chessnut/wR.svg') !important; }
+.cg-default-style.cg-wrap piece.queen.white { background-image: url('/pieces/chessnut/wQ.svg') !important; }
+.cg-default-style.cg-wrap piece.king.white { background-image: url('/pieces/chessnut/wK.svg') !important; }
+.cg-default-style.cg-wrap piece.pawn.black { background-image: url('/pieces/chessnut/bP.svg') !important; }
+.cg-default-style.cg-wrap piece.knight.black { background-image: url('/pieces/chessnut/bN.svg') !important; }
+.cg-default-style.cg-wrap piece.bishop.black { background-image: url('/pieces/chessnut/bB.svg') !important; }
+.cg-default-style.cg-wrap piece.rook.black { background-image: url('/pieces/chessnut/bR.svg') !important; }
+.cg-default-style.cg-wrap piece.queen.black { background-image: url('/pieces/chessnut/bQ.svg') !important; }
+.cg-default-style.cg-wrap piece.king.black { background-image: url('/pieces/chessnut/bK.svg') !important; }
 
-.b.white { background-image: url('/pieces/gioco/wB.svg') !important; }
-.n.white { background-image: url('/pieces/gioco/wN.svg') !important; }
-.r.white { background-image: url('/pieces/gioco/wR.svg') !important; }
-.q.white { background-image: url('/pieces/gioco/wQ.svg') !important; }
-.b.black { background-image: url('/pieces/gioco/bB.svg') !important; }
-.n.black { background-image: url('/pieces/gioco/bN.svg') !important; }
-.r.black { background-image: url('/pieces/gioco/bR.svg') !important; }
-.q.black { background-image: url('/pieces/gioco/bQ.svg') !important; }
+.b.white { background-image: url('/pieces/chessnut/wB.svg') !important; }
+.n.white { background-image: url('/pieces/chessnut/wN.svg') !important; }
+.r.white { background-image: url('/pieces/chessnut/wR.svg') !important; }
+.q.white { background-image: url('/pieces/chessnut/wQ.svg') !important; }
+.b.black { background-image: url('/pieces/chessnut/bB.svg') !important; }
+.n.black { background-image: url('/pieces/chessnut/bN.svg') !important; }
+.r.black { background-image: url('/pieces/chessnut/bR.svg') !important; }
+.q.black { background-image: url('/pieces/chessnut/bQ.svg') !important; }
 
 .logo-gate {
   position: relative;
@@ -1625,7 +1615,6 @@ html.calm-html .driver-popover-title {
   font-size: 20px;
   font-weight: 300;
   letter-spacing: -0.02em;
-  text-transform: capitalize;
 }
 
 html.calm-html .driver-popover-description,
@@ -1750,7 +1739,7 @@ html.calm-html [data-tip-end]:focus-visible::after {
 
 html[data-theme='light'] .cg-wrap piece,
 html[data-theme='light'] svg image[href^='/pieces/'],
-html[data-theme='light'] img[src^='/pieces/gioco/'] {
+html[data-theme='light'] img[src^='/pieces/chessnut/'] {
   filter: drop-shadow(0 0 0.7px rgb(28 26 43 / 0.9)) drop-shadow(0 3px 4px rgb(28 26 43 / 0.2));
 }
 

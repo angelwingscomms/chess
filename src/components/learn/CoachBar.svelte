@@ -47,36 +47,36 @@
 	</p>
 	<div class="relative flex items-center gap-1.5" bind:this={wrap}>
 		<TalkButton />
-		<button title="Settings" aria-label="Settings" data-tour="settings" class={glass} onclick={() => (s.show_settings = true)}>
+		<button title="settings" aria-label="settings" data-tour="settings" class={glass} onclick={() => (s.show_settings = true)}>
 			<GearIcon size={16} strokeWidth={1.8} />
 		</button>
-		<button title="More" aria-label="More" aria-haspopup="menu" aria-expanded={open} data-tour="more" class={glass} onclick={() => (open = !open)}>
+		<button title="more" aria-label="more" aria-haspopup="menu" aria-expanded={open} data-tour="more" class={glass} onclick={() => (open = !open)}>
 			<DotsIcon size={16} strokeWidth={1.8} />
 		</button>
 		{#if open}
 			<div role="menu" class="absolute top-[calc(100%+8px)] right-0 z-30 w-56 rounded-2xl border border-haze/12 bg-deep/95 p-1.5 shadow-[0_30px_80px_-20px_rgb(0_0_0/calc(0.8*var(--sh-k)))] backdrop-blur-xl animate-surface">
-				<button role="menuitem" title="New game" aria-label="New game" data-tour="new" class={item} onclick={run(() => s.resetGame())}>
+				<button role="menuitem" title="new game" aria-label="new game" data-tour="new" class={item} onclick={run(() => s.resetGame())}>
 					<RefreshIcon size={16} strokeWidth={1.6} />new game
 				</button>
-				<button role="menuitem" title="Your games" aria-label="Your games" class={item} onclick={run(() => (s.show_sessions = true))}>
+				<button role="menuitem" title="your games" aria-label="your games" class={item} onclick={run(() => (s.show_sessions = true))}>
 					<HistoryIcon size={16} strokeWidth={1.6} />your games
 				</button>
-				<button role="menuitem" title="Flip board" aria-label="Flip board" class={item} onclick={run(() => s.chessRef?.toggleOrientation())}>
+				<button role="menuitem" title="flip board" aria-label="flip board" class={item} onclick={run(() => s.chessRef?.toggleOrientation())}>
 					<FlipIcon size={16} strokeWidth={1.6} />flip board
 				</button>
-				<button role="menuitem" title="Switch sides" aria-label="Switch sides" class={item} onclick={run(() => s.flipColor())}>
+				<button role="menuitem" title="switch sides" aria-label="switch sides" class={item} onclick={run(() => s.flipColor())}>
 					<span class="grid size-4 place-items-center"><span class="block size-3 rounded-full border border-haze/70 {s.orientation === 'w' ? 'bg-haze/10' : 'bg-haze/80'}"></span></span>play as {s.orientation === 'w' ? 'black' : 'white'}
 				</button>
 				{#if s.chat_messages.length > 0}
-					<button role="menuitem" title="Clear chat" aria-label="Clear chat" class={item} onclick={run(() => s.clearChat())}>
+					<button role="menuitem" title="clear chat" aria-label="clear chat" class={item} onclick={run(() => s.clearChat())}>
 						<XIcon size={16} strokeWidth={1.6} />clear chat
 					</button>
 				{/if}
 				<div class="mx-2 my-1 h-px bg-haze/10"></div>
-				<button role="menuitem" title="Tutorial" aria-label="Tutorial" class={item} onclick={run(() => (s.show_tour = true))}>
+				<button role="menuitem" title="tutorial" aria-label="tutorial" class={item} onclick={run(() => (s.show_tour = true))}>
 					<span class="grid size-4 place-items-center font-calm-mono text-xs">?</span>show me around
 				</button>
-				<button role="menuitem" title="Token usage" aria-label="Token usage" class={item} onclick={run(() => (s.show_token_modal = true))}>
+				<button role="menuitem" title="token usage" aria-label="token usage" class={item} onclick={run(() => (s.show_token_modal = true))}>
 					<InfoIcon size={16} strokeWidth={1.6} />usage
 				</button>
 			</div>

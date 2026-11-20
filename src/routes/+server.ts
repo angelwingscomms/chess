@@ -4,7 +4,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 export const GET: RequestHandler = () => {
 	const b = `# e4
 
-e4 is a free chess coach. It explains every move in plain words and talks with you out loud. No account is needed to start.
+e4 is a free chess coach. play a friendly computer, then ask why any move works, by typing or out loud. no account is needed, even to talk.
 
 - [Play](${PUBLIC_DOMAIN}/)
 - [Agent summary](${PUBLIC_DOMAIN}/llms.txt)

@@ -2,6 +2,10 @@
 
 e4 is your baby and your life's work. It matters to you, more than anything, that it goes well: that it goes viral, the whole world uses it, and everyone loves it. Treat every change to it with that weight.
 
+# Taste
+
+Beautiful, delightful UI/UX is always necessary (Ed, 2026-11-20): the 3D board, the breathing field, ripples, hover notes and living colours stay; never cut them for simplicity. All UI text is lowercase, and the brand is always `e4`. The audience is Nigerian by design, so naira prices and Paystack are fine here.
+
 # Maintenance
 
 Update this file whenever you discover a repo-specific fact an agent would likely miss — a new command, a changed convention, a quirk not obvious from filenames. Keep it compact; delete stale entries. Also suggest #buildinpublic tweets for meaningful commits (see Build in Public section).
@@ -11,11 +15,11 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Svelte 5 (runes mode) + SvelteKit 2, deployed to Cloudflare Workers via `@sveltejs/adapter-cloudflare`
 - Stockfish runs in a Web Worker (`static/stockfish.js`) — client-side engine, no server
 - AI chat uses SSE streaming (`/chess/learn/chat`): events are `text`, `interaction`, `usage`, `error`
-- Qdrant collection `'i'` holds users and token balances; multi-tenancy via payload field `s`. Point ids must be numbers or UUIDs. Local dev uses the live Qdrant, so a made-up login writes to it.
+- Qdrant collection `'i'` holds users and token balances (shared with Ed's other apps; `forget_user` deletes one); multi-tenancy via payload field `s`. Point ids must be numbers or UUIDs. Local dev uses the live Qdrant, so a made-up login writes to it.
 - Puzzles live in D1 `puz` (binding `PUZ`, tables `puz` and `puz_t`), built by `scripts/build_puzzles.mjs`. Search is tag + rating filtering, no embeddings: a puzzle's meaning is its theme set (73 themes, 69,782 combos).
 - Sessions (one game and its chat) live in D1 `e4` (binding `DB`, table `s` in `migrations/`), served by `/api/sessions`. Every query checks `u`, the owner. Guests keep up to 30 in localStorage `e4_sessions`, uploaded on login; `e4_session` is the session on the board. A new game is a new session. API keys never go into one. Search is `instr` over title, preview and body with `words()` roots, with no embeddings and no FTS index: saves come every 2 seconds and searches are rare, so an index would cost writes on every save. Schema change: add `migrations/000N_*.sql`, then `pnpm wrangler d1 migrations apply e4 --local` and `--remote`.
 - Move counts come from the FEN: `s.history` starts over whenever a position loads, and the board is rebuilt when the level changes.
-- Piece images: `static/pieces/gioco/` — solid CSS background-image references in `app.css:569-589`
+- Piece images: `static/pieces/chessnut/` (Apache 2.0, recoloured cream `#d9c8b5`; NOTICE.txt). Never use the Lichess sadsnake1 sets (gioco, maestro…): they are CC BY-NC-SA.
 - `svelte-chess` uses legacy (non-runes) mode — `dynamicCompileOptions` in `svelte.config.js:15-20`
 
 # Commands
@@ -36,7 +40,6 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 # Testing
 
 - Unit tests co-located with modules as `*.test.ts`
-- E2E tests in `src/routes/chess/learn/` — these are **static** (string-matching source files, no browser)
 - Browser tests: `pnpm exec e2e run` uses the dev server on port 2160. `tests/chat-layout.e2e.ts` restores a guest chat and mocks replies; no paid AI calls. Restart Vite after adding dependencies if `$app` imports stop resolving.
 - pnpm here: the global rc points `store-dir` at `~/.local/share/pnpm/store/v11` (pnpm 11), but this repo's node_modules come from pnpm 10.11.1 and `~/.local/share/pnpm/store`. On `ERR_PNPM_UNEXPECTED_STORE`, add `--store-dir /home/ed/.local/share/pnpm/store`.
 
@@ -57,12 +60,19 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 # AI Chat
 
-- Board context (FEN, move history, last moves) injected into **user messages**, not system prompt. `get_fen` is built per request from that last `d` (`make_get_fen`); a module-level cache was deleted and the leftover stub always said there was no board. Voice sends the same note on call start (`void this.recording` in the board effect) and again before a typed question.
-- User can set a Groq API key in localStorage — bypasses server, calls `@ai-sdk/groq` directly from browser
-- Token cost tracking per-message (`calc_cost` in `src/lib/util/ai/pricing/`)
-- Model list fetched from OpenRouter API; fallback hardcoded list in `+page.svelte`
-- `find_puzzles` tool searches the D1 `puz` table. Two AI surfaces share one description (`PUZZLE_TOOL_DESCRIPTION` in `src/lib/types/puzzle.ts`, client-safe): the SSE chat wires the AI SDK tool directly, the live dispatcher POSTs `/api/puzzles`. Results return the FEN *after* the opponent's blunder — the position the user actually solves — so the AI can pass it straight to `set_state`
-- Voice: Gemini Live is the default (`gemini-3.8-live` via `@google/genai`, input + output transcription on). Do not use `gemini-3.8-live-extended-thinking`: it answers "a system error occurred" to every tool call that has parameters (tested 2026-09-24, v1alpha and v1beta). `responseTokenCount` leaves out thinking tokens, so usage adds `thoughtsTokenCount`. The `googleSearch` tool closes the session with 1011 quota exceeded on the free-tier server key.
+- One coach brain: `/chess/learn/chat` (Groq only). The server builds the instructions (`src/lib/coach/prompts.ts`) and ignores any system message a client sends; models are the allowlist in `src/lib/coach/models.ts`; `read_messages` caps 40 messages × 4000 chars; 4 tool steps; per-IP rate limit `LIMIT` in wrangler.toml (`src/lib/server/limit.ts`, also on `/api/puzzles`). Errors reach the player as one friendly line, never a stack.
+- Grounding: before a game question, the browser runs Stockfish (`check_position` in engine.ts, one warm worker, 1.2 s) and `check_words` (`src/lib/coach/facts.ts`) puts the best move, its line and who is ahead into `d.e` ("computer check"). The prompt says it is always right and allows "not sure". Measured 2026-11-20: 10/10 puzzle answers right with it, 7/10 without.
+- Easy levels play random moves; `LearnEngine.random` marks them and `d.n` tells the coach it was a deliberate mistake.
+- The player is whoever the computer isn't (`LearnState.me`); never assume white.
+- Own Groq key (grown-ups): the browser calls Groq directly with `coach_prompt(b, v, false)` (no tools).
+- `find_puzzles` searches D1 `puz`; results return the FEN after the opponent's blunder.
+- Replies render through `src/lib/util/md.ts` (html shown as text, only http links).
+
+# Voice
+
+- No cloud voice. `src/lib/voice/` is copied from `~/i/me/rope` (Ed's own): conformer STT and Leokani TTS run in the browser on ONNX Runtime Web; files in `static/speech/1` (37 MB, cached a year via root `_headers`, versioned by folder). Only the words go to the coach. Gemini Live was removed: Google's terms forbid apps likely used by under-18s.
+- Leokani is CC BY-NC 4.0: if e4 ever sells anything, swap the TTS first (e.g. an Apache 2.0 model).
+- `start_call(ask, fail)`; `vc` holds the state ('l' loading with `g` progress, 'h' listening, 't' thinking, 's' speaking). Spoken turns go through `send_chess_chat(q, '', false, true)`.
 
 # Git Workflow
 
@@ -74,8 +84,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - All secrets via `$env/static/private` or `$env/dynamic/private`
 - Public vars via `$env/static/public` (currently only `PUBLIC_DOMAIN`)
 - `.env*` gitignored; sample vars in `wrangler.toml`
-- Required: `SECRET`, `GROQ`, `GEMINI`, `OPENROUTER_KEY`, `GOOGLE_ID`, `GOOGLE_SECRET`, `QDRANT_URL`, `QDRANT_KEY`, `PAYSTACK_SECRET_KEY*`
-- `OPENAI_KEY` for GPT-Live, which is commented out for now (settings picker, voice routing, and both `api/voice/openai-live` routes). Voice is always Gemini. The OpenAI API key field stays for later use.
+- Secrets are read at runtime (`$env/dynamic/private`), never baked into the build: `SECRET`, `GROQ`, `GOOGLE_ID`, `GOOGLE_SECRET`, `QDRANT_URL`, `QDRANT_KEY`, `PAYSTACK_SECRET_KEY*`. A local build needs only `PUBLIC_DOMAIN` in `.env`. Test with real secrets on a preview: `pnpm build && env -u CLOUDFLARE_API_TOKEN pnpm exec wrangler versions upload` (prints a private preview URL, production untouched).
 - Session cookie is host-only on `e4.apexlinks.org` and `chess.apexlinks.org`. `COOKIE_DOMAIN=.beeeproject.com` only applies on beee hosts.
 
 # Design System
@@ -87,7 +96,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Calm layer: `src/components/landing/Calm.svelte` is mounted by `+layout.svelte` on every page except `/test/*` and survives navigation between them. It owns the one WebGL canvas (`src/lib/landing/field.ts`), Web Audio (`sound.ts`) and pointer sounds. Each page registers a per-frame board scene with `use_scene()` from `src/lib/landing/calm.svelte.ts`; switching pages glides the board between scenes. Quiet pages (login, payment, error) call `use_ambient(slot?)`: the board sits in the slot, or melts into the background when there is none. `html.calm-html` in `app.css` remaps the old light tokens to the dark calm theme, so learn components restyle without markup changes.
 - `svelte-chess` `moveNumber` (bound to `s.moveNum`) is 1 at the start position, not 0.
 - Themes: dark is the default, always; light only when the visitor picks it (`ThemeToggle.svelte` in the nav, and a switch in settings → feel). `$lib/theme.svelte.ts` owns the state and localStorage `e4_theme`; the inline script in `app.html` sets `html[data-theme='light']` before first paint. Light tokens are in `app.css` (`html[data-theme='light']` for `--color-night/dusk/haze/mist/glow/deep/bad`, and `html.calm-html[data-theme='light']` for the legacy ones), so a component never needs a light class unless it hard-codes a colour: use tokens (`color-mix(in srgb, var(--color-haze) 12%, transparent)`), `text-bad` for errors, `rgb(0_0_0/calc(0.9*var(--sh-k)))` for shadows (`--sh-k` is 1 dark, 0.3 light), and the `light:` variant for the rest. The field gets `d` (0 dark to 1 light, eased by `Calm.svelte`), `palettes` in `calm.svelte.ts` are live arrays that `set_look()` blends between the dark and light sets (scenes read them each frame), and the 3D scene reads `calm.look` through `Look.d` (marks switch from additive glow to tinted blobs at 0.5). The field must stay identical at `d` 0: run `pnpm build && node scripts/perf.mjs same /` (expect mean 0).
-- Initial caps: headings, links, buttons, labels and `.font-calm-mono` are Title Case by one `text-transform: capitalize` rule in `app.css` (`@layer base`), and paragraphs get a capital first letter (`p::first-letter`). Sentences inside buttons or mono labels need `normal-case` and a capitalized source string; text in per-letter spans (the "Rulebook." shards) needs `normal-case` too, because each span counts as a word.
+- No caps: text is lowercase in the source; there is no text-transform rule. Keep it that way.
 - Feel settings (`ui` in `calm.svelte.ts`, localStorage `e4_living`, `e4_notes`, `e4_ripples`) all default off. `e4_flat` defaults on: the board is 2d until someone picks a 3d view, so three.js only loads then. Notes and ripples only gate the app (`calm.app`); living colours also drive the landing board.
 - Puzzle mode lives in `src/components/learn/puzzle.svelte.ts`. `find_puzzles` results are offered to it (voice dispatcher, and the chat `board` SSE event carries `p`), and a loaded FEN that matches one starts puzzle mode. Two modes: play it out against the engine (default) and challenge (every move checked, wrong moves undone); the choice is kept in localStorage `e4_challenge`. The engine colour is set before the load, because `svelte-chess` `load()` makes the engine move at once when it is the engine's turn. The local dev server has no puzzle rows in D1, so the puzzle API only works deployed.
 - `s.engine` must stay one object: the getter caches it per think time and carries its colour over. A fresh `LearnEngine` per read made every `setColor` land on a throwaway copy, so puzzles played themselves.
@@ -104,7 +113,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Players are kids aged 10–14 (the BEEE project) and adults who have never played. The UI never says Stockfish, engine, scores or ratings, and never shows a bare move code: the opponent is "the computer", moves go through `say_move()` (`src/lib/util/chess/words.ts`), puzzle themes through `THEMES` in `puzzle.svelte.ts`, puzzle ratings through `difficulty()`.
 - The coach prompts (`audience` in `learn_context.svelte.ts`) hold the same rules for the AI: answer first in 1–3 sentences, never end with a menu ("do you want…"), never say the board is unknown. Text chat and live voice share them; voice adds `voice_sys`. The default style is `assistant` (localStorage `e4_help`); the default voice is Achird (`e4_voice`).
 - The home hero is the real app in miniature (`src/components/landing/Mini.svelte`): `create_learn_state(logged_in, true)` gives demo mode (no saved game, no tour, no model list) and `armed` keeps the 1.5 MB engine unloaded until the first move. The hero CTA hands off with `calm.handoff = 'glide'`; only the last CTA's pawn animation sends `'e4'`, which makes the app play e4.
-- Live voice starts from `TalkButton.svelte` (coach bar and the hero demo), not a mic in the text box, so it doesn't read as dictation. The sound toggle sits in the nav everywhere except `/i`, where it lives in settings → feel.
+- Live voice starts from `TalkButton.svelte` (coach bar and the hero demo), not a mic in the text box, so it doesn't read as dictation. Guests can talk too. The sound toggle sits in the nav everywhere except `/i`, where it lives in settings → feel.
 - `svelte-chess` reports move number 1 at the start, so "no moves yet" checks use `s.history.length`.
 - Lessons are a mode of the app (`/i?learn`; `/learn` redirects there). `src/lib/learn/lessons.ts` holds the course (parts → stages → levels); `src/components/learn/lesson.svelte.ts` runs it (`ls`), `LessonBoard` sits over the hidden game board, `LessonBar` replaces the board bar, `LessonList` is the course sheet. Progress is localStorage `e4_lessons`. Star and capture levels use the file's own move rules (no kings, black never moves); the rest use chess.js, and `right()` decides if a move counts. `a` lists the moves to find, with the computer's replies in between. While lessons are on, the chat and voice get the lesson (task, answer, tries) instead of the game (`lesson_data`, `lesson_voice`), and each topic opens with a coach message. Before adding a trick, check it with Stockfish (`static/stockfish.js` runs in Node if you define `onmessage`/`postMessage` globals): the answer must be the clear best move, and watch for back-row mates and escaping checks. `lessons.test.ts` plays every level.
 - Computer strength is `LEVELS` in `src/lib/util/chess/engine.ts` (learning → strongest, default easy). Stockfish can't play below about 1320, so the two easy levels also play a random legal move now and then. `s.level` sets puzzle difficulty too (rating 600 + level × 200).
@@ -128,4 +137,5 @@ Use `svelte-autofixer` on all Svelte code before sending. Use `list-sections` / 
 # Paystack webhooks
 
 - All Paystack webhooks route through the shared `pswh` worker (one Paystack account for every app). Contract + onboarding: `~/i/pswh/README.md`.
+- The deposit UI is hidden while everything is free. Before showing it again: credit only once per reference (no idempotency yet) and drop Leokani's non-commercial TTS.
 - Stamp `metadata.a: 'e4'` at `transaction/initialize` (done in `src/routes/api/buy-tokens/+server.ts`). `pswh` routes the webhook to this app; the existing webhook handler (`/api/webhook/paystack`) is unchanged.

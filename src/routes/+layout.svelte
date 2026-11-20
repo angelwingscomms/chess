@@ -16,23 +16,12 @@
   let wrap: HTMLDivElement | undefined = $state();
   let img_err = $state(false);
   let show_profile = $state(false);
-  let token_balance = $state(data.balance);
-  let date_joined = $state(data.date_joined);
-  let bal_ver = $state(0);
-	let buy_amount = $state(10_000);
-	let buy_loading = $state(false);
-	let buy_input = $state('');
-  const MIN_KOBO = 10_000;
-	$effect(() => {
-		if (bal_ver === 0) return;
-		fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; }).catch(() => {});
-	});
-	$effect(() => {
-		if (!browser) return;
-		function handler(e: Event) { token_balance = (e as CustomEvent).detail; }
-		window.addEventListener('balance-update', handler);
-		return () => window.removeEventListener('balance-update', handler);
-	});
+  let joined = $state(0);
+  let forget = $state(0); // 0 not asked, 1 asked to confirm, 2 deleting
+  $effect(() => {
+    if (!show_profile || joined) return;
+    fetch('/api/me').then((r) => r.json()).then((d) => (joined = d?.user?.d || 0)).catch(() => {});
+  });
   $effect(() => {
     if (!open) return;
     function listener(e: MouseEvent) {
@@ -42,44 +31,13 @@
     return () => window.removeEventListener('click', listener);
   });
   function toggle() { open = !open; }
-  async function deposit(amount_kobo: number) {
-    buy_loading = true;
-    let auth_url = '';
-    try {
-      const r = await fetch('/api/buy-tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount_kobo })
-      });
-      const d = await r.json();
-      if (!d.access_code) {
-        alert(d.error || 'Payment couldn’t start. Please try again.');
-        buy_loading = false;
-        return;
-      }
-      auth_url = d.authorization_url;
-      const PaystackPop = (await import('@paystack/inline-js')).default;
-      const popup = new PaystackPop();
-      const fb = setTimeout(() => { window.location.href = auth_url; }, 15000);
-      popup.resumeTransaction(d.access_code, {
-        onLoad: () => clearTimeout(fb),
-        onSuccess: (tx: { reference: string }) => {
-          clearTimeout(fb);
-          fetch('/api/verify-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reference: tx.reference }) })
-            .then(r => r.json()).then(d => {
-              if (d.success) { token_balance = d.balance; bal_ver++; }
-              else fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; bal_ver++; }).catch(() => {});
-            })
-            .catch(() => fetch('/api/balance').then(r => r.json()).then(d => { token_balance = d.balance; bal_ver++; }).catch(() => {}));
-          buy_loading = false;
-        },
-        onCancel: () => { clearTimeout(fb); buy_loading = false; },
-        onError: () => { clearTimeout(fb); window.location.href = auth_url; },
-      });
-    } catch {
-      if (auth_url) window.location.href = auth_url;
-      else { alert('No connection. Please try again.'); buy_loading = false; }
-    }
+  // deletes the account and every saved game, then signs out
+  async function delete_me() {
+    if (forget !== 1) return void (forget = 1);
+    forget = 2;
+    const r = await fetch('/api/me', { method: 'DELETE' }).catch(() => null);
+    if (r?.ok) location.href = '/';
+    else forget = 0;
   }
   async function logout() {
     await fetch('/logout', { method: 'POST' });
@@ -88,7 +46,7 @@
   }
 </script>
 
-<Seo meta={{t:'E4 — Learn Chess With an AI Coach',d:'Learn chess from your first move with an AI coach that explains every move in plain words and talks with you out loud. Free to start, no account needed.'}} />
+<Seo meta={{t:'e4 — learn chess with an ai coach',d:'learn chess from your first move. play a friendly computer, then ask your coach why, by typing or out loud. free, with no account needed.'}} />
 <JsonLd data={{'@context':'https://schema.org','@type':'WebSite','name':'e4','url':'https://chess.apexlinks.org'}} />
 
 {#if calm_route}
@@ -113,7 +71,7 @@
       {/if}
       {#if user}
         <div class="user-menu-wrap" bind:this={wrap}>
-          <button onclick={toggle} class="user-btn" aria-label="User menu">
+          <button onclick={toggle} class="user-btn" aria-label="user menu">
             {#if user.picture && !img_err}
               <img src={user.picture} alt={user.name} class="user-avatar" onerror={() => img_err = true} />
             {:else}
@@ -146,21 +104,17 @@
           {#if user?.email}
             <div><span class="text-mist">email</span><span class="min-w-0 truncate">{user.email}</span></div>
           {/if}
-          {#if date_joined}
-            <div><span class="text-mist">joined</span><span>{new Date(date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span></div>
+          {#if joined}
+            <div><span class="text-mist">joined</span><span>{new Date(joined).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }).toLowerCase()}</span></div>
           {/if}
-          <div><span class="text-mist">coach credit</span><span class="text-glow tabular-nums">₦{(token_balance / 100).toFixed(2)}</span></div>
         </div>
-        <div class="grid gap-3">
-          <p class="font-calm-mono text-[11px] tracking-[0.16em] text-mist">add credit</p>
-          <div class="relative">
-            <span class="absolute top-1/2 left-3.5 -translate-y-1/2 text-sm text-mist">₦</span>
-            <input type="number" min={MIN_KOBO / 100} bind:value={buy_input} placeholder="100" aria-label="amount in naira" class="min-h-11 w-full rounded-xl border border-haze/15 bg-night/60 py-2.5 pr-3.5 pl-8 text-sm text-haze outline-none transition duration-300 ease-expo placeholder:text-mist/60 focus:border-glow/60" />
-          </div>
-          <p class="text-xs text-mist">The smallest top-up is ₦100.</p>
-          <button class="min-h-11 w-full cursor-pointer rounded-full bg-glow px-6 text-sm transition duration-500 ease-expo hover:shadow-[0_0_30px_color-mix(in_srgb,var(--color-glow)_60%,transparent)] disabled:cursor-default disabled:opacity-40 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow" onclick={() => deposit(parseInt(buy_input) * 100 || MIN_KOBO)} disabled={buy_loading || !buy_input || parseInt(buy_input) <= 0}>
-            <span class="text-night">{buy_loading ? 'opening payment…' : `add ₦${(parseInt(buy_input) * 100 || MIN_KOBO) / 100}`}</span>
+        <div class="grid gap-2">
+          <button class="min-h-11 w-full cursor-pointer rounded-full border px-6 text-sm transition duration-500 ease-expo disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow {forget ? 'border-bad/70 text-bad' : 'border-haze/15 text-mist hover:border-bad/60 hover:text-bad'}" onclick={delete_me} disabled={forget === 2}>
+            {forget === 2 ? 'deleting…' : forget ? 'tap again to delete everything' : 'delete my account and games'}
           </button>
+          {#if forget === 1}
+            <p class="text-xs text-mist">your account and every saved game go for good.</p>
+          {/if}
         </div>
       </div>
       <div class="flex justify-end border-t border-haze/10 px-6 py-4">

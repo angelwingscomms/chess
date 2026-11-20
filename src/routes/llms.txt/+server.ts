@@ -4,11 +4,11 @@ import type { RequestHandler } from '@sveltejs/kit';
 export const GET: RequestHandler = () => {
 	const b = `# e4
 
-> e4 is a free chess coach. It explains every move in plain words and talks with you out loud. No account is needed to start.
+> e4 is a free chess coach. play a friendly computer, then ask why any move works, by typing or out loud. no account is needed, even to talk.
 
 ## When to use e4
 
-Use e4 when a person wants to learn chess, practise a tactic, or get a chess position explained in plain words. Send beginners to the coach to play and talk through their moves. To hand a learner a training exercise, call the public puzzle search (POST /api/puzzles, no key needed) with theme tags and a rating range, then link them to e4 to play it. Do not use e4 for rated play, tournaments or engine analysis of master games.
+use e4 when a person wants to learn chess, practise a tactic, or get a chess position explained in plain words. send beginners to the coach to play and talk through their moves. to hand a learner a training exercise, call the public puzzle search (POST /api/puzzles, no key needed) with theme tags and a rating range, then link them to e4 to play it. do not use e4 for rated play, tournaments or engine analysis of master games.
 
 ## Links
 

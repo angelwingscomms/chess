@@ -43,7 +43,7 @@
 					<p class="font-calm-mono text-[11px] tracking-[0.16em] text-mist">{s.logged_in ? 'saved to your account' : 'saved on this device'}</p>
 					<h2 id="games-title" class="mt-2 text-3xl font-extralight tracking-[-0.03em]">your games</h2>
 				</div>
-				<button aria-label="Close your games" class={glass} onclick={close}>
+				<button aria-label="close your games" class={glass} onclick={close}>
 					<XIcon size={15} strokeWidth={1.8} />
 				</button>
 			</div>
@@ -51,8 +51,8 @@
 				<input
 					type="search"
 					bind:value={q}
-					placeholder="Find a game…"
-					aria-label="Find a game or a chat"
+					placeholder="find a game…"
+					aria-label="find a game or a chat"
 					class="min-w-0 flex-1 rounded-full border border-haze/15 bg-haze/5 px-4 py-2 text-sm text-haze outline-none placeholder:text-mist/70 focus:border-glow/60"
 				/>
 				<button
@@ -78,7 +78,7 @@
 								</span>
 							</button>
 							<button
-								aria-label={sure === x.i ? 'Yes, delete this game' : 'Delete this game'}
+								aria-label={sure === x.i ? 'yes, delete this game' : 'delete this game'}
 								class="mr-2 grid h-8 min-w-8 shrink-0 cursor-pointer place-items-center rounded-full px-2 text-xs transition duration-300 ease-expo {sure === x.i ? 'bg-glow/15 text-glow' : 'text-mist/60 light:text-mist/85 hover:text-haze'}"
 								onclick={() => (sure === x.i ? s.delete_session(x.i) : (sure = x.i))}
 							>
@@ -86,7 +86,7 @@
 							</button>
 						</li>
 					{:else}
-						<li class="px-3 py-10 text-center text-sm text-mist">{q.trim() ? `Nothing found for “${q.trim()}”` : 'No games yet. Make a move and it saves by itself.'}</li>
+						<li class="px-3 py-10 text-center text-sm text-mist">{q.trim() ? `Nothing found for “${q.trim()}”` : 'no games yet. make a move and it saves by itself.'}</li>
 					{/each}
 				</ul>
 			{/if}

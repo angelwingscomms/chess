@@ -22,44 +22,44 @@
 				{
 					popover: {
 						title: 'welcome to e4',
-						description: 'Learn chess by playing. Your coach explains anything you ask, in plain words. Here’s a quick look around, about 30 seconds.'
+						description: 'learn chess by playing. your coach explains anything you ask, in plain words. here’s a quick look around, about 30 seconds.'
 					}
 				},
 				{
 					element: '[data-tour="board"]',
-					popover: { title: 'your board', description: 'Tap a piece to see where it can go, then tap a glowing square to move it. The computer plays the other side.', side: 'right', align: 'center' }
+					popover: { title: 'your board', description: 'tap a piece to see where it can go, then tap a glowing square to move it. the computer plays the other side.', side: 'right', align: 'center' }
 				},
 				{
 					element: '[data-tour="lessons"]',
-					popover: { title: 'new to chess?', description: 'Short lessons, step by step: how every piece moves, the rules, clever tricks and famous checkmates. Your coach helps with each one. Start here if you’ve never played.', side: 'top', align: 'center' }
+					popover: { title: 'new to chess?', description: 'short lessons, step by step: how every piece moves, the rules, clever tricks and famous checkmates. your coach helps with each one. start here if you’ve never played.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="hint"]',
-					popover: { title: 'stuck?', description: 'Tap the bulb and a good move lights up. Tap “why” and the coach tells you why it’s good.', side: 'top', align: 'center' }
+					popover: { title: 'stuck?', description: 'tap the bulb and a good move lights up. tap “why” and the coach tells you why it’s good.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="puzzle"]',
-					popover: { title: 'puzzles', description: 'Short challenges: find the winning move. They match your level. You can also ask the coach, like “an easy puzzle, please”.', side: 'top', align: 'end' }
+					popover: { title: 'puzzles', description: 'short challenges: find the winning move. they match the level you pick in settings. you can also ask the coach, like “an easy puzzle, please”.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="view"]',
-					popover: { title: 'see it in 3d', description: 'Tap here to turn the board into a real 3D chess set. Drag around it to spin it any way you like.', side: 'top', align: 'end' }
+					popover: { title: 'see it in 3d', description: 'tap here to turn the board into a real 3d chess set. drag around it to spin it any way you like.', side: 'top', align: 'end' }
 				},
 				{
 					element: '[data-tour="chat"]',
-					popover: { title: 'ask your coach', description: 'Type any question, even “how does the knight move?”. The coach can see your board.', side: 'top', align: 'center' }
+					popover: { title: 'ask your coach', description: 'type any question, even “how does the knight move?”. the coach can see your board.', side: 'top', align: 'center' }
 				},
 				{
 					element: '[data-tour="voice"]',
-					popover: { title: 'talk out loud', description: 'Tap “talk” and just speak, like a phone call. Your coach listens and answers out loud.', side: 'bottom', align: 'end' }
+					popover: { title: 'talk out loud', description: 'tap “talk” and just speak, like a phone call. your coach listens and answers out loud, and your voice never leaves your phone.', side: 'bottom', align: 'end' }
 				},
 				{
 					element: '[data-tour="more"]',
-					popover: { title: 'new game and more', description: 'Start over, turn the board around, or play as black.', side: 'bottom', align: 'end' }
+					popover: { title: 'new game and more', description: 'start over, turn the board around, or play as black.', side: 'bottom', align: 'end' }
 				},
 				{
 					element: '[data-tour="settings"]',
-					popover: { title: 'make it yours', description: 'Make the computer easier or harder, pick how your coach helps, and turn on extras like living colours. Sound is in the top bar.', side: 'bottom', align: 'end' }
+					popover: { title: 'make it yours', description: 'make the computer easier or harder, pick how your coach helps, and turn on extras like living colours. sound is in the top bar.', side: 'bottom', align: 'end' }
 				}
 			],
 		});

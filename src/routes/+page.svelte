@@ -184,26 +184,26 @@
 	});
 </script>
 
-<Seo meta={{ t: 'E4 — Learn Chess With an AI Coach', d: 'Learn chess from your first move with an AI coach that explains every move in plain words and talks with you out loud. Free to start, no account needed.' }} />
-<JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'Learn chess from your first move with an AI coach that explains every move in plain words, a friendly computer to play, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, url: 'https://chess.apexlinks.org/', publisher: { '@type': 'Organization', name: 'angelwingscomms', url: 'https://github.com/angelwingscomms', sameAs: ['https://github.com/angelwingscomms/chess'] } }} />
+<Seo meta={{ t: 'e4 — learn chess with an ai coach', d: 'learn chess from your first move. play a friendly computer, then ask your coach why, by typing or out loud. free, with no account needed.' }} />
+<JsonLd data={{ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'e4', applicationCategory: 'GameApplication', operatingSystem: 'Web', description: 'learn chess from your first move: a friendly computer to play, a coach that explains any move in plain words, and a million puzzles', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, url: 'https://chess.apexlinks.org/', publisher: { '@type': 'Organization', name: 'angelwingscomms', url: 'https://github.com/angelwingscomms', sameAs: ['https://github.com/angelwingscomms/chess'] } }} />
 
 
 <main class="calm relative z-10 font-calm font-light text-haze transition-opacity duration-700 ease-calm {leaving ? 'opacity-0' : ''}">
 	<section bind:this={sections[0]} class="relative grid min-h-svh items-center gap-10 px-[7vw] pt-24 pb-24 lg:grid-cols-[1fr_1fr] lg:gap-12">
 		<div>
-			<p class="font-calm-mono text-xs tracking-[0.16em] text-mist animate-surface">{first ? `Welcome back, ${first}.` : 'E4 · your AI chess coach'}</p>
+			<p class="font-calm-mono text-xs tracking-[0.16em] text-mist animate-surface">{first ? `welcome back, ${first.toLowerCase()}.` : 'e4 · your ai chess coach'}</p>
 			<h1 class="mt-6 text-[clamp(3.6rem,7.2vw,8.4rem)] leading-[0.92] font-extralight tracking-[-0.05em] lg:mt-8">
-				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block animate-rise [animation-delay:0.2s]">Play a game.</span></span>
-				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block text-glow animate-rise [animation-delay:0.38s]">Ask why.</span></span>
+				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block animate-rise [animation-delay:0.2s]">play a game.</span></span>
+				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span class="block text-glow animate-rise [animation-delay:0.38s]">ask why.</span></span>
 			</h1>
-			<h2 class="mt-6 text-2xl leading-snug font-extralight tracking-[-0.02em] animate-surface [animation-delay:0.7s] lg:mt-8 lg:text-3xl">Never played before? <span class="text-glow">Perfect.</span></h2>
-			<p class="mt-3 max-w-md text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 animate-surface [animation-delay:0.9s]">An AI coach that plays with you, explains every move in plain words, and talks with you out loud.</p>
+			<h2 class="mt-6 text-2xl leading-snug font-extralight tracking-[-0.02em] animate-surface [animation-delay:0.7s] lg:mt-8 lg:text-3xl">never played before? <span class="text-glow">perfect.</span></h2>
+			<p class="mt-3 max-w-md text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 animate-surface [animation-delay:0.9s]">an ai coach that plays with you, explains any move in plain words, and talks with you out loud.</p>
 			<div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 animate-surface [animation-delay:1.2s] lg:mt-12">
 				<a href="/i" onclick={go} class="group inline-flex items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-7 py-3.5 text-haze backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow">
 					start playing
 					<span aria-hidden="true" class="transition-transform duration-500 ease-expo group-hover:translate-x-1">→</span>
 				</a>
-				<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">Free · start without an account</span>
+				<span class="font-calm-mono text-xs tracking-[0.14em] text-mist">free · start without an account</span>
 			</div>
 		</div>
 		<div class="flex flex-col items-center">
@@ -229,7 +229,7 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-haze/55 transition-transform delay-200 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">you need someone</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-300 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">to show you.</span></span>
 			</h2>
-			<p data-r class="mt-16 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-500 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">Tap any piece and it shows where it can go. Ask why, and get an answer that makes sense.</p>
+			<p data-r class="mt-16 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-500 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">tap any piece and it shows where it can go. ask why, and get an answer that makes sense.</p>
 			<div data-r class="mt-8 transition delay-700 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">
 				<a href="/i?learn" class="group inline-flex items-center gap-3 rounded-full border border-haze/20 bg-haze/5 px-6 py-3 backdrop-blur-md transition duration-500 ease-expo hover:border-glow/60 hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glow"><span class="text-haze">learn the moves first</span><span aria-hidden="true" class="text-haze transition-transform duration-500 ease-expo group-hover:translate-x-1">→</span></a>
 			</div>
@@ -243,7 +243,7 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">lost in four moves?</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-glow transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">ask why.</span></span>
 			</h2>
-			<p data-r class="mt-12 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">Your coach explains any move in one breath, in words you already know.</p>
+			<p data-r class="mt-12 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">your coach explains any move in one breath, in words you already know.</p>
 		</div>
 		<div class="flex justify-center lg:justify-end">
 			<WhyDemo {sound} />
@@ -257,13 +257,13 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">it never plays</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">for you.</span></span>
 			</h2>
-			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">No hints until you ask. Want to work it out yourself? Switch it to questions, and it gives you clues instead of answers.</p>
-			<p data-r class="mt-8 font-calm-mono normal-case text-xs tracking-[0.16em] text-glow/80 transition delay-500 duration-1400 ease-expo data-[s=a]:opacity-0">Yes, it’s AI. The patient kind.</p>
+			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">no hints until you ask. want to work it out yourself? switch it to questions, and it gives you clues instead of answers.</p>
+			<p data-r class="mt-8 font-calm-mono normal-case text-xs tracking-[0.16em] text-glow/80 transition delay-500 duration-1400 ease-expo data-[s=a]:opacity-0">yes, it’s ai. the patient kind.</p>
 		</div>
 		<div use:reveal class="mt-[16svh] grid items-center gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-20">
 			<div>
 				<h3 data-r class="text-[clamp(1.9rem,3.6vw,3.2rem)] leading-[1.05] font-extralight tracking-[-0.03em] transition duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">talk to it, out loud.</h3>
-				<p data-r class="mt-6 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-200 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">Ask while you play. It listens and answers, like a friend sitting next to you.</p>
+				<p data-r class="mt-6 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-200 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">ask while you play. it listens and answers, like a friend sitting next to you.</p>
 			</div>
 			<div data-r class="transition delay-300 duration-2000 ease-expo data-[s=a]:opacity-0">
 				<Wave
@@ -283,7 +283,7 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">a million puzzles.</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block text-haze/55 transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">one at your level.</span></span>
 			</h2>
-			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">Tiny challenges where you find the winning move. Ask for an easy one, and it’s on your board.</p>
+			<p data-r class="mt-12 max-w-md text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">tiny challenges where you find the winning move. ask for an easy one, and it’s on your board.</p>
 		</div>
 		<div use:reveal class="mt-[12svh]">
 			<div data-r class="transition duration-2000 ease-expo data-[s=a]:translate-y-10 data-[s=a]:opacity-0">
@@ -299,7 +299,7 @@
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform duration-1400 ease-expo data-[s=a]:translate-y-[110%]">every game starts</span></span>
 				<span class="-mb-[0.14em] block overflow-hidden pb-[0.14em]"><span data-r class="block transition-transform delay-100 duration-1400 ease-expo data-[s=a]:translate-y-[110%]">with one move.</span></span>
 			</h2>
-			<p data-r class="mt-8 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">E4 is the most famous first move in chess. Yours is next.</p>
+			<p data-r class="mt-8 max-w-sm text-lg leading-relaxed text-haze/90 lg:text-xl lg:leading-8 transition delay-300 duration-1400 ease-expo data-[s=a]:translate-y-6 data-[s=a]:opacity-0">e4 is the most famous first move in chess. yours is next.</p>
 		</div>
 		<div bind:this={end_slot} class="mt-[8svh] aspect-square w-[min(80vw,48svh)]"></div>
 		<div use:magnet class="mt-8 p-6">
@@ -308,9 +308,9 @@
 				<span aria-hidden="true" class="absolute inset-0 grid translate-y-[160%] place-items-center font-calm-mono text-lg text-night transition-transform duration-500 ease-expo group-hover:translate-y-0">your move</span>
 			</a>
 		</div>
-		<p class="mt-4 font-calm-mono text-xs tracking-[0.14em] text-mist">Free · nothing to download · start without an account</p>
+		<p class="mt-4 font-calm-mono text-xs tracking-[0.14em] text-mist">free · nothing to download · start without an account</p>
 		<footer class="mt-auto flex w-full flex-wrap justify-between gap-4 pt-[10svh] font-calm-mono text-[11px] tracking-[0.14em] text-mist/70 light:text-mist">
-			<span>E4 — every move, explained.</span>
+			<span>e4 — every move, explained.</span>
 			<nav class="flex flex-wrap gap-4"><a href="/about" class="hover:text-haze">about</a><a href="/developers" class="hover:text-haze">developers</a><a href="/contact" class="hover:text-haze">contact</a><a href="/privacy" class="hover:text-haze">privacy</a></nav>
 			<span>© {new Date().getFullYear()}</span>
 		</footer>

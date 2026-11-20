@@ -58,7 +58,7 @@
     ontouchstart={start_dec}
     ontouchend={stop_dec}
     ontouchcancel={stop_dec}
-    aria-label="Decrease"
+    aria-label="decrease"
   >−</button>
   <input
     type="number"
@@ -78,6 +78,6 @@
     ontouchstart={start_inc}
     ontouchend={stop_inc}
     ontouchcancel={stop_inc}
-    aria-label="Increase"
+    aria-label="increase"
   >+</button>
 </div>
