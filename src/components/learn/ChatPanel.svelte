@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { marked } from 'marked';
-	// import { NGN_USD } from '$lib/util/rates';
+	import { md } from '$lib/util/md';
 	import ArrowUpIcon from '$lib/components/icons/arrow-up-icon.svelte';
 	import XIcon from '$lib/components/icons/x-icon.svelte';
 	import PlusIcon from '$lib/components/icons/plus-icon.svelte';
@@ -9,7 +8,7 @@
 	import { ls } from './lesson.svelte';
 	import { calm } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
-	let { hello = 'Ask me anything about chess, even “how does the knight move?”', placeholder = 'Ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
+	let { hello = 'ask me anything about chess, even “how does the knight move?”', placeholder = 'ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
 	const s = get_learn_state();
 
 	let chat_messages = $derived(s.chat_messages);
@@ -45,7 +44,7 @@
 			{#if msg.role === 'assistant'}
 				<div class="calm-md max-w-[94%] shrink-0 self-start rounded-2xl rounded-bl-md border border-haze/10 bg-night/50 px-3.5 py-2.5 break-words text-haze backdrop-blur-md animate-surface lg:px-4 lg:py-3">
 					<span class="mb-1 block font-calm-mono text-[11px] tracking-[0.16em] text-glow">e4</span>
-					{@html marked.parse(msg.content)}
+					{@html md.parse(msg.content, { async: false }) as string}
 					<!-- hidden for now: what each reply cost
 					{#if msg.u}
 						<span class="mt-2 block font-calm-mono text-[10px] tracking-[0.1em] text-mist/60 light:text-mist/85">₦{(msg.u.cost * NGN_USD).toFixed(2)}</span>
@@ -72,18 +71,18 @@
 		{#each chat_queue as q_msg, i (i)}
 			<div class="flex max-w-[85%] items-center gap-2 self-end rounded-2xl rounded-br-md border border-dashed border-haze/20 px-4 py-2.5 text-haze/60">
 				<span>{q_msg.text}</span>
-				<button title="Send this message now" aria-label="Send this message now" onclick={() => s.promoteFromQueue(i)} class="grid shrink-0 place-items-center text-haze/70 transition hover:text-glow">
+				<button title="send this message now" aria-label="send this message now" onclick={() => s.promoteFromQueue(i)} class="grid shrink-0 place-items-center text-haze/70 transition hover:text-glow">
 					<ArrowUpIcon size={13} strokeWidth={2} />
 				</button>
-				<button title="Remove queued message" aria-label="Remove queued message" onclick={() => s.removeFromQueue(i)} class="grid shrink-0 place-items-center text-haze/70 transition hover:text-glow">
+				<button title="remove queued message" aria-label="remove queued message" onclick={() => s.removeFromQueue(i)} class="grid shrink-0 place-items-center text-haze/70 transition hover:text-glow">
 					<XIcon size={13} strokeWidth={2} />
 				</button>
 			</div>
 		{/each}
 		{#if sel_text && sel_pos}
 			<button
-				title="Append selected text to message"
-				aria-label="Append selected text to message"
+				title="append selected text to message"
+				aria-label="append selected text to message"
 				onclick={() => s.append_selection()}
 				style="left:{sel_pos.x}px;top:{sel_pos.y}px"
 				class="absolute z-50 grid size-7 -translate-x-1/2 -translate-y-full place-items-center rounded-full bg-glow text-night shadow-[0_0_24px_color-mix(in_srgb,var(--color-glow)_60%,transparent)] transition duration-300 ease-expo hover:scale-110 active:scale-95"
@@ -95,7 +94,7 @@
 	{#if chat_suggestions.length > 0 && (ls.on || !pz.on)}
 		<div data-ms class="-mx-1 flex gap-2 overflow-x-auto px-1 pt-1.5 [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pt-2">
 			{#each chat_suggestions as suggestion}
-				<button onclick={() => s.sendChatMessage(suggestion)} class="shrink-0 rounded-full border border-glow/40 px-3 py-1.5 text-[13px] whitespace-nowrap normal-case first-letter:uppercase text-haze/90 transition duration-500 ease-expo lg:px-3.5 lg:text-sm hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion}</button>
+				<button onclick={() => s.sendChatMessage(suggestion)} class="shrink-0 rounded-full border border-glow/40 px-3 py-1.5 text-[13px] whitespace-nowrap text-haze/90 transition duration-500 ease-expo lg:px-3.5 lg:text-sm hover:border-glow hover:bg-glow/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow">{suggestion}</button>
 			{/each}
 		</div>
 	{/if}
@@ -116,8 +115,8 @@
 			class="max-h-32 min-h-[38px] flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-2 text-base text-haze lg:min-h-[40px] lg:py-2.5 lg:text-[15px] outline-none placeholder:text-mist/70 focus:border-none focus:ring-0 focus:outline-none"
 		></textarea>
 		<button
-			title="Send"
-			aria-label="Send"
+			title="send"
+			aria-label="send"
 			onclick={() => s.sendChatMessage(s.chat_input)}
 			disabled={!chat_loading && !chat_input.trim()}
 			class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-glow text-night lg:size-10 transition duration-500 ease-expo hover:shadow-[0_0_30px_color-mix(in_srgb,var(--color-glow)_60%,transparent)] disabled:cursor-default disabled:opacity-30 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow"

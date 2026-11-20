@@ -69,8 +69,8 @@ type St = (typeof S)[keyof typeof S];
 export const LEVELS = [
 	{ t: 'learning', d: 'just learned the moves', elo: null, depth: 1, moveTime: 400, blunder: 0.45 },
 	{ t: 'easy', d: 'plays for fun', elo: null, depth: 3, moveTime: 500, blunder: 0.2 },
-	{ t: 'medium', d: 'a good club player', elo: 1320, depth: 10, moveTime: 700, blunder: 0.05 },
-	{ t: 'hard', d: 'a strong player', elo: 1900, depth: 16, moveTime: 1000, blunder: 0 },
+	{ t: 'medium', d: 'knows the basics', elo: 1320, depth: 10, moveTime: 700, blunder: 0.05 },
+	{ t: 'hard', d: 'a strong club player', elo: 1900, depth: 16, moveTime: 1000, blunder: 0 },
 	{ t: 'strongest', d: 'the computer at full power', elo: null, depth: 22, moveTime: 1500, blunder: 0 }
 ];
 
@@ -96,6 +96,8 @@ export class LearnEngine {
 	private co: Color | 'both' | 'none';
 	private sp: string;
 	private bl: number;
+	// true when the last move came from the easy levels' dice, not from thinking
+	random = false;
 	private tm: ReturnType<typeof setTimeout> | undefined;
 	private uciCb: ((s: string) => void) | undefined;
 	private onReady: (() => void) | undefined;
@@ -157,6 +159,7 @@ export class LearnEngine {
 				}, Math.max(0, 500 - (performance.now() - t0)));
 			};
 			const all = this.bl && Math.random() < this.bl ? new Chess(fen).moves({ verbose: true }) : [];
+			this.random = all.length > 0;
 			if (all.length) {
 				const m = all[Math.floor(Math.random() * all.length)];
 				return done(m.from + m.to + (m.promotion ?? ''));
@@ -184,4 +187,62 @@ export class LearnEngine {
 			this.w.postMessage('stop');
 		});
 	}
+}
+
+// one warm engine for the coach's checks: the best move, the moves after it, and who is ahead.
+// s centipawns from white's side; k mate in k moves, positive when white mates, 0 when there is none
+export type Check = { m: string; s: number; k: number; pv: string[] };
+
+let warm: Promise<Worker> | undefined;
+let queue: Promise<unknown> = Promise.resolve();
+
+function coach_engine() {
+	warm ??= new Promise<Worker>((ok, no) => {
+		const w = new Worker('/stockfish.js');
+		const t = setTimeout(() => no(new Error('engine timeout')), 20000);
+		w.onmessage = ({ data }: MessageEvent<string>) => {
+			if (data === 'uciok') w.postMessage('isready');
+			else if (data === 'readyok') {
+				clearTimeout(t);
+				w.onmessage = null;
+				ok(w);
+			}
+		};
+		w.postMessage('uci');
+	}).catch((e) => {
+		warm = undefined;
+		throw e;
+	});
+	return warm;
+}
+
+async function think(fen: string, ms: number): Promise<Check | null> {
+	const w = await coach_engine();
+	const sign = fen.split(' ')[1] === 'b' ? -1 : 1;
+	return new Promise((ok) => {
+		let best: Check | null = null;
+		const t = setTimeout(() => w.postMessage('stop'), ms + 3000);
+		w.onmessage = ({ data }: MessageEvent<string>) => {
+			if (data.startsWith('info') && data.includes(' pv ')) {
+				const mate = data.match(/score mate (-?\d+)/);
+				const cp = data.match(/score cp (-?\d+)/);
+				const pv = data.split(' pv ')[1].trim().split(' ');
+				best = { m: pv[0], s: cp ? sign * +cp[1] : 0, k: mate ? sign * +mate[1] : 0, pv };
+			} else if (data.startsWith('bestmove')) {
+				clearTimeout(t);
+				w.onmessage = null;
+				const m = data.split(' ')[1];
+				ok(!m || m === '(none)' ? null : best?.m === m ? best : { m, s: best?.s ?? 0, k: best?.k ?? 0, pv: [m] });
+			}
+		};
+		w.postMessage(`position fen ${fen}`);
+		w.postMessage(`go movetime ${ms}`);
+	});
+}
+
+// one check at a time, in order
+export function check_position(fen: string, ms = 1200): Promise<Check | null> {
+	const job = queue.then(() => think(fen, ms)).catch(() => null);
+	queue = job;
+	return job;
 }

@@ -1,0 +1,10 @@
+# the speech files are versioned by folder (speech/1), so they never change: a year
+/speech/*
+  Cache-Control: public, max-age=31536000, immutable
+# the engine, pieces and 3d set change rarely: a week, then a check
+/stockfish.js
+  Cache-Control: public, max-age=604800
+/pieces/*
+  Cache-Control: public, max-age=604800
+/models/*
+  Cache-Control: public, max-age=604800
