@@ -63,7 +63,7 @@
 											aria-current={i === ls.si && !ls.mode ? 'step' : undefined}
 											onclick={() => go(i)}
 										>
-											<img src="/pieces/chessnut/{t.i}.svg" alt="" class="size-6" />
+											<img src="/pieces/e4/{t.i}.svg" alt="" class="size-6" />
 											{t.t}
 											<span class="font-calm-mono text-[11px] text-mist">{n === t.l.length ? '✓' : `${n}/${t.l.length}`}</span>
 										</button>

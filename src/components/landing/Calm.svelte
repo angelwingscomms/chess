@@ -225,5 +225,5 @@
 
 <div aria-hidden="true" class="fixed inset-0 bg-night bg-radial-[at_70%_35%] from-dusk to-night to-70%"></div>
 <canvas bind:this={canvas} aria-hidden="true" class="pointer-events-none fixed inset-x-0 top-0 h-lvh w-full opacity-0 transition-opacity duration-2000 ease-calm data-[on]:opacity-100"></canvas>
-<img bind:this={pawn} src="/pieces/chessnut/wP.svg" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 left-0 z-[5] size-16 opacity-0 drop-shadow-[0_0_24px_color-mix(in_srgb,var(--color-glow)_55%,transparent)]" />
+<img bind:this={pawn} src="/pieces/e4/wP.svg" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 left-0 z-[5] size-16 opacity-0 drop-shadow-[0_0_24px_color-mix(in_srgb,var(--color-glow)_55%,transparent)]" />
 

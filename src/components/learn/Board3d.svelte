@@ -315,7 +315,7 @@
 						play(p.from, p.to, k);
 					}}
 				>
-					<img src="/pieces/chessnut/{promo.c}{k.toUpperCase()}.svg" alt="" class="size-11" />
+					<img src="/pieces/e4/{promo.c}{k.toUpperCase()}.svg" alt="" class="size-11" />
 				</button>
 			{/each}
 			<button aria-label="cancel" class="grid size-14 cursor-pointer place-items-center rounded-full font-calm-mono text-xs text-mist transition hover:bg-haze/10" onclick={cancel_promo}>esc</button>

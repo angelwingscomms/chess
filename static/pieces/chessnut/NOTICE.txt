@@ -1,2 +1,0 @@
-chessnut pieces by Alexis Luengas (https://github.com/LexLuengas/chessnut-pieces), Apache License 2.0 (LICENSE.txt).
-changed for e4: white fills and the light outlines are recoloured to #d9c8b5.

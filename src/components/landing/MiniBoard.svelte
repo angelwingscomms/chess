@@ -13,6 +13,6 @@
 		<rect x={s.x} y={s.y} width="1" height="1" class="fill-haze/25" />
 	{/each}
 	{#each pieces as p}
-		<image href="/pieces/chessnut/{p.c}.svg" x={p.x} y={p.y} width="1" height="1" />
+		<image href="/pieces/e4/{p.c}.svg" x={p.x} y={p.y} width="1" height="1" />
 	{/each}
 </svg>

@@ -79,7 +79,7 @@
 		<rect x={h5.x - 0.5} y={h5.y - 0.5} width="1" height="1" class="origin-center fill-glow/50 transition-opacity duration-1000 [transform-box:fill-box] {step === 2 && typed[1] ? 'animate-listen' : 'opacity-0'}" />
 		{#each pieces as [id, p, s] (id)}
 			{@const q = at(step === 2 && fix[id] ? fix[id] : s)}
-			<image href="/pieces/chessnut/{p}.svg" width="1" height="1" class="transition-transform duration-1000 ease-calm" style:transform="translate({q.x}px, {q.y}px)" />
+			<image href="/pieces/e4/{p}.svg" width="1" height="1" class="transition-transform duration-1000 ease-calm" style:transform="translate({q.x}px, {q.y}px)" />
 		{/each}
 		<g stroke-width="0.08" stroke-linecap="round" fill="none">
 			<line x1={h5.x} y1={h5.y} x2={f7.x} y2={f7.y} pathLength="1" stroke-dasharray="1" stroke-dashoffset={step === 1 && typed[0] ? 0 : 1} class="stroke-glow transition-[stroke-dashoffset] duration-1400 ease-expo" />

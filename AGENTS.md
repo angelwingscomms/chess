@@ -19,7 +19,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Puzzles live in D1 `puz` (binding `PUZ`, tables `puz` and `puz_t`), built by `scripts/build_puzzles.mjs`. Search is tag + rating filtering, no embeddings: a puzzle's meaning is its theme set (73 themes, 69,782 combos).
 - Sessions (one game and its chat) live in D1 `e4` (binding `DB`, table `s` in `migrations/`), served by `/api/sessions`. Every query checks `u`, the owner. Guests keep up to 30 in localStorage `e4_sessions`, uploaded on login; `e4_session` is the session on the board. A new game is a new session. API keys never go into one. Search is `instr` over title, preview and body with `words()` roots, with no embeddings and no FTS index: saves come every 2 seconds and searches are rare, so an index would cost writes on every save. Schema change: add `migrations/000N_*.sql`, then `pnpm wrangler d1 migrations apply e4 --local` and `--remote`.
 - Move counts come from the FEN: `s.history` starts over whenever a position loads, and the board is rebuilt when the level changes.
-- Piece images: `static/pieces/chessnut/` (Apache 2.0, recoloured cream `#d9c8b5`; NOTICE.txt). Never use the Lichess sadsnake1 sets (gioco, maestro…): they are CC BY-NC-SA.
+- Piece images: `static/pieces/e4/`, our own; edit and rerun `node scripts/pieces.ts`. Never use the Lichess sadsnake1 sets (gioco, maestro…): they are CC BY-NC-SA.
 - `svelte-chess` uses legacy (non-runes) mode — `dynamicCompileOptions` in `svelte.config.js:15-20`
 
 # Commands

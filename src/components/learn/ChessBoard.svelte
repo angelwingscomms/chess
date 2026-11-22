@@ -127,7 +127,7 @@
 		{#each hint_highlights as square (square.k)}
 			{#if square.k === 'p' && square.p}
 				<img
-					src="/pieces/chessnut/{s.turn === 'w' ? 'w' : 'b'}{square.p.toUpperCase()}.svg"
+					src="/pieces/e4/{s.turn === 'w' ? 'w' : 'b'}{square.p.toUpperCase()}.svg"
 					alt="promote to {square.p}"
 					class={'pointer-events-none size-8 place-self-center drop-shadow-md ' + square.r + ' ' + square.c}
 				/>

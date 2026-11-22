@@ -9,7 +9,7 @@
 		{#each [['w', captured.w], ['b', captured.b]] as [c, list]}
 			<span class="flex items-center">
 				{#each list as p}
-					<img src="/pieces/chessnut/{c}{String(p).toUpperCase()}.svg" alt="" class="-ml-1.5 size-5 first:ml-0 drop-shadow-[0_0_1px_color-mix(in_srgb,var(--color-haze)_40%,transparent)]" />
+					<img src="/pieces/e4/{c}{String(p).toUpperCase()}.svg" alt="" class="-ml-1.5 size-5 first:ml-0 drop-shadow-[0_0_1px_color-mix(in_srgb,var(--color-haze)_40%,transparent)]" />
 				{/each}
 			</span>
 		{/each}
