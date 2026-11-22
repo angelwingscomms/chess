@@ -576,6 +576,13 @@ img {
   content: '';
 }
 
+/* chessground floors its grid to 8 device px; the tiles under it (shader),
+   coordinates and hint overlay all use the full box, so fill the box */
+.cg-wrap cg-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .cg-wrap.cg-default-style.board-themed cg-board {
   background-color: var(--surface-soft) !important;
   background-image: repeating-conic-gradient(var(--primary) 0% 25%, transparent 0% 50%) !important;
