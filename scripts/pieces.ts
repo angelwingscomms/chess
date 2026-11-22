@@ -33,14 +33,16 @@ const d: Record<string, string> = {
 // knight shade: back of the neck
 const shade: Record<string, string> = { N: 'M60 32C68 37 74 48 74 60C74 71 71 79 70 84L63 84C64 77 66 69 66 60C66 49 62 41 57 36Z' };
 const slit = T('M57 30L46 41');
-// no outline: black is a lifted plum so it still reads on dark squares
-const c = { w: ['#f8f4ec', '#cdc1b0'], b: ['#655d84', '#4b4566'] };
+// no outline. Light comes from the upper left: white shows it as a lit half;
+// black is dark with a rim of light on its lit edge, so it reads on the dark
+// board's dark squares (body) and its pink squares (rim) alike.
+const c: Record<string, string[]> = { w: ['#f8f4ec', '#cdc1b0'], b: ['#4d4666', '#3c3653', '#b8aedb'] };
 const out = 'static/pieces/e4';
 mkdirSync(out, { recursive: true });
-for (const [s, [f1, f2]] of Object.entries(c))
+for (const [s, [f1, f2, r]] of Object.entries(c))
 	for (const [p, path] of Object.entries(d)) {
 		const sh = shade[p] ? `<path d="${shade[p]}" fill="${f2}"/>` : `<rect x="50" width="50" height="100" fill="${f2}" clip-path="url(#c)"/>`;
 		// bishop slit is cut through the piece
 		const m = p == 'B' ? `<mask id="m"><rect width="100" height="100" fill="#fff"/><path d="${slit}" stroke="#000" stroke-width="3.2" stroke-linecap="round"/></mask>` : '';
-		writeFileSync(`${out}/${s}${p}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><path d="${path}"/></clipPath>${m}<g${m && ' mask="url(#m)"'}><path d="${path}" fill="${f1}"/>${sh}</g></svg>`);
+		writeFileSync(`${out}/${s}${p}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><path d="${path}"/></clipPath>${m}${r ? `<mask id="r"><path d="${path}" fill="#fff"/><path d="${path}" transform="translate(3.4 2)"/></mask>` : ''}<g${m && ' mask="url(#m)"'}><path d="${path}" fill="${f1}"/>${sh}${r ? `<path d="${path}" fill="${r}" mask="url(#r)"/>` : ''}</g></svg>`);
 	}
