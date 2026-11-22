@@ -33,11 +33,14 @@ const d: Record<string, string> = {
 // knight shade: back of the neck
 const shade: Record<string, string> = { N: 'M60 32C68 37 74 48 74 60C74 71 71 79 70 84L63 84C64 77 66 69 66 60C66 49 62 41 57 36Z' };
 const slit = T('M57 30L46 41');
-const c = { w: ['#f8f4ec', '#d8cfc1', '#16131f'], b: ['#2a2638', '#1a1724', '#d9d0e6'] };
+// no outline: black is a lifted plum so it still reads on dark squares
+const c = { w: ['#f8f4ec', '#cdc1b0'], b: ['#655d84', '#4b4566'] };
 const out = 'static/pieces/e4';
 mkdirSync(out, { recursive: true });
-for (const [s, [f1, f2, k]] of Object.entries(c))
+for (const [s, [f1, f2]] of Object.entries(c))
 	for (const [p, path] of Object.entries(d)) {
 		const sh = shade[p] ? `<path d="${shade[p]}" fill="${f2}"/>` : `<rect x="50" width="50" height="100" fill="${f2}" clip-path="url(#c)"/>`;
-		writeFileSync(`${out}/${s}${p}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><path d="${path}"/></clipPath><path d="${path}" stroke="${k}" stroke-width="4.4" stroke-linejoin="round"/><path d="${path}" fill="${f1}"/>${sh}${p == 'B' ? `<path d="${slit}" stroke="${k}" stroke-width="2.6" stroke-linecap="round"/>` : ''}</svg>`);
+		// bishop slit is cut through the piece
+		const m = p == 'B' ? `<mask id="m"><rect width="100" height="100" fill="#fff"/><path d="${slit}" stroke="#000" stroke-width="3.2" stroke-linecap="round"/></mask>` : '';
+		writeFileSync(`${out}/${s}${p}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><path d="${path}"/></clipPath>${m}<g${m && ' mask="url(#m)"'}><path d="${path}" fill="${f1}"/>${sh}</g></svg>`);
 	}

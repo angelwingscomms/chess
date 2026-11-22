@@ -105,7 +105,7 @@ void main() {
 		float tn = fbm((cell + 0.5) / 8.0 * 2.4 + w * 0.7 + vec2(sl * 3.0, -sl * 2.0));
 		float wave = 0.5 + 0.5 * sin(t * 0.8 - length(cell - vec2(4.0, 4.0)) * 0.9);
 		float tv = (tn - 0.47) * 0.12;
-		vec3 classic = lite > 0.5 ? pal(0.8 + drift * 0.3) * (mix(1.05, 1.0, u_light) + tv) : pal(0.18 + drift * 0.3) * (mix(0.85, 0.9, u_light) + tv);
+		vec3 classic = lite > 0.5 ? pal(0.8 + drift * 0.3) * (mix(1.05, 0.92, u_light) + tv) : pal(0.18 + drift * 0.3) * (mix(0.85, 0.9, u_light) + tv);
 		vec3 living = pal((tn - 0.15) / 0.6 + drift) * mix(mix(0.58, 0.86, u_light), mix(1.12, 1.0, u_light), lite);
 		vec3 tc = mix(classic, living, u_live) * mix(0.8 + 0.28 * u_breath, 0.97 + 0.05 * u_breath, u_light) * (0.94 + 0.06 * wave);
 		tc += smoothstep(-0.16, 0.0, sd) * mix(0.07, -0.05, u_light) * (1.0 - u_melt);
