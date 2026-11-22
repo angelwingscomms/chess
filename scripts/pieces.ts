@@ -19,26 +19,25 @@ const lathe = (top: number, h: S[]) => {
 	return T(d + 'Z');
 };
 const circ = (x: number, y: number, r: number) => `M${tx(x) - r} ${ty(y)}a${r} ${r} 0 1 1 ${2 * r} 0a${r} ${r} 0 1 1 ${-2 * r} 0Z`;
-const base = (w: number): S[] => [[w + 6, 84], [w + 8, 85, w + 8, 87, w + 8, 89], [w + 8, 92, w + 6, 93, w + 3, 93], [50, 93]];
-const skirt = (x: number, y: number, w: number): S[] => [[x, y + 14, w - 2, 78, w + 6, 84]];
+// one concave flare from neck (x,y) to a thin rounded lip at half-width w
+const flare = (x: number, y: number, w: number): S[] => [[x, y + (88 - y) * 0.6, w - 8, 88, w, 88], [w + 3, 88, w + 3, 93, w, 93], [50, 93]];
 const d: Record<string, string> = {
-	P: lathe(40, [[54, 40], ...skirt(55, 50, 62), ...base(62)]) + circ(50, 30, 11),
-	R: lathe(16, [[56, 16], [56, 22], [62, 22], [62, 16], [69, 16], [69, 30], [69, 32, 67, 33, 63, 34], ...skirt(63, 52, 64), ...base(64)]),
-	B: lathe(15, [[63, 24, 66, 38, 58, 50], [57, 51, 56, 52, 56, 53], ...skirt(56, 56, 62), ...base(62)]) + circ(50, 10, 4.2),
-	Q: lathe(12, [[58, 28], [69, 15], [66, 32, 60, 44, 58, 52], ...skirt(58, 56, 64), ...base(64)]) + [[50, 12, 4.6], [69, 15.5, 4.2], [31, 15.5, 4.2]].map(([x, y, r]) => circ(x, y, r)).join(''),
-	K: lathe(4, [[53, 4], [53, 9], [58, 9], [58, 14], [53, 14], [53, 20], [64, 18, 72, 23, 70, 33], [68, 41, 61, 47, 58, 52], ...skirt(58, 56, 64), ...base(64)]),
-	N: T('M64 93L28 93C24 93 22 91 22 89C22 85 25 82 30 81C30 74 33 66 40 60C45 56 48 52 46 47C40 50 34 52 28 53C23 54 18 51 17 46C16 42 19 38 24 34C31 28 36 22 40 17L39 9L46 14C50 12 54 11 57 12L60 6L63 14C74 21 80 36 80 52C80 64 77 74 74 81C78 82 80 85 80 89C80 91 78 93 75 93Z')
+	P: lathe(46, [[56.5, 46], [56.5, 49], ...flare(56.5, 49, 66)]) + circ(50, 36, 11.5),
+	R: lathe(16, [[56, 16], [56, 22], [62, 22], [62, 16], [69, 16], [69, 30], [69, 32, 67, 33, 64, 35], [63, 62], ...flare(63, 62, 70)]),
+	B: lathe(19, [[61, 24, 65, 37, 60, 48], [58, 50, 56, 52, 56, 54], ...flare(56, 54, 67)]) + circ(50, 14, 4.2),
+	Q: lathe(13, [[58, 27], [68, 17], [68, 34, 61, 50, 59, 61], ...flare(59, 61, 70)]) + [[50, 12, 4.6], [68, 15.5, 4.2], [32, 15.5, 4.2]].map(([x, y, r]) => circ(x, y, r)).join(''),
+	K: lathe(4, [[53, 4], [53, 9], [58, 9], [58, 14], [53, 14], [53, 22], [60, 22, 67, 23, 68, 27], [68, 36, 62, 50, 60, 60], ...flare(60, 60, 70)]),
+	// drawn in final space: slim arched neck, small head, one ear
+	N: 'M56 24C58 27 59 30 60 32C68 37 74 48 74 60C74 71 71 79 70 84C73 85 74 87 74 90C74 92.5 73 93 70 93L30 93C27 93 26 92.5 26 90C26 87 27 85 30 84C31 77 35 71 42 67C48 64 52 60 50 56C44 58 36 61 30 61C24 61 22 57 23 53C25 48 36 40 44 36C48 34 51 32 52 30C53 28 54 25 56 24Z'
 };
 // knight shade: back of the neck
-const shade: Record<string, string> = { N: T('M60 14C72 22 78 38 78 52C78 64 75 74 72 81L62 81C66 70 68 58 66 44C64 30 60 22 56 16Z') };
-const slit = T('M57 27L46 38');
-const eye = T('M37 27C40 25 44 25 46 27C43 29 40 29 37 27Z');
+const shade: Record<string, string> = { N: 'M60 32C68 37 74 48 74 60C74 71 71 79 70 84L63 84C64 77 66 69 66 60C66 49 62 41 57 36Z' };
+const slit = T('M57 30L46 41');
 const c = { w: ['#f8f4ec', '#d8cfc1', '#16131f'], b: ['#2a2638', '#1a1724', '#d9d0e6'] };
 const out = 'static/pieces/e4';
 mkdirSync(out, { recursive: true });
 for (const [s, [f1, f2, k]] of Object.entries(c))
 	for (const [p, path] of Object.entries(d)) {
 		const sh = shade[p] ? `<path d="${shade[p]}" fill="${f2}"/>` : `<rect x="50" width="50" height="100" fill="${f2}" clip-path="url(#c)"/>`;
-		const ey = p == 'N' ? `<path d="${eye}" fill="${k}"/>` : '';
-		writeFileSync(`${out}/${s}${p}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><path d="${path}"/></clipPath><path d="${path}" stroke="${k}" stroke-width="4.4" stroke-linejoin="round"/><path d="${path}" fill="${f1}"/>${sh}${ey}${p == 'B' ? `<path d="${slit}" stroke="${k}" stroke-width="2.6" stroke-linecap="round"/>` : ''}</svg>`);
+		writeFileSync(`${out}/${s}${p}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><path d="${path}"/></clipPath><path d="${path}" stroke="${k}" stroke-width="4.4" stroke-linejoin="round"/><path d="${path}" fill="${f1}"/>${sh}${p == 'B' ? `<path d="${slit}" stroke="${k}" stroke-width="2.6" stroke-linecap="round"/>` : ''}</svg>`);
 	}
