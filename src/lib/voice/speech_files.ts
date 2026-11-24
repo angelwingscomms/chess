@@ -48,7 +48,7 @@ const FILES: [string, number][] = [
 ];
 
 // warms the http cache with every file, calling on(0..1) as bytes arrive; cached files take no time
-export async function prefetch(on: (f: number) => void) {
+export async function prefetch(on: (f: number) => void, on_stt_ready?: () => void) {
 	const all = FILES.reduce((a, [, n]) => a + n, 0);
 	let got = 0;
 	for (const [name, n] of FILES) {
@@ -63,6 +63,7 @@ export async function prefetch(on: (f: number) => void) {
 			on(Math.min(1, (got + Math.min(seen, n)) / all));
 		}
 		got += n;
+		if (name === 'tokens.txt') on_stt_ready?.();
 	}
 	on(1);
 }

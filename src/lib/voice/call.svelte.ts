@@ -119,8 +119,14 @@ export async function start_call(ask: (q: string) => Promise<string>, fail: (msg
 		end_call();
 		return fail('no microphone, or it was blocked. allow the mic for this site and try again.');
 	}
+	let warming: Promise<string> | undefined;
 	try {
-		await prefetch((f) => (vc.g = f));
+		await prefetch((f) => (vc.g = f), () => {
+			if (me === n) {
+				warming = transcribe(new Int16Array(0));
+				void warming.catch(() => {});
+			}
+		});
 	} catch {
 		void out.close();
 		stream.getTracks().forEach((t) => t.stop());
@@ -162,7 +168,7 @@ export async function start_call(ask: (q: string) => Promise<string>, fail: (msg
 	node.port.onmessage = ({ data }) => hear(data as Float32Array);
 	src.connect(node);
 	// the first transcription loads the model; an empty one does it now, before you speak
-	transcribe(new Int16Array(0)).then(
+	(warming ?? transcribe(new Int16Array(0))).then(
 		() => {
 			if (me !== n || vc.s !== 'l' || !live) return;
 			vc.s = 'h';

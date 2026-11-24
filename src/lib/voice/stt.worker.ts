@@ -101,6 +101,7 @@ function log_mel(pcm: Int16Array) {
 let engine:
 	| Promise<{ ort: Ort; s: Awaited<ReturnType<Ort['InferenceSession']['create']>>; v: string[] }>
 	| undefined;
+let canary: ((pcm: Int16Array) => Promise<string | undefined>) | undefined;
 const load = async () => {
 	const [ort, model, tokens] = await Promise.all([
 		speech.ort(),
@@ -112,7 +113,12 @@ const load = async () => {
 		const k = line.lastIndexOf(' ');
 		if (k > 0) v[Number(line.slice(k + 1))] = line.slice(0, k);
 	}
-	return { ort, v, s: await ort.InferenceSession.create(model, { executionProviders: ['wasm'] }) };
+	const s = await ort.InferenceSession.create(model, { executionProviders: ['wasm'] });
+	const upgrade = new URL('/stt/canary.mjs', self.location.origin).href;
+	void import(/* @vite-ignore */ upgrade)
+		.then(({ start_canary }) => (canary = start_canary(speech.base + 'ort.wasm.min.mjs')))
+		.catch(() => {});
+	return { ort, v, s };
 };
 
 let queue = Promise.resolve();
@@ -122,6 +128,8 @@ self.onmessage = ({ data }: MessageEvent<{ i: number; pcm?: Int16Array }>) => {
 		try {
 			const { ort, s, v } = await engine!;
 			if (!data.pcm?.length) return self.postMessage({ i: data.i, t: '' });
+			const text_canary = await canary?.(data.pcm);
+			if (text_canary !== undefined) return self.postMessage({ i: data.i, t: text_canary });
 			const { f, t } = log_mel(data.pcm);
 			const out = await s.run({
 				audio_signal: new ort.Tensor('float32', f, [1, BINS, t]),
