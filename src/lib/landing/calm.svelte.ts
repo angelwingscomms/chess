@@ -81,7 +81,7 @@ export const calm = {
 	ripple: (_x: number, _y: number, _a?: number) => {},
 	board_ripple: null as ((to: string) => void) | null,
 	arm: () => {},
-	wake: () => {}
+	wake: (_follow_layout?: boolean) => {}
 };
 
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;

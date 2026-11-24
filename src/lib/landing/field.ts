@@ -199,6 +199,8 @@ export function make_field(canvas: HTMLCanvasElement) {
 	const fbo = gl.createFramebuffer();
 	let fw = 1;
 	let fh = 1;
+	let css_w = 1;
+	let css_h = 1;
 
 	const u = (n: string) => gl.getUniformLocation(prog, 'u_' + n);
 	const at = { res: u('res'), time: u('time'), breath: u('breath'), board: u('board'), melt: u('melt'), hide: u('hide'), live: u('live'), light: u('light'), glow: u('glow'), c0: u('c0'), c1: u('c1'), c2: u('c2'), c3: u('c3'), bg: u('bg'), cursor: u('cursor'), mark: u('mark'), rip: u('rip[0]') };
@@ -224,12 +226,14 @@ export function make_field(canvas: HTMLCanvasElement) {
 	});
 
 	function resize() {
+		css_w = canvas.clientWidth;
+		css_h = canvas.clientHeight;
 		const r = Math.min(devicePixelRatio || 1, 1.5) * q;
-		canvas.width = Math.max(1, Math.round(canvas.clientWidth * r));
-		canvas.height = Math.max(1, Math.round(canvas.clientHeight * r));
-		const k = 96 / Math.max(1, Math.min(canvas.clientWidth, canvas.clientHeight));
-		fw = Math.max(1, Math.ceil(canvas.clientWidth * k));
-		fh = Math.max(1, Math.ceil(canvas.clientHeight * k));
+		canvas.width = Math.max(1, Math.round(css_w * r));
+		canvas.height = Math.max(1, Math.round(css_h * r));
+		const k = 96 / Math.max(1, Math.min(css_w, css_h));
+		fw = Math.max(1, Math.ceil(css_w * k));
+		fh = Math.max(1, Math.ceil(css_h * k));
 		gl.bindTexture(gl.TEXTURE_2D, flow_tex);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fw, fh, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -237,17 +241,18 @@ export function make_field(canvas: HTMLCanvasElement) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 
-	function draw(fr: Frame) {
+	function draw(fr: Frame, track = false) {
 		if (lost) return;
 		const now = performance.now();
-		const gap = now - last;
-		last = now;
-		if (gap < 100) {
+		// Idle and deliberately capped frames don't measure what the device can draw.
+		const gap = track && last ? now - last : 0;
+		last = track ? now : 0;
+		if (gap > 0 && gap < 200) {
 			ema += (gap - ema) * 0.05;
 			if (++count % 90 === 0 && ema > 24) {
 				root.classList.add('lite');
 				if (q > 0.4) {
-					q = Math.max(0.4, q * 0.85);
+					q = Math.max(0.4, Math.min(0.45, q * 0.85));
 					resize();
 				}
 			}
@@ -263,14 +268,14 @@ export function make_field(canvas: HTMLCanvasElement) {
 		gl.useProgram(flow_prog);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 		gl.viewport(0, 0, fw, fh);
-		gl.uniform2f(fat.res, canvas.clientWidth, canvas.clientHeight);
+		gl.uniform2f(fat.res, css_w, css_h);
 		gl.uniform1f(fat.time, fr.t);
 		gl.uniform1f(fat.melt, fr.m);
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.viewport(0, 0, canvas.width, canvas.height);
 		gl.useProgram(prog);
-		gl.uniform2f(at.res, canvas.clientWidth, canvas.clientHeight);
+		gl.uniform2f(at.res, css_w, css_h);
 		gl.uniform1f(at.time, fr.t);
 		gl.uniform1f(at.breath, fr.b);
 		gl.uniform4f(at.board, fr.x, fr.y, Math.max(fr.s, 1), fr.k);

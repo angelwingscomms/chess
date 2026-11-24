@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
+	import { onMount, untrack, type Component } from 'svelte';
 	import { page } from '$app/stores';
 	import { replaceState } from '$app/navigation';
 	import Seo from '$lib/components/seo/Seo.svelte';
@@ -20,7 +20,6 @@
 	import ChatPanel from '$components/learn/ChatPanel.svelte';
 	import SettingsModal from '$components/learn/SettingsModal.svelte';
 	import TokenModal from '$components/learn/TokenModal.svelte';
-	import Tour from '$components/learn/Tour.svelte';
 	import ProgressModal from '$components/learn/ProgressModal.svelte';
 	import { load_progress } from '$lib/progress.svelte';
 
@@ -46,11 +45,22 @@
 
 	let shown = $state(!arrived);
 	let board_box = $state<HTMLDivElement>();
+	let Tour = $state<Component<{ wait?: number }>>();
 	let opened = false;
 
 	$effect(() => {
+		if (!s.show_tour || Tour) return;
+		void import('$components/learn/Tour.svelte')
+			.then(({ default: tour }) => (Tour = tour))
+			.catch(() => {
+				s.show_tour = false;
+				s.add_toast('couldn’t load the tour. try again.', 'e');
+			});
+	});
+
+	$effect(() => {
 		if (!s.ready) return;
-		const state_fen = $page.state?.fen as string | undefined;
+		const state_fen = ($page.state as { fen?: string }).fen;
 		if (state_fen && state_fen !== s.fen) {
 			s.fen = state_fen;
 			if (s.chessRef) s.chessRef.load(state_fen);
@@ -97,11 +107,27 @@
 	onMount(() => {
 		const t0 = performance.now();
 		const pal = new Float32Array(15);
+		const box = board_box!;
+		let rect: DOMRect | undefined;
+		const align = () => {
+			rect = undefined;
+			calm.wake(true);
+		};
+		const resize = new ResizeObserver(align);
+		resize.observe(box);
+		resize.observe(box.parentElement!);
+		// Hints change the toolbar height and shift the centered board on desktop.
+		resize.observe(box.nextElementSibling!);
+		const events = new AbortController();
+		const listener = { passive: true, signal: events.signal };
+		box.closest('main')!.addEventListener('scroll', align, listener);
+		addEventListener('scroll', align, listener);
+		addEventListener('resize', align, listener);
 		calm.app = true;
 		load_view();
 		if (arrived) setTimeout(() => (shown = true), 5000);
 		const stop = use_scene((now) => {
-			const r = board_box!.getBoundingClientRect();
+			const r = rect ??= box.getBoundingClientRect();
 			const u = Math.max(0, now - t0) / 45000 + (arrived ? 3 : 0);
 			const i = Math.floor(u) % cycle.length;
 			const w = smooth(clamp(((u % 1) - 0.7) / 0.3));
@@ -121,6 +147,8 @@
 			};
 		});
 		return () => {
+			events.abort();
+			resize.disconnect();
 			stop();
 			close_lessons();
 			calm.app = false;
@@ -163,4 +191,6 @@
 <SessionList />
 <TokenModal />
 <ProgressModal />
-<Tour wait={arrived ? 3200 : 0} />
+{#if Tour}
+	<Tour wait={arrived ? 3200 : 0} />
+{/if}

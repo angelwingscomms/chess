@@ -53,8 +53,11 @@
 		// phone's cpu to stockfish; any touch, scroll, ripple or change runs it at full speed for a moment
 		let idle: ReturnType<typeof setTimeout> | undefined;
 		let busy = 0;
-		const wake = () => {
-			busy = performance.now() + 1500;
+		let follow_until = 0;
+		const wake = (follow_layout = false) => {
+			const now = performance.now();
+			busy = now + 1500;
+			if (follow_layout) follow_until = now + 100;
 			if (idle) {
 				clearTimeout(idle);
 				idle = undefined;
@@ -62,7 +65,7 @@
 			if (!raf) raf = requestAnimationFrame(frame);
 		};
 		calm.wake = wake;
-		const ro = new ResizeObserver(wake);
+		const ro = new ResizeObserver(() => wake(true));
 		ro.observe(document.body);
 		calm.ripple = (x, y, a = 1) => {
 			if (motion) field?.ripple(x, y, a);
@@ -101,6 +104,12 @@
 
 		function frame(now: number) {
 			raf = 0;
+			// Slow only the backdrop. Keep tiles aligned at full rate while the board moves on screen.
+			const limited = motion && calm.app && html.classList.contains('lite') && !calm.from && now >= follow_until;
+			if (limited && now - prev < 30) {
+				raf = requestAnimationFrame(frame);
+				return;
+			}
 			const dt = Math.min((now - prev) / 1000, 0.1);
 			prev = now;
 			vel += ((scrollY - psy) / Math.max(dt, 0.001) - vel) * (1 - Math.exp(-3 * dt));
@@ -126,20 +135,23 @@
 				v = mix_view(calm.from, v, ease(p));
 				if (p >= 1) calm.from = null;
 			}
+			const animate = !!(calm.from || tt !== goal || (motion && now < busy));
 			if (v) {
 				calm.view = v;
 				pw += (v.w - pw) * (1 - Math.exp(-8 * dt));
 				hv += (v.h - hv) * (motion ? 1 - Math.exp(-5 * dt) : 1);
-				const [x, y] = square_xy(v, 4, 8 - v.r);
-				pawn!.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${(v.s / 8) * 0.8 / 64})`;
-				pawn!.style.opacity = String(pw * clamp(1 - v.k * 12));
+				if (pw > 0.001) {
+					const [x, y] = square_xy(v, 4, 8 - v.r);
+					pawn!.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${(v.s / 8) * 0.8 / 64})`;
+					pawn!.style.opacity = String(pw * clamp(1 - v.k * 12));
+				} else if (pawn!.style.opacity) pawn!.style.opacity = '';
 				cx += (px - cx) * (1 - Math.exp(-6 * dt));
 				cy += (py - cy) * (1 - Math.exp(-6 * dt));
 				cs += ((now - lit < 1600 ? 1 : lit ? 0.3 : 0) - cs) * (1 - Math.exp(-3 * dt));
 				lv += ((ui.living ? 1 : 0) - lv) * (motion ? 1 - Math.exp(-4 * dt) : 1);
-				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, h: hv, l: lv, d: tt, p: v.p, c: [cx, cy, cs], q: v.q });
+				field?.draw({ t: clock, b: lung, x: v.x, y: v.y, s: v.s, k: v.k, m: v.m, h: hv, l: lv, d: tt, p: v.p, c: [cx, cy, cs], q: v.q }, animate && !limited);
 			}
-			if (calm.from || tt !== goal || (motion && now < busy)) raf = requestAnimationFrame(frame);
+			if (animate) raf = requestAnimationFrame(frame);
 			else if (motion) idle = setTimeout(() => {
 				idle = undefined;
 				raf = requestAnimationFrame(frame);
@@ -184,10 +196,11 @@
 		};
 		const on_resize = () => {
 			field?.resize();
-			wake();
+			wake(true);
 		};
+		const on_scroll = () => wake(true);
 
-		addEventListener('scroll', wake, { passive: true });
+		addEventListener('scroll', on_scroll, { passive: true });
 		addEventListener('resize', on_resize);
 		addEventListener('pointermove', on_move, { passive: true });
 		addEventListener('pointerover', on_over, { passive: true });
@@ -201,7 +214,7 @@
 			clearTimeout(idle);
 			ro.disconnect();
 			calm.wake = () => {};
-			removeEventListener('scroll', wake);
+			removeEventListener('scroll', on_scroll);
 			removeEventListener('resize', on_resize);
 			removeEventListener('pointermove', on_move);
 			removeEventListener('pointerover', on_over);

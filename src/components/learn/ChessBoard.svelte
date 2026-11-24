@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Chess } from 'svelte-chess';
+	import type { ComponentProps } from 'svelte';
 	import { Chess as Rules, type Square } from 'chess.js';
 	import { calm, play_move } from '$lib/landing/calm.svelte';
 	import { puzzle_move } from './puzzle.svelte';
@@ -7,18 +8,26 @@
 	import { cam } from './view.svelte';
 	const s = get_learn_state();
 
+	type BoardEngine = NonNullable<ComponentProps<Chess>['engine']>;
 	let level = $derived(s.level);
 	let engine = $derived(s.engine);
+	let board_engine: Pick<BoardEngine, keyof BoardEngine> = $derived(engine);
 	let hint_highlights = $derived(s.hint_highlights);
 	let show_hints = $derived(s.show_hints);
 	let hint_loading = $derived(s.hint_loading);
-	let recommended_promotion = $derived(
-		s.hints[s.hint_index]?.move.length === 5 ? s.hints[s.hint_index].move[4] : ''
-	);
+	// The local svelte-chess patch adds this prop.
+	let promotion = $derived({
+		recommended_promotion: s.hints[s.hint_index]?.move.length === 5 ? s.hints[s.hint_index].move[4] : ''
+	});
 
 	let wrap = $state<HTMLDivElement>();
 	let sel = '';
 	let held = '';
+
+	$effect(() => {
+		const current = engine;
+		return () => current.dispose();
+	});
 
 	// the hint as an arrow, in board units with white or black at the bottom
 	const arrow = $derived.by(() => {
@@ -67,6 +76,7 @@
 		const q = square_at(e);
 		if (!q) return;
 		const own = mine(q);
+		if (own && engine.getColor() !== 'none') engine.prepare();
 		if (sel && q !== sel && !own && !legal(sel, q)) shake(sel);
 		held = own ? q : '';
 		sel = own && q !== sel ? q : '';
@@ -82,23 +92,23 @@
 	}
 </script>
 
-<div bind:this={wrap} class="relative size-full {s.show_dests ? '' : '[&_square.move-dest]:!hidden'}" role="presentation" onpointerdown={down} onpointerup={up}>
+<div bind:this={wrap} class="relative size-full {s.show_dests ? '' : '[&_square.move-dest]:!hidden'}" role="presentation" inert={!s.ready} onpointerdown={down} onpointerup={up}>
 {#key `${level}${s.armed}`}
 	<Chess
 		class="cg-default-style board-themed"
 		bind:this={s.chessRef}
 		bind:fen={s.fen}
 		bind:orientation={s.orientation}
-		engine={s.armed ? engine : undefined}
+		engine={s.armed ? board_engine as BoardEngine : undefined}
 		bind:turn={s.turn}
 		bind:moveNumber={s.moveNum}
 		bind:history={s.history}
 		bind:inCheck={s.inCheck}
 		bind:isGameOver={s.gameOver}
-		{recommended_promotion}
+		{...promotion}
 		on:ready={() => s.onReady()}
 		on:move={(e) => {
-			s.onMove(e);
+			s.onMove(e.detail);
 			play_move(e.detail);
 			const r = puzzle_move(e.detail);
 			if (r === 'y') calm.sound.chime(9, 0.35);

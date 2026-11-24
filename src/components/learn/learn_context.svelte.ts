@@ -1,5 +1,5 @@
 import { Chess } from 'svelte-chess';
-import { Chess as ChessJS } from 'chess.js';
+import { Chess as ChessJS, type Move } from 'chess.js';
 import { browser } from '$app/environment';
 import { LEVELS, LearnEngine, check_position } from '$lib/util/chess/engine';
 import type { Color, Hint } from '$lib/util/chess/engine';
@@ -139,6 +139,7 @@ export class LearnState {
 	// the chess computer's words per position, so a second question about it waits for nothing
 	#checks = new Map<string, string>();
 	#redoing = false;
+	#initial_resume: Promise<void> | undefined;
 
 	logged_in = $state(false);
 	// the home page's mini app: no saved game, no tour, and no engine until the first move
@@ -183,7 +184,7 @@ export class LearnState {
 			return () => document.removeEventListener('selectionchange', this.handle_selection);
 		});
 
-		if (browser && !demo) void this.resume();
+		if (browser && !demo) this.#initial_resume = this.resume().catch(() => {});
 
 		// keep the last move when the tab closes before the save timer runs
 		$effect(() => {
@@ -325,7 +326,10 @@ export class LearnState {
 		requestAnimationFrame(() => { void this.showHint(); });
 	}
 
-	onReady() {
+	async onReady() {
+		// Apply any saved game before accepting a new move.
+		await this.#initial_resume;
+		this.#initial_resume = undefined;
 		this.ready = true;
 		if (this.demo) return;
 		if (this.hint_on_start && !this.start_hint_done) {
@@ -334,8 +338,7 @@ export class LearnState {
 		}
 	}
 
-	async onMove(e: CustomEvent<Record<string, unknown>>) {
-		const m = e.detail as any;
+	onMove(m: Move & { check: boolean }) {
 		this.armed = true;
 		this.turn = m.color === 'w' ? 'b' : 'w';
 		this.moveNum++;

@@ -49,6 +49,7 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 - Measure with `node scripts/perf.mjs <metric> <route> [key<=n | key>=n | key=v | key~s | key!~s ...]` after `pnpm build`; it starts its own `vite preview`. Metrics: `idle`, `active`, `bytes`, `engine`, `field`, `same`, `load`, `css`, `fonts`, `offline` (the header comment of the script lists what each reports). It drives `/usr/bin/chromium` on the real GPU (`--enable-gpu --use-angle=gl-egl --ignore-gpu-blocklist`): Chrome 139+ has no WebGL without one, and headless agent-browser's 2–7 fps WebGL says nothing about speed.
 - `scripts/field/v1.ts` is the field as it was on 2026-10-06, frozen. `node scripts/perf.mjs same /` diffs its frames against `src/lib/landing/field.ts` with one pinned clock; any field change must keep that diff near 0.
 - Found 2026-10-06: svelte-chessground gives every piece `will-change: transform`, so with the calm drop-shadows the compositor re-filters 32 pieces every frame; the field's adaptive quality already sits at its floor (canvas 216 px wide on a 360 px phone, not 297); `static/stockfish.js` (asm.js) searches ~16k nodes/s against ~200–370k for the WASM build of the same Stockfish 10; static files are served `max-age=0`.
+- The board accepts a move before Stockfish is downloaded. Selecting a movable piece starts its worker, which is released when leaving the board or changing strength. On `/i` in lite mode, the backdrop draws about 30 times per second during play and follows scrolling at full speed. Piece motion runs independently.
 
 # SEO
 

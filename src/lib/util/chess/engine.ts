@@ -16,9 +16,6 @@ export interface LearnEngineOpts {
 	skill?: number
 }
 
-const S = { Un: 'uninitialised', In: 'initialising', Wa: 'waiting', Se: 'searching' } as const;
-type St = (typeof S)[keyof typeof S];
-
 // how strong the computer plays, from someone who just learned the moves to full strength.
 // stockfish's skill level (0-20) makes it choose a weaker move among its best few, the way lichess's easy bots do,
 // so its mistakes are human-looking misses, never random moves with no idea behind them
@@ -32,15 +29,13 @@ export const LEVELS = [
 
 export class LearnEngine {
 	private w: Worker | undefined;
-	private st: St = S.Un;
 	private mt: number;
 	private dp: number;
 	private sk: number;
 	private co: Color | 'both' | 'none';
 	private tm: ReturnType<typeof setTimeout> | undefined;
-	private uciCb: ((s: string) => void) | undefined;
-	private onReady: (() => void) | undefined;
-	private onBM: ((s: string) => void) | undefined;
+	private uci_cb: ((s: string) => void) | undefined;
+	private on_best: ((s: string) => void) | undefined;
 
 	constructor(o: LearnEngineOpts = {}) {
 		this.mt = o.moveTime ?? 2000;
@@ -50,72 +45,69 @@ export class LearnEngine {
 	}
 
 	init(): Promise<void> {
-		return new Promise((res) => {
-			this.st = S.In;
-			this.w = new Worker(ENGINE);
-			this.w.addEventListener('message', (e) => this._onMsg(e));
-			let sentOpts = false;
-			this.onReady = () => {
-				if (this.st !== S.In) return;
-				if (!sentOpts) {
-					sentOpts = true;
-					this.w!.postMessage(`setoption name Skill Level value ${this.sk}`);
-					this.w!.postMessage('isready');
-					return;
-				}
-				this.st = S.Wa;
-				this.onReady = undefined;
-				res();
-			};
-			this.w.postMessage('uci');
-		});
+		// svelte-chess enables legal moves when init resolves. Only the reply needs Stockfish.
+		return Promise.resolve();
 	}
 
-	private _onMsg({ data }: { data: string }) {
-		const u = data;
-		if (this.onReady && (u === 'uciok' || u === 'readyok')) { this.onReady(); }
-		if (this.onBM && u.startsWith('bestmove')) { this.onBM(u); }
-		if (this.uciCb) { this.uciCb(u); }
+	prepare() {
+		if (this.w) return this.w;
+		const worker = new Worker(ENGINE);
+		this.w = worker;
+		worker.onmessage = ({ data }: MessageEvent<string>) => {
+			if (data.startsWith('bestmove')) this.on_best?.(data.split(' ')[1]);
+			this.uci_cb?.(data);
+		};
+		// This Stockfish worker runs queued commands in order once its WASM has loaded.
+		worker.postMessage('uci');
+		worker.postMessage(`setoption name Skill Level value ${this.sk}`);
+		worker.postMessage('isready');
+		return worker;
 	}
 
-	setUciCallback(cb: (s: string) => void) { this.uciCb = cb; }
+	setUciCallback(cb: (s: string) => void) { this.uci_cb = cb; }
 
 	getMove(fen: string): Promise<string> {
 		return new Promise((res) => {
-			if (!this.w) throw Error('Engine not initialised');
-			if (this.st !== S.Wa) throw Error(`Engine not ready (state: ${this.st})`);
-			this.st = S.Se;
+			if (this.isSearching()) throw Error('Engine is already searching');
 			const t0 = performance.now();
+			const worker = this.prepare();
 			// a short pause even when the search is instant, so the computer seems to think
-			const done = (lan: string) => {
+			this.on_best = (lan) => {
+				this.on_best = undefined;
 				this.tm = setTimeout(() => {
 					this.tm = undefined;
-					this.st = S.Wa;
 					res(lan);
 				}, Math.max(0, 500 - (performance.now() - t0)));
 			};
-			this.w.postMessage(`position fen ${fen}`);
-			this.w.postMessage(`go depth ${this.dp} movetime ${this.mt}`);
-			this.onBM = (u: string) => {
-				this.onBM = undefined;
-				done(u.split(' ')[1]);
-			};
+			worker.postMessage(`position fen ${fen}`);
+			worker.postMessage(`go depth ${this.dp} movetime ${this.mt}`);
 		});
 	}
 
 	getColor() { return this.co; }
 	setColor(c: Color | 'both' | 'none') { this.co = c; }
-	isSearching() { return this.st === S.Se; }
+	isSearching() { return !!this.on_best || this.tm !== undefined; }
 
 	stopSearch(): Promise<void> {
-		return new Promise((res) => {
-			if (!this.w) throw Error('Engine not initialised');
-			if (this.st !== S.Se) { res(); return; }
-			// only the thinking pause is left: drop the move, like a stopped search
-			if (!this.onBM) { clearTimeout(this.tm); this.st = S.Wa; res(); return; }
-			this.onBM = () => { this.st = S.Wa; this.onBM = undefined; res(); };
-			this.w.postMessage('stop');
-		});
+		// Cancel even when the worker is still loading. A replacement search can start immediately.
+		if (this.on_best) this.release_worker();
+		this.on_best = undefined;
+		clearTimeout(this.tm);
+		this.tm = undefined;
+		return Promise.resolve();
+	}
+
+	private release_worker() {
+		if (!this.w) return;
+		this.w.onmessage = null;
+		this.w.terminate();
+		this.w = undefined;
+	}
+
+	dispose() {
+		void this.stopSearch();
+		this.release_worker();
+		this.uci_cb = undefined;
 	}
 }
 
