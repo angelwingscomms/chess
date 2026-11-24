@@ -106,6 +106,7 @@ export function toggle_speaker() {
 // runs inside the tap, so the browser lets audio play. ask sends what was heard to the coach and resolves with its answer
 export async function start_call(ask: (q: string) => Promise<string>, fail: (msg: string) => void) {
 	const me = ++n;
+	stop_reading();
 	const out = new AudioContext({ sampleRate: 24000 });
 	vc.s = 'l';
 	vc.q = '';
@@ -355,4 +356,64 @@ function speak(l: Live, text: string) {
 		.trim();
 	if (spoken) tts!.postMessage({ i, t: spoken });
 	else back();
+}
+
+// read aloud: one reply spoken on a tap, outside a call. k is the reply being read (-1 none), l true while the voice loads
+export const ra = $state({ k: -1, l: false });
+let ra_out: AudioContext | null = null;
+let ra_job = 0;
+
+export function stop_reading() {
+	if (ra_job) tts?.postMessage({ c: ra_job });
+	ra_job = 0;
+	ra.k = -1;
+	ra.l = false;
+	void ra_out?.close();
+	ra_out = null;
+}
+
+// runs inside the tap, so the browser lets audio play; a second tap on the same reply stops it
+export function read_aloud(k: number, text: string) {
+	const again = ra.k === k;
+	stop_reading();
+	if (again || live) return;
+	const out = (ra_out = new AudioContext({ sampleRate: 24000 }));
+	const i = (ra_job = ++job);
+	ra.k = k;
+	ra.l = true;
+	let next_at = 0,
+		playing = 0,
+		done = false;
+	const finish = () => {
+		if (ra_job === i) stop_reading();
+	};
+	tts ??= new Worker(new URL('./tts.worker.ts', import.meta.url), { type: 'module' });
+	tts.onmessage = ({ data }: MessageEvent<{ i: number; a?: Float32Array; d?: 1; e?: string }>) => {
+		if (data.i !== i || ra_job !== i) return;
+		if (data.d || data.e) {
+			done = true;
+			if (!playing) finish();
+		}
+		if (!data.a) return;
+		ra.l = false;
+		const b = out.createBuffer(1, data.a.length, 24000);
+		b.getChannelData(0).set(data.a.map((x) => Math.max(-1, Math.min(1, x * 2))));
+		const s = out.createBufferSource();
+		s.buffer = b;
+		s.connect(out.destination);
+		s.onended = () => {
+			playing--;
+			if (done && !playing) finish();
+		};
+		next_at = Math.max(next_at, out.currentTime + 0.15);
+		s.start(next_at);
+		next_at += b.duration;
+		playing++;
+	};
+	const spoken = text
+		.replace(/[*_`#>~|[\]]|\p{Extended_Pictographic}/gu, '')
+		.replace(/\s+/g, ' ')
+		.trim();
+	if (spoken) tts.postMessage({ i, t: spoken });
+	else finish();
 }

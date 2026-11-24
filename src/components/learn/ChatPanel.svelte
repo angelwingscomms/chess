@@ -8,6 +8,10 @@
 	import { ls } from './lesson.svelte';
 	import { calm } from '$lib/landing/calm.svelte';
 	import { get_learn_state } from './learn_context.svelte';
+	import SpeakerIcon from '$lib/components/icons/speaker-icon.svelte';
+	import { ra, read_aloud, stop_reading, vc } from '$lib/voice/call.svelte';
+	import { onDestroy } from 'svelte';
+	onDestroy(stop_reading);
 	let { hello = 'ask me anything about chess, even “how does the knight move?”', placeholder = 'ask your coach anything…' }: { hello?: string; placeholder?: string } = $props();
 	const s = get_learn_state();
 
@@ -43,7 +47,20 @@
 		{#each chat_messages as msg, i (i)}
 			{#if msg.role === 'assistant'}
 				<div class="calm-md max-w-[94%] shrink-0 self-start rounded-2xl rounded-bl-md border border-haze/10 bg-night/50 px-3.5 py-2.5 break-words text-haze backdrop-blur-md animate-surface lg:px-4 lg:py-3">
-					<span class="mb-1 block font-calm-mono text-[11px] tracking-[0.16em] text-glow">e4</span>
+					<span class="mb-1 flex items-center justify-between font-calm-mono text-[11px] tracking-[0.16em] text-glow">
+						e4
+						{#if !vc.s && msg.content && !(chat_loading && i === chat_messages.length - 1)}
+							<button
+								title={ra.k === i ? 'stop reading' : 'read aloud'}
+								aria-label={ra.k === i ? 'stop reading' : 'read aloud'}
+								aria-pressed={ra.k === i}
+								onclick={() => read_aloud(i, msg.content)}
+								class="-my-2 -mr-2 grid size-9 place-items-center rounded-full transition duration-300 ease-expo focus-visible:outline-2 focus-visible:outline-glow {ra.k === i ? 'text-glow' : 'text-haze/45 hover:text-glow'} {ra.k === i && ra.l ? 'motion-safe:animate-pulse' : ''}"
+							>
+								<SpeakerIcon size={16} strokeWidth={1.6} />
+							</button>
+						{/if}
+					</span>
 					{@html md.parse(msg.content, { async: false }) as string}
 					<!-- hidden for now: what each reply cost
 					{#if msg.u}
