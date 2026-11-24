@@ -101,7 +101,12 @@ function log_mel(pcm: Int16Array) {
 let engine:
 	| Promise<{ ort: Ort; s: Awaited<ReturnType<Ort['InferenceSession']['create']>>; v: string[] }>
 	| undefined;
-let canary: ((pcm: Int16Array) => Promise<string | undefined>) | undefined;
+type Upgrade = ((pcm: Int16Array) => Promise<string | undefined>) & { stop(): void };
+// bigger models take over once downloaded: Canary-180M everywhere, Fluid Speech Pro on strong devices only
+let canary: Upgrade | undefined;
+let fluid: Upgrade | undefined;
+const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+const strong = (nav.deviceMemory ?? 0) >= 8 && navigator.hardwareConcurrency >= 8 && !nav.connection?.saveData;
 const load = async () => {
 	const [ort, model, tokens] = await Promise.all([
 		speech.ort(),
@@ -114,9 +119,12 @@ const load = async () => {
 		if (k > 0) v[Number(line.slice(k + 1))] = line.slice(0, k);
 	}
 	const s = await ort.InferenceSession.create(model, { executionProviders: ['wasm'] });
-	const upgrade = new URL('/stt/canary.mjs', self.location.origin).href;
+	const upgrade = new URL('/stt/upgrade.mjs', self.location.origin).href;
 	void import(/* @vite-ignore */ upgrade)
-		.then(({ start_canary }) => (canary = start_canary(speech.base + 'ort.wasm.min.mjs')))
+		.then(({ start_upgrade }) => {
+			canary = start_upgrade('./canary.worker.js', speech.base + 'ort.wasm.min.mjs');
+			if (strong) fluid = start_upgrade('./fluid.worker.js', speech.base + 'ort.wasm.min.mjs', 90_000);
+		})
 		.catch(() => {});
 	return { ort, v, s };
 };
@@ -128,6 +136,16 @@ self.onmessage = ({ data }: MessageEvent<{ i: number; pcm?: Int16Array }>) => {
 		try {
 			const { ort, s, v } = await engine!;
 			if (!data.pcm?.length) return self.postMessage({ i: data.i, t: '' });
+			if (fluid) {
+				const start = performance.now();
+				const text_fluid = await fluid(data.pcm);
+				// Fluid must keep up: a segment that takes longer than it lasts sends this device back to Canary
+				if (performance.now() - start > data.pcm.length / 16) {
+					fluid.stop();
+					fluid = undefined;
+				}
+				if (text_fluid !== undefined) return self.postMessage({ i: data.i, t: text_fluid });
+			}
 			const text_canary = await canary?.(data.pcm);
 			if (text_canary !== undefined) return self.postMessage({ i: data.i, t: text_canary });
 			const { f, t } = log_mel(data.pcm);

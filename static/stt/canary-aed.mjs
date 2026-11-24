@@ -563,5 +563,6 @@ var NemoAedModel = class {
 export {
   NemoAedModel,
   bind_ort,
+  logMelSpectrogram,
   parseVocabulary
 };

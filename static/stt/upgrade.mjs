@@ -1,5 +1,6 @@
-// Runs beside Conformer so downloads, startup and crashes cannot interrupt it.
-export function start_canary(runtime) {
+// A bigger model in its own worker, beside Conformer, so downloads, startup and crashes cannot interrupt dictation.
+// Until it is ready, or after it fails or takes longer than ms on one segment, it answers undefined.
+export function start_upgrade(file, runtime, ms = 30_000) {
   let worker;
   let ready = false;
   let finish;
@@ -9,7 +10,7 @@ export function start_canary(runtime) {
     finish?.();
   }
   try {
-    worker = new Worker(new URL('./canary.worker.js', import.meta.url));
+    worker = new Worker(new URL(file, import.meta.url));
     worker.onerror = stop;
     worker.onmessageerror = stop;
     worker.onmessage = ({ data }) => {
@@ -21,11 +22,11 @@ export function start_canary(runtime) {
   } catch {
     stop();
   }
-  return async pcm => {
+  const run = async pcm => {
     if (!ready) return;
     const copy = pcm.slice();
     return new Promise(resolve => {
-      const timeout = setTimeout(stop, 30_000);
+      const timeout = setTimeout(stop, ms);
       finish = text => {
         finish = undefined;
         clearTimeout(timeout);
@@ -38,4 +39,6 @@ export function start_canary(runtime) {
       }
     });
   };
+  run.stop = stop;
+  return run;
 }
