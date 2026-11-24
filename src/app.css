@@ -3,6 +3,22 @@
 @plugin "@tailwindcss/forms";
 @custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
 
+/* latin only, self-hosted: no trip to google before first paint */
+@font-face {
+  font-family: 'Geist';
+  font-weight: 200 500;
+  font-display: swap;
+  src: url('/fonts/1/geist.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/1/geist-mono.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @theme {
   --color-canvas: #faf9f5;
   --color-ink: #141413;
@@ -1758,4 +1774,17 @@ html[data-theme='light'] img[src^='/pieces/e4/'] {
   html.theme-fade *::after {
     transition: background-color 500ms var(--ease-calm), color 500ms var(--ease-calm), border-color 500ms var(--ease-calm), fill 500ms var(--ease-calm), stroke 500ms var(--ease-calm), box-shadow 500ms var(--ease-calm) !important;
   }
+}
+
+/* budget phones (set by field.ts): the per-piece shadows and glass blur get redrawn every frame the
+   background moves, which drops these phones to a few frames a second; over soft noise they barely show */
+html.lite .cg-wrap piece,
+html.lite [class*='drop-shadow'],
+html.lite svg image[href^='/pieces/'],
+html.lite img[src^='/pieces/e4/'] {
+  filter: none !important;
+}
+html.lite * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }

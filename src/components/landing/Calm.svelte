@@ -49,7 +49,7 @@
 		let hover: Element | null = null;
 		let down = { x: 0, y: 0, t: 0 };
 
-		// the field breathes over 16 s, so with nothing moving 20 frames a second looks the same as 60 and leaves the
+		// the field breathes over 16 s, so with nothing moving 20 frames a second (12 on budget phones) looks the same as 60 and leaves the
 		// phone's cpu to stockfish; any touch, scroll, ripple or change runs it at full speed for a moment
 		let idle: ReturnType<typeof setTimeout> | undefined;
 		let busy = 0;
@@ -143,7 +143,7 @@
 			else if (motion) idle = setTimeout(() => {
 				idle = undefined;
 				raf = requestAnimationFrame(frame);
-			}, 50);
+			}, html.classList.contains('lite') ? 80 : 50);
 		}
 
 		const on_move = (e: PointerEvent) => {
@@ -217,9 +217,6 @@
 </script>
 
 <svelte:head>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@200..500&family=Geist+Mono:wght@400&display=swap" />
 	<meta name="theme-color" content={theme.mode === 'light' ? '#f5f1ea' : '#0c0b13'} />
 </svelte:head>
 

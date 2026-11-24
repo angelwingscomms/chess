@@ -1,31 +1,20 @@
 const VERT = 'attribute vec2 a;varying vec2 v_uv;void main(){v_uv=a*0.5+0.5;gl_Position=vec4(a,0.0,1.0);}';
 
-const FRAG = `
-varying vec2 v_uv;
-uniform vec2 u_res;
-uniform float u_time;
-uniform float u_breath;
-uniform vec4 u_board;
-uniform float u_melt;
-uniform float u_hide;
-uniform float u_live;
-uniform float u_light;
-uniform vec3 u_c0;
-uniform vec3 u_c1;
-uniform vec3 u_c2;
-uniform vec3 u_c3;
-uniform vec3 u_bg;
-uniform vec3 u_glow;
-uniform vec3 u_cursor;
-uniform vec3 u_mark;
-uniform vec4 u_rip[6];
-
+const HASH = `
 float hash(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
 	p += dot(p, p + 45.32);
 	return fract(p.x * p.y);
 }
+`;
 
+// the slow noise, drawn into a tiny texture: it is soft, so ~96 texels across the short side look the same as full res
+const FLOW = `
+varying vec2 v_uv;
+uniform vec2 u_res;
+uniform float u_time;
+uniform float u_melt;
+${HASH}
 float noise(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = fract(p);
@@ -45,6 +34,35 @@ float fbm(vec2 p) {
 	return v;
 }
 
+void main() {
+	vec2 s = vec2(v_uv.x, 1.0 - v_uv.y) * u_res / min(u_res.x, u_res.y) * 1.6;
+	float sl = u_time * 0.02;
+	vec2 w = vec2(fbm(s + vec2(0.0, sl)), fbm(s + vec2(5.2, 1.3 - sl)));
+	gl_FragColor = vec4(w, fbm(s + (1.4 + u_melt * 1.8) * w + vec2(sl * 0.7, 1.7)), 1.0);
+}
+`;
+
+const FRAG = `
+varying vec2 v_uv;
+uniform sampler2D u_flow;
+uniform vec2 u_res;
+uniform float u_time;
+uniform float u_breath;
+uniform vec4 u_board;
+uniform float u_melt;
+uniform float u_hide;
+uniform float u_live;
+uniform float u_light;
+uniform vec3 u_c0;
+uniform vec3 u_c1;
+uniform vec3 u_c2;
+uniform vec3 u_c3;
+uniform vec3 u_bg;
+uniform vec3 u_glow;
+uniform vec3 u_cursor;
+uniform vec3 u_mark;
+uniform vec4 u_rip[6];
+${HASH}
 vec3 pal(float t) {
 	t = clamp(t, 0.0, 1.0) * 3.0;
 	if (t < 1.0) return mix(u_c0, u_c1, smoothstep(0.0, 1.0, t));
@@ -73,11 +91,10 @@ void main() {
 	}
 	vec2 q = p + disp;
 
-	vec2 s = q / mr * 1.6;
-	float sl = t * 0.02;
-	vec2 w = vec2(fbm(s + vec2(0.0, sl)), fbm(s + vec2(5.2, 1.3 - sl)));
+	vec3 fl = texture2D(u_flow, vec2(q.x, u_res.y - q.y) / u_res).rgb;
+	vec2 w = fl.xy;
+	float n = fl.z;
 	float drift = 0.1 * sin(t * 0.05);
-	float n = fbm(s + (1.4 + u_melt * 1.8) * w + vec2(sl * 0.7, 1.7));
 	vec3 col = mix(u_bg, pal((n - 0.2) / 0.6 + drift), 0.42 + 0.33 * u_melt + 0.08 * u_breath);
 
 	float tl = u_board.w * 0.95;
@@ -99,10 +116,10 @@ void main() {
 
 	vec2 cd = (p - u_cursor.xy) / (mr * 0.22);
 	float cl = exp(-dot(cd, cd)) * u_cursor.z;
-	// the square colours cost a whole fbm; skip them wherever no square shows
 	if (tile > 0.0) {
 		float lite = 1.0 - mod(cell.x + cell.y, 2.0);
-		float tn = fbm((cell + 0.5) / 8.0 * 2.4 + w * 0.7 + vec2(sl * 3.0, -sl * 2.0));
+		// each square takes its colour from one spot of the flow, so it drifts with it
+		float tn = texture2D(u_flow, (cell + 0.5) / 10.0 + 0.1).b;
 		float wave = 0.5 + 0.5 * sin(t * 0.8 - length(cell - vec2(4.0, 4.0)) * 0.9);
 		float tv = (tn - 0.47) * 0.12;
 		vec3 classic = lite > 0.5 ? pal(0.8 + drift * 0.3) * (mix(1.05, 0.92, u_light) + tv) : pal(0.18 + drift * 0.3) * (mix(0.85, 0.9, u_light) + tv);
@@ -145,8 +162,9 @@ export type Frame = {
 export const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
 
 export function make_field(canvas: HTMLCanvasElement) {
-	const gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
-	if (!gl) return null;
+	const ctx = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
+	if (!ctx) return null;
+	const gl = ctx;
 	const hp = (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT)?.precision ?? 0) > 0;
 	const compile = (type: number, src: string) => {
 		const sh = gl.createShader(type)!;
@@ -156,29 +174,45 @@ export function make_field(canvas: HTMLCanvasElement) {
 		console.warn(gl.getShaderInfoLog(sh));
 		return null;
 	};
-	const vs = compile(gl.VERTEX_SHADER, VERT);
-	const fs = compile(gl.FRAGMENT_SHADER, `precision ${hp ? 'highp' : 'mediump'} float;\n${FRAG}`);
-	if (!vs || !fs) return null;
-	const prog = gl.createProgram()!;
-	gl.attachShader(prog, vs);
-	gl.attachShader(prog, fs);
-	gl.linkProgram(prog);
-	if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
-	gl.useProgram(prog);
+	const link = (src: string) => {
+		const vs = compile(gl.VERTEX_SHADER, VERT);
+		const fs = compile(gl.FRAGMENT_SHADER, `precision ${hp ? 'highp' : 'mediump'} float;\n${src}`);
+		if (!vs || !fs) return null;
+		const prog = gl.createProgram()!;
+		gl.attachShader(prog, vs);
+		gl.attachShader(prog, fs);
+		gl.bindAttribLocation(prog, 0, 'a');
+		gl.linkProgram(prog);
+		return gl.getProgramParameter(prog, gl.LINK_STATUS) ? prog : null;
+	};
+	const prog = link(FRAG);
+	const flow_prog = link(FLOW);
+	if (!prog || !flow_prog) return null;
 	gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-	const attr = gl.getAttribLocation(prog, 'a');
-	gl.enableVertexAttribArray(attr);
-	gl.vertexAttribPointer(attr, 2, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(0);
+	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+	const flow_tex = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, flow_tex);
+	for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+	const fbo = gl.createFramebuffer();
+	let fw = 1;
+	let fh = 1;
 
 	const u = (n: string) => gl.getUniformLocation(prog, 'u_' + n);
 	const at = { res: u('res'), time: u('time'), breath: u('breath'), board: u('board'), melt: u('melt'), hide: u('hide'), live: u('live'), light: u('light'), glow: u('glow'), c0: u('c0'), c1: u('c1'), c2: u('c2'), c3: u('c3'), bg: u('bg'), cursor: u('cursor'), mark: u('mark'), rip: u('rip[0]') };
+	const fu = (n: string) => gl.getUniformLocation(flow_prog, 'u_' + n);
+	const fat = { res: fu('res'), time: fu('time'), melt: fu('melt') };
 	const coral = rgb('#e9a47c');
 	const clay = rgb('#c8603a');
 
 	const rips: { x: number; y: number; t: number; a: number }[] = [];
 	const rip = new Float32Array(24);
-	let q = matchMedia('(pointer: coarse)').matches ? 0.55 : 0.8;
+	// html.lite (app.css) drops the per-frame shadows and blur: phones with 4 GB or less start there, slow ones drop to it
+	const root = document.documentElement;
+	if (((navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8) <= 4) root.classList.add('lite');
+	let q = root.classList.contains('lite') ? 0.45 : matchMedia('(pointer: coarse)').matches ? 0.55 : 0.8;
 	let ema = 16.7;
 	let last = 0;
 	let count = 0;
@@ -193,7 +227,14 @@ export function make_field(canvas: HTMLCanvasElement) {
 		const r = Math.min(devicePixelRatio || 1, 1.5) * q;
 		canvas.width = Math.max(1, Math.round(canvas.clientWidth * r));
 		canvas.height = Math.max(1, Math.round(canvas.clientHeight * r));
-		gl!.viewport(0, 0, canvas.width, canvas.height);
+		const k = 96 / Math.max(1, Math.min(canvas.clientWidth, canvas.clientHeight));
+		fw = Math.max(1, Math.ceil(canvas.clientWidth * k));
+		fh = Math.max(1, Math.ceil(canvas.clientHeight * k));
+		gl.bindTexture(gl.TEXTURE_2D, flow_tex);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fw, fh, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, flow_tex, 0);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 
 	function draw(fr: Frame) {
@@ -203,9 +244,12 @@ export function make_field(canvas: HTMLCanvasElement) {
 		last = now;
 		if (gap < 100) {
 			ema += (gap - ema) * 0.05;
-			if (++count % 90 === 0 && ema > 24 && q > 0.4) {
-				q = Math.max(0.4, q * 0.85);
-				resize();
+			if (++count % 90 === 0 && ema > 24) {
+				root.classList.add('lite');
+				if (q > 0.4) {
+					q = Math.max(0.4, q * 0.85);
+					resize();
+				}
 			}
 		}
 		while (rips.length && now - rips[0].t > 6000) rips.shift();
@@ -216,25 +260,35 @@ export function make_field(canvas: HTMLCanvasElement) {
 			rip[i * 4 + 2] = r ? (now - r.t) / 1000 : 0;
 			rip[i * 4 + 3] = r?.a ?? 0;
 		}
-		gl!.uniform2f(at.res, canvas.clientWidth, canvas.clientHeight);
-		gl!.uniform1f(at.time, fr.t);
-		gl!.uniform1f(at.breath, fr.b);
-		gl!.uniform4f(at.board, fr.x, fr.y, Math.max(fr.s, 1), fr.k);
-		gl!.uniform1f(at.melt, fr.m);
-		gl!.uniform1f(at.hide, fr.h);
-		gl!.uniform1f(at.live, fr.l);
+		gl.useProgram(flow_prog);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+		gl.viewport(0, 0, fw, fh);
+		gl.uniform2f(fat.res, canvas.clientWidth, canvas.clientHeight);
+		gl.uniform1f(fat.time, fr.t);
+		gl.uniform1f(fat.melt, fr.m);
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.viewport(0, 0, canvas.width, canvas.height);
+		gl.useProgram(prog);
+		gl.uniform2f(at.res, canvas.clientWidth, canvas.clientHeight);
+		gl.uniform1f(at.time, fr.t);
+		gl.uniform1f(at.breath, fr.b);
+		gl.uniform4f(at.board, fr.x, fr.y, Math.max(fr.s, 1), fr.k);
+		gl.uniform1f(at.melt, fr.m);
+		gl.uniform1f(at.hide, fr.h);
+		gl.uniform1f(at.live, fr.l);
 		const d = fr.d ?? 0;
-		gl!.uniform1f(at.light, d);
-		gl!.uniform3f(at.glow, coral[0] + (clay[0] - coral[0]) * d, coral[1] + (clay[1] - coral[1]) * d, coral[2] + (clay[2] - coral[2]) * d);
-		gl!.uniform3fv(at.c0, fr.p.subarray(0, 3));
-		gl!.uniform3fv(at.c1, fr.p.subarray(3, 6));
-		gl!.uniform3fv(at.c2, fr.p.subarray(6, 9));
-		gl!.uniform3fv(at.c3, fr.p.subarray(9, 12));
-		gl!.uniform3fv(at.bg, fr.p.subarray(12, 15));
-		gl!.uniform3fv(at.cursor, fr.c);
-		gl!.uniform3fv(at.mark, fr.q);
-		gl!.uniform4fv(at.rip, rip);
-		gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+		gl.uniform1f(at.light, d);
+		gl.uniform3f(at.glow, coral[0] + (clay[0] - coral[0]) * d, coral[1] + (clay[1] - coral[1]) * d, coral[2] + (clay[2] - coral[2]) * d);
+		gl.uniform3fv(at.c0, fr.p.subarray(0, 3));
+		gl.uniform3fv(at.c1, fr.p.subarray(3, 6));
+		gl.uniform3fv(at.c2, fr.p.subarray(6, 9));
+		gl.uniform3fv(at.c3, fr.p.subarray(9, 12));
+		gl.uniform3fv(at.bg, fr.p.subarray(12, 15));
+		gl.uniform3fv(at.cursor, fr.c);
+		gl.uniform3fv(at.mark, fr.q);
+		gl.uniform4fv(at.rip, rip);
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
 	}
 
 	function ripple(x: number, y: number, a = 1) {
