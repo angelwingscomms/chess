@@ -70,8 +70,8 @@ Update this file whenever you discover a repo-specific fact an agent would likel
 
 # Voice
 
-- No cloud voice. `src/lib/voice/` is copied from `~/i/me/rope` (Ed's own): conformer STT and Leokani TTS run in the browser on ONNX Runtime Web; files in `static/speech/1` (37 MB, cached a year via root `_headers`, versioned by folder). Only the words go to the coach. Gemini Live was removed: Google's terms forbid apps likely used by under-18s.
-- Leokani is CC BY-NC 4.0: if e4 ever sells anything, swap the TTS first (e.g. an Apache 2.0 model).
+- No cloud voice. `src/lib/voice/` is copied from `~/i/me/rope` (Ed's own): conformer STT and Kitten TTS 2 Pico (voice Eleanor) run in the browser on ONNX Runtime Web; files in `static/speech/1` (~35 MB, cached a year via root `_headers`, versioned by folder). Only the words go to the coach. Gemini Live was removed: Google's terms forbid apps likely used by under-18s.
+- TTS is Kitten TTS 2 Pico (Apache 2.0, voice Eleanor, Ed's on-device pick until something better).
 - `start_call(ask, fail)`; `vc` holds the state ('l' loading with `g` progress, 'h' listening, 't' thinking, 's' speaking). Spoken turns go through `send_chess_chat(q, '', false, true)`.
 
 # Git Workflow
@@ -137,5 +137,5 @@ Use `svelte-autofixer` on all Svelte code before sending. Use `list-sections` / 
 # Paystack webhooks
 
 - All Paystack webhooks route through the shared `pswh` worker (one Paystack account for every app). Contract + onboarding: `~/i/pswh/README.md`.
-- The deposit UI is hidden while everything is free. Before showing it again: credit only once per reference (no idempotency yet) and drop Leokani's non-commercial TTS.
+- The deposit UI is hidden while everything is free. Before showing it again: credit only once per reference (no idempotency yet).
 - Stamp `metadata.a: 'e4'` at `transaction/initialize` (done in `src/routes/api/buy-tokens/+server.ts`). `pswh` routes the webhook to this app; the existing webhook handler (`/api/webhook/paystack`) is unchanged.

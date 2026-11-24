@@ -1,68 +1,6 @@
-// text to speech: Leokani TTS (4.5M, int8) on ONNX Runtime Web, 24 kHz. ported from pilotspan's browser voice.
-// text → espeak phonemes → kokoro symbols → ids → magnitude and phase → inverse stft. audio streams back per clause.
+// text to speech: Kitten TTS 2 Pico (7.2M, int4, voice Eleanor) on ONNX Runtime Web, 24 kHz.
+// text → espeak phonemes → misaki symbols → ids → model (ids, style row, speed → waveform, durations). audio streams back per clause.
 import { speech, type Ort } from './speech_files';
-
-// inverse stft as in the model author's leokani_onnx.py: periodic hann, 1024-point inverse fft, hop 300, 362 pad
-const N = 1024,
-	HOP = 300,
-	PAD = 362;
-const WIN = Float64Array.from({ length: N }, (_, i) => 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / N));
-const REV = Uint16Array.from({ length: N }, (_, i) => {
-	let n = i,
-		r = 0;
-	for (let b = 0; b < 10; b++) {
-		r = (r << 1) | (n & 1);
-		n >>= 1;
-	}
-	return r;
-});
-const COS = Float64Array.from({ length: N / 2 }, (_, i) => Math.cos((2 * Math.PI * i) / N));
-const SIN = Float64Array.from({ length: N / 2 }, (_, i) => Math.sin((2 * Math.PI * i) / N));
-function waveform(mag: Float32Array, phase: Float32Array, frames: number) {
-	const size = (frames - 1) * HOP + N,
-		y = new Float64Array(size),
-		env = new Float64Array(size);
-	const re = new Float64Array(N),
-		im = new Float64Array(N);
-	for (let f = 0; f < frames; f++) {
-		for (let k = 0; k <= N / 2; k++) {
-			const x = k * frames + f,
-				r = mag[x] * Math.cos(phase[x]),
-				v = mag[x] * Math.sin(phase[x]);
-			re[REV[k]] = r;
-			im[REV[k]] = v;
-			if (k > 0 && k < N / 2) {
-				re[REV[N - k]] = r;
-				im[REV[N - k]] = -v;
-			}
-		}
-		for (let len = 2; len <= N; len *= 2) {
-			const half = len / 2,
-				step = N / len;
-			for (let s = 0; s < N; s += len)
-				for (let k = 0; k < half; k++) {
-					const a = s + k,
-						b = a + half,
-						c = COS[k * step],
-						n = SIN[k * step];
-					const r = re[b] * c - im[b] * n,
-						v = re[b] * n + im[b] * c;
-					re[b] = re[a] - r;
-					im[b] = im[a] - v;
-					re[a] += r;
-					im[a] += v;
-				}
-		}
-		for (let i = 0; i < N; i++) {
-			y[f * HOP + i] += (re[i] / N) * WIN[i];
-			env[f * HOP + i] += WIN[i] * WIN[i];
-		}
-	}
-	return Float32Array.from(
-		y.subarray(PAD, size - PAD),
-		(v, i) => v / Math.max(env[i + PAD], 1e-11)
-	);
-}
 
 const MAPS = [
 	['ʔˌn̩', 'tn'],
@@ -99,6 +37,24 @@ function kokoro(ipa: string) {
 		.replace(/ː/g, '')
 		.replace(/o/g, 'ɔ')
 		.trim();
+}
+const END = 10;
+// as the model author's runtime: cut the end token's frames (and the start's after the first piece), 5 ms fades
+function trim(w: Float32Array, dur: BigInt64Array, keep_start: boolean) {
+	let total = 0;
+	for (const d of dur) total += Number(d);
+	const spf = Math.max(1, Math.round(w.length / Math.max(total, 1)));
+	const lead = keep_start ? 0 : Math.max(0, Number(dur[0]) - 1) * spf;
+	const tail = Math.max(0, Number(dur[dur.length - 1]) - 1) * spf;
+	let o = w;
+	if (lead + tail + spf < w.length) o = w.subarray(lead, w.length - tail);
+	const a = Float32Array.from(o, (v) => Math.max(-1, Math.min(1, v)));
+	const f = Math.min(120, a.length >> 3);
+	for (let k = 0; k < f; k++) {
+		a[k] *= k / f;
+		a[a.length - 1 - k] *= k / f;
+	}
+	return a;
 }
 // clauses, so the first audio comes after a few words, not after the whole answer
 function clauses(text: string) {
@@ -140,22 +96,30 @@ type Engine = {
 	ort: Ort;
 	s: Awaited<ReturnType<Ort['InferenceSession']['create']>>;
 	vocab: Record<string, number>;
+	style: Float32Array;
 	phonemize: (s: string, lang: string) => Promise<string[]>;
 };
 // loads on the first message, as in stt.worker.ts
 let engine: Promise<Engine> | undefined;
 const load = async (): Promise<Engine> => {
-	const [ort, model, config, { phonemize }] = await Promise.all([
+	const [ort, model, config, voice, { phonemize }] = await Promise.all([
 		speech.ort(),
-		speech.bytes('leokani-tts-int8.onnx'),
-		speech.bytes('config.json'),
+		speech.bytes('kitten-pico-en-int4.onnx'),
+		speech.bytes('kitten.json'),
+		speech.bytes('kitten-eleanor.f32'),
 		import(/* @vite-ignore */ speech.base + 'phonemizer.js')
 	]);
 	const s = await ort.InferenceSession.create(model, {
 		executionProviders: ['wasm'],
 		graphOptimizationLevel: 'all'
 	});
-	return { ort, s, phonemize, vocab: JSON.parse(new TextDecoder().decode(config)).vocab };
+	return {
+		ort,
+		s,
+		phonemize,
+		vocab: JSON.parse(new TextDecoder().decode(config)),
+		style: new Float32Array(voice.buffer, voice.byteOffset, voice.byteLength / 4)
+	};
 };
 
 // i job id, t text to say; c cancels job c; a text-free message only warms the engine
@@ -167,7 +131,8 @@ self.onmessage = ({ data }: MessageEvent<{ i?: number; t?: string; c?: number }>
 	const { i = 0, t = '' } = data;
 	queue = queue.then(async () => {
 		try {
-			const { ort, s, vocab, phonemize } = await engine!;
+			const { ort, s, vocab, style, phonemize } = await engine!;
+			let first = true;
 			for (const clause of clauses(t)) {
 				const ps =
 					kokoro((await phonemize(clause, 'en-us')).join(' ')) +
@@ -175,14 +140,17 @@ self.onmessage = ({ data }: MessageEvent<{ i?: number; t?: string; c?: number }>
 				const ids = [...ps].map((c) => vocab[c]).filter((id) => id !== undefined);
 				for (const run of split_ids(ids, vocab)) {
 					if (i <= cancelled) return;
-					const padded = [0, ...run, 0];
+					const ids2 = [0, ...run, END, 0];
+					const row = Math.min(ids2.length - 1, 509) * 256;
 					const out = await s.run({
-						ids: new ort.Tensor('int64', BigInt64Array.from(padded, BigInt), [1, padded.length]),
+						input_ids: new ort.Tensor('int64', BigInt64Array.from(ids2, BigInt), [1, ids2.length]),
+						style: new ort.Tensor('float32', style.slice(row, row + 256), [1, 256]),
 						speed: new ort.Tensor('float32', Float32Array.of(1), [1])
 					});
 					if (i <= cancelled) return;
-					const [mag, phase] = s.outputNames.map((n) => out[n]);
-					const a = waveform(mag.data, phase.data, mag.dims.at(-1)!);
+					const [wav, dur] = s.outputNames.map((n) => out[n]);
+					const a = trim(wav.data, dur.data as unknown as BigInt64Array, first);
+					first = false;
 					self.postMessage({ i, a }, { transfer: [a.buffer] });
 				}
 			}

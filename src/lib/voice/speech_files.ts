@@ -41,8 +41,9 @@ const FILES: [string, number][] = [
 	['ort-wasm-simd-threaded.wasm', 14848852],
 	['conformer-small-w4g32.onnx', 16109529],
 	['tokens.txt', 11611],
-	['leokani-tts-int8.onnx', 5143956],
-	['config.json', 2461],
+	['kitten-pico-en-int4.onnx', 3969655],
+	['kitten-eleanor.f32', 522240],
+	['kitten.json', 955],
 	['phonemizer.js', 1322380]
 ];
 
