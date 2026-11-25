@@ -1,4 +1,5 @@
-// text to speech: Kitten TTS 2 Pico (7.2M, int4, voice Eleanor) on ONNX Runtime Web, 24 kHz.
+// text to speech: Kitten TTS 2 Pico (7.2M, int4, voice Eleanor) on ONNX Runtime Web, 24 kHz, speaks at once;
+// Phonon S (31M, voice Juniper, static/speech/1/phonon) downloads behind it and takes over at the next clause.
 // text → espeak phonemes → misaki symbols → ids → model (ids, style row, speed → waveform, durations). audio streams back per clause.
 import { speech, type Ort } from './speech_files';
 
@@ -92,6 +93,63 @@ function* split_ids(ids: number[], vocab: Record<string, number>): Generator<num
 	yield* split_ids(ids.slice(Math.floor(mid)), vocab);
 }
 
+// Phonon's 65 MB comes from Hugging Face, pinned, and stays in the browser's Cache API after the first call
+const HF = 'https://huggingface.co/gradium/';
+const PM = HF + 'phonon-31m-en/resolve/8c64b55ec301728e2d1695bfea87a08a267d0c2d/';
+type Phonon = {
+	stream(t: string): AsyncIterable<Float32Array> & { cancel(): void };
+};
+let phonon: Phonon | undefined;
+function upgrade() {
+	const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+	if (nav.connection?.saveData || (nav.deviceMemory ?? 8) < 4) return; // small phones keep Kitten
+	import(/* @vite-ignore */ speech.base + 'phonon/index.js')
+		.then(({ PhononTTS }) =>
+			PhononTTS.load({
+				lang: 'en',
+				quant: 'q8',
+				device: 'cpu',
+				model: {
+					weights: { q8: PM + 'model.q8.gguf' },
+					tokenizer: PM + 'tokenizer.json',
+					config: PM + 'config.json',
+					voices: {
+						juniper:
+							HF + 'phonon-voices/resolve/0ee17205f254b5abc43b266c8a0f215565c352f7/voices/NIWIOv5vTi5eRMj8.safetensors'
+					},
+					defaultVoice: 'juniper'
+				}
+			})
+		)
+		.then(
+			(p: Phonon) => (phonon = p),
+			(e) => console.warn('PHONONFAIL', e)
+		);
+}
+// one clause in Phonon; false if it failed or cannot keep up with playback, and Kitten speaks from then on
+async function say_phonon(p: Phonon, clause: string, i: number) {
+	const t0 = performance.now();
+	let n = 0;
+	const s = p.stream(clause);
+	try {
+		for await (const pcm of s) {
+			if (i <= cancelled) {
+				s.cancel();
+				return true;
+			}
+			// Phonon peaks near 0.45; 2x lands just under full scale, like Kitten
+			const a = Float32Array.from(pcm, (v) => Math.max(-1, Math.min(1, v * 2)));
+			n += a.length;
+			self.postMessage({ i, a }, { transfer: [a.buffer] });
+		}
+	} catch {
+		phonon = undefined;
+		return n > 0;
+	}
+	if (n > 24000 && performance.now() - t0 > (n / 24) * 99) phonon = undefined;
+	return true;
+}
+
 type Engine = {
 	ort: Ort;
 	s: Awaited<ReturnType<Ort['InferenceSession']['create']>>;
@@ -113,6 +171,7 @@ const load = async (): Promise<Engine> => {
 		executionProviders: ['wasm'],
 		graphOptimizationLevel: 'all'
 	});
+	upgrade(); // after Kitten, so the two downloads never share the line
 	return {
 		ort,
 		s,
@@ -134,6 +193,11 @@ self.onmessage = ({ data }: MessageEvent<{ i?: number; t?: string; c?: number }>
 			const { ort, s, vocab, style, phonemize } = await engine!;
 			let first = true;
 			for (const clause of clauses(t)) {
+				if (i <= cancelled) return;
+				if (phonon && (await say_phonon(phonon, clause, i))) {
+					first = false;
+					continue;
+				}
 				const ps =
 					kokoro((await phonemize(clause, 'en-us')).join(' ')) +
 					(clause.match(/[,;:.!?…]$/)?.[0] ?? '');
