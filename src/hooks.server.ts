@@ -2,12 +2,15 @@ import { PUBLIC_DOMAIN } from '$env/static/public';
 import { decode_session, SESSION_COOKIE_DELETE } from '$lib/server/session';
 import type { Handle } from '@sveltejs/kit';
 
-// every page and api answer says it may not be framed or sniffed, and what it may ask the device for
+// every page and api answer says it may not be framed or sniffed, what it may ask the device for, and that it is isolated
 const SAFE = {
 	'X-Content-Type-Options': 'nosniff',
 	'X-Frame-Options': 'DENY',
 	'Referrer-Policy': 'strict-origin-when-cross-origin',
-	'Permissions-Policy': 'microphone=(self), display-capture=(self), camera=(), geolocation=()'
+	'Permissions-Policy': 'microphone=(self), display-capture=(self), camera=(), geolocation=()',
+	// cross-origin isolation, so phonon's threaded wasm can use every core; credentialless keeps no-cors images working
+	'Cross-Origin-Opener-Policy': 'same-origin',
+	'Cross-Origin-Embedder-Policy': 'credentialless'
 };
 
 const HOME = new URL(PUBLIC_DOMAIN).host;
